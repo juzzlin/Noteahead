@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
+import Noteahead 1.0
 import "../Components"
 
 Item {
@@ -56,6 +57,24 @@ Item {
     }
     function setCurve(curve: int): void {
         curveComboBox.currentIndex = curve;
+    }
+    //! 0 for every tick, which is what makes a bend smooth; -1 for once a line, as automations made
+    //! before the setting play; otherwise that many a beat, on the lines.
+    function eventsPerBeat(): int {
+        if (smoothCheckBox.checked) {
+            return 0;
+        }
+        return eventsPerBeatSpinBox.value === eventsPerBeatSpinBox.to ? -1 : eventsPerBeatSpinBox.value;
+    }
+    function setEventsPerBeat(value: int): void {
+        smoothCheckBox.checked = value === 0;
+        eventsPerBeatSpinBox.value = value > 0 ? value : eventsPerBeatSpinBox.to;
+    }
+    function lineOffset(): int {
+        return eventsPerBeat() > 0 ? lineOffsetSpinBox.value : 0;
+    }
+    function setLineOffset(value: int): void {
+        lineOffsetSpinBox.value = value;
     }
 
     function resetModulations(): void {
@@ -188,6 +207,54 @@ Item {
                     enabled: startLine() !== endLine()
                     Layout.row: 1
                     Layout.column: 4
+                    Layout.fillWidth: true
+                }
+            }
+        }
+        SectionBox {
+            title: qsTr("Output settings")
+            Layout.fillWidth: true
+            GridLayout {
+                width: parent.width
+                columns: 3
+                rowSpacing: 10
+                CheckBox {
+                    id: smoothCheckBox
+                    text: qsTr("Smooth")
+                    checked: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Move the bend on every tick. Turn off to step it on the lines instead.")
+                }
+                Label {
+                    text: qsTr("Events per beat")
+                    enabled: !smoothCheckBox.checked
+                }
+                Label {
+                    text: qsTr("Line offset")
+                    enabled: !smoothCheckBox.checked
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: eventsPerBeatSpinBox
+                    from: 1
+                    to: editorService.linesPerBeat
+                    value: editorService.linesPerBeat
+                    enabled: !smoothCheckBox.checked
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: lineOffsetSpinBox
+                    from: 0
+                    to: editorService.linesPerBeat - 1
+                    enabled: !smoothCheckBox.checked && eventsPerBeatSpinBox.value < eventsPerBeatSpinBox.to
+                    editable: true
+                    Keys.onReturnPressed: focus = false
                     Layout.fillWidth: true
                 }
             }

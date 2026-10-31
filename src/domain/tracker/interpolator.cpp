@@ -56,6 +56,7 @@ double Interpolator::applyCurve(CurveType curve, double t)
     case CurveType::EaseInOut:
         return t * t * (3 - 2 * t);
     case CurveType::Linear:
+    case CurveType::Drawn:
         break;
     }
     return t;
@@ -74,6 +75,8 @@ QString Interpolator::curveToXmlValue(CurveType curve)
         return Constants::NahdXml::xmlValueEaseOut();
     case CurveType::EaseInOut:
         return Constants::NahdXml::xmlValueEaseInOut();
+    case CurveType::Drawn:
+        return Constants::NahdXml::xmlValueDrawn();
     case CurveType::Linear:
         break;
     }
@@ -88,7 +91,8 @@ Interpolator::CurveType Interpolator::curveFromXmlValue(QString value)
         { Constants::NahdXml::xmlValueLogarithmic(), CurveType::Logarithmic },
         { Constants::NahdXml::xmlValueEaseIn(), CurveType::EaseIn },
         { Constants::NahdXml::xmlValueEaseOut(), CurveType::EaseOut },
-        { Constants::NahdXml::xmlValueEaseInOut(), CurveType::EaseInOut }
+        { Constants::NahdXml::xmlValueEaseInOut(), CurveType::EaseInOut },
+        { Constants::NahdXml::xmlValueDrawn(), CurveType::Drawn }
     };
     if (const auto iter = curveByName.find(value); iter != curveByName.end()) {
         return iter->second;

@@ -9,6 +9,9 @@ New features:
   - Its 34 kHz tank, 8 kHz band limit and gain-ranging 12-bit converters
   - Eight programs, bass and mid decay with a crossover, treble decay, depth and presets
 
+* Pitch Bend automation: Smooth output, Events per Beat and Line Offset
+  - Smooth is the default for new automations; existing ones still send once per line
+
 Bug fixes:
 
 Other:

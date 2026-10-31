@@ -426,6 +426,9 @@ QString xmlKeyLine1();
 QString xmlKeyValue0();
 QString xmlKeyValue1();
 QString xmlKeyCurve();
+//! A drawn automation's node, inside its Interpolation
+QString xmlKeyNode();
+QString xmlKeyNodeLine();
 QString xmlKeyComment();
 QString xmlKeyComposer();
 QString xmlKeyExportTags();
@@ -929,6 +932,7 @@ QString xmlValueLogarithmic();
 QString xmlValueEaseIn();
 QString xmlValueEaseOut();
 QString xmlValueEaseInOut();
+QString xmlValueDrawn();
 QString xmlValueSamplers();
 QString xmlValueSynths();
 QString xmlValueMixers();

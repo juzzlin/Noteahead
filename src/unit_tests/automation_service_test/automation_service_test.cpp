@@ -664,6 +664,209 @@ void AutomationServiceTest::test_renderMidiCcToEventsByColumn_withEventsPerBeatA
     QCOMPARE(events3.size(), 16);
 }
 
+void AutomationServiceTest::test_renderPitchBendToEventsByColumn_eventsPerBeatUnset_shouldSendWholePercentOnceALine()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    // 0 to 10 % over 4 lines, which falls between whole percents on lines 1 and 3
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 4, 0, 10, {});
+    QVERIFY(!automationService.pitchBendAutomations().at(0).eventsPerBeat().has_value());
+
+    const size_t ticksPerLine = 24;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, ticksPerLine, 4);
+
+    QCOMPARE(events.size(), size_t { 5 });
+    const std::vector<double> expected { 0, 3, 5, 8, 10 }; // 2.5 and 7.5 rounded away from zero
+    for (size_t line = 0; line < events.size(); line++) {
+        QCOMPARE(events.at(line)->tick(), line * ticksPerLine);
+        QCOMPARE(events.at(line)->pitchBendData()->bend(), expected.at(line) / 100.0);
+    }
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByColumn_smooth_shouldSendEveryTickUnrounded()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    // A full sweep, far coarser per tick than the smallest step that is sent
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 1, 3, -100, 100, {});
+    automationService.setPitchBendAutomationEventsPerBeat(id, 0, 0);
+
+    const size_t tick = 100;
+    const size_t ticksPerLine = 4;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, tick, ticksPerLine, 4);
+
+    QCOMPARE(events.size(), size_t { 9 });
+    for (size_t i = 0; i < events.size(); i++) {
+        QCOMPARE(events.at(i)->type(), Event::Type::PitchBendData);
+        QCOMPARE(events.at(i)->tick(), tick + ticksPerLine + i);
+        QVERIFY(std::abs(events.at(i)->pitchBendData()->bend() - (-1.0 + static_cast<double>(i) / 4.0)) < 1.0e-12);
+    }
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByColumn_smooth_shouldSkipStepsTooSmallToHear()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    // 1 % over 64 lines of 24 ticks: 1/1536 % a tick, so a step of 1/4096 of the range (200/4096 %)
+    // is reached only every 74 or so ticks
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 0, 64, 0, 1, {});
+    automationService.setPitchBendAutomationEventsPerBeat(id, 0, 0);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 4);
+
+    // One at the start, one per smallest step and one at the end
+    QVERIFY(events.size() >= 21);
+    QVERIFY(events.size() <= 22);
+    for (size_t i = 1; i + 1 < events.size(); i++) {
+        QVERIFY(std::abs(events.at(i)->pitchBendData()->bend() - events.at(i - 1)->pitchBendData()->bend()) * 100.0 >= 200.0 / 4096.0);
+    }
+    QCOMPARE(events.back()->tick(), size_t { 64 * 24 });
+    QCOMPARE(events.back()->pitchBendData()->bend(), 0.01);
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByColumn_smooth_flat_shouldSendOnce()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 0, 16, 50, 50, {});
+    automationService.setPitchBendAutomationEventsPerBeat(id, 0, 0);
+
+    QCOMPARE(automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 4).size(), size_t { 1 });
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByColumn_eventsPerBeat_shouldStepOnLinesUnrounded()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 0, 8, 0, 10, {});
+    // One a beat of four lines, a line late: lines 1 and 5, and the last line 8
+    automationService.setPitchBendAutomationEventsPerBeat(id, 1, 1);
+
+    const size_t ticksPerLine = 6;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, ticksPerLine, 4);
+
+    QCOMPARE(events.size(), size_t { 3 });
+    QCOMPARE(events.at(0)->tick(), 1 * ticksPerLine);
+    QCOMPARE(events.at(1)->tick(), 5 * ticksPerLine);
+    QCOMPARE(events.at(2)->tick(), 8 * ticksPerLine);
+    // 1.25 % and 6.25 %, not rounded to whole percents
+    QCOMPARE(events.at(0)->pitchBendData()->bend(), 0.0125);
+    QCOMPARE(events.at(1)->pitchBendData()->bend(), 0.0625);
+    QCOMPARE(events.at(2)->pitchBendData()->bend(), 0.1);
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByLine_smooth_shouldBeUnrounded()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 0, 4, 0, 10, {});
+
+    // Once a line by default, so whole percents as before
+    QCOMPARE(automationService.renderToEventsByLine(0, 0, 0, 1, 0).at(0)->pitchBendData()->bend(), 0.03);
+
+    automationService.setPitchBendAutomationEventsPerBeat(id, 0, 0);
+    QCOMPARE(automationService.renderToEventsByLine(0, 0, 0, 1, 0).at(0)->pitchBendData()->bend(), 0.025);
+}
+
+void AutomationServiceTest::test_pitchBendData_value14_shouldRoundTripEveryMidiValue()
+{
+    for (uint16_t value = 0; value <= 16383; value++) {
+        QCOMPARE(PitchBendData(0, 0, value).value14(), value);
+    }
+    QCOMPARE(PitchBendData(0, 0, -100.0).value14(), uint16_t { 0 });
+    QCOMPARE(PitchBendData(0, 0, 0.0).value14(), uint16_t { 8192 });
+    QCOMPARE(PitchBendData(0, 0, 100.0).value14(), uint16_t { 16383 });
+    QCOMPARE(PitchBendData(0, 0, uint8_t { 0x40 }, uint8_t { 0x00 }).value14(), uint16_t { 8192 });
+    // Held unquantized until sent
+    QCOMPARE(PitchBendData(0, 0, 0.001).bend(), 0.00001);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_drawn_shouldFollowNodes()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    ParameterAutomation::InterpolationParameters interpolation { 0, 4, 0.0, 0.25, Interpolator::CurveType::Drawn };
+    interpolation.drawnCurve = AutomationCurve { { { 0, 0.0 }, { 1, 1.0 }, { 4, 0.25 } } };
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, interpolation, {}, {}, true });
+
+    const size_t ticksPerLine = 2;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, ticksPerLine, 4);
+
+    QCOMPARE(events.size(), size_t { 9 });
+    for (size_t i = 0; i < events.size(); i++) {
+        QCOMPARE(events.at(i)->tick(), i);
+        QCOMPARE(events.at(i)->parameterData()->value(), interpolation.drawnCurve.valueAt(static_cast<double>(i) / ticksPerLine));
+    }
+    // Up to the peak a line in, then down again
+    QCOMPARE(events.at(2)->parameterData()->value(), 1.0);
+    QCOMPARE(events.at(8)->parameterData()->value(), 0.25);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_drawn_shouldTakeModulation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    ParameterAutomation::InterpolationParameters interpolation { 0, 2, 0.5, 0.5, Interpolator::CurveType::Drawn };
+    interpolation.drawnCurve = AutomationCurve { { { 0, 0.5 }, { 1, 0.7 }, { 2, 0.5 } } };
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, interpolation, { ModulationParameters::ModulationType::SineWave, 0.f, 0.f, 10.f, false }, {}, true });
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 1, 4);
+
+    QCOMPARE(events.size(), size_t { 3 });
+    QVERIFY(std::abs(events.at(1)->parameterData()->value() - 0.8) < 1.0e-12);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_midiCc_drawn_shouldFollowNodesRounded()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addMidiCcAutomation(0, 0, 0, 64, 0, 4, 0, 0, {}, true, 0, 0);
+    auto automation = automationService.midiCcAutomations().at(0);
+    auto interpolation = automation.interpolation();
+    interpolation.curve = Interpolator::CurveType::Drawn;
+    interpolation.drawnCurve = AutomationCurve { { { 0, 0 }, { 2, 101 }, { 4, 0 } } };
+    automation.setInterpolation(interpolation);
+    automationService.updateMidiCcAutomation(automation);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 4);
+
+    QCOMPARE(events.size(), size_t { 5 });
+    const std::vector<int> expected { 0, 51, 101, 51, 0 }; // 50.5 rounded away from zero
+    for (size_t line = 0; line < events.size(); line++) {
+        QCOMPARE(static_cast<int>(events.at(line)->midiCcData()->value()), expected.at(line));
+    }
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_pitchBend_drawn_shouldFollowNodesUnrounded()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addPitchBendAutomation(0, 0, 0, 0, 2, 0, 0, {});
+    automationService.setPitchBendAutomationEventsPerBeat(id, 0, 0);
+    auto automation = automationService.pitchBendAutomations().at(0);
+    auto interpolation = automation.interpolation();
+    interpolation.curve = Interpolator::CurveType::Drawn;
+    interpolation.drawnCurve = AutomationCurve { { { 0, 0 }, { 0.5, 50.5 }, { 2, -100 } } };
+    automation.setInterpolation(interpolation);
+    automationService.updatePitchBendAutomation(automation);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4);
+
+    QCOMPARE(events.size(), size_t { 9 });
+    QCOMPARE(events.at(1)->pitchBendData()->bend(), 0.2525);
+    // The node between lines is reached on its own tick, not rounded to a whole percent
+    QCOMPARE(events.at(2)->pitchBendData()->bend(), 0.505);
+    QCOMPARE(events.back()->pitchBendData()->bend(), -1.0);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_drawnWithoutNodes_shouldRampBetweenEnds()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addMidiCcAutomation(0, 0, 0, 64, 0, 4, 0, 100, {}, true, 0, 0);
+    auto automation = automationService.midiCcAutomations().at(0);
+    auto interpolation = automation.interpolation();
+    interpolation.curve = Interpolator::CurveType::Drawn;
+    automation.setInterpolation(interpolation);
+    automationService.updateMidiCcAutomation(automation);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 4);
+
+    QCOMPARE(events.size(), size_t { 5 });
+    QCOMPARE(static_cast<int>(events.at(2)->midiCcData()->value()), 50);
+}
+
 void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
 {
     AutomationService automationService { std::make_shared<PropertyService>() };
@@ -850,6 +1053,7 @@ void AutomationServiceTest::test_pitchBendAutomationsAsVariantList_shouldCarryEv
     const auto id = automationService.addPitchBendAutomation(3, 2, 1, 4, 12, -100, 100, "Dive", true);
     automationService.setPitchBendAutomationCurve(id, static_cast<int>(Interpolator::CurveType::Logarithmic));
     automationService.addPitchBendModulation(id, 1, 3, 50.0f, -10.0f, true);
+    automationService.setPitchBendAutomationEventsPerBeat(id, 2, 1);
 
     const auto list = automationService.pitchBendAutomationsAsVariantList();
     QCOMPARE(list.size(), 1);
@@ -870,10 +1074,19 @@ void AutomationServiceTest::test_pitchBendAutomationsAsVariantList_shouldCarryEv
     QCOMPARE(entry.value("modulationInverted").toBool(), true);
     QCOMPARE(entry.value("comment").toString(), QString { "Dive" });
 
-    // Pitch bend has no controller and no per-beat output settings, so none are offered
+    QCOMPARE(entry.value("eventsPerBeat").toInt(), 2);
+    QCOMPARE(entry.value("lineOffset").toInt(), 1);
+
+    // Pitch bend has no controller, so none is offered
     QVERIFY(!entry.contains("controller"));
-    QVERIFY(!entry.contains("eventsPerBeat"));
-    QVERIFY(!entry.contains("lineOffset"));
+}
+
+void AutomationServiceTest::test_pitchBendAutomationsAsVariantList_eventsPerBeatUnset_shouldBeMinusOne()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 4, 0, 100, {});
+
+    QCOMPARE(automationService.pitchBendAutomationsAsVariantList().at(0).toMap().value("eventsPerBeat").toInt(), -1);
 }
 
 void AutomationServiceTest::test_renderToEventsByColumn_parameter_shouldRenderEveryTick()

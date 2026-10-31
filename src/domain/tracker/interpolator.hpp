@@ -33,7 +33,10 @@ public:
         Logarithmic,
         EaseIn,
         EaseOut,
-        EaseInOut
+        EaseInOut,
+        //! Nodes joined by straight lines, held by the automation rather than worked out from its
+        //! two ends. Read alone, as from a version that does not know it, it is a straight line.
+        Drawn
     };
 
     Interpolator(size_t startLine, size_t endLine, double startValue, double endValue);

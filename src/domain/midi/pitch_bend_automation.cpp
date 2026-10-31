@@ -49,6 +49,8 @@ bool PitchBendAutomation::operator==(const PitchBendAutomation & other) const
       location() == other.location() && //
       m_interpolation == other.m_interpolation && //
       m_modulation == other.m_modulation && //
+      m_eventsPerBeat == other.m_eventsPerBeat && //
+      m_lineOffset == other.m_lineOffset && //
       comment() == other.comment() && //
       enabled() == other.enabled();
 }
@@ -83,10 +85,30 @@ void PitchBendAutomation::setModulation(const ModulationParameters & modulation)
     m_modulation = modulation;
 }
 
+std::optional<uint8_t> PitchBendAutomation::eventsPerBeat() const
+{
+    return m_eventsPerBeat;
+}
+
+void PitchBendAutomation::setEventsPerBeat(std::optional<uint8_t> eventsPerBeat)
+{
+    m_eventsPerBeat = eventsPerBeat;
+}
+
+uint8_t PitchBendAutomation::lineOffset() const
+{
+    return m_lineOffset;
+}
+
+void PitchBendAutomation::setLineOffset(uint8_t lineOffset)
+{
+    m_lineOffset = lineOffset;
+}
+
 QString PitchBendAutomation::toString() const
 {
     return QString { "PitchBendAutomation(id=%1, pattern=%2, track=%3, column=%4, "
-                     "line: %5 -> %6, value: %7 -> %8, curve=%9), enabled=%10" }
+                     "line: %5 -> %6, value: %7 -> %8, curve=%9, eventsPerBeat=%10, lineOffset=%11), enabled=%12" }
       .arg(QString::number(id()),
            QString::number(location().pattern()),
            QString::number(location().track()),
@@ -96,12 +118,21 @@ QString PitchBendAutomation::toString() const
            QString::number(m_interpolation.value0),
            QString::number(m_interpolation.value1),
            Interpolator::curveToXmlValue(m_interpolation.curve),
+           m_eventsPerBeat ? QString::number(*m_eventsPerBeat) : QString { "line" },
+           QString::number(m_lineOffset),
            QString::number(enabled()));
 }
 
 void PitchBendAutomation::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPitchBendAutomation());
+    // Omitted when unset, which is how projects saved before the setting read back: once a line
+    if (m_eventsPerBeat) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyEventsPerBeat(), QString::number(*m_eventsPerBeat));
+    }
+    if (m_lineOffset) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyLineOffset(), QString::number(m_lineOffset));
+    }
     writer.writeAttribute(Constants::NahdXml::xmlKeyComment(), comment());
     writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
@@ -114,6 +145,9 @@ void PitchBendAutomation::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
     if (m_interpolation.curve != Interpolator::CurveType::Linear) { // Omitted for the default so that older projects round-trip unchanged
         writer.writeAttribute(Constants::NahdXml::xmlKeyCurve(), Interpolator::curveToXmlValue(m_interpolation.curve));
+    }
+    if (m_interpolation.curve == Interpolator::CurveType::Drawn) {
+        m_interpolation.drawnCurve.serializeToXml(writer);
     }
     writer.writeEndElement(); // Interpolation
 
@@ -132,6 +166,11 @@ void PitchBendAutomation::serializeToXml(ProjectWriter & writer) const
 
 PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXml(ProjectReader & reader)
 {
+    std::optional<uint8_t> eventsPerBeat;
+    if (const auto value = reader.attribute(Constants::NahdXml::xmlKeyEventsPerBeat()); value.isValid()) {
+        eventsPerBeat = static_cast<uint8_t>(value.toUInt());
+    }
+    const auto lineOffset = static_cast<uint8_t>(reader.attribute(Constants::NahdXml::xmlKeyLineOffset()).toUInt());
     const QString comment = reader.attribute(Constants::NahdXml::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
@@ -150,6 +189,8 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
                 if (const auto curve = reader.attribute(Constants::NahdXml::xmlKeyCurve()); curve.isValid()) { // Projects saved before curves default to linear
                     parameters.curve = Interpolator::curveFromXmlValue(curve.toString());
                 }
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyNode())) {
+                parameters.drawnCurve.deserializeNodeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
                 if (const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()); type.isValid()) {
                     if (type.toString() == Constants::NahdXml::xmlValueRandom()) {
@@ -188,7 +229,14 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
             }
         }
     }
-    return std::make_unique<PitchBendAutomation>(0, *location, parameters, modulationParameters, comment, enabled);
+    // A drawn curve without nodes, which this version never writes, plays as the ramp between its ends
+    if (parameters.curve == Interpolator::CurveType::Drawn && parameters.drawnCurve.isEmpty()) {
+        parameters.drawnCurve = AutomationCurve::ramp(parameters.line0, static_cast<double>(parameters.value0), parameters.line1, static_cast<double>(parameters.value1));
+    }
+    auto automation = std::make_unique<PitchBendAutomation>(0, *location, parameters, modulationParameters, comment, enabled);
+    automation->setEventsPerBeat(eventsPerBeat);
+    automation->setLineOffset(lineOffset);
+    return automation;
 }
 
 } // namespace noteahead

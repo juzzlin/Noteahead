@@ -55,6 +55,10 @@ private slots:
     void test_toXmlFromXml_automationService_parameter_device_shouldRoundTrip();
     void test_fromXml_automationService_parameter_withoutOwner_shouldAimAtAnEffect();
     void test_toXmlFromXml_automationService_pitchBend_curve_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_pitchBend_eventsPerBeat_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_drawn_shouldLoadNodes();
+    void test_toXml_automationService_notDrawn_shouldWriteNoNodes();
+    void test_fromXml_automationService_drawnWithoutNodes_shouldRampBetweenEnds();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService();
 

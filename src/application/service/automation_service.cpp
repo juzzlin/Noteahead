@@ -191,6 +191,20 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedA
     }
 }
 
+void AutomationService::setPitchBendAutomationEventsPerBeat(quint64 automationId, int eventsPerBeat, quint8 lineOffset)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.pitchBend, [&](auto && existingAutomation) {
+            return automationId == existingAutomation.id();
+        });
+        iter != m_automations.pitchBend.end()) {
+        iter->setEventsPerBeat(eventsPerBeat < 0 ? std::nullopt : std::optional { static_cast<uint8_t>(eventsPerBeat) });
+        iter->setLineOffset(lineOffset);
+        juzzlin::L(TAG).info() << "Pitch Bend automation events per beat set on automation id " << automationId;
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to set events per beat on: " << automationId;
+    }
+}
+
 quint64 AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment)
 {
     return addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, true);
@@ -546,6 +560,19 @@ AutomationService::ParameterAutomationList AutomationService::parameterAutomatio
 
 namespace {
 
+//! An automation's own value at @p line, before modulation and in its own units: its drawn curve
+//! when it has one, otherwise the ramp between its ends.
+double interpolatedValueAt(const auto & interpolation, double line)
+{
+    if (interpolation.curve == Interpolator::CurveType::Drawn && !interpolation.drawnCurve.isEmpty()) {
+        return interpolation.drawnCurve.valueAt(line);
+    }
+    const double span = static_cast<double>(interpolation.line1) - static_cast<double>(interpolation.line0);
+    const double phase = span > 0.0 ? std::clamp((line - static_cast<double>(interpolation.line0)) / span, 0.0, 1.0) : 0.0;
+    const auto value0 = static_cast<double>(interpolation.value0);
+    return value0 + Interpolator::applyCurve(interpolation.curve, phase) * (static_cast<double>(interpolation.value1) - value0);
+}
+
 //! The automations of @p from that @p keep says yes to, of every kind.
 AutomationSet filtered(const AutomationSet & from, auto && keep)
 {
@@ -639,7 +666,11 @@ QVariantList AutomationService::pitchBendAutomationsAsVariantList() const
 {
     QVariantList list;
     for (auto && automation : m_automations.pitchBend) {
-        list.append(commonAutomationVariants(automation, automation.interpolation(), automation.modulation()));
+        auto entry = commonAutomationVariants(automation, automation.interpolation(), automation.modulation());
+        // -1 for once a line, which is what an automation without the setting does
+        entry["eventsPerBeat"] = automation.eventsPerBeat() ? static_cast<int>(*automation.eventsPerBeat()) : -1;
+        entry["lineOffset"] = static_cast<int>(automation.lineOffset());
+        list.append(entry);
     }
     return list;
 }
@@ -732,14 +763,7 @@ int AutomationService::midiCcValueAt(const MidiCcAutomation & automation, size_t
     const auto & interpolation = automation.interpolation();
     const auto & modulation = automation.modulation();
 
-    Interpolator interpolator {
-        static_cast<size_t>(interpolation.line0),
-        static_cast<size_t>(interpolation.line1),
-        static_cast<double>(interpolation.value0),
-        static_cast<double>(interpolation.value1),
-        interpolation.curve
-    };
-    double interpolatedValue = interpolator.getValue(line);
+    double interpolatedValue = interpolatedValueAt(interpolation, static_cast<double>(line));
 
     double totalModulation = 0.0;
     if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
@@ -796,33 +820,27 @@ double AutomationService::randomModulationValue(size_t automationId, const Modul
 
 int AutomationService::pitchBendValueAt(const PitchBendAutomation & automation, size_t line) const
 {
+    return std::clamp(static_cast<int>(std::round(pitchBendPercentageAt(automation, static_cast<double>(line)))), -100, 100);
+}
+
+double AutomationService::pitchBendPercentageAt(const PitchBendAutomation & automation, double line) const
+{
     const auto & interpolation = automation.interpolation();
     const auto & modulation = automation.modulation();
 
-    Interpolator interpolator {
-        static_cast<size_t>(interpolation.line0),
-        static_cast<size_t>(interpolation.line1),
-        static_cast<double>(interpolation.value0),
-        static_cast<double>(interpolation.value1),
-        interpolation.curve
-    };
-    double interpolatedValue = interpolator.getValue(line);
+    const double span = static_cast<double>(interpolation.line1) - static_cast<double>(interpolation.line0);
+    const double phase = span > 0.0 ? std::clamp((line - static_cast<double>(interpolation.line0)) / span, 0.0, 1.0) : 0.0;
+    double value = interpolatedValueAt(interpolation, line);
 
     double totalModulation = 0.0;
     if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
-        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-        double modulationValue = 0.0;
-        if (modulation.type == ModulationParameters::ModulationType::SineWave) {
-            modulationValue = sineModulationValue(modulation, phase);
-        } else if (modulation.type == ModulationParameters::ModulationType::Random) {
-            modulationValue = randomModulationValue(automation.id(), modulation, phase);
-        }
+        const double modulationValue = modulation.type == ModulationParameters::ModulationType::Random ? randomModulationValue(automation.id(), modulation, phase) : sineModulationValue(modulation, phase);
         totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
     }
     totalModulation += modulation.offset / 100.0;
-    interpolatedValue += totalModulation * 100.0;
+    value += totalModulation * 100.0;
 
-    return std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
+    return std::clamp(value, -100.0, 100.0);
 }
 
 AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
@@ -834,8 +852,8 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
-                const auto percentage = pitchBendValueAt(automation, line);
-                events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, static_cast<double>(percentage) }));
+                const auto percentage = automation.eventsPerBeat() ? pitchBendPercentageAt(automation, static_cast<double>(line)) : static_cast<double>(pitchBendValueAt(automation, line));
+                events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, percentage }));
             }
         }
     }
@@ -847,7 +865,7 @@ AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pa
 {
     EventList events;
     std::ranges::copy(renderMidiCcToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
-    std::ranges::copy(renderPitchBendToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
+    std::ranges::copy(renderPitchBendToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
     std::ranges::copy(renderParameterToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
     return events;
 }
@@ -871,7 +889,7 @@ double AutomationService::parameterValueAt(const ParameterAutomation & automatio
 
     const double span = static_cast<double>(interpolation.line1) - static_cast<double>(interpolation.line0);
     const double phase = span > 0.0 ? std::clamp((line - static_cast<double>(interpolation.line0)) / span, 0.0, 1.0) : 0.0;
-    double value = interpolation.value0 + Interpolator::applyCurve(interpolation.curve, phase) * (interpolation.value1 - interpolation.value0);
+    double value = interpolatedValueAt(interpolation, line);
 
     // Amplitude and offset are percent of the knob's travel, the whole of which is 0 to 1 here.
     double totalModulation = 0.0;
@@ -974,22 +992,13 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column) {
-                Interpolator interpolator {
-                    static_cast<size_t>(interpolation.line0),
-                    static_cast<size_t>(interpolation.line1),
-                    static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1),
-                    interpolation.curve
-                };
-
                 const uint8_t eventsPerBeat = automation.eventsPerBeat() > 0 ? std::min(automation.eventsPerBeat(), static_cast<uint8_t>(linesPerBeat)) : static_cast<uint8_t>(linesPerBeat);
                 const double interval = static_cast<double>(linesPerBeat) / static_cast<double>(eventsPerBeat);
 
                 juzzlin::L(TAG).debug() << "Rendering MidiCcAutomation " << automation.id() << ": eventsPerBeat=" << (int)eventsPerBeat << ", interval=" << interval << ", lineOffset=" << (int)automation.lineOffset();
 
-                std::optional<uint8_t> prevValue;
+                std::optional<int> prevValue;
                 for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
                     if (!firesOnLine(line, eventsPerBeat, automation.lineOffset(), linesPerBeat) && line != interpolation.line1) {
                         continue;
@@ -997,26 +1006,9 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
 
                     juzzlin::L(TAG).trace() << "Firing event for MidiCcAutomation " << automation.id() << " on line " << line;
 
-                    double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
-
-                    double totalModulation = 0.0;
-                    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
-                        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                        double modulationValue = 0.0;
-                        if (modulation.type == ModulationParameters::ModulationType::SineWave) {
-                            modulationValue = sineModulationValue(modulation, phase);
-                        } else if (modulation.type == ModulationParameters::ModulationType::Random) {
-                            modulationValue = randomModulationValue(automation.id(), modulation, phase);
-                        }
-                        totalModulation = modulationValue * modulation.amplitude / 100.0;
-                    }
-                    totalModulation += modulation.offset / 100.0;
-                    interpolatedValue += totalModulation * controllerMaxValue(automation.controller(), location.track());
-
-                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, controllerMaxValue(automation.controller(), location.track())); // Value range of the destination
-                    if (!prevValue || *prevValue != clampedValue) {
-                        events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
-                        prevValue = clampedValue;
+                    if (const auto value = midiCcValueAt(automation, line); !prevValue || *prevValue != value) {
+                        events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(value) }));
+                        prevValue = value;
                     }
                 }
             }
@@ -1026,47 +1018,59 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
     return events;
 }
 
-AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
+AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const
 {
     EventList events;
+    if (!ticksPerLine) {
+        return events;
+    }
+
+    // A fraction of the whole bend range, so the same whatever resolution the bend is sent at. Finer
+    // than any ear follows at ordinary bend ranges, and coarse enough that a slow bend sends at most
+    // a few thousand events however long it takes.
+    constexpr double smallestStep = 200.0 / 4096.0;
 
     for (const auto & automation : m_automations.pitchBend) {
-        if (automation.enabled()) {
-            const auto & location = automation.location();
-            const auto & interpolation = automation.interpolation();
-            const auto & modulation = automation.modulation();
-            if (location.pattern() == pattern && location.track() == track && location.column() == column) {
-                Interpolator interpolator {
-                    static_cast<size_t>(interpolation.line0),
-                    static_cast<size_t>(interpolation.line1),
-                    static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1),
-                    interpolation.curve
-                };
-                std::optional<double> prevValue;
-                for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
-                    double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
+        const auto & location = automation.location();
+        if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
+            continue;
+        }
 
-                    double totalModulation = 0.0;
-                    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
-                        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                        double modulationValue = 0.0;
-                        if (modulation.type == ModulationParameters::ModulationType::SineWave) {
-                            modulationValue = sineModulationValue(modulation, phase);
-                        } else if (modulation.type == ModulationParameters::ModulationType::Random) {
-                            modulationValue = randomModulationValue(automation.id(), modulation, phase);
-                        }
-                        totalModulation = modulationValue * modulation.amplitude / 100.0;
-                    }
-                    totalModulation += modulation.offset / 100.0;
-                    interpolatedValue += totalModulation * 100.0;
+        const auto & interpolation = automation.interpolation();
+        const auto pushEvent = [&](size_t eventTick, double percentage) {
+            events.push_back(std::make_shared<Event>(eventTick, PitchBendData { track, column, percentage }));
+        };
 
-                    const auto percentage = std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
-                    const double minDiff = 200.0 / 16383;
-                    if (!prevValue || std::fabs(*prevValue - percentage) > minDiff) {
-                        events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, PitchBendData { track, column, static_cast<double>(percentage) }));
-                        prevValue = percentage;
-                    }
+        std::optional<double> previousValue;
+        if (const auto eventsPerBeat = automation.eventsPerBeat(); !eventsPerBeat) {
+            // Once a line in whole percent, exactly as before the setting existed
+            for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                if (const auto value = static_cast<double>(pitchBendValueAt(automation, line)); !previousValue || *previousValue != value) {
+                    pushEvent(tick + line * ticksPerLine, value);
+                    previousValue = value;
+                }
+            }
+        } else if (*eventsPerBeat > 0) {
+            const auto thinnedEventsPerBeat = std::min(*eventsPerBeat, static_cast<uint8_t>(linesPerBeat));
+            for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                if (!firesOnLine(line, thinnedEventsPerBeat, automation.lineOffset(), linesPerBeat) && line != interpolation.line1) {
+                    continue;
+                }
+                if (const auto value = pitchBendPercentageAt(automation, static_cast<double>(line)); !previousValue || *previousValue != value) {
+                    pushEvent(tick + line * ticksPerLine, value);
+                    previousValue = value;
+                }
+            }
+        } else {
+            const size_t firstTick = interpolation.line0 * ticksPerLine;
+            const size_t lastTick = interpolation.line1 * ticksPerLine;
+            for (size_t lineTick = firstTick; lineTick <= lastTick; lineTick++) {
+                const auto value = pitchBendPercentageAt(automation, static_cast<double>(lineTick) / static_cast<double>(ticksPerLine));
+                // The last one always goes out, so the bend ends exactly where it was written to
+                const bool isLast = lineTick == lastTick;
+                if (!previousValue || std::abs(*previousValue - value) >= smallestStep || (isLast && *previousValue != value)) {
+                    pushEvent(tick + lineTick, value);
+                    previousValue = value;
                 }
             }
         }

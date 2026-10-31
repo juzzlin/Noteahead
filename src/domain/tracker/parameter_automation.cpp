@@ -210,6 +210,9 @@ void ParameterAutomation::serializeToXml(ProjectWriter & writer) const
     if (m_interpolation.curve != Interpolator::CurveType::Linear) {
         writer.writeAttribute(C::xmlKeyCurve(), Interpolator::curveToXmlValue(m_interpolation.curve));
     }
+    if (m_interpolation.curve == Interpolator::CurveType::Drawn) {
+        m_interpolation.drawnCurve.serializeToXml(writer);
+    }
     writer.writeEndElement(); // Interpolation
 
     if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f || m_modulation.offset != 0.f) {
@@ -258,6 +261,8 @@ ParameterAutomation::ParameterAutomationU ParameterAutomation::deserializeFromXm
             if (const auto curve = reader.attribute(C::xmlKeyCurve()); curve.isValid()) {
                 interpolation.curve = Interpolator::curveFromXmlValue(curve.toString());
             }
+        } else if (!reader.name().compare(C::xmlKeyNode())) {
+            interpolation.drawnCurve.deserializeNodeFromXml(reader);
         } else if (!reader.name().compare(C::xmlKeyModulation())) {
             modulation.type = reader.attribute(C::xmlKeyType()).toString() == C::xmlValueRandom() ? ModulationParameters::ModulationType::Random : ModulationParameters::ModulationType::SineWave;
             modulation.cycles = static_cast<float>(reader.attribute(C::xmlKeyCycles()).toInt());
@@ -267,6 +272,10 @@ ParameterAutomation::ParameterAutomationU ParameterAutomation::deserializeFromXm
         }
     }
 
+    // A drawn curve without nodes, which this version never writes, plays as the ramp between its ends
+    if (interpolation.curve == Interpolator::CurveType::Drawn && interpolation.drawnCurve.isEmpty()) {
+        interpolation.drawnCurve = AutomationCurve::ramp(interpolation.line0, static_cast<double>(interpolation.value0), interpolation.line1, static_cast<double>(interpolation.value1));
+    }
     auto automation = std::make_unique<ParameterAutomation>(0, *location, target, mode, interpolation, modulation, comment, enabled);
     automation->setEventsPerBeat(eventsPerBeat);
     automation->setLineOffset(lineOffset);

@@ -3047,6 +3047,34 @@
         <source>Optional comment for this automation</source>
         <translation>此自动化的可选注释</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>平滑</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>在每个 tick 上移动弯音。关闭后改为按行逐级变化。</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>每拍事件数</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>每拍发送的事件数</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>行偏移</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>节拍内的行偏移</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9088,6 +9116,26 @@
     <message>
         <source>Comment</source>
         <translation>注释</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>输出设置</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>平滑</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>在每个 tick 上移动弯音。关闭后改为按行逐级变化。</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>每拍事件数</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>行偏移</translation>
     </message>
 </context>
 <context>

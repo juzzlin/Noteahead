@@ -295,6 +295,38 @@ void PitchBendAutomationsModelTest::test_changeModulationType_shouldUpdateModula
     QCOMPARE(static_cast<int>(updatedAutomation->modulation().type), 1);
 }
 
+void PitchBendAutomationsModelTest::test_setData_eventsPerBeat_shouldMapMinusOneToUnset()
+{
+    using Role = PitchBendAutomationsModel::DataRole;
+
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ PitchBendAutomation { 42, { 1, 2, 3 }, { 11, 22, 33, 44 }, {} } });
+    std::optional<PitchBendAutomation> updatedAutomation;
+    connect(&model, &PitchBendAutomationsModel::pitchBendAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+    const auto index = model.index(0);
+
+    // Unset reads as -1, which is what the dialogs show as once a line
+    QCOMPARE(model.data(index, static_cast<int>(Role::EventsPerBeat)).toInt(), -1);
+    QVERIFY(!model.setData(index, -1, static_cast<int>(Role::EventsPerBeat)));
+
+    QVERIFY(model.setData(index, 0, static_cast<int>(Role::EventsPerBeat)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::EventsPerBeat)).toInt(), 0);
+    QVERIFY(model.setData(index, 2, static_cast<int>(Role::EventsPerBeat)));
+    QVERIFY(model.setData(index, 1, static_cast<int>(Role::LineOffset)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::LineOffset)).toInt(), 1);
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(updatedAutomation->eventsPerBeat(), std::optional<uint8_t> { 2 });
+    QCOMPARE(updatedAutomation->lineOffset(), 1);
+
+    QVERIFY(model.setData(index, -1, static_cast<int>(Role::EventsPerBeat)));
+    model.applyAll();
+    QVERIFY(!updatedAutomation->eventsPerBeat().has_value());
+}
+
 void PitchBendAutomationsModelTest::test_applyValues_shouldReplaceParametersButNotLocationOrEnabled()
 {
     using Role = PitchBendAutomationsModel::DataRole;
@@ -310,7 +342,7 @@ void PitchBendAutomationsModelTest::test_applyValues_shouldReplaceParametersButN
 
     QSignalSpy replacedSpy { &model, &PitchBendAutomationsModel::automationReplaced };
 
-    model.applyValues(0, QVariantMap { { "line0", 5 }, { "line1", 55 }, { "value0", -100 }, { "value1", 100 }, { "curve", static_cast<int>(Interpolator::CurveType::Exponential) }, { "modulationType", 1 }, { "modulationCycles", 4 }, { "comment", "New comment" } });
+    model.applyValues(0, QVariantMap { { "line0", 5 }, { "line1", 55 }, { "value0", -100 }, { "value1", 100 }, { "curve", static_cast<int>(Interpolator::CurveType::Exponential) }, { "modulationType", 1 }, { "modulationCycles", 4 }, { "eventsPerBeat", 0 }, { "lineOffset", 3 }, { "comment", "New comment" } });
 
     QCOMPARE(model.data(index, static_cast<int>(Role::Line0)).toUInt(), 5u);
     QCOMPARE(model.data(index, static_cast<int>(Role::Line1)).toUInt(), 55u);
@@ -319,6 +351,8 @@ void PitchBendAutomationsModelTest::test_applyValues_shouldReplaceParametersButN
     QCOMPARE(model.data(index, static_cast<int>(Role::Curve)).toInt(), static_cast<int>(Interpolator::CurveType::Exponential));
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Cycles)).toUInt(), 4u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::EventsPerBeat)).toInt(), 0);
+    QCOMPARE(model.data(index, static_cast<int>(Role::LineOffset)).toInt(), 3);
     QCOMPARE(model.data(index, static_cast<int>(Role::Comment)).toString(), QString { "New comment" });
 
     QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), 1u);

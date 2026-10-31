@@ -426,7 +426,7 @@ void RenderWorker::handleEvent(const Event & event)
         } else if constexpr (std::is_same_v<T, PitchBendData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 if (const auto portName = instrument->midiAddress().portName(); m_deviceService->isInternalDevice(portName)) {
-                    m_deviceService->processMidiPitchBend(portName, (static_cast<uint16_t>(data.msb()) << 7) | data.lsb(), instrument->midiAddress().channel());
+                    m_deviceService->processMidiPitchBend(portName, data.value14(), instrument->midiAddress().channel());
                 }
             }
         } else if constexpr (std::is_same_v<T, ParameterData>) {

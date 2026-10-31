@@ -3049,6 +3049,34 @@
         <source>Optional comment for this automation</source>
         <translation>Opcjonalny komentarz do tej automatyzacji</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Wyjście</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Płynnie</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Zmienia Pitch Bend w każdym ticku. Wyłącz, aby zmieniał się skokowo na liniach.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Zdarzenia na uderzenie</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Liczba zdarzeń wysyłanych na uderzenie</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Przesunięcie wiersza</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Przesunięcie wiersza w obrębie uderzenia</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9090,6 +9118,26 @@
     <message>
         <source>Comment</source>
         <translation>Komentarz</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Ustawienia wyjścia</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Płynnie</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Zmienia Pitch Bend w każdym ticku. Wyłącz, aby zmieniał się skokowo na liniach.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Zdarzenia na uderzenie</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Przesunięcie wiersza</translation>
     </message>
 </context>
 <context>

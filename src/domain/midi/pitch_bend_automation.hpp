@@ -17,10 +17,13 @@
 #define PITCH_BEND_AUTOMATION_HPP
 
 #include "../tracker/automation.hpp"
+#include "../tracker/automation_curve.hpp"
 #include "../tracker/interpolator.hpp"
 #include "../tracker/modulation.hpp"
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 
 namespace noteahead {
 
@@ -37,10 +40,12 @@ public:
         int value0 = 0; // -100%..+100%
         int value1 = 0; // -100%..+100%
         Interpolator::CurveType curve = Interpolator::CurveType::Linear;
+        //! The nodes, when the curve is Drawn: value0 and value1 are then its ends.
+        AutomationCurve drawnCurve {};
 
         bool operator==(const InterpolationParameters & other) const
         {
-            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1 && curve == other.curve;
+            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1 && curve == other.curve && drawnCurve == other.drawnCurve;
         }
 
         bool operator!=(const InterpolationParameters & other) const
@@ -64,6 +69,15 @@ public:
     const ModulationParameters & modulation() const;
     void setModulation(const ModulationParameters & modulation);
 
+    //! Unset sends once a line, rounded to whole percent: how every automation saved before this
+    //! setting existed plays. 0 is smooth: every tick, whenever the bend has moved far enough to
+    //! matter. Anything else is that many a beat, on the lines.
+    std::optional<uint8_t> eventsPerBeat() const;
+    void setEventsPerBeat(std::optional<uint8_t> eventsPerBeat);
+
+    uint8_t lineOffset() const;
+    void setLineOffset(uint8_t lineOffset);
+
     void serializeToXml(ProjectWriter & writer) const;
     using PitchBendAutomationU = std::unique_ptr<PitchBendAutomation>;
     static PitchBendAutomationU deserializeFromXml(ProjectReader & reader);
@@ -73,6 +87,8 @@ public:
 private:
     InterpolationParameters m_interpolation;
     ModulationParameters m_modulation;
+    std::optional<uint8_t> m_eventsPerBeat;
+    uint8_t m_lineOffset = 0;
 };
 
 } // namespace noteahead

@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Valinnainen kommentti tälle automaatiolle</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Pehmeä</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Muuta taivutusta jokaisella tickillä. Pois päältä se muuttuu portaittain riveillä.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Tapahtumia per isku</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Iskua kohti lähetettävien tapahtumien määrä</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Rivisiirtymä</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Rivisiirtymä iskun sisällä</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Kommentti</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Ulostulon asetukset</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Pehmeä</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Muuta taivutusta jokaisella tickillä. Pois päältä se muuttuu portaittain riveillä.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Tapahtumia per isku</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Rivisiirtymä</translation>
     </message>
 </context>
 <context>

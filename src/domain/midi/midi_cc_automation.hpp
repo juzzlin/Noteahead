@@ -17,6 +17,7 @@
 #define MIDI_CC_AUTOMATION_HPP
 
 #include "../tracker/automation.hpp"
+#include "../tracker/automation_curve.hpp"
 #include "../tracker/interpolator.hpp"
 #include "../tracker/modulation.hpp"
 
@@ -38,10 +39,12 @@ public:
         uint8_t value0 = 0;
         uint8_t value1 = 0;
         Interpolator::CurveType curve = Interpolator::CurveType::Linear;
+        //! The nodes, when the curve is Drawn: value0 and value1 are then its ends.
+        AutomationCurve drawnCurve {};
 
         bool operator==(const InterpolationParameters & other) const
         {
-            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1 && curve == other.curve;
+            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1 && curve == other.curve && drawnCurve == other.drawnCurve;
         }
 
         bool operator!=(const InterpolationParameters & other) const

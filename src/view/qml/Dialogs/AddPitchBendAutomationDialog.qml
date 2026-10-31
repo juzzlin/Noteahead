@@ -78,6 +78,18 @@ AnimatedDialog {
     function setCurve(curve: int): void {
         model.setCurve(curve);
     }
+    function eventsPerBeat(): int {
+        return model.eventsPerBeat();
+    }
+    function setEventsPerBeat(value: int): void {
+        model.setEventsPerBeat(value);
+    }
+    function lineOffset(): int {
+        return model.lineOffset();
+    }
+    function setLineOffset(value: int): void {
+        model.setLineOffset(value);
+    }
     function resetModulations(): void {
         model.resetModulations();
     }
@@ -120,13 +132,14 @@ AnimatedDialog {
 
     //! Fills every field from an automation that already exists. Its location is deliberately left
     //! out: the new automation belongs where the form was opened, not where the copied one lives.
-    //! Pitch bend has no per-beat output settings, so there is nothing of those to carry over.
     function applyValues(values: var): void {
         setStartLine(values.line0);
         setEndLine(values.line1);
         setStartValue(values.value0);
         setEndValue(values.value1);
         setCurve(values.curve);
+        setEventsPerBeat(values.eventsPerBeat);
+        setLineOffset(values.lineOffset);
         setModulationType(values.modulationType);
         setCycles(values.modulationCycles);
         setAmplitude(values.modulationAmplitude);

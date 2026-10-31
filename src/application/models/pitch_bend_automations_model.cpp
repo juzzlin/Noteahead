@@ -159,6 +159,10 @@ QVariant PitchBendAutomationsModel::data(const QModelIndex & index, int role) co
             return PitchBendAutomation.modulation().inverted;
         case DataRole::Modulation_Type:
             return static_cast<int>(PitchBendAutomation.modulation().type);
+        case DataRole::EventsPerBeat:
+            return PitchBendAutomation.eventsPerBeat() ? static_cast<int>(*PitchBendAutomation.eventsPerBeat()) : -1;
+        case DataRole::LineOffset:
+            return static_cast<int>(PitchBendAutomation.lineOffset());
         }
     }
     return "N/A";
@@ -265,6 +269,19 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
+    case DataRole::EventsPerBeat: {
+        const auto newEventsPerBeat = value.toInt() < 0 ? std::nullopt : std::optional { static_cast<uint8_t>(value.toInt()) };
+        if (PitchBendAutomation.eventsPerBeat() != newEventsPerBeat) {
+            PitchBendAutomation.setEventsPerBeat(newEventsPerBeat);
+            changed = true;
+        }
+    } break;
+    case DataRole::LineOffset:
+        if (const auto newLineOffset = static_cast<uint8_t>(value.toUInt()); PitchBendAutomation.lineOffset() != newLineOffset) {
+            PitchBendAutomation.setLineOffset(newLineOffset);
+            changed = true;
+        }
+        break;
     case DataRole::Pattern:
     case DataRole::Track:
     case DataRole::Column:
@@ -318,7 +335,9 @@ QHash<int, QByteArray> PitchBendAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Modulation_Amplitude), "modulationAmplitude" },
         { static_cast<int>(DataRole::Modulation_Offset), "modulationOffset" },
         { static_cast<int>(DataRole::Modulation_Inverted), "modulationInverted" },
-        { static_cast<int>(DataRole::Modulation_Type), "modulationType" }
+        { static_cast<int>(DataRole::Modulation_Type), "modulationType" },
+        { static_cast<int>(DataRole::EventsPerBeat), "eventsPerBeat" },
+        { static_cast<int>(DataRole::LineOffset), "lineOffset" }
     };
 }
 
@@ -341,7 +360,7 @@ void PitchBendAutomationsModel::applyValues(int index, const QVariantMap & value
     }
 
     // Routed through setData() rather than written here, so the per-role rules stay in one place.
-    // Pitch bend has no controller and no per-beat output settings, so there are none to carry.
+    // Pitch bend has no controller, so there is none to carry.
     static const std::vector<std::pair<QString, DataRole>> fields {
         { "line0", DataRole::Line0 },
         { "line1", DataRole::Line1 },
@@ -353,6 +372,8 @@ void PitchBendAutomationsModel::applyValues(int index, const QVariantMap & value
         { "modulationAmplitude", DataRole::Modulation_Amplitude },
         { "modulationOffset", DataRole::Modulation_Offset },
         { "modulationInverted", DataRole::Modulation_Inverted },
+        { "eventsPerBeat", DataRole::EventsPerBeat },
+        { "lineOffset", DataRole::LineOffset },
         { "comment", DataRole::Comment }
     };
 

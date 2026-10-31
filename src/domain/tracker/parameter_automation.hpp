@@ -17,6 +17,7 @@
 #define PARAMETER_AUTOMATION_HPP
 
 #include "automation.hpp"
+#include "automation_curve.hpp"
 #include "interpolator.hpp"
 #include "modulation.hpp"
 
@@ -81,6 +82,8 @@ public:
         double value0 = 0.0;
         double value1 = 0.0;
         Interpolator::CurveType curve = Interpolator::CurveType::Linear;
+        //! The nodes, when the curve is Drawn: value0 and value1 are then its ends.
+        AutomationCurve drawnCurve {};
 
         bool operator==(const InterpolationParameters & other) const = default;
     };

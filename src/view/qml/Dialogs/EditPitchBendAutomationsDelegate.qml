@@ -40,6 +40,14 @@ SectionBox {
         }
     }
 
+    //! What the output controls stand for, as the model stores it: 0 for smooth, -1 for once a line.
+    function outputEventsPerBeat(): int {
+        if (smoothCheckBox.checked) {
+            return 0;
+        }
+        return eventsPerBeatSpinBox.value === eventsPerBeatSpinBox.to ? -1 : eventsPerBeatSpinBox.value;
+    }
+
     function initialize(): void {
         if (model) {
             startLineSpinBox.value = model.line0;
@@ -47,6 +55,9 @@ SectionBox {
             startValueSpinBox.value = model.value0;
             endValueSpinBox.value = model.value1;
             curveComboBox.currentIndex = model.curve;
+            smoothCheckBox.checked = model.eventsPerBeat === 0;
+            eventsPerBeatSpinBox.value = model.eventsPerBeat > 0 ? model.eventsPerBeat : eventsPerBeatSpinBox.to;
+            lineOffsetSpinBox.value = model.lineOffset;
             modulationTypeComboBox.currentIndex = model.modulationType;
             modulationCyclesSpinBox.value = model.modulationCycles;
             modulationAmplitudeSpinBox.value = model.modulationAmplitude;
@@ -186,10 +197,80 @@ SectionBox {
             }
         }
         SectionBox {
-            title: qsTr("Modulation")
+            title: qsTr("Output")
             Layout.row: 1
             Layout.column: 1
-            Layout.columnSpan: 8
+            Layout.columnSpan: 4
+            Layout.fillWidth: true
+            GridLayout {
+                anchors.fill: parent
+                columns: 3
+                CheckBox {
+                    id: smoothCheckBox
+                    text: qsTr("Smooth")
+                    Layout.row: 1
+                    Layout.column: 0
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Move the bend on every tick. Turn off to step it on the lines instead.")
+                    onToggled: model.eventsPerBeat = delegateRoot.outputEventsPerBeat()
+                }
+                Label {
+                    text: qsTr("Events per beat")
+                    enabled: !smoothCheckBox.checked
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: eventsPerBeatSpinBox
+                    from: 1
+                    to: editorService.linesPerBeat
+                    enabled: !smoothCheckBox.checked
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Number of events to send per beat")
+                    onValueModified: model.eventsPerBeat = delegateRoot.outputEventsPerBeat()
+                    onToChanged: value = Math.min(value, to)
+                }
+                Label {
+                    text: qsTr("Line offset")
+                    enabled: lineOffsetSpinBox.enabled
+                    Layout.row: 0
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: lineOffsetSpinBox
+                    from: 0
+                    to: editorService.linesPerBeat - 1
+                    enabled: !smoothCheckBox.checked && eventsPerBeatSpinBox.value < eventsPerBeatSpinBox.to
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Line offset within the beat")
+                    onValueModified: model.lineOffset = value
+                    onToChanged: value = Math.min(value, to)
+                }
+            }
+        }
+        SectionBox {
+            title: qsTr("Modulation")
+            Layout.row: 1
+            Layout.column: 5
+            Layout.columnSpan: 4
             Layout.fillWidth: true
             GridLayout {
                 anchors.fill: parent

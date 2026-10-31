@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Optionele opmerking bij deze automatisering</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Vloeiend</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Beweegt de Pitch Bend op elke tick. Zet uit om hem in stappen op de regels te laten gaan.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Gebeurtenissen per beat</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Aantal te verzenden gebeurtenissen per beat</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Regelverschuiving</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Regelverschuiving binnen de beat</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Opmerking</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Uitgangsinstellingen</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Vloeiend</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Beweegt de Pitch Bend op elke tick. Zet uit om hem in stappen op de regels te laten gaan.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Gebeurtenissen per beat</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Regelverschuiving</translation>
     </message>
 </context>
 <context>

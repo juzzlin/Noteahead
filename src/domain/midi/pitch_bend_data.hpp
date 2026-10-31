@@ -22,21 +22,30 @@
 
 namespace noteahead {
 
+//! A pitch bend, held at full precision rather than in any protocol's resolution: MIDI 1.0 has 14
+//! bits for it and MIDI 2.0 has 32, and only the path that sends one knows which it speaks.
 class PitchBendData : public EventData
 {
 public:
     PitchBendData(size_t track, size_t column, uint8_t msb, uint8_t lsb);
+    //! A MIDI 1.0 value, 0 to 16383 with the centre at 8192.
     PitchBendData(size_t track, size_t column, uint16_t value);
+    //! -100 to 100 percent of the bend range.
     PitchBendData(size_t track, size_t column, double percentage);
 
+    //! -1 to 1, unquantized.
+    double bend() const;
+
+    //! The MIDI 1.0 value, 0 to 16383, as 0 to 1.
     double normalizedValue() const;
 
+    //! The MIDI 1.0 value, 0 to 16383, and its two data bytes.
+    uint16_t value14() const;
     uint8_t msb() const;
     uint8_t lsb() const;
 
 private:
-    uint8_t m_msb = 0;
-    uint8_t m_lsb = 0;
+    double m_bend = 0.0;
 };
 } // namespace noteahead
 

@@ -62,6 +62,18 @@ private slots:
     void test_renderMidiCcToEventsByLine_withOffset_shouldRenderOffsetEvents();
     void test_renderPitchBendToEventsByLine_withModulation_shouldRenderModulatedEvents();
     void test_renderMidiCcToEventsByColumn_withEventsPerBeatAndLineOffset_shouldSkipEvents();
+    void test_renderPitchBendToEventsByColumn_eventsPerBeatUnset_shouldSendWholePercentOnceALine();
+    void test_renderPitchBendToEventsByColumn_smooth_shouldSendEveryTickUnrounded();
+    void test_renderPitchBendToEventsByColumn_smooth_shouldSkipStepsTooSmallToHear();
+    void test_renderPitchBendToEventsByColumn_smooth_flat_shouldSendOnce();
+    void test_renderPitchBendToEventsByColumn_eventsPerBeat_shouldStepOnLinesUnrounded();
+    void test_renderPitchBendToEventsByLine_smooth_shouldBeUnrounded();
+    void test_pitchBendData_value14_shouldRoundTripEveryMidiValue();
+    void test_renderToEventsByColumn_parameter_drawn_shouldFollowNodes();
+    void test_renderToEventsByColumn_parameter_drawn_shouldTakeModulation();
+    void test_renderToEventsByColumn_midiCc_drawn_shouldFollowNodesRounded();
+    void test_renderToEventsByColumn_pitchBend_drawn_shouldFollowNodesUnrounded();
+    void test_renderToEventsByColumn_drawnWithoutNodes_shouldRampBetweenEnds();
     void test_renderToEventsByColumn_shouldRenderToEvents();
     void test_renderToEventsByColumn_curve_shouldFollowCurve();
     void test_renderToEventsByColumn_shouldPruneRepeatingEvents();
@@ -76,6 +88,7 @@ private slots:
 
     void test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter();
     void test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter();
+    void test_pitchBendAutomationsAsVariantList_eventsPerBeatUnset_shouldBeMinusOne();
     void test_parameterAutomationsAsVariantList_shouldCarryEveryParameter();
 };
 

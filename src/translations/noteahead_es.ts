@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Comentario opcional para esta automatización</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Suave</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Mueve el Pitch Bend en cada tick. Desactívalo para que avance a saltos en las líneas.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Eventos por pulso</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Número de eventos a enviar por pulso</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Desplazamiento de línea</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Desplazamiento de línea dentro del pulso</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Comentario</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Ajustes de salida</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Suave</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Mueve el Pitch Bend en cada tick. Desactívalo para que avance a saltos en las líneas.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Eventos por pulso</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Desplazamiento de línea</translation>
     </message>
 </context>
 <context>

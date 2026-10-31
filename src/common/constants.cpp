@@ -1053,6 +1053,16 @@ QString xmlKeyCurve()
     return "curve";
 }
 
+QString xmlKeyNode()
+{
+    return "Node";
+}
+
+QString xmlKeyNodeLine()
+{
+    return "line";
+}
+
 QString xmlKeyComment()
 {
     return "comment";
@@ -3227,6 +3237,11 @@ QString xmlValueEaseOut()
 QString xmlValueEaseInOut()
 {
     return "EaseInOut";
+}
+
+QString xmlValueDrawn()
+{
+    return "Drawn";
 }
 
 QString xmlValueSamplers()

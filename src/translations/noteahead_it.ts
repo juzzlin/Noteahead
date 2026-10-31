@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Commento facoltativo per questa automazione</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Uscita</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Fluido</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Muove il Pitch Bend a ogni tick. Disattiva per farlo avanzare a gradini sulle righe.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Eventi per battito</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Numero di eventi da inviare per battito</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Offset di riga</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Offset di riga all&apos;interno del battito</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Commento</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Impostazioni di uscita</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Fluido</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Muove il Pitch Bend a ogni tick. Disattiva per farlo avanzare a gradini sulle righe.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Eventi per battito</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Offset di riga</translation>
     </message>
 </context>
 <context>

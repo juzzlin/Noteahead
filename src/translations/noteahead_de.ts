@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Optionaler Kommentar zu dieser Automation</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Ausgang</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Gleitend</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Bewegt das Pitch Bend bei jedem Tick. Ausschalten, um es stattdessen zeilenweise zu stufen.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Ereignisse pro Schlag</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Anzahl der pro Schlag gesendeten Ereignisse</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Zeilenversatz</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Zeilenversatz innerhalb des Schlags</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Kommentar</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Ausgangseinstellungen</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Gleitend</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Bewegt das Pitch Bend bei jedem Tick. Ausschalten, um es stattdessen zeilenweise zu stufen.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Ereignisse pro Schlag</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Zeilenversatz</translation>
     </message>
 </context>
 <context>

@@ -91,6 +91,8 @@ public:
     Q_INVOKABLE void addPitchBendModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
     //! \see setMidiCcAutomationCurve
     Q_INVOKABLE void setPitchBendAutomationCurve(quint64 automationId, int curve);
+    //! A negative @p eventsPerBeat sends once a line, 0 is smooth. \see PitchBendAutomation::eventsPerBeat
+    Q_INVOKABLE void setPitchBendAutomationEventsPerBeat(quint64 automationId, int eventsPerBeat, quint8 lineOffset);
     //! Every automation of the song, flattened into what QML can read straight off a plain list.
     //!
     //! Deliberately not routed through MidiCcAutomationsModel: that model is what the edit dialogs
@@ -190,6 +192,7 @@ private:
     //! Interpolation plus modulation for one automation on one line, in the automation's own units.
     //! Shared with the event rendering so what is drawn cannot drift from what is played.
     int midiCcValueAt(const MidiCcAutomation & automation, size_t line) const;
+    //! Rounded to whole percent, as every automation saved before Events per Beat was played.
     int pitchBendValueAt(const PitchBendAutomation & automation, size_t line) const;
     void notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1);
     void notifyChangedLines(const MidiCcAutomation & automation);
@@ -201,13 +204,17 @@ private:
     EventList renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
-    EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+    EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
     EventList renderParameterToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderParameterToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
 
     //! Interpolation plus modulation of a parameter automation at a point that may fall between
     //! lines, as a knob position.
     double parameterValueAt(const ParameterAutomation & automation, double line) const;
+
+    //! Interpolation plus modulation of a pitch bend automation at a point that may fall between
+    //! lines, in percent and unrounded.
+    double pitchBendPercentageAt(const PitchBendAutomation & automation, double line) const;
 
     //! Whether an automation thinned to @p eventsPerBeat, shifted by @p lineOffset, fires on @p line.
     static bool firesOnLine(size_t line, uint8_t eventsPerBeat, uint8_t lineOffset, size_t linesPerBeat);

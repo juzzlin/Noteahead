@@ -3048,6 +3048,34 @@
         <source>Optional comment for this automation</source>
         <translation>Commentaire facultatif pour cette automation</translation>
     </message>
+    <message>
+        <source>Output</source>
+        <translation>Sortie</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Fluide</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Déplace le Pitch Bend à chaque tick. Désactivez pour le faire avancer par paliers sur les lignes.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Événements par battement</translation>
+    </message>
+    <message>
+        <source>Number of events to send per beat</source>
+        <translation>Nombre d&apos;événements à envoyer par battement</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Décalage de ligne</translation>
+    </message>
+    <message>
+        <source>Line offset within the beat</source>
+        <translation>Décalage de ligne dans le battement</translation>
+    </message>
 </context>
 <context>
     <name>EditPitchBendAutomationsDialog</name>
@@ -9089,6 +9117,26 @@
     <message>
         <source>Comment</source>
         <translation>Commentaire</translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation>Paramètres de sortie</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Fluide</translation>
+    </message>
+    <message>
+        <source>Move the bend on every tick. Turn off to step it on the lines instead.</source>
+        <translation>Déplace le Pitch Bend à chaque tick. Désactivez pour le faire avancer par paliers sur les lignes.</translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation>Événements par battement</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation>Décalage de ligne</translation>
     </message>
 </context>
 <context>

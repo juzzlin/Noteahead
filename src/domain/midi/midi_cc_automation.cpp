@@ -155,6 +155,9 @@ void MidiCcAutomation::serializeToXml(ProjectWriter & writer) const
     if (m_interpolation.curve != Interpolator::CurveType::Linear) { // Omitted for the default so that older projects round-trip unchanged
         writer.writeAttribute(Constants::NahdXml::xmlKeyCurve(), Interpolator::curveToXmlValue(m_interpolation.curve));
     }
+    if (m_interpolation.curve == Interpolator::CurveType::Drawn) {
+        m_interpolation.drawnCurve.serializeToXml(writer);
+    }
     writer.writeEndElement(); // Interpolation
 
     if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f || m_modulation.offset != 0.f) {
@@ -194,6 +197,8 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(Project
                 if (const auto curve = reader.attribute(Constants::NahdXml::xmlKeyCurve()); curve.isValid()) { // Projects saved before curves default to linear
                     interpolationParameters.curve = Interpolator::curveFromXmlValue(curve.toString());
                 }
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyNode())) {
+                interpolationParameters.drawnCurve.deserializeNodeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
                 if (const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()); type.isValid()) {
                     if (type.toString() == Constants::NahdXml::xmlValueRandom()) {
@@ -231,6 +236,10 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(Project
                 }
             }
         }
+    }
+    // A drawn curve without nodes, which this version never writes, plays as the ramp between its ends
+    if (interpolationParameters.curve == Interpolator::CurveType::Drawn && interpolationParameters.drawnCurve.isEmpty()) {
+        interpolationParameters.drawnCurve = AutomationCurve::ramp(interpolationParameters.line0, static_cast<double>(interpolationParameters.value0), interpolationParameters.line1, static_cast<double>(interpolationParameters.value1));
     }
     auto automation = std::make_unique<MidiCcAutomation>(0, *location, controller, interpolationParameters, modulationParameters, comment, enabled);
     automation->setEventsPerBeat(eventsPerBeat);

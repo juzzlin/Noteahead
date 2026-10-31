@@ -50,7 +50,10 @@ public:
         Modulation_Amplitude,
         Modulation_Offset,
         Modulation_Inverted,
-        Modulation_Type
+        Modulation_Type,
+        //! -1 for once a line, 0 for smooth, else that many a beat. \see PitchBendAutomation::eventsPerBeat
+        EventsPerBeat,
+        LineOffset
     };
 
     PitchBendAutomationsModel();

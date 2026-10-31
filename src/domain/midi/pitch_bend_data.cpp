@@ -15,40 +15,55 @@
 
 #include "pitch_bend_data.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
 
+namespace {
+constexpr double maxValue14 = 16383.0;
+}
+
 PitchBendData::PitchBendData(size_t track, size_t column, uint8_t msb, uint8_t lsb)
-  : EventData { track, column }
-  , m_msb { msb }
-  , m_lsb { lsb }
+  : PitchBendData { track, column, static_cast<uint16_t>((msb & 0x7F) << 7 | (lsb & 0x7F)) }
 {
 }
 
 PitchBendData::PitchBendData(size_t track, size_t column, uint16_t value)
-  : PitchBendData { track, column, static_cast<uint8_t>((value >> 7) & 0x7F), static_cast<uint8_t>(value & 0x7F) }
+  : EventData { track, column }
+  , m_bend { std::clamp(static_cast<double>(value) * 2.0 / maxValue14 - 1.0, -1.0, 1.0) }
 {
 }
 
 PitchBendData::PitchBendData(size_t track, size_t column, double percentage)
-  : PitchBendData { track, column, static_cast<uint16_t>(std::round((percentage + 100.0) * (16383.0 / 200.0))) }
+  : EventData { track, column }
+  , m_bend { std::clamp(percentage / 100.0, -1.0, 1.0) }
 {
+}
+
+double PitchBendData::bend() const
+{
+    return m_bend;
 }
 
 double PitchBendData::normalizedValue() const
 {
-    return static_cast<double>((m_msb << 7) | m_lsb) / 16383.0;
+    return static_cast<double>(value14()) / maxValue14;
+}
+
+uint16_t PitchBendData::value14() const
+{
+    return static_cast<uint16_t>(std::round((m_bend + 1.0) * maxValue14 / 2.0));
 }
 
 uint8_t PitchBendData::msb() const
 {
-    return m_msb;
+    return static_cast<uint8_t>((value14() >> 7) & 0x7F);
 }
 
 uint8_t PitchBendData::lsb() const
 {
-    return m_lsb;
+    return static_cast<uint8_t>(value14() & 0x7F);
 }
 
 } // namespace noteahead

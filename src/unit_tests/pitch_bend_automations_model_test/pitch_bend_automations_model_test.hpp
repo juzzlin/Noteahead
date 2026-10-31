@@ -37,6 +37,7 @@ private slots:
     void test_removeAt_shouldRemoveAutomationData();
     void test_changeModulationType_shouldUpdateModulationType();
 
+    void test_setData_eventsPerBeat_shouldMapMinusOneToUnset();
     void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
 };
 

@@ -163,6 +163,7 @@ set(HEADER_FILES
     tracker/arpeggiator.hpp
     tracker/auto_note_off_offset.hpp
     tracker/automation.hpp
+    tracker/automation_curve.hpp
     tracker/automation_location.hpp
     tracker/automation_set.hpp
     tracker/column.hpp
@@ -376,6 +377,7 @@ set(SOURCE_FILES
     tracker/arpeggiator.cpp
     tracker/auto_note_off_offset.cpp
     tracker/automation.cpp
+    tracker/automation_curve.cpp
     tracker/automation_location.cpp
     tracker/automation_set.cpp
     tracker/column.cpp

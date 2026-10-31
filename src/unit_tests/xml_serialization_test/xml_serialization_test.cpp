@@ -736,6 +736,122 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_curve_s
     QCOMPARE(automationServiceIn.pitchBendAutomations().at(0).interpolation().curve, Interpolator::CurveType::Exponential);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_eventsPerBeat_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, true);
+    const auto smoothId = automationServiceOut.addPitchBendAutomation(0, 0, 1, 0, 8, -100, 100, {}, true);
+    automationServiceOut.setPitchBendAutomationEventsPerBeat(smoothId, 0, 0);
+    const auto thinnedId = automationServiceOut.addPitchBendAutomation(0, 0, 2, 0, 8, -100, 100, {}, true);
+    automationServiceOut.setPitchBendAutomationEventsPerBeat(thinnedId, 3, 2);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    const auto xml = editorService.toXml();
+    // Unset is left out, so an automation saved before the setting existed reads back the same
+    QCOMPARE(xml.count(Constants::NahdXml::xmlKeyEventsPerBeat()), 2);
+    QCOMPARE(xml.count(Constants::NahdXml::xmlKeyLineOffset()), 1);
+
+    editorService.fromXml(xml);
+
+    const auto automations = automationServiceIn.pitchBendAutomations();
+    QCOMPARE(automations.size(), size_t { 3 });
+    QVERIFY(!automations.at(0).eventsPerBeat().has_value());
+    QCOMPARE(automations.at(0).lineOffset(), 0);
+    QCOMPARE(automations.at(1).eventsPerBeat(), std::optional<uint8_t> { 0 });
+    QCOMPARE(automations.at(2).eventsPerBeat(), std::optional<uint8_t> { 3 });
+    QCOMPARE(automations.at(2).lineOffset(), 2);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_automationService_drawn_shouldLoadNodes()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    const AutomationCurve ccCurve { { { 0, 0 }, { 3, 127 }, { 8, 64 } } };
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 74, 0, 8, 0, 64, {}, true, 0, 0);
+    auto cc = automationServiceOut.midiCcAutomations().at(0);
+    auto ccInterpolation = cc.interpolation();
+    ccInterpolation.curve = Interpolator::CurveType::Drawn;
+    ccInterpolation.drawnCurve = ccCurve;
+    cc.setInterpolation(ccInterpolation);
+    automationServiceOut.updateMidiCcAutomation(cc);
+
+    // Between lines, and a value no whole percent reaches
+    const AutomationCurve pitchBendCurve { { { 0, -100 }, { 2.5, 33.333333 }, { 8, 0 } } };
+    automationServiceOut.addPitchBendAutomation(0, 0, 1, 0, 8, -100, 0, {}, true);
+    auto pitchBend = automationServiceOut.pitchBendAutomations().at(0);
+    auto pitchBendInterpolation = pitchBend.interpolation();
+    pitchBendInterpolation.curve = Interpolator::CurveType::Drawn;
+    pitchBendInterpolation.drawnCurve = pitchBendCurve;
+    pitchBend.setInterpolation(pitchBendInterpolation);
+    automationServiceOut.updatePitchBendAutomation(pitchBend);
+
+    const AutomationCurve parameterCurve { { { 0, 0.125 }, { 1.03125, 0.987654321 }, { 8, 0.5 } } };
+    ParameterAutomation::InterpolationParameters parameterInterpolation { 0, 8, 0.125, 0.5, Interpolator::CurveType::Drawn };
+    parameterInterpolation.drawnCurve = parameterCurve;
+    automationServiceOut.addParameterAutomation({ 0, AutomationLocation { 0, 0, 2 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, parameterInterpolation, {}, {}, true });
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().curve, Interpolator::CurveType::Drawn);
+    QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().drawnCurve, ccCurve);
+    QCOMPARE(automationServiceIn.pitchBendAutomations().at(0).interpolation().curve, Interpolator::CurveType::Drawn);
+    QCOMPARE(automationServiceIn.pitchBendAutomations().at(0).interpolation().drawnCurve, pitchBendCurve);
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().curve, Interpolator::CurveType::Drawn);
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().drawnCurve, parameterCurve);
+}
+
+void XmlSerializationTest::test_toXml_automationService_notDrawn_shouldWriteNoNodes()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 74, 0, 8, 0, 64, {}, true, 0, 0);
+    auto cc = automationServiceOut.midiCcAutomations().at(0);
+    auto interpolation = cc.interpolation();
+    // Nodes left over from a curve drawn and then set back to a ramp are not the automation's
+    interpolation.drawnCurve = AutomationCurve::ramp(0, 0, 8, 64);
+    cc.setInterpolation(interpolation);
+    automationServiceOut.updateMidiCcAutomation(cc);
+    automationServiceOut.addPitchBendAutomation(0, 0, 1, 0, 8, -100, 0, {}, true);
+
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+
+    const auto xml = editorService.toXml();
+
+    QVERIFY(!xml.contains("<" + Constants::NahdXml::xmlKeyNode()));
+    QVERIFY(!xml.contains(Constants::NahdXml::xmlValueDrawn()));
+}
+
+void XmlSerializationTest::test_fromXml_automationService_drawnWithoutNodes_shouldRampBetweenEnds()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 74, 2, 6, 10, 50, {}, true, 0, 0);
+    auto cc = automationServiceOut.midiCcAutomations().at(0);
+    auto interpolation = cc.interpolation();
+    interpolation.curve = Interpolator::CurveType::Drawn;
+    interpolation.drawnCurve = AutomationCurve { { { 2, 10 }, { 4, 127 }, { 6, 50 } } };
+    cc.setInterpolation(interpolation);
+    automationServiceOut.updateMidiCcAutomation(cc);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    auto xml = editorService.toXml();
+    xml.remove(QRegularExpression { "<" + Constants::NahdXml::xmlKeyNode() + "[^>]*/>" });
+    editorService.fromXml(xml);
+
+    QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().drawnCurve, AutomationCurve::ramp(2, 10, 6, 50));
+}
+
 void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService()
 {
     const quint8 line0 = 4;

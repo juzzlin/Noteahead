@@ -962,6 +962,7 @@ ApplicationWindow {
             const position = editorService.position;
             const automationId = automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
             automationService.setPitchBendAutomationCurve(automationId, addPitchBendAutomationDialog.curve());
+            automationService.setPitchBendAutomationEventsPerBeat(automationId, addPitchBendAutomationDialog.eventsPerBeat(), addPitchBendAutomationDialog.lineOffset());
             if (addPitchBendAutomationDialog.cycles() > 0 || addPitchBendAutomationDialog.amplitude() > 0 || addPitchBendAutomationDialog.offset() !== 0) {
                 automationService.addPitchBendModulation(automationId, addPitchBendAutomationDialog.modulationType(), addPitchBendAutomationDialog.cycles(), addPitchBendAutomationDialog.amplitude(), addPitchBendAutomationDialog.offset(), addPitchBendAutomationDialog.inverted());
             }
@@ -1519,6 +1520,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
             addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.setEventsPerBeat(0);
+            addPitchBendAutomationDialog.setLineOffset(0);
             addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
@@ -1530,6 +1533,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
             addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.setEventsPerBeat(0);
+            addPitchBendAutomationDialog.setLineOffset(0);
             addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
@@ -1541,6 +1546,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
             addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.setEventsPerBeat(0);
+            addPitchBendAutomationDialog.setLineOffset(0);
             addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
