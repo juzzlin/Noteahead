@@ -10342,6 +10342,14 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Błysk kolumny</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Rozbłyskuj tło kolumny kolorem jej ścieżki, gdy gra nutę</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>Widmo EQ</translation>
     </message>

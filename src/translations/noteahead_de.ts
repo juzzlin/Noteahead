@@ -10340,6 +10340,14 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Spalten-Aufblitzen</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Den Hintergrund einer Spalte in ihrer Spurfarbe aufblitzen lassen, wenn sie eine Note spielt</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>EQ-Spektrum</translation>
     </message>

@@ -10338,6 +10338,14 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>列闪烁</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>列演奏音符时，以其音轨颜色闪烁该列背景</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>均衡器频谱</translation>
     </message>

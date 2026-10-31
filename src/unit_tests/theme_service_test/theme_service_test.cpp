@@ -339,6 +339,35 @@ void ThemeServiceTest::test_volumeMeterStyle_setter_shouldPersistAcrossInstances
     QCOMPARE(reloaded.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Lines));
 }
 
+void ThemeServiceTest::test_columnFlashEnabled_unset_shouldDefaultToDisabled()
+{
+    QSettings {}.remove("Theme/columnFlashEnabled");
+
+    QCOMPARE(ThemeService {}.columnFlashEnabled(), false);
+}
+
+void ThemeServiceTest::test_columnFlashEnabled_setter_shouldUpdateGetterAndEmitSignal()
+{
+    ThemeService themeService;
+    themeService.setColumnFlashEnabled(false);
+    QSignalSpy spy { &themeService, &ThemeService::columnFlashEnabledChanged };
+
+    themeService.setColumnFlashEnabled(true);
+    themeService.setColumnFlashEnabled(true);
+
+    QCOMPARE(themeService.columnFlashEnabled(), true);
+    QCOMPARE(spy.count(), 1);
+    themeService.setColumnFlashEnabled(false);
+}
+
+void ThemeServiceTest::test_columnFlashEnabled_setter_shouldPersistAcrossInstances()
+{
+    ThemeService {}.setColumnFlashEnabled(true);
+
+    QCOMPARE(ThemeService {}.columnFlashEnabled(), true);
+    ThemeService {}.setColumnFlashEnabled(false);
+}
+
 void ThemeServiceTest::test_trackHeaderTextColors_zeroBlend_shouldReturnTheOriginalPalette()
 {
     ThemeService themeService;

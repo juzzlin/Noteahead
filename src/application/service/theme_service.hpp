@@ -56,6 +56,10 @@ class ThemeService : public QObject
     //! How the tracker's per-column volume meters are drawn. See Constants::VolumeMeterStyle.
     Q_PROPERTY(int volumeMeterStyle READ volumeMeterStyle WRITE setVolumeMeterStyle NOTIFY volumeMeterStyleChanged)
 
+    //! Flash a column's background in its track color on every note it plays. Not part of a theme
+    //! preset, so picking one never turns it on or off.
+    Q_PROPERTY(bool columnFlashEnabled READ columnFlashEnabled WRITE setColumnFlashEnabled NOTIFY columnFlashEnabledChanged)
+
     Q_PROPERTY(QColor lineNumberColumnBackgroundColor READ lineNumberColumnBackgroundColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnBorderColor READ lineNumberColumnBorderColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnCellBackgroundColor READ lineNumberColumnCellBackgroundColor CONSTANT)
@@ -141,6 +145,9 @@ public:
     int volumeMeterStyle() const;
     void setVolumeMeterStyle(int style);
 
+    bool columnFlashEnabled() const;
+    void setColumnFlashEnabled(bool enabled);
+
     static int defaultPaletteAccentBlend();
 
     //! Returns a legible text color (near-black or white) for the given background,
@@ -189,6 +196,7 @@ signals:
     void themePresetsChanged();
     void paletteAccentBlendChanged();
     void volumeMeterStyleChanged();
+    void columnFlashEnabledChanged();
     void automationCurveColorsChanged();
     void trackHeaderTextColorsChanged();
 
@@ -216,6 +224,7 @@ private:
     int m_themePresetIndex { 0 };
     int m_paletteAccentBlend;
     int m_volumeMeterStyle;
+    bool m_columnFlashEnabled;
 };
 
 } // namespace noteahead

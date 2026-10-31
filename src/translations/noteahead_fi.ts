@@ -10340,6 +10340,14 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Sarakkeen välähdys</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Välähdä sarakkeen tausta raidan värillä, kun se soittaa nuotin</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>EQ-spektri</translation>
     </message>

@@ -78,6 +78,7 @@ const auto themePresetNameKey = "themePreset";
 const auto nameKey = "name";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
 const auto volumeMeterStyleKey = "volumeMeterStyle";
+const auto columnFlashEnabledKey = "columnFlashEnabled";
 
 const auto userLanguageKey = "userLanguage";
 
@@ -902,6 +903,23 @@ void setVolumeMeterStyle(int style)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(volumeMeterStyleKey, style);
+    settings.endGroup();
+}
+
+bool columnFlashEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto enabled = settings.value(columnFlashEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setColumnFlashEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(columnFlashEnabledKey, enabled);
     settings.endGroup();
 }
 

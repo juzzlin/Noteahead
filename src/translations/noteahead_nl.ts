@@ -10340,6 +10340,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Kolomflits</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Laat de achtergrond van een kolom oplichten in de kleur van zijn track wanneer die een noot speelt</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>EQ-spectrum</translation>
     </message>

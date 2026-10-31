@@ -18,6 +18,9 @@ import QtQuick 2.15
 
 QtObject {
     readonly property int columnHeaderHeight: 40
+    // A column's flash on a note: its peak opacity at full velocity, and how long it takes to fade
+    readonly property double columnFlashMaxOpacity: 0.16
+    readonly property int columnFlashDuration: 900
     readonly property double defaultWindowScale: 0.8
     readonly property double defaultDialogScale: 0.7
     readonly property double effectDialogScale: 0.5

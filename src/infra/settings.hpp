@@ -161,6 +161,9 @@ void setPaletteAccentBlend(int paletteAccentBlend);
 int volumeMeterStyle(int defaultVolumeMeterStyle);
 void setVolumeMeterStyle(int style);
 
+bool columnFlashEnabled();
+void setColumnFlashEnabled(bool enabled);
+
 //! Empty until the user has picked a language, in which case the system's UI languages apply.
 QString userLanguage(QString defaultUserLanguage);
 void setUserLanguage(QString userLanguage);

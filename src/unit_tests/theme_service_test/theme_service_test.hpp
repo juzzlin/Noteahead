@@ -51,6 +51,9 @@ private slots:
     void test_volumeMeterStyle_unset_shouldDefaultToGradient();
     void test_volumeMeterStyle_setter_shouldUpdateGetterAndEmitSignal();
     void test_volumeMeterStyle_setter_shouldPersistAcrossInstances();
+    void test_columnFlashEnabled_unset_shouldDefaultToDisabled();
+    void test_columnFlashEnabled_setter_shouldUpdateGetterAndEmitSignal();
+    void test_columnFlashEnabled_setter_shouldPersistAcrossInstances();
 
     void test_trackHeaderTextColors_zeroBlend_shouldReturnTheOriginalPalette();
     void test_trackHeaderTextColors_fullBlend_shouldShareTheAccentHue();

@@ -10340,6 +10340,14 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Flash de colonne</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Faire clignoter le fond d&apos;une colonne dans la couleur de sa piste quand elle joue une note</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>Spectre de l’EQ</translation>
     </message>

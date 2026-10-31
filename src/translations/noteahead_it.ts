@@ -10340,6 +10340,14 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Lampeggio colonna</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Fa lampeggiare lo sfondo di una colonna nel colore della sua traccia quando suona una nota</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>Spettro EQ</translation>
     </message>

@@ -192,6 +192,27 @@ SectionBox {
             }
         }
 
+        SectionBox {
+            title: qsTr("Column Flash")
+            Layout.fillWidth: true
+
+            RowLayout {
+                spacing: 10
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                CheckBox {
+                    id: columnFlashCheckBox
+                    Layout.fillWidth: true
+                    text: qsTr("Flash a column's background in its track color when it plays a note")
+                    checked: themeService.columnFlashEnabled
+                    onToggled: themeService.columnFlashEnabled = checked
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
+                }
+            }
+        }
+
         // The live spectrum behind the equalizer curves. Until a color is picked both follow the
         // accent, turned round the hue circle so they stand apart from a curve drawn in it. Init
         // puts them back to that.

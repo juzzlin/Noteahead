@@ -79,8 +79,17 @@ Item {
         if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
             if (velocity > 0) {
-                volumeMeter.trigger(mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127);
+                const level = mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127;
+                volumeMeter.trigger(level);
+                _flash(level);
             }
+        }
+    }
+    function _flash(level: double): void {
+        if (themeService.columnFlashEnabled && level > 0) {
+            flashAnimation.stop();
+            flash.opacity = Math.min(level, 1.0) * Constants.columnFlashMaxOpacity;
+            flashAnimation.start();
         }
     }
     Component {
@@ -96,6 +105,24 @@ Item {
             textColorGhost: themeService.noteColumnTextColorGhost
             automationCurveColors: themeService.automationCurveColors
             automationCurveCenterLineColor: themeService.automationCurveCenterLineColor
+        }
+    }
+    // Washes the column in its track colour on every note it plays, and fades out on its own: no
+    // timer runs while the column is quiet
+    Rectangle {
+        id: flash
+        anchors.fill: parent
+        color: themeService.trackHeaderTextColors[_trackIndex % themeService.trackHeaderTextColors.length]
+        opacity: 0
+        visible: opacity > 0
+        z: 4
+        NumberAnimation {
+            id: flashAnimation
+            target: flash
+            property: "opacity"
+            to: 0
+            duration: Constants.columnFlashDuration
+            easing.type: Easing.OutExpo
         }
     }
     VolumeMeter {

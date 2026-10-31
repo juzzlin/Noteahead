@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Column Flash: a column flashes in its track colour on every note it plays, off by default, in Theme settings
+
 Bug fixes:
 
 * Parameter automation no longer jumps back when the song ends, so the tails keep the automated sound

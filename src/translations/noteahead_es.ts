@@ -10340,6 +10340,14 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Flash</source>
+        <translation>Destello de columna</translation>
+    </message>
+    <message>
+        <source>Flash a column&apos;s background in its track color when it plays a note</source>
+        <translation>Hacer destellar el fondo de una columna con el color de su pista cuando toca una nota</translation>
+    </message>
+    <message>
         <source>EQ Spectrum</source>
         <translation>Espectro del EQ</translation>
     </message>

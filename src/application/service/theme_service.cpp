@@ -99,6 +99,7 @@ ThemeService::ThemeService()
   , m_userThemePresets { Settings::userThemePresets() }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
   , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
+  , m_columnFlashEnabled { Settings::columnFlashEnabled() }
 {
     // The theme last picked, by name, so that the list can change under it. A factory theme wins
     // over one of the user's own of the same name, which is the order the list shows them in.
@@ -169,6 +170,20 @@ void ThemeService::setVolumeMeterStyle(int style)
         m_volumeMeterStyle = style;
         Settings::setVolumeMeterStyle(m_volumeMeterStyle);
         emit volumeMeterStyleChanged();
+    }
+}
+
+bool ThemeService::columnFlashEnabled() const
+{
+    return m_columnFlashEnabled;
+}
+
+void ThemeService::setColumnFlashEnabled(bool enabled)
+{
+    if (m_columnFlashEnabled != enabled) {
+        m_columnFlashEnabled = enabled;
+        Settings::setColumnFlashEnabled(m_columnFlashEnabled);
+        emit columnFlashEnabledChanged();
     }
 }
 
