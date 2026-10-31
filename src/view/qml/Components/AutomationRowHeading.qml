@@ -31,6 +31,9 @@ Item {
     property real minValue: 0
     property real maxValue: 1
 
+    // GroupBox reserves room for its label only when the label has a width, so without this the
+    // heading sits on top of the first row instead of above the frame
+    implicitWidth: heading.implicitWidth
     implicitHeight: heading.implicitHeight
 
     SectionHeading {
