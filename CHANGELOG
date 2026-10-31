@@ -5,24 +5,16 @@ Release date:
 
 New features:
 
-* Column Flash: a column flashes in its track colour on every note it plays, off by default, in Theme settings
-
-* Automation curves in the editor highlight on hover, and a click opens that automation's edit dialog
-
 Bug fixes:
 
-* Parameter automation no longer jumps back when the song ends, so the tails keep the automated sound
-
 Other:
-
-* FM Drums: the crash is struck instead of fading in, and now fitted to a recorded crash
 
 11.0.0
 ======
 
 Release date:
 
-Fri, 30 Oct 2026 15:27:46 +0200
+Sat, 31 Oct 2026 23:11:25 +0200
 
 New features:
 
@@ -89,6 +81,10 @@ New features:
 * Drawn automation curves for MIDI CC, Pitch Bend and parameter automations
   - Drawn node by node; each curve is previewed in the edit dialogs
 
+* Column Flash: a column flashes in its track colour on every note it plays, off by default, in Theme settings
+
+* Automation curves in the editor highlight on hover, and a click opens that automation's edit dialog
+
 Bug fixes:
 
 * Drum Synth V2: the Crash sounded like breaking glass: no body, and a whining tail
@@ -103,6 +99,12 @@ Bug fixes:
 
 * Rendering: a device's insert effects kept the state earlier playback left in them, so the same
   song could render differently, with a pop
+
+* Parameter automation no longer jumps back when the song ends, so the tails keep the automated sound
+
+Other:
+
+* FM Drums: the crash is struck instead of fading in, and now fitted to a recorded crash
 
 10.0.0
 ======
