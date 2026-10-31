@@ -704,7 +704,7 @@ void SpeechDevice::reset()
     emit dataChanged();
 }
 
-void SpeechDevice::resetAudio()
+void SpeechDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_sequencer.reset();

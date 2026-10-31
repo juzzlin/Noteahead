@@ -648,6 +648,11 @@ void Device::reset()
 void Device::resetAudio()
 {
     m_insertEffectRack.reset();
+    resetDeviceAudio();
+}
+
+void Device::resetDeviceAudio()
+{
 }
 
 void Device::saveState()

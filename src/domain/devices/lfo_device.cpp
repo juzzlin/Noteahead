@@ -208,7 +208,7 @@ void LfoDevice::reset()
     resetAudio();
 }
 
-void LfoDevice::resetAudio()
+void LfoDevice::resetDeviceAudio()
 {
     // Back to the start of the shape, as a render begins: the same render twice is the same render
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

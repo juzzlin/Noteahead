@@ -108,7 +108,7 @@ public:
     void setBpm(float bpm) override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
 
     //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
 

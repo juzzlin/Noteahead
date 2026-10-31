@@ -673,7 +673,7 @@ void WavetableSynthDevice::reset()
     syncParameters();
 }
 
-void WavetableSynthDevice::resetAudio()
+void WavetableSynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_rng.seed(RngSeed);

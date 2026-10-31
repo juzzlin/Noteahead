@@ -851,7 +851,7 @@ void JuSynth08Device::reset()
     syncParameters();
 }
 
-void JuSynth08Device::resetAudio()
+void JuSynth08Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (size_t i = 0; i < m_voices.size(); i++) {

@@ -298,7 +298,7 @@ void SnareSynthDevice::reset()
     syncParameters();
 }
 
-void SnareSynthDevice::resetAudio()
+void SnareSynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();

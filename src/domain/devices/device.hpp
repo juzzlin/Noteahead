@@ -410,7 +410,10 @@ public:
     virtual void setBpm(float bpm);
 
     virtual void reset() override;
-    virtual void resetAudio();
+    //! Silences the device: its insert rack, then whatever it holds itself. Not virtual for the
+    //! same reason as processMidiCc(): no device can leave its insert rack out, and a render that
+    //! started from the state earlier playback left in one would not be the same every time.
+    void resetAudio();
 
     //! Remembers the current settings so restoreState() can put them back. Taken when a device
     //! dialog opens; its Cancel button is what calls restoreState(). Authored values only, so that
@@ -515,6 +518,8 @@ protected:
     //! The device's own note handling, given the note already shifted by the octave.
     virtual void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
     virtual void processDeviceMidiNoteOff(uint8_t note) = 0;
+    //! The device's own part of resetAudio(): voices, filters, delay lines, random generators.
+    virtual void resetDeviceAudio();
     //! How long the note now being started lasts, in beats, or nothing when nobody said.
     std::optional<double> noteBeats() const;
 

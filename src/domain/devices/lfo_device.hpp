@@ -89,7 +89,7 @@ public:
     bool hasActiveAudio() const override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
 
     //! Every LFO's described controls, grouped by LFO.
     AutomatableParameterList automatableParameters() const override;

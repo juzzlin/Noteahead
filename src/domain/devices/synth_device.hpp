@@ -195,7 +195,7 @@ public:
     void setBpm(float bpm) override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
 
     double voiceGlideFrequency(size_t index) const;
     //! Level weighting the current voice mode gives this voice. Only Supersaw uses anything but

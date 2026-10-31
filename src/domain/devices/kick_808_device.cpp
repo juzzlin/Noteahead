@@ -236,7 +236,7 @@ void Kick808Device::reset()
     syncParameters();
 }
 
-void Kick808Device::resetAudio()
+void Kick808Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();

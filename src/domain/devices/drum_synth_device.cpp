@@ -422,7 +422,7 @@ void DrumSynthDevice::reset()
     resetAudio();
 }
 
-void DrumSynthDevice::resetAudio()
+void DrumSynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {

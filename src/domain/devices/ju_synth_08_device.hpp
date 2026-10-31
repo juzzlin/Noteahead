@@ -131,7 +131,7 @@ public:
     void advanceIdle(const AudioContext & context) override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
     void syncParameters() override;
 
     void serializeToXml(ProjectWriter & writer) const override;

@@ -263,7 +263,7 @@ void PianoSynthV3Device::reset()
     syncParameters();
 }
 
-void PianoSynthV3Device::resetAudio()
+void PianoSynthV3Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto & v : m_voices) {

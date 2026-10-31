@@ -119,7 +119,7 @@ public:
     bool hasActiveAudio() const override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
 
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;

@@ -62,15 +62,25 @@ public:
     {
         return "counting";
     }
+
     std::string typeId() const override
     {
         return "counting";
     }
+
     void processSample(double &, double &) override
     {
         frames++;
     }
+
+    void reset() override
+    {
+        Effect::reset();
+        resets++;
+    }
+
     size_t frames { 0 };
+    size_t resets { 0 };
 };
 
 } // namespace
@@ -758,6 +768,24 @@ void EffectRackTest::test_insertRack_everyDevice_shouldBeLeftToTheEngine()
         AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
         device->processAudio(context);
         QVERIFY2(counter->frames == 0, typeId.c_str());
+    }
+    DeviceFactory::clear();
+}
+
+void EffectRackTest::test_resetAudio_everyDevice_shouldResetTheInsertRack()
+{
+    // A render resets every device before it starts, and a device that left its inserts out
+    // rendered through whatever state the last playback left in its compressors and filters: the
+    // same song came out differently, with a pop, depending on what had been played before.
+    DeviceFactory::init();
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "Fixture");
+        QVERIFY2(device, typeId.c_str());
+        const auto counter = std::make_shared<CountingEffect>();
+        device->insertEffectRack().setEffect(0, counter);
+        const size_t resets = counter->resets;
+        device->resetAudio();
+        QVERIFY2(counter->resets > resets, typeId.c_str());
     }
     DeviceFactory::clear();
 }

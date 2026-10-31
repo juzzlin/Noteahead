@@ -104,7 +104,7 @@ public:
         m_note = 0;
     }
 
-    void resetAudio() override
+    void resetDeviceAudio() override
     {
         m_note = 0;
     }

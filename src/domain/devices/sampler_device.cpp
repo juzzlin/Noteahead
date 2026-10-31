@@ -1078,7 +1078,7 @@ void SamplerDevice::stopVoicesUsing(const Sample * sample)
     }
 }
 
-void SamplerDevice::resetAudio()
+void SamplerDevice::resetDeviceAudio()
 {
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };

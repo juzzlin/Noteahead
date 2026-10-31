@@ -626,7 +626,7 @@ void StringVoiceV2Device::reset()
     syncParameters();
 }
 
-void StringVoiceV2Device::resetAudio()
+void StringVoiceV2Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto & v : m_voices) {

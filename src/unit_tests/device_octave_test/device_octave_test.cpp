@@ -102,7 +102,7 @@ public:
     {
     }
 
-    void resetAudio() override
+    void resetDeviceAudio() override
     {
     }
 

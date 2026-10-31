@@ -734,7 +734,7 @@ void NoiseFxDevice::reset()
     syncParameters();
 }
 
-void NoiseFxDevice::resetAudio()
+void NoiseFxDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {

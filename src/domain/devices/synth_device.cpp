@@ -938,7 +938,7 @@ void SynthDevice::reset()
     syncParameters();
 }
 
-void SynthDevice::resetAudio()
+void SynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_rng.seed(RngSeed);

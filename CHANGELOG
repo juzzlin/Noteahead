@@ -17,6 +17,9 @@ New features:
 
 Bug fixes:
 
+* Fix a render depending on what was played before it
+  - Device insert effects now start every render from silence, so the same song renders the same
+
 Other:
 
 11.0.0

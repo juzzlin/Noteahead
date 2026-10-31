@@ -394,7 +394,7 @@ void BassSynthDevice::reset()
     syncParameters();
 }
 
-void BassSynthDevice::resetAudio()
+void BassSynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock(mutex());
     m_voice.reset();

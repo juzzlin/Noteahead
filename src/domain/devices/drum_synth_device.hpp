@@ -65,7 +65,7 @@ public:
     bool hasActiveAudio() const override;
 
     void reset() override;
-    void resetAudio() override;
+    void resetDeviceAudio() override;
 
     //! 0 for 12 dB/oct, which the voice filters have always been, and 1 for 24.
     int lpfSlope() const;
