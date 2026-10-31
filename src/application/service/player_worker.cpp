@@ -102,6 +102,11 @@ void PlayerWorker::play()
 
 void PlayerWorker::stop()
 {
+    stop(Ending::Stopped);
+}
+
+void PlayerWorker::stop(Ending ending)
+{
     juzzlin::L(TAG).info() << "Stopping playback";
 
     setIsPlaying(false);
@@ -112,7 +117,7 @@ void PlayerWorker::stop()
         const std::lock_guard<std::mutex> barrier { m_eventMutex };
     }
 
-    stopAllNotes();
+    stopAllNotes(ending);
     stopTransport();
     if (m_midiService) {
         m_midiService->clearScheduledEvents();
@@ -386,7 +391,7 @@ void PlayerWorker::processEvents()
 
     juzzlin::L(TAG).debug() << "All events processed";
 
-    stop();
+    stop(Ending::SongEnded);
 
     emit songEnded();
 }
@@ -405,11 +410,15 @@ void PlayerWorker::seekDevices()
     }
 }
 
-void PlayerWorker::stopAllNotes()
+void PlayerWorker::stopAllNotes(Ending ending)
 {
     juzzlin::L(TAG).info() << "Stopping all notes";
     for (auto && instrument : m_allInstruments) {
-        m_midiService->stopAllNotes(instrument);
+        if (ending == Ending::SongEnded) {
+            m_midiService->releaseAllNotes(instrument);
+        } else {
+            m_midiService->stopAllNotes(instrument);
+        }
     }
 }
 

@@ -88,7 +88,15 @@ private:
 
     void setIsPlaying(bool isPlaying);
 
-    void stopAllNotes();
+    //! Whether the notes are stopped by a stop asked for, which resets the controllers, or by the
+    //! song running to its end, which leaves them where the song took them.
+    enum class Ending
+    {
+        Stopped,
+        SongEnded
+    };
+    void stop(Ending ending);
+    void stopAllNotes(Ending ending);
     //! How long @p event's note lasts, in beats, where the render paired it with a note-off.
     std::optional<double> noteBeatsOf(const Event & event) const;
     //! Puts the counting devices back where this timeline begins.

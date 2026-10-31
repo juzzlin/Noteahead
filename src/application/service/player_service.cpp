@@ -135,6 +135,7 @@ bool PlayerService::play()
     emit songRequested();
 
     if (m_song) {
+        emit playbackStarting();
         initializeWorkerWithSongData();
         startWorker();
         return true;

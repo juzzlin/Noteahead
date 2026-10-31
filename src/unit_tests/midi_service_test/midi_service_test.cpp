@@ -25,6 +25,7 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -108,6 +109,30 @@ void MidiServiceTest::test_instrumentRequest_internalDevice_applyAll_shouldApply
     setup.midiService->handleInstrumentRequest({ InstrumentRequest::Type::ApplyAll, setup.instrument });
 
     QVERIFY(qFuzzyCompare(kickHpfCutoff(*setup.device), 64.0f / 127.0f));
+}
+
+void MidiServiceTest::test_releaseAllNotes_internalDevice_shouldKeepTheAutomatedValues()
+{
+    // How a song that ran to its end stops its notes: a filter it opened stays open over the tails
+    auto setup = createSetup();
+    const auto instrument = std::make_shared<Instrument>(setup.instrument);
+    setup.midiService->sendCcData(instrument, MidiCcData { 0, 0, kickHpfCc(), 127 });
+
+    setup.midiService->releaseAllNotes(instrument);
+
+    QVERIFY(qFuzzyCompare(kickHpfCutoff(*setup.device), 1.0f));
+}
+
+void MidiServiceTest::test_stopAllNotes_internalDevice_shouldRestoreTheSetValues()
+{
+    auto setup = createSetup();
+    const auto originalValue = kickHpfCutoff(*setup.device);
+    const auto instrument = std::make_shared<Instrument>(setup.instrument);
+    setup.midiService->sendCcData(instrument, MidiCcData { 0, 0, kickHpfCc(), 127 });
+
+    setup.midiService->stopAllNotes(instrument);
+
+    QVERIFY(qFuzzyCompare(kickHpfCutoff(*setup.device), originalValue));
 }
 
 void MidiServiceTest::test_instrumentRequest_internalDevice_applyMidiCc_shouldApplyMidiCcSettings()

@@ -300,6 +300,19 @@ void MidiService::stopAllNotes(InstrumentW instrument)
     }
 }
 
+void MidiService::releaseAllNotes(InstrumentW instrument)
+{
+    if (const auto instr = instrument.lock()) {
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            m_deviceService->processMidiAllNotesOff(portName);
+            m_deviceService->processMidiCc(portName, static_cast<uint8_t>(MidiCcMapping::Controller::SustainPedal), 0, instr->midiAddress().channel());
+        } else {
+            m_outputWorker->stopAllNotes(portName, instr->midiAddress().channel());
+        }
+    }
+}
+
 bool MidiService::anyDeviceWantsNoteIndexSeek() const
 {
     return m_deviceService && m_deviceService->anyWantsNoteIndexSeek();

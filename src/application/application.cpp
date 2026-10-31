@@ -839,11 +839,17 @@ void Application::connectPlayerService()
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 
-    // Playback is over, so nothing it wrote may outlive it: the devices go back to the values the
-    // user set, and a save from here on stores those. At once, so that a jump in the play order --
-    // a stop and a play back to back -- starts the next pattern from the set values rather than
-    // from wherever the last one's automation had taken them.
+    // A stop asked for: nothing playback wrote may outlive it, so the devices go back to the values
+    // the user set. At once, so that a jump in the play order -- a stop and a play back to back --
+    // starts the next pattern from the set values rather than from wherever the last one's
+    // automation had taken them. A save stores the set values either way.
     connect(m_playerService.get(), &PlayerService::playbackStopped, this, [this]() {
+        m_deviceService->clearAutomation();
+    });
+
+    // A song that ran to its end keeps its automation, so that a filter it opened stays open over
+    // the tails. The next run starts from the set values, as a render does.
+    connect(m_playerService.get(), &PlayerService::playbackStarting, this, [this]() {
         m_deviceService->clearAutomation();
     });
 
@@ -854,10 +860,6 @@ void Application::connectPlayerService()
             // Only on the rising edge: an integrated reading is meant to describe one take, so it
             // starts over with the song rather than carrying whatever was auditioned beforehand.
             m_deviceService->resetLoudnessMeters();
-        } else {
-            // Playback ran to its end. A stop asked for clears on playbackStopped() instead, at
-            // once; this one arrives queued, and only clears if nothing has started since.
-            m_deviceService->clearAutomation();
         }
         if (m_settingsService->recordingEnabled()) {
             applyAudioRecording(isPlaying, m_playerService->tick());

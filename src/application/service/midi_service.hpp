@@ -80,6 +80,10 @@ public:
     void playNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when);
     void stopNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when);
     virtual Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
+    //! Ends every note like stopAllNotes(), but leaves the controllers where the song took them:
+    //! an internal device lifts its sustain pedal instead of resetting, so its automated values
+    //! hold over the tails of a song that ran to its end.
+    virtual void releaseAllNotes(InstrumentW instrument);
     virtual Q_INVOKABLE void stopAllNotes();
 
     //! Whether any internal device counts the notes it is given. \see DeviceService.

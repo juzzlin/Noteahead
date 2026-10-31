@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Parameter automation no longer jumps back when the song ends, so the tails keep the automated sound
+
 Other:
 
 11.0.0

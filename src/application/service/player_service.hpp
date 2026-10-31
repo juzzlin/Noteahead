@@ -79,6 +79,9 @@ signals:
     //! left behind has to be cleared here rather than on isPlayingChanged(), which arrives queued:
     //! by then a jump to another song position may already be playing again.
     void playbackStopped();
+    //! Emitted by play() on the caller's thread before the worker starts. A song that ran to its end
+    //! leaves its automation where it took it, so a new run has to start from the set values.
+    void playbackStarting();
     void isPlayingChanged();
     void isLoopingChanged();
 

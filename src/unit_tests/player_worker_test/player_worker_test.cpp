@@ -77,6 +77,13 @@ public:
         stopAllNotesCallCount++;
     }
 
+    int releaseAllNotesCallCount = 0;
+
+    void releaseAllNotes(InstrumentW) override
+    {
+        releaseAllNotesCallCount++;
+    }
+
     std::optional<double> lastNoteBeats;
 
     void playNote(InstrumentW, MidiNoteDataCR data) override
@@ -407,6 +414,46 @@ void PlayerWorkerTest::test_stop_shouldLeaveNothingToBeSentAfterItReturns()
 
     QCOMPARE(later, atStop);
     QVERIFY(!worker.isPlaying());
+}
+
+void PlayerWorkerTest::test_stop_songRunsToItsEnd_shouldKeepTheControllers()
+{
+    // A song that ran to its end leaves its automation where it took it, over the tails
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    PlayerWorker worker { midiService, mixerService, nullptr };
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+    worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
+
+    worker.play();
+
+    QVERIFY(!worker.isPlaying());
+    QCOMPARE(midiService->releaseAllNotesCallCount, 1);
+    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+}
+
+void PlayerWorkerTest::test_stop_askedFor_shouldResetTheControllers()
+{
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    PlayerWorker worker { midiService, mixerService, nullptr };
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+    worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
+
+    worker.stop();
+
+    QCOMPARE(midiService->stopAllNotesCallCount, 1);
+    QCOMPARE(midiService->releaseAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_noteOff_soloedElsewhere_shouldNotBeSent()

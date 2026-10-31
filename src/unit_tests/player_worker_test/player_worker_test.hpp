@@ -32,6 +32,8 @@ private slots:
     void test_trackMuteBehavior_shouldStopAllNotes();
     void test_playback_shouldSendMidiEvents();
     void test_stop_shouldLeaveNothingToBeSentAfterItReturns();
+    void test_stop_songRunsToItsEnd_shouldKeepTheControllers();
+    void test_stop_askedFor_shouldResetTheControllers();
     void test_mixerChange_shouldStopNotes();
     void test_columnMute_shouldStopActiveNote();
     void test_noteOff_soloedElsewhere_shouldNotBeSent();
