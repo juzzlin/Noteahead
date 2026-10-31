@@ -54,6 +54,7 @@
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
+#include "../../domain/effects/reverb_224.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/spectrum_source.hpp"
@@ -426,6 +427,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
     addEffect("Phaser", Constants::RackEffectType::phaser().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
+    addEffect("Reverb 224", Reverb224::typeIdString());
     addEffect("RTA", Constants::RackEffectType::rta().toStdString());
     addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
     addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
@@ -910,6 +912,16 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 return QString { "(size=%1%, decay=%2s, mix=%3%)" }
                   .arg(static_cast<int>(std::round(valueOf(C::xmlKeySize()) * 100.0f)))
                   .arg(Ambience::decaySeconds(valueOf(C::xmlKeyDecay())), 0, 'f', 2)
+                  .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
+            } else if (type == Constants::RackEffectType::reverb224()) {
+                namespace C = Constants::NahdXml;
+                const auto valueOf = [&effect](const QString & key) {
+                    const auto p = effect->parameter(key.toStdString());
+                    return p ? p->get().value() : 0.0f;
+                };
+                return QString { "(mid=%1s, bass=%2s, mix=%3%)" }
+                  .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyMidDecay())), 0, 'f', 1)
+                  .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyBassDecay())), 0, 'f', 1)
                   .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
             } else if (type == Constants::RackEffectType::earlyReflections()) {
                 const auto size { effect->parameter(Constants::NahdXml::xmlKeySize().toStdString()) };
@@ -2892,6 +2904,76 @@ QString EffectRackController::ambienceMixKey() const
 QString EffectRackController::ambienceSoloKey() const
 {
     return Constants::NahdXml::xmlKeySolo();
+}
+
+QString EffectRackController::reverb224Type() const
+{
+    return Constants::RackEffectType::reverb224();
+}
+
+QString EffectRackController::reverb224ProgramKey() const
+{
+    return Constants::NahdXml::xmlKeyProgram();
+}
+
+QString EffectRackController::reverb224PreDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyPreDelay();
+}
+
+QString EffectRackController::reverb224BassDecayKey() const
+{
+    return Constants::NahdXml::xmlKeyBassDecay();
+}
+
+QString EffectRackController::reverb224MidDecayKey() const
+{
+    return Constants::NahdXml::xmlKeyMidDecay();
+}
+
+QString EffectRackController::reverb224CrossoverKey() const
+{
+    return Constants::NahdXml::xmlKeyCrossoverFreq(0);
+}
+
+QString EffectRackController::reverb224TrebleDecayKey() const
+{
+    return Constants::NahdXml::xmlKeyTrebleDecay();
+}
+
+QString EffectRackController::reverb224DepthKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::reverb224DiffusionKey() const
+{
+    return Constants::NahdXml::xmlKeyDiffusion();
+}
+
+QString EffectRackController::reverb224EnhanceKey() const
+{
+    return Constants::NahdXml::xmlKeyEnhance();
+}
+
+QString EffectRackController::reverb224ConvertersKey() const
+{
+    return Constants::NahdXml::xmlKeyConverters();
+}
+
+QString EffectRackController::reverb224MixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::reverb224SoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
+bool EffectRackController::reverb224HasEarlyReflections(int program) const
+{
+    return Reverb224::hasEarlyReflections(static_cast<Reverb224::Program>(std::clamp(program, 0, static_cast<int>(Reverb224::ProgramCount) - 1)));
 }
 
 QString EffectRackController::dynamicEqType() const

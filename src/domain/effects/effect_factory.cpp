@@ -52,6 +52,7 @@
 #include "phaser.hpp"
 #include "reference.hpp"
 #include "reverb.hpp"
+#include "reverb_224.hpp"
 #include "saturator.hpp"
 #include "simple_eq.hpp"
 #include "stereo_enhancer.hpp"
@@ -142,6 +143,7 @@ void EffectFactory::init()
     // Its type id and its type are the same string, as the All-Pass Filter's are
     registerEffect(DynamicEq::typeIdString(), []() { return std::make_shared<DynamicEq>(); });
     registerEffect(Ambience::typeIdString(), []() { return std::make_shared<Ambience>(); });
+    registerEffect(Reverb224::typeIdString(), []() { return std::make_shared<Reverb224>(); });
     registerEffect(PhaseScope::typeIdString(), []() { return std::make_shared<PhaseScope>(); });
     // The type id it was saved under for the first hour it existed, as Utility
     registerEffect("utility", []() { return std::make_shared<PhaseScope>(); });

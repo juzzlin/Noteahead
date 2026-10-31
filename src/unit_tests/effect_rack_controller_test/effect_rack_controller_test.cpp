@@ -26,6 +26,7 @@
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/effects/reverb_224.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/tremolo.hpp"
@@ -1562,6 +1563,27 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
     controller.setEffect(0, controller.ambienceType());
     QCOMPARE(controller.effectType(0), controller.ambienceType());
     QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    QStringList types;
+    for (auto && entry : controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(controller.reverb224Type()), qPrintable(types.join(", ")));
+
+    // And the factory can make what the gallery offers
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, controller.reverb224Type());
+    QCOMPARE(controller.effectType(0), controller.reverb224Type());
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, mix=30%)" });
+    // Depth has nothing to balance on the plates
+    QVERIFY(controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::LargeHall)));
+    QVERIFY(!controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::VocalPlate)));
 }
 
 namespace {

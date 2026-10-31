@@ -379,6 +379,11 @@ QString ambience()
     return "ambience";
 }
 
+QString reverb224()
+{
+    return "reverb224";
+}
+
 QString crossfeed()
 {
     return "crossfeed";
@@ -1928,6 +1933,36 @@ QString xmlKeyDiffusion()
 QString xmlKeyEarlyLate()
 {
     return "earlyLate";
+}
+
+QString xmlKeyProgram()
+{
+    return "program";
+}
+
+QString xmlKeyBassDecay()
+{
+    return "bassDecay";
+}
+
+QString xmlKeyMidDecay()
+{
+    return "midDecay";
+}
+
+QString xmlKeyTrebleDecay()
+{
+    return "trebleDecay";
+}
+
+QString xmlKeyEnhance()
+{
+    return "enhance";
+}
+
+QString xmlKeyConverters()
+{
+    return "converters";
 }
 
 QString xmlKeyPreDelay()

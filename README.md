@@ -185,6 +185,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.), fine-grained controls and a Solo to hear the tail alone.
 - Ambience
   - A short, dense space to glue a mix and take the dryness off, rather than a tail to be heard: input diffusion, an early field of irregular reflections and a short tail that drifts slowly so it never rings, with the space's own low and high cut.
+- Reverb 224
+  - A late-seventies digital reverb after the Lexicon 224: an eight-line tank running at the machine's own 34 kHz behind its 8 kHz band limit and gain-ranging 12-bit converters, with eight programs, separate bass and mid decay times either side of a crossover, a treble decay and a depth control.
 - Endless Reverb
   - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
 - Early Reflections

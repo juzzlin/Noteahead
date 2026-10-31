@@ -139,6 +139,7 @@ set(HEADER_FILES
     effects/reference_environments.hpp
     effects/reference_presets.hpp
     effects/reverb.hpp
+    effects/reverb_224.hpp
     effects/reverb_presets.hpp
     effects/saturator.hpp
     effects/tremolo.hpp
@@ -353,6 +354,7 @@ set(SOURCE_FILES
     effects/reference_environments.cpp
     effects/reference_presets.cpp
     effects/reverb.cpp
+    effects/reverb_224.cpp
     effects/reverb_presets.cpp
     effects/saturator.cpp
     effects/tremolo.cpp

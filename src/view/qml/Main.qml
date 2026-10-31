@@ -762,6 +762,10 @@ ApplicationWindow {
         id: ambienceDialog
         anchors.centerIn: parent
     }
+    Reverb224Dialog {
+        id: reverb224Dialog
+        anchors.centerIn: parent
+    }
     DynamicEqDialog {
         id: dynamicEqDialog
         anchors.centerIn: parent

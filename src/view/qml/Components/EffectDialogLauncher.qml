@@ -123,6 +123,9 @@ QtObject {
         } else if (effectType === effectRackController.ambienceType) {
             ambienceDialog.effectIndex = index;
             ambienceDialog.open();
+        } else if (effectType === effectRackController.reverb224Type) {
+            reverb224Dialog.effectIndex = index;
+            reverb224Dialog.open();
         } else if (effectType === effectRackController.dynamicEqType) {
             dynamicEqDialog.effectIndex = index;
             dynamicEqDialog.open();

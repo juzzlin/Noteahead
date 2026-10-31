@@ -8540,6 +8540,22 @@
         <source>Tolerance</source>
         <translation>Tolerância</translation>
     </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Decaimento dos graves</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Crossover</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Decaimento dos médios</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Decaimento dos agudos</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9201,6 +9217,109 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderizando...</translation>
+    </message>
+</context>
+<context>
+    <name>Reverb224Dialog</name>
+    <message>
+        <source>Reverb 224 (Slot %1)</source>
+        <translation>Reverb 224 (Slot %1)</translation>
+    </message>
+    <message>
+        <source>A late-seventies digital reverb: an eight-line tank running at the machine&apos;s own 34 kHz, behind its 8 kHz band limit and its gain-ranging 12-bit converters.</source>
+        <translation>Um reverb digital do fim dos anos setenta: um tanque de oito linhas rodando nos 34 kHz próprios da máquina, atrás do seu limite de banda de 8 kHz e dos seus conversores de 12 bits com ajuste automático de ganho.</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>Programa</translation>
+    </message>
+    <message>
+        <source>Converters</source>
+        <translation>Conversores</translation>
+    </message>
+    <message>
+        <source>The machine&apos;s 12-bit converters: quiet signals keep their resolution, and the noise follows the signal</source>
+        <translation>Os conversores de 12 bits da máquina: sinais baixos mantêm a resolução, e o ruído acompanha o sinal</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decaimento</translation>
+    </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Decaimento dos graves</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Crossover</translation>
+    </message>
+    <message>
+        <source>Where Bass Decay hands over to Mid Decay</source>
+        <translation>Onde o decaimento dos graves passa para o decaimento dos médios</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Decaimento dos médios</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Decaimento dos agudos</translation>
+    </message>
+    <message>
+        <source>Above this the tail dies away faster than the mids</source>
+        <translation>Acima disto a cauda se extingue mais rápido que os médios</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Espaço</translation>
+    </message>
+    <message>
+        <source>Pre-Delay</source>
+        <translation>Pré-delay</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Profundidade</translation>
+    </message>
+    <message>
+        <source>Near, the early reflections are in front; deep, the tank takes over</source>
+        <translation>Perto, as primeiras reflexões ficam na frente; fundo, o tanque assume</translation>
+    </message>
+    <message>
+        <source>The plates have no early reflections</source>
+        <translation>Os plates não têm primeiras reflexões</translation>
+    </message>
+    <message>
+        <source>Diffusion</source>
+        <translation>Difusão</translation>
+    </message>
+    <message>
+        <source>How much a transient is smeared before it enters the tank</source>
+        <translation>Quanto um transiente é espalhado antes de entrar no tanque</translation>
+    </message>
+    <message>
+        <source>Enhance</source>
+        <translation>Enhance</translation>
+    </message>
+    <message>
+        <source>Slowly moves the tank&apos;s delays to break up its resonant modes</source>
+        <translation>Move lentamente os atrasos do tanque para quebrar seus modos ressonantes</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Saída</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mistura</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so it can be heard without the source</source>
+        <translation>Deixa passar só o reverb, para ouvi-lo sem a fonte</translation>
     </message>
 </context>
 <context>

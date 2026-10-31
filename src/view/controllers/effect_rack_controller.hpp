@@ -77,6 +77,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString phaseScopeType READ phaseScopeType CONSTANT)
     Q_PROPERTY(QString dynamicEqType READ dynamicEqType CONSTANT)
     Q_PROPERTY(QString ambienceType READ ambienceType CONSTANT)
+    Q_PROPERTY(QString reverb224Type READ reverb224Type CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -161,6 +162,7 @@ public:
     QString phaseScopeType() const;
     QString dynamicEqType() const;
     QString ambienceType() const;
+    QString reverb224Type() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -548,6 +550,22 @@ public:
     Q_INVOKABLE QString ambienceWidthKey() const;
     Q_INVOKABLE QString ambienceMixKey() const;
     Q_INVOKABLE QString ambienceSoloKey() const;
+
+    // Reverb 224
+    Q_INVOKABLE QString reverb224ProgramKey() const;
+    Q_INVOKABLE QString reverb224PreDelayKey() const;
+    Q_INVOKABLE QString reverb224BassDecayKey() const;
+    Q_INVOKABLE QString reverb224MidDecayKey() const;
+    Q_INVOKABLE QString reverb224CrossoverKey() const;
+    Q_INVOKABLE QString reverb224TrebleDecayKey() const;
+    Q_INVOKABLE QString reverb224DepthKey() const;
+    Q_INVOKABLE QString reverb224DiffusionKey() const;
+    Q_INVOKABLE QString reverb224EnhanceKey() const;
+    Q_INVOKABLE QString reverb224ConvertersKey() const;
+    Q_INVOKABLE QString reverb224MixKey() const;
+    Q_INVOKABLE QString reverb224SoloKey() const;
+    //! Whether @p program has early reflections for Depth to balance, which the plates do not.
+    Q_INVOKABLE bool reverb224HasEarlyReflections(int program) const;
 
     // DynamicEq
     Q_INVOKABLE QString dynamicEqTypeKey() const;

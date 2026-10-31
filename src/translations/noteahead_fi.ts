@@ -8540,6 +8540,22 @@
         <source>Tolerance</source>
         <translation>Toleranssi</translation>
     </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Bassojen decay</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Jakotaajuus</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Keskialueen decay</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Diskantin decay</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9201,6 +9217,109 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderöidään...</translation>
+    </message>
+</context>
+<context>
+    <name>Reverb224Dialog</name>
+    <message>
+        <source>Reverb 224 (Slot %1)</source>
+        <translation>Reverb 224 (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>A late-seventies digital reverb: an eight-line tank running at the machine&apos;s own 34 kHz, behind its 8 kHz band limit and its gain-ranging 12-bit converters.</source>
+        <translation>Myöhäisen 70-luvun digitaalikaiku: kahdeksan viivelinjan säiliö, joka toimii laitteen omalla 34 kHz:n näytetaajuudella sen 8 kHz:n kaistanrajauksen ja vahvistusta porrastavien 12-bittisten muuntimien takana.</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>Ohjelma</translation>
+    </message>
+    <message>
+        <source>Converters</source>
+        <translation>Muuntimet</translation>
+    </message>
+    <message>
+        <source>The machine&apos;s 12-bit converters: quiet signals keep their resolution, and the noise follows the signal</source>
+        <translation>Laitteen 12-bittiset muuntimet: hiljaiset signaalit säilyttävät tarkkuutensa, ja kohina seuraa signaalia</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Bassojen decay</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Jakotaajuus</translation>
+    </message>
+    <message>
+        <source>Where Bass Decay hands over to Mid Decay</source>
+        <translation>Missä bassojen decay vaihtuu keskialueen decayksi</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Keskialueen decay</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Diskantin decay</translation>
+    </message>
+    <message>
+        <source>Above this the tail dies away faster than the mids</source>
+        <translation>Tämän yläpuolella häntä vaimenee keskialuetta nopeammin</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Tila</translation>
+    </message>
+    <message>
+        <source>Pre-Delay</source>
+        <translation>Esiviive</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Syvyys</translation>
+    </message>
+    <message>
+        <source>Near, the early reflections are in front; deep, the tank takes over</source>
+        <translation>Lähellä varhaiset heijastukset ovat edessä; syvällä säiliö ottaa vallan</translation>
+    </message>
+    <message>
+        <source>The plates have no early reflections</source>
+        <translation>Plateilla ei ole varhaisia heijastuksia</translation>
+    </message>
+    <message>
+        <source>Diffusion</source>
+        <translation>Diffuusio</translation>
+    </message>
+    <message>
+        <source>How much a transient is smeared before it enters the tank</source>
+        <translation>Kuinka paljon transientti sumenee ennen säiliöön menoa</translation>
+    </message>
+    <message>
+        <source>Enhance</source>
+        <translation>Enhance</translation>
+    </message>
+    <message>
+        <source>Slowly moves the tank&apos;s delays to break up its resonant modes</source>
+        <translation>Liikuttaa säiliön viiveitä hitaasti hajottaakseen sen resonanssimoodit</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Soolo</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so it can be heard without the source</source>
+        <translation>Päästä läpi vain kaiku, jotta sen kuulee ilman lähdettä</translation>
     </message>
 </context>
 <context>

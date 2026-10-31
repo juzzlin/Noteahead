@@ -83,6 +83,7 @@
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/effects/reverb_224.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
@@ -2722,6 +2723,54 @@ void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly(
     QVERIFY(std::abs(restored->volume() - 0.8f) < 0.001f);
     QVERIFY(std::abs(restored->expression() - 0.4f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.3f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_reverb224Effect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    namespace C = Constants::NahdXml;
+    const std::vector<std::pair<QString, float>> values {
+        { C::xmlKeyProgram(), 5.0f },
+        { C::xmlKeyPreDelay(), 0.4f },
+        { C::xmlKeyBassDecay(), 0.71f },
+        { C::xmlKeyMidDecay(), 0.52f },
+        { C::xmlKeyCrossoverFreq(0), 0.33f },
+        { C::xmlKeyTrebleDecay(), 0.64f },
+        { C::xmlKeyDepth(), 0.27f },
+        { C::xmlKeyDiffusion(), 0.91f },
+        { C::xmlKeyEnhance(), 0.18f },
+        { C::xmlKeyConverters(), 0.0f },
+        { C::xmlKeyMix(), 0.44f },
+        { C::xmlKeySolo(), 1.0f },
+    };
+    auto reverb = std::make_shared<Reverb224>();
+    for (auto && [key, value] : values) {
+        if (auto p = reverb->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, reverb);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Reverb224>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY2(p, qPrintable(key));
+        // Pre-delay is stored in whole milliseconds
+        QVERIFY2(std::abs(p->get().value() - value) < 0.004f, qPrintable(key + ": " + QString::number(p->get().value())));
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly()

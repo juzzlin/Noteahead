@@ -8540,6 +8540,22 @@
         <source>Tolerance</source>
         <translation>Tolerantie</translation>
     </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Bas-decay</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Crossover</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Midden-decay</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Hoog-decay</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9201,6 +9217,109 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderen...</translation>
+    </message>
+</context>
+<context>
+    <name>Reverb224Dialog</name>
+    <message>
+        <source>Reverb 224 (Slot %1)</source>
+        <translation>Reverb 224 (Slot %1)</translation>
+    </message>
+    <message>
+        <source>A late-seventies digital reverb: an eight-line tank running at the machine&apos;s own 34 kHz, behind its 8 kHz band limit and its gain-ranging 12-bit converters.</source>
+        <translation>Een digitale galm uit de late jaren zeventig: een tank van acht lijnen die op de eigen 34 kHz van de machine draait, achter de bandbegrenzing van 8 kHz en de 12-bits converters met automatische versterkingsomschakeling.</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>Programma</translation>
+    </message>
+    <message>
+        <source>Converters</source>
+        <translation>Converters</translation>
+    </message>
+    <message>
+        <source>The machine&apos;s 12-bit converters: quiet signals keep their resolution, and the noise follows the signal</source>
+        <translation>De 12-bits converters van de machine: zachte signalen houden hun resolutie, en de ruis volgt het signaal</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>Bas-decay</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>Crossover</translation>
+    </message>
+    <message>
+        <source>Where Bass Decay hands over to Mid Decay</source>
+        <translation>Waar de bas-decay overgaat in de midden-decay</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>Midden-decay</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>Hoog-decay</translation>
+    </message>
+    <message>
+        <source>Above this the tail dies away faster than the mids</source>
+        <translation>Hierboven sterft de staart sneller uit dan het midden</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Ruimte</translation>
+    </message>
+    <message>
+        <source>Pre-Delay</source>
+        <translation>Pre-delay</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Diepte</translation>
+    </message>
+    <message>
+        <source>Near, the early reflections are in front; deep, the tank takes over</source>
+        <translation>Dichtbij staan de vroege reflecties vooraan; diep neemt de tank het over</translation>
+    </message>
+    <message>
+        <source>The plates have no early reflections</source>
+        <translation>De plates hebben geen vroege reflecties</translation>
+    </message>
+    <message>
+        <source>Diffusion</source>
+        <translation>Diffusie</translation>
+    </message>
+    <message>
+        <source>How much a transient is smeared before it enters the tank</source>
+        <translation>Hoeveel een transiënt wordt uitgesmeerd voordat die de tank in gaat</translation>
+    </message>
+    <message>
+        <source>Enhance</source>
+        <translation>Enhance</translation>
+    </message>
+    <message>
+        <source>Slowly moves the tank&apos;s delays to break up its resonant modes</source>
+        <translation>Beweegt de vertragingen van de tank langzaam om de resonantiemodi te breken</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so it can be heard without the source</source>
+        <translation>Alleen de galm doorlaten, zodat die zonder de bron te horen is</translation>
     </message>
 </context>
 <context>

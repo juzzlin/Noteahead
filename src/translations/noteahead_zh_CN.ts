@@ -8539,6 +8539,22 @@
         <source>Tolerance</source>
         <translation>容差</translation>
     </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>低频衰减</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>分频点</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>中频衰减</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>高频衰减</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9200,6 +9216,109 @@
     <message>
         <source>Rendering...</source>
         <translation>渲染中...</translation>
+    </message>
+</context>
+<context>
+    <name>Reverb224Dialog</name>
+    <message>
+        <source>Reverb 224 (Slot %1)</source>
+        <translation>Reverb 224（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>A late-seventies digital reverb: an eight-line tank running at the machine&apos;s own 34 kHz, behind its 8 kHz band limit and its gain-ranging 12-bit converters.</source>
+        <translation>一台七十年代末的数字混响：八条延迟线组成的混响腔，以机器自身的 34 kHz 运行，前后是它的 8 kHz 频带限制和带增益分档的 12 位转换器。</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>程序</translation>
+    </message>
+    <message>
+        <source>Converters</source>
+        <translation>转换器</translation>
+    </message>
+    <message>
+        <source>The machine&apos;s 12-bit converters: quiet signals keep their resolution, and the noise follows the signal</source>
+        <translation>机器的 12 位转换器：小信号保持分辨率，噪声随信号起伏</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>Bass Decay</source>
+        <translation>低频衰减</translation>
+    </message>
+    <message>
+        <source>Crossover</source>
+        <translation>分频点</translation>
+    </message>
+    <message>
+        <source>Where Bass Decay hands over to Mid Decay</source>
+        <translation>低频衰减交接给中频衰减的位置</translation>
+    </message>
+    <message>
+        <source>Mid Decay</source>
+        <translation>中频衰减</translation>
+    </message>
+    <message>
+        <source>Treble Decay</source>
+        <translation>高频衰减</translation>
+    </message>
+    <message>
+        <source>Above this the tail dies away faster than the mids</source>
+        <translation>高于此频率，尾音比中频消失得更快</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>空间</translation>
+    </message>
+    <message>
+        <source>Pre-Delay</source>
+        <translation>预延迟</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>深度</translation>
+    </message>
+    <message>
+        <source>Near, the early reflections are in front; deep, the tank takes over</source>
+        <translation>近时早期反射在前；深时混响腔占主导</translation>
+    </message>
+    <message>
+        <source>The plates have no early reflections</source>
+        <translation>板式混响没有早期反射</translation>
+    </message>
+    <message>
+        <source>Diffusion</source>
+        <translation>扩散</translation>
+    </message>
+    <message>
+        <source>How much a transient is smeared before it enters the tank</source>
+        <translation>瞬态在进入混响腔之前被抹开的程度</translation>
+    </message>
+    <message>
+        <source>Enhance</source>
+        <translation>增强</translation>
+    </message>
+    <message>
+        <source>Slowly moves the tank&apos;s delays to break up its resonant modes</source>
+        <translation>缓慢移动混响腔的延迟，打散其共振模式</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>独奏</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so it can be heard without the source</source>
+        <translation>只通过混响，以便在没有声源的情况下听到它</translation>
     </message>
 </context>
 <context>
