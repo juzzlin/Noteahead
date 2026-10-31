@@ -48,7 +48,7 @@ FmDrumsPadVoicing reversed(FmDrumsPadVoicing crash)
 
 //! Every pad fitted to Drum Synth V2's, band for band and moment for moment, on a measure that also
 //! weighs how noisy each band is: what tells a hi-hat from a cowbell is not where its energy sits but
-//! that it is noise there rather than partials. All but the reverse crash.
+//! that it is noise there rather than partials. All but the crashes.
 std::array<FmDrumsPadVoicing, NumVoices> analogKit()
 {
     std::array<FmDrumsPadVoicing, NumVoices> kit { {
@@ -195,24 +195,26 @@ std::array<FmDrumsPadVoicing, NumVoices> analogKit()
         .noiseFilterMode = NoiseFilterMode::LowPass,
         .noiseCutoffHz = 2257.51,
         .noiseResonance = 0.3114 },
-      // Crash
+      // Crash: fitted to a recorded crash rather than to V2's, whose bloom an FM voice could only
+      // copy by swelling. Every attack is under 30 ms, so it is struck rather than faded in.
       { .algorithm = 4,
-        .frequency = 805.325,
-        .operators = { { { .waveform = Waveform::AlternatingSine, .ratio = 4.31153, .level = 0.4428, .attack = 0.325093, .decay = 2.73055, .curve = 0.4409 },
-                         { .waveform = Waveform::Square, .ratio = 0.36913, .level = 0.4582, .decay = 8.0, .curve = 0.2038 },
-                         { .ratio = 10.5254, .level = 1.0, .attack = 0.0365944, .decay = 0.725219, .curve = 0.9345 },
-                         { .ratio = 0.25, .level = 0.8679, .attack = 1.0, .decay = 0.007252, .curve = 0.3815 } } },
-        .noiseLevel = 0.0,
-        .noiseModulation = 0.679,
+        .frequency = 189.414,
+        .feedback = 0.0026,
+        .operators = { { { .waveform = Waveform::AlternatingSine, .ratio = 9.83698, .level = 0.3954, .attack = 0.0271218, .decay = 1.84325, .curve = 0.2571 },
+                         { .waveform = Waveform::Square, .ratio = 0.312987, .level = 0.5223, .attack = 0.000629691, .decay = 0.588082, .curve = 0.677 },
+                         { .ratio = 6.41716, .level = 0.95, .attack = 0.00153947, .decay = 0.366177, .curve = 0.845 },
+                         { .ratio = 9.02082, .level = 0.816, .attack = 0.0291231, .decay = 0.047045, .curve = 0.1748 } } },
+        .noiseLevel = 0.0647,
+        .noiseModulation = 0.6754,
         .noiseTarget = 2,
-        .noiseAttack = 0.215892,
-        .noiseDecay = 0.0859327,
-        .noiseCurve = 0.536,
+        .noiseAttack = 0.0269348,
+        .noiseDecay = 2.42825,
+        .noiseCurve = 0.3574,
         .noiseFilterMode = NoiseFilterMode::LowPass,
-        .noiseCutoffHz = 17335.2,
-        .noiseResonance = 0.5275,
-        .lpfCutoff = 0.8028,
-        .hpfCutoff = 0.387 },
+        .noiseCutoffHz = 10040.7,
+        .noiseResonance = 0.6147,
+        .lpfCutoff = 0.779,
+        .hpfCutoff = 0.456 },
       // Ride
       { .algorithm = 4,
         .frequency = 566.842,
