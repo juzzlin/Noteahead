@@ -188,7 +188,6 @@ SectionBox {
                     Layout.fillWidth: true
                 }
                 InterpolationCurveComboBox {
-                    drawnAvailable: true
                     enabled: delegateRoot.hasLineRange
                     currentIndex: delegateRoot.curve
                     // Drawn starts from the ramp it replaces, and goes straight on to drawing

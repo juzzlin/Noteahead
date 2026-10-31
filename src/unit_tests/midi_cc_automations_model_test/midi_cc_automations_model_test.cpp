@@ -417,6 +417,23 @@ void MidiCcAutomationsModelTest::test_setData_drawnCurve_shouldRoundTheEndsIntoT
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)).toInt(), 12);
 }
 
+void MidiCcAutomationsModelTest::test_setData_line1_drawn_shouldMoveTheEndValueAndAnnounceIt()
+{
+    MidiCcAutomation midiCcAutomation { 42, { 1, 2, 3 }, 7, { 0, 8, 0, 0 }, {} };
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    const AutomationCurve curve { { { 0, 0 }, { 4, 100 }, { 8, 0 } } };
+    QVERIFY(model.setData(model.index(0), AutomationCurveEditor::toVariantList(curve), static_cast<int>(MidiCcAutomationsModel::DataRole::DrawnCurve)));
+    QSignalSpy dataChangedSpy { &model, &MidiCcAutomationsModel::dataChanged };
+
+    QVERIFY(model.setData(model.index(0), 6, static_cast<int>(MidiCcAutomationsModel::DataRole::Line1)));
+
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)).toInt(), 50);
+    QCOMPARE(dataChangedSpy.count(), 1);
+    const auto roles = dataChangedSpy.at(0).at(2).value<QList<int>>();
+    QVERIFY(roles.isEmpty() || roles.contains(static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiCcAutomationsModelTest)

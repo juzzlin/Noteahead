@@ -12,6 +12,9 @@ New features:
 * Pitch Bend automation: Smooth output, Events per Beat and Line Offset
   - Smooth is the default for new automations; existing ones still send once per line
 
+* Drawn automation curves for MIDI CC, Pitch Bend and parameter automations
+  - Drawn node by node; each curve is previewed in the edit dialogs
+
 Bug fixes:
 
 Other:

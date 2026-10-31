@@ -21,12 +21,9 @@ import ".."
 // The one place the curve names live. The order must match Interpolator::CurveType, because the
 // index is what gets handed to the automation service and stored in the project.
 ComboBox {
-    //! Drawn is offered only where there is an automation to draw: the add forms have none until
-    //! they are accepted.
-    property bool drawnAvailable: false
     //! Interpolator::CurveType::Drawn
     readonly property int drawnIndex: 6
-    model: drawnAvailable ? [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out"), qsTr("Drawn")] : [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out")]
+    model: [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out"), qsTr("Drawn")]
     ToolTip.delay: Constants.toolTipDelay
     ToolTip.timeout: Constants.toolTipTimeout
     ToolTip.visible: hovered

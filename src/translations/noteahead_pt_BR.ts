@@ -875,6 +875,24 @@
     </message>
 </context>
 <context>
+    <name>AutomationCurveDialog</name>
+    <message>
+        <source>Click to add a node and drag to move it, right-click to delete it. Hold Shift to place it between lines.</source>
+        <translation>Clique para adicionar um ponto e arraste para movê-lo; clique com o botão direito para excluí-lo. Segure Shift para colocá-lo entre linhas.</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>Desfazer</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveView</name>
+    <message>
+        <source>Line %1: %2</source>
+        <translation>Linha %1: %2</translation>
+    </message>
+</context>
+<context>
     <name>BassGrinderDialog</name>
     <message>
         <source>Bass Grinder Parameters (Slot %1)</source>
@@ -2797,12 +2815,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Draw curve...</source>
+        <translation>Desenhar curva...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>Desenhar a curva ponto a ponto</translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>Excluir esta automação</translation>
     </message>
     <message>
         <source>Comment</source>
         <translation>Comentário</translation>
+    </message>
+    <message>
+        <source>Draw MIDI CC automation curve</source>
+        <translation>Desenhar curva de automação MIDI CC</translation>
     </message>
     <message>
         <source>Optional comment for this automation</source>
@@ -2821,6 +2851,10 @@
     <message>
         <source>Pattern: %1, Track: %2, Column: %3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw parameter automation curve</source>
+        <translation>Desenhar curva de automação de parâmetro</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -2913,6 +2947,14 @@
     <message>
         <source>Replace this automation with the settings of another one</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw curve...</source>
+        <translation>Desenhar curva...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>Desenhar a curva ponto a ponto</translation>
     </message>
     <message>
         <source>Delete this automation</source>
@@ -3037,6 +3079,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Draw curve...</source>
+        <translation>Desenhar curva...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>Desenhar a curva ponto a ponto</translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>Excluir esta automação</translation>
     </message>
@@ -3051,6 +3101,10 @@
     <message>
         <source>Output</source>
         <translation>Saída</translation>
+    </message>
+    <message>
+        <source>Draw Pitch Bend automation curve</source>
+        <translation>Desenhar curva de automação de Pitch Bend</translation>
     </message>
     <message>
         <source>Smooth</source>
@@ -4326,6 +4380,10 @@
     <message>
         <source>Ease In/Out</source>
         <translation>Ease In/Out</translation>
+    </message>
+    <message>
+        <source>Drawn</source>
+        <translation>Desenhada</translation>
     </message>
     <message>
         <source>The shape of the ramp between the start and end value</source>
@@ -6479,6 +6537,10 @@
 <context>
     <name>MidiCcAutomationModel</name>
     <message>
+        <source>Draw MIDI CC automation curve</source>
+        <translation>Desenhar curva de automação MIDI CC</translation>
+    </message>
+    <message>
         <source>Controller number</source>
         <translation>Número do controlador</translation>
     </message>
@@ -7585,6 +7647,10 @@
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw parameter automation curve</source>
+        <translation>Desenhar curva de automação de parâmetro</translation>
     </message>
     <message>
         <source>The track&apos;s device offers nothing to automate. Add an effect to its insert rack first.</source>
@@ -9121,6 +9187,10 @@
     <message>
         <source>Output settings</source>
         <translation>Configurações de saída</translation>
+    </message>
+    <message>
+        <source>Draw Pitch Bend automation curve</source>
+        <translation>Desenhar curva de automação de Pitch Bend</translation>
     </message>
     <message>
         <source>Smooth</source>

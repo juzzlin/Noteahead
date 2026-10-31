@@ -72,7 +72,6 @@ AnimatedDialog {
     // and being the same binding it retranslates with the rest of the UI.
     InterpolationCurveComboBox {
         id: curveNames
-        drawnAvailable: true
         visible: false
     }
 

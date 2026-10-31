@@ -875,6 +875,24 @@
     </message>
 </context>
 <context>
+    <name>AutomationCurveDialog</name>
+    <message>
+        <source>Click to add a node and drag to move it, right-click to delete it. Hold Shift to place it between lines.</source>
+        <translation>单击添加节点，拖动以移动，右键单击删除。按住 Shift 可将其放在两行之间。</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>撤销</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveView</name>
+    <message>
+        <source>Line %1: %2</source>
+        <translation>第 %1 行：%2</translation>
+    </message>
+</context>
+<context>
     <name>BassGrinderDialog</name>
     <message>
         <source>Bass Grinder Parameters (Slot %1)</source>
@@ -2796,12 +2814,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Draw curve...</source>
+        <translation>绘制曲线...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>逐点绘制曲线</translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>删除此自动化</translation>
     </message>
     <message>
         <source>Comment</source>
         <translation>注释</translation>
+    </message>
+    <message>
+        <source>Draw MIDI CC automation curve</source>
+        <translation>绘制 MIDI CC 自动化曲线</translation>
     </message>
     <message>
         <source>Optional comment for this automation</source>
@@ -2820,6 +2850,10 @@
     <message>
         <source>Pattern: %1, Track: %2, Column: %3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw parameter automation curve</source>
+        <translation>绘制参数自动化曲线</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -2912,6 +2946,14 @@
     <message>
         <source>Replace this automation with the settings of another one</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw curve...</source>
+        <translation>绘制曲线...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>逐点绘制曲线</translation>
     </message>
     <message>
         <source>Delete this automation</source>
@@ -3036,6 +3078,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Draw curve...</source>
+        <translation>绘制曲线...</translation>
+    </message>
+    <message>
+        <source>Draw the curve node by node</source>
+        <translation>逐点绘制曲线</translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>删除此自动化</translation>
     </message>
@@ -3050,6 +3100,10 @@
     <message>
         <source>Output</source>
         <translation>输出</translation>
+    </message>
+    <message>
+        <source>Draw Pitch Bend automation curve</source>
+        <translation>绘制弯音自动化曲线</translation>
     </message>
     <message>
         <source>Smooth</source>
@@ -4325,6 +4379,10 @@
     <message>
         <source>Ease In/Out</source>
         <translation>缓入缓出</translation>
+    </message>
+    <message>
+        <source>Drawn</source>
+        <translation>手绘</translation>
     </message>
     <message>
         <source>The shape of the ramp between the start and end value</source>
@@ -6478,6 +6536,10 @@
 <context>
     <name>MidiCcAutomationModel</name>
     <message>
+        <source>Draw MIDI CC automation curve</source>
+        <translation>绘制 MIDI CC 自动化曲线</translation>
+    </message>
+    <message>
         <source>Controller number</source>
         <translation>控制器编号</translation>
     </message>
@@ -7584,6 +7646,10 @@
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw parameter automation curve</source>
+        <translation>绘制参数自动化曲线</translation>
     </message>
     <message>
         <source>The track&apos;s device offers nothing to automate. Add an effect to its insert rack first.</source>
@@ -9120,6 +9186,10 @@
     <message>
         <source>Output settings</source>
         <translation>输出设置</translation>
+    </message>
+    <message>
+        <source>Draw Pitch Bend automation curve</source>
+        <translation>绘制弯音自动化曲线</translation>
     </message>
     <message>
         <source>Smooth</source>

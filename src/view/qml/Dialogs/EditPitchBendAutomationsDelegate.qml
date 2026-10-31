@@ -76,6 +76,12 @@ SectionBox {
         return eventsPerBeatSpinBox.value === eventsPerBeatSpinBox.to ? -1 : eventsPerBeatSpinBox.value;
     }
 
+    //! New lines refit a drawn curve, which moves its ends to the values it has there, and the value
+    //! spin boxes are not bound to the model.
+    function refreshValues(): void {
+        startValueSpinBox.value = model.value0;
+        endValueSpinBox.value = model.value1;
+    }
     function initialize(): void {
         if (model) {
             startLineSpinBox.value = model.line0;
@@ -140,7 +146,10 @@ SectionBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("The line where the interpolation starts")
-                    onValueModified: model.line0 = value
+                    onValueModified: {
+                        model.line0 = value;
+                        delegateRoot.refreshValues();
+                    }
                 }
                 Label {
                     text: qsTr("End line")
@@ -161,7 +170,10 @@ SectionBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("The line where the interpolation ends")
-                    onValueModified: model.line1 = value
+                    onValueModified: {
+                        model.line1 = value;
+                        delegateRoot.refreshValues();
+                    }
                 }
                 Label {
                     text: qsTr("Start value (%)")
@@ -218,7 +230,6 @@ SectionBox {
                     Layout.row: 1
                     Layout.column: 4
                     Layout.fillWidth: true
-                    drawnAvailable: true
                     // Drawn starts from the ramp it replaces, and goes straight on to drawing
                     onActivated: function (comboBoxIndex) {
                         pitchBendAutomationsModel.changeCurve(index, comboBoxIndex);

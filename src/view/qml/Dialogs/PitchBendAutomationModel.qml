@@ -233,7 +233,6 @@ Item {
                 InterpolationCurveComboBox {
                     id: curveComboBox
                     enabled: startLine() !== endLine()
-                    drawnAvailable: true
                     // Drawn goes straight on to drawing; any other curve has no nodes to keep
                     onActivated: comboBoxIndex => {
                         if (comboBoxIndex === drawnIndex) {

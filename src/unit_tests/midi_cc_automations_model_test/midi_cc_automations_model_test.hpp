@@ -40,6 +40,7 @@ private slots:
 
     void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
     void test_setData_drawnCurve_shouldRoundTheEndsIntoTheValues();
+    void test_setData_line1_drawn_shouldMoveTheEndValueAndAnnounceIt();
 };
 
 } // namespace noteahead
