@@ -252,6 +252,19 @@ void ParameterAutomationsModelTest::test_setData_value1_shouldReshapeThePreview(
     QVERIFY(dataChangedSpy.at(0).at(2).value<QList<int>>().isEmpty());
 }
 
+void ParameterAutomationsModelTest::test_requestParameterAutomationById_shouldKeepOnlyThatAutomation()
+{
+    ParameterAutomationsModel model;
+    QSignalSpy requestedSpy { &model, &ParameterAutomationsModel::parameterAutomationsRequested };
+
+    model.requestParameterAutomationById(2);
+    model.setParameterAutomations({ automation(1, { 1, 2, 3 }, 4, 12), automation(2, { 1, 2, 3 }, 4, 12) });
+
+    QCOMPARE(requestedSpy.count(), 1);
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(dataOf(model, 0, Role::Id).toULongLong(), quint64 { 2 });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ParameterAutomationsModelTest)

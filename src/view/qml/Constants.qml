@@ -18,6 +18,10 @@ import QtQuick 2.15
 
 QtObject {
     readonly property int columnHeaderHeight: 40
+    // AutomationService::AutomationKind
+    readonly property int automationKindMidiCc: 0
+    readonly property int automationKindPitchBend: 1
+    readonly property int automationKindParameter: 2
     // A column's flash on a note: its peak opacity at full velocity, and how long it takes to fade
     readonly property double columnFlashMaxOpacity: 0.16
     readonly property int columnFlashDuration: 900

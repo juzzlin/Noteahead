@@ -7,6 +7,8 @@ New features:
 
 * Column Flash: a column flashes in its track colour on every note it plays, off by default, in Theme settings
 
+* Automation curves in the editor highlight on hover, and a click opens that automation's edit dialog
+
 Bug fixes:
 
 * Parameter automation no longer jumps back when the song ends, so the tails keep the automated sound

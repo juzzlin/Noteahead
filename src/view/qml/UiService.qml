@@ -57,6 +57,7 @@ QtObject {
     signal drumSynthDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
+    signal editAutomationDialogByIdRequested(int kind, int automationId)
     signal editMidiCcAutomationsDialogByPatternRequested
     signal editMidiCcAutomationsDialogBySelectionRequested
     signal editMidiCcAutomationsDialogByTrackRequested
@@ -396,6 +397,13 @@ QtObject {
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {
             editMidiCcAutomationsDialogRequested();
+        }
+    }
+    //! The edit dialog of one automation, @p kind being Constants' automationKind*: what clicking
+    //! its curve in the editor opens.
+    function requestEditAutomationDialogById(kind: int, automationId: int): void {
+        if (!isPlaying()) {
+            editAutomationDialogByIdRequested(kind, automationId);
         }
     }
     function requestEditMidiCcAutomationsDialogByLine(): void {

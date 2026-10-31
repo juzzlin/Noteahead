@@ -5582,6 +5582,18 @@
         <translation>Modifica automazioni MIDI CC</translation>
     </message>
     <message>
+        <source>Edit MIDI CC automation</source>
+        <translation>Modifica automazione MIDI CC</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automation</source>
+        <translation>Modifica automazione Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Edit parameter automation</source>
+        <translation>Modifica automazione parametro</translation>
+    </message>
+    <message>
         <source>Edit MIDI CC automations by line</source>
         <translation>Modifica automazioni MIDI CC per riga</translation>
     </message>

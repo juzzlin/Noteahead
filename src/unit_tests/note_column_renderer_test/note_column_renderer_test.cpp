@@ -30,6 +30,7 @@
 
 #include <QImage>
 #include <QPainter>
+#include <QSignalSpy>
 #include <QTest>
 
 #include <set>
@@ -103,6 +104,43 @@ int rowForLine(int line)
                                         std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     return line + static_cast<int>(editorService.positionBarLine());
 }
+
+//! A column with one flat MIDI CC automation at mid level over lines 2 to 8, in a renderer ready to
+//! be asked what is under a point.
+struct CurveColumn
+{
+    std::shared_ptr<AutomationService> automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    std::shared_ptr<SelectionService> selectionService { std::make_shared<SelectionService>() };
+    std::shared_ptr<SettingsService> settingsService { std::make_shared<SettingsService>() };
+    std::shared_ptr<EditorService> editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    std::shared_ptr<NoteColumnLineContainerHelper> helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, std::make_shared<UtilService>()) };
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    NoteColumnRenderer renderer;
+    quint64 automationId { 0 };
+
+    CurveColumn()
+    {
+        NoteColumnModel::LineList lines;
+        for (int i = 0; i < 10; i++) {
+            lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
+        }
+        model.setColumnData(lines);
+        automationId = automationService->addMidiCcAutomation(0, 0, 0, 64, 2, 8, 64, 64, {}, true, 8, 0);
+        renderer.setWidth(imageWidth);
+        renderer.setHeight(imageHeight);
+        renderer.setVisibleLines(visibleLines);
+        renderer.setModel(&model);
+        renderer.setAutomationDisplayMode(static_cast<int>(Constants::AutomationDisplayMode::Curve));
+    }
+
+    //! Where the trace crosses the given line: the renderer insets the value axis by its margin.
+    QPointF traceAt(int line) const
+    {
+        const double margin = std::min(4.0, imageWidth / 8.0);
+        const double x = margin + 64.0 / 127.0 * (imageWidth - 2.0 * margin);
+        return { x, (rowForLine(line) + 0.5) * rowHeight };
+    }
+};
 
 } // namespace
 
@@ -179,6 +217,73 @@ void NoteColumnRendererTest::test_paint_multiLineAutomation_shouldDrawTrace()
 
     QCOMPARE(*rows.begin(), rowForLine(4));
     QCOMPARE(*rows.rbegin(), rowForLine(7));
+}
+
+void NoteColumnRendererTest::test_automationCurveAt_onTrace_shouldFindAutomation()
+{
+    CurveColumn column;
+    const auto point = column.traceAt(5);
+
+    const auto curve = column.renderer.automationCurveAt(point.x(), point.y());
+
+    QCOMPARE(curve.value("id").toULongLong(), column.automationId);
+    QCOMPARE(curve.value("kind").toInt(), static_cast<int>(AutomationService::AutomationKind::MidiCc));
+}
+
+void NoteColumnRendererTest::test_automationCurveAt_awayFromTrace_shouldFindNothing()
+{
+    CurveColumn column;
+    const auto point = column.traceAt(5);
+
+    // Beside the trace on a line it covers, and on the trace's x on a line it does not reach
+    QVERIFY(column.renderer.automationCurveAt(1.0, point.y()).isEmpty());
+    QVERIFY(column.renderer.automationCurveAt(point.x(), column.traceAt(0).y()).isEmpty());
+}
+
+void NoteColumnRendererTest::test_automationCurveAt_tintMode_shouldFindNothing()
+{
+    // No curve is drawn in Tint mode, so there is nothing to click on
+    CurveColumn column;
+    column.renderer.setAutomationDisplayMode(static_cast<int>(Constants::AutomationDisplayMode::Tint));
+    const auto point = column.traceAt(5);
+
+    QVERIFY(column.renderer.automationCurveAt(point.x(), point.y()).isEmpty());
+}
+
+void NoteColumnRendererTest::test_setHoverPosition_onTrace_shouldHoverCurve()
+{
+    CurveColumn column;
+    QSignalSpy spy { &column.renderer, &NoteColumnRenderer::automationCurveHoveredChanged };
+    const auto point = column.traceAt(5);
+
+    column.renderer.setHoverPosition(point.x(), point.y());
+    column.renderer.setHoverPosition(point.x(), column.traceAt(6).y());
+
+    // Moving along the same curve is no change, so it must not signal again
+    QVERIFY(column.renderer.automationCurveHovered());
+    QCOMPARE(spy.count(), 1);
+}
+
+void NoteColumnRendererTest::test_setHoverPosition_awayFromTrace_shouldClearHover()
+{
+    CurveColumn column;
+    const auto point = column.traceAt(5);
+    column.renderer.setHoverPosition(point.x(), point.y());
+
+    column.renderer.setHoverPosition(1.0, point.y());
+
+    QVERIFY(!column.renderer.automationCurveHovered());
+}
+
+void NoteColumnRendererTest::test_setAutomationDisplayMode_tint_shouldClearHover()
+{
+    CurveColumn column;
+    const auto point = column.traceAt(5);
+    column.renderer.setHoverPosition(point.x(), point.y());
+
+    column.renderer.setAutomationDisplayMode(static_cast<int>(Constants::AutomationDisplayMode::Tint));
+
+    QVERIFY(!column.renderer.automationCurveHovered());
 }
 
 } // namespace noteahead

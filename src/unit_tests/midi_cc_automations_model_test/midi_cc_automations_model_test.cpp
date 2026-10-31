@@ -434,6 +434,22 @@ void MidiCcAutomationsModelTest::test_setData_line1_drawn_shouldMoveTheEndValueA
     QVERIFY(roles.isEmpty() || roles.contains(static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)));
 }
 
+void MidiCcAutomationsModelTest::test_requestMidiCcAutomationById_shouldKeepOnlyThatAutomation()
+{
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    const MidiCcAutomation first { 41, { 1, 2, 3 }, 7, interpolation, {} };
+    const MidiCcAutomation second { 42, { 1, 2, 3 }, 7, interpolation, {} };
+    MidiCcAutomationsModel model;
+    QSignalSpy requestedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationsRequested };
+
+    model.requestMidiCcAutomationById(42);
+    model.setMidiCcAutomations({ first, second });
+
+    QCOMPARE(requestedSpy.count(), 1);
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Id)).toULongLong(), quint64 { 42 });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiCcAutomationsModelTest)

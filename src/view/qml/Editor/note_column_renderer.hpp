@@ -19,8 +19,10 @@
 #include <QColor>
 #include <QList>
 #include <QPointer>
+#include <QPolygonF>
 #include <QQuickPaintedItem>
 #include <QVariantList>
+#include <QVariantMap>
 
 #include <optional>
 #include <utility>
@@ -48,6 +50,8 @@ class NoteColumnRenderer : public QQuickPaintedItem
     //! Colours the automation curves cycle through, so several automations on one column stay apart.
     Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors WRITE setAutomationCurveColors NOTIFY automationCurveColorsChanged)
     Q_PROPERTY(QColor automationCurveCenterLineColor READ automationCurveCenterLineColor WRITE setAutomationCurveCenterLineColor NOTIFY automationCurveCenterLineColorChanged)
+    //! Whether the mouse is over a curve that a click would open
+    Q_PROPERTY(bool automationCurveHovered READ automationCurveHovered NOTIFY automationCurveHoveredChanged)
 
 public:
     explicit NoteColumnRenderer(QQuickItem * parent = nullptr);
@@ -59,6 +63,17 @@ public:
     //! clips to when only its first or last row is on screen. Those cannot be drawn as a polyline,
     //! which is why the runs are named here rather than being drawn as they are found.
     static std::vector<std::pair<size_t, size_t>> valueRuns(const std::vector<std::optional<double>> & values);
+
+    //! The automation curve drawn under @p x, @p y, as { id, kind } with kind the ordinal of
+    //! AutomationService::AutomationKind, or an empty map.
+    //!
+    //! Only in Curve display mode, and only this pattern's curves: the ghosts in the offset areas
+    //! belong to a neighbor. The nearest wins where curves cross.
+    Q_INVOKABLE QVariantMap automationCurveAt(qreal x, qreal y) const;
+    //! Highlights the curve under the mouse, repainting only when that changes.
+    Q_INVOKABLE void setHoverPosition(qreal x, qreal y);
+    Q_INVOKABLE void clearHover();
+    bool automationCurveHovered() const;
 
     QAbstractListModel * model() const;
     void setModel(QAbstractListModel * model);
@@ -107,6 +122,7 @@ signals:
     void textColorGhostChanged();
     void automationCurveColorsChanged();
     void automationCurveCenterLineColorChanged();
+    void automationCurveHoveredChanged();
 
 private:
     QPointer<QAbstractListModel> m_model { nullptr };
@@ -124,6 +140,36 @@ private:
     //! single dirty rect, so a partial update issued afterwards would silently shrink it to that row.
     bool m_fullRepaintPending { true };
 
+    //! A curve as it is drawn, in pixels: one polyline per run of set values. A run of one is a short
+    //! dash across its row, so it is a polyline of two points like any other.
+    struct CurveGeometry
+    {
+        quint64 id { 0 };
+        int kind { 0 };
+        bool isPitchBend { false };
+        bool isGhost { false };
+        size_t indexInPattern { 0 };
+        std::vector<QPolygonF> runs;
+    };
+
+    //! Identifies a curve across repaints: ids are only unique within one kind
+    struct CurveKey
+    {
+        quint64 id { 0 };
+        int kind { 0 };
+        bool operator==(const CurveKey &) const = default;
+    };
+
+    std::optional<CurveKey> m_hoveredCurve;
+    std::optional<CurveKey> curveAt(QPointF point) const;
+    void setHoveredCurve(std::optional<CurveKey> curve);
+
+    int startRow() const;
+    int endRow() const;
+    qreal rowHeight() const;
+    qreal curveMargin() const;
+    //! What both painting and hit testing work from, so a click lands on exactly what is drawn.
+    std::vector<CurveGeometry> automationCurveGeometry(int startRow, int endRow, qreal rowHeight) const;
     void paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight);
 
     //! Marks the whole column dirty and remembers it until it has been painted.

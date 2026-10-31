@@ -279,7 +279,7 @@ void AutomationServiceTest::test_automationCurves_parameter_shouldBeKnobPosition
     const auto curves = automationService.automationCurves(0, 0, 0, 0, 10);
 
     QCOMPARE(curves.size(), size_t { 1 });
-    QVERIFY(!curves.at(0).isPitchBend);
+    QCOMPARE(curves.at(0).kind, AutomationService::AutomationKind::Parameter);
     QVERIFY(!curves.at(0).values.at(1).has_value());
     QCOMPARE(*curves.at(0).values.at(2), 0.25);
     QCOMPARE(*curves.at(0).values.at(10), 0.75);
@@ -331,7 +331,7 @@ void AutomationServiceTest::test_automationCurves_midiCc_shouldFollowInterpolati
 
     const auto curves = automationService.automationCurves(pattern, track, column, 0, 16);
     QCOMPARE(curves.size(), size_t { 1 });
-    QCOMPARE(curves.at(0).isPitchBend, false);
+    QVERIFY(curves.at(0).kind != AutomationService::AutomationKind::PitchBend);
     QCOMPARE(curves.at(0).values.size(), size_t { 17 });
 
     // Normalized to 0..1 against the controller's own range, so both kinds share one axis
@@ -395,7 +395,7 @@ void AutomationServiceTest::test_automationCurves_severalAutomations_shouldStayA
     // Each automation keeps its own trace instead of being averaged into one value per line
     const auto curves = automationService.automationCurves(pattern, track, column, 0, 8);
     QCOMPARE(curves.size(), size_t { 3 });
-    QCOMPARE(curves.at(2).isPitchBend, true);
+    QCOMPARE(curves.at(2).kind, AutomationService::AutomationKind::PitchBend);
     QVERIFY(std::fabs(*curves.at(0).values.at(0) - 0.0) < 0.01);
     QVERIFY(std::fabs(*curves.at(1).values.at(0) - 1.0) < 0.01);
     QVERIFY(std::fabs(*curves.at(2).values.at(0) - 0.0) < 0.01); // -100% maps to the left edge

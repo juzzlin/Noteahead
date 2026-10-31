@@ -1524,6 +1524,22 @@ ApplicationWindow {
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
             editMidiCcAutomationsDialog.open();
         });
+        UiService.editAutomationDialogByIdRequested.connect((kind, automationId) => {
+            if (kind === Constants.automationKindMidiCc) {
+                midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
+                midiCcAutomationsModel.requestMidiCcAutomationById(automationId);
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automation"));
+                editMidiCcAutomationsDialog.open();
+            } else if (kind === Constants.automationKindPitchBend) {
+                pitchBendAutomationsModel.requestPitchBendAutomationById(automationId);
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automation"));
+                editPitchBendAutomationsDialog.open();
+            } else if (kind === Constants.automationKindParameter) {
+                parameterAutomationsModel.requestParameterAutomationById(automationId);
+                editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automation"));
+                editParameterAutomationsDialog.open();
+            }
+        });
         UiService.editMidiCcAutomationsDialogByLineRequested.connect(() => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             const position = editorService.position;

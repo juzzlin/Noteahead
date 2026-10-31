@@ -5581,6 +5581,18 @@
         <translation>编辑 MIDI CC 自动化</translation>
     </message>
     <message>
+        <source>Edit MIDI CC automation</source>
+        <translation>编辑 MIDI CC 自动化</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automation</source>
+        <translation>编辑弯音自动化</translation>
+    </message>
+    <message>
+        <source>Edit parameter automation</source>
+        <translation>编辑参数自动化</translation>
+    </message>
+    <message>
         <source>Edit MIDI CC automations by line</source>
         <translation>按行编辑 MIDI CC 自动化</translation>
     </message>

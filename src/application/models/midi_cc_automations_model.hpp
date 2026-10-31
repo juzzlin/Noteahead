@@ -71,6 +71,8 @@ public:
     Q_INVOKABLE void requestMidiCcAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestMidiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
     Q_INVOKABLE void requestMidiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
+    //! Just the one automation, as a click on its curve in the editor asks for.
+    Q_INVOKABLE void requestMidiCcAutomationById(quint64 automationId);
     //! The automations on any of the columns @p minColumn to @p maxColumn of @p track that reach into
     //! the lines @p minLine to @p maxLine, as the Selection menu's edit shows them.
     Q_INVOKABLE void requestMidiCcAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine);
@@ -125,6 +127,7 @@ private:
         std::optional<quint64> track;
         std::optional<Range> columns;
         std::optional<Range> lines;
+        std::optional<quint64> id;
     };
 
     Filter m_filter;

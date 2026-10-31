@@ -67,6 +67,14 @@ void ParameterAutomationsModel::requestParameterAutomationsByLine(quint64 patter
     emit parameterAutomationsRequested();
 }
 
+void ParameterAutomationsModel::requestParameterAutomationById(quint64 automationId)
+{
+    m_filter = {};
+    m_filter.id = automationId;
+
+    emit parameterAutomationsRequested();
+}
+
 void ParameterAutomationsModel::requestParameterAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine)
 {
     m_filter = { pattern, track, Range { minColumn, maxColumn }, Range { minLine, maxLine } };
@@ -79,7 +87,8 @@ ParameterAutomationsModel::ParameterAutomationList ParameterAutomationsModel::fi
     std::ranges::copy_if(parameterAutomations, std::back_inserter(result), [this](const auto & automation) {
         const auto & location = automation.location();
         const auto & interpolation = automation.interpolation();
-        return (!m_filter.pattern || location.pattern() == *m_filter.pattern) && //
+        return (!m_filter.id || automation.id() == *m_filter.id) && //
+          (!m_filter.pattern || location.pattern() == *m_filter.pattern) && //
           (!m_filter.track || location.track() == *m_filter.track) && //
           (!m_filter.columns || (location.column() >= m_filter.columns->first && location.column() <= m_filter.columns->second)) && //
           (!m_filter.lines || (interpolation.line0 <= m_filter.lines->second && interpolation.line1 >= m_filter.lines->first));

@@ -35,6 +35,13 @@ private slots:
 
     void test_paint_singleLineAutomation_shouldDrawMarkOnItsRow();
     void test_paint_multiLineAutomation_shouldDrawTrace();
+
+    void test_automationCurveAt_onTrace_shouldFindAutomation();
+    void test_automationCurveAt_awayFromTrace_shouldFindNothing();
+    void test_automationCurveAt_tintMode_shouldFindNothing();
+    void test_setHoverPosition_onTrace_shouldHoverCurve();
+    void test_setHoverPosition_awayFromTrace_shouldClearHover();
+    void test_setAutomationDisplayMode_tint_shouldClearHover();
 };
 
 } // namespace noteahead

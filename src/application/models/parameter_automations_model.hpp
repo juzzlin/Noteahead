@@ -75,6 +75,8 @@ public:
     Q_INVOKABLE void requestParameterAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestParameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
     Q_INVOKABLE void requestParameterAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
+    //! Just the one automation, as a click on its curve in the editor asks for.
+    Q_INVOKABLE void requestParameterAutomationById(quint64 automationId);
     //! Every automation on the selected columns that runs over any of the selected lines.
     Q_INVOKABLE void requestParameterAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine);
 
@@ -128,6 +130,7 @@ private:
         std::optional<quint64> track;
         std::optional<Range> columns;
         std::optional<Range> lines;
+        std::optional<quint64> id;
     };
 
     Filter m_filter;

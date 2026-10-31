@@ -82,6 +82,14 @@ void MidiCcAutomationsModel::requestMidiCcAutomationsByLine(quint64 pattern, qui
     emit midiCcAutomationsRequested();
 }
 
+void MidiCcAutomationsModel::requestMidiCcAutomationById(quint64 automationId)
+{
+    m_filter = {};
+    m_filter.id = automationId;
+
+    emit midiCcAutomationsRequested();
+}
+
 void MidiCcAutomationsModel::requestMidiCcAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine)
 {
     m_filter = {};
@@ -98,6 +106,9 @@ MidiCcAutomationsModel::MidiCcAutomationList MidiCcAutomationsModel::filteredMid
     MidiCcAutomationList filtered;
     std::ranges::copy_if(midiCcAutomations, std::back_inserter(filtered),
                          [this](const auto & automation) {
+                             if (m_filter.id.has_value() && automation.id() != m_filter.id.value()) {
+                                 return false;
+                             }
                              if (m_filter.pattern.has_value() && automation.location().pattern() != m_filter.pattern.value()) {
                                  return false;
                              }

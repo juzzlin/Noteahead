@@ -409,6 +409,22 @@ void PitchBendAutomationsModelTest::test_changeCurve_drawn_shouldStartFromTheRam
     QVERIFY(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::DrawnCurve)).toList().isEmpty());
 }
 
+void PitchBendAutomationsModelTest::test_requestPitchBendAutomationById_shouldKeepOnlyThatAutomation()
+{
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    const PitchBendAutomation first { 41, { 1, 2, 3 }, interpolation, {} };
+    const PitchBendAutomation second { 42, { 1, 2, 3 }, interpolation, {} };
+    PitchBendAutomationsModel model;
+    QSignalSpy requestedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationsRequested };
+
+    model.requestPitchBendAutomationById(42);
+    model.setPitchBendAutomations({ first, second });
+
+    QCOMPARE(requestedSpy.count(), 1);
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Id)).toULongLong(), quint64 { 42 });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PitchBendAutomationsModelTest)

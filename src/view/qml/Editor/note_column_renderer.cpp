@@ -94,6 +94,7 @@ void NoteColumnRenderer::setAutomationDisplayMode(int mode)
     if (m_automationDisplayMode != mode) {
         m_automationDisplayMode = mode;
         emit automationDisplayModeChanged();
+        setHoveredCurve({});
         requestFullRepaint();
     }
 }
@@ -258,62 +259,188 @@ std::vector<std::pair<size_t, size_t>> NoteColumnRenderer::valueRuns(const std::
     return runs;
 }
 
-void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
+int NoteColumnRenderer::startRow() const
 {
+    return static_cast<int>(m_scrollOffset);
+}
+
+int NoteColumnRenderer::endRow() const
+{
+    return m_model ? std::min(startRow() + m_visibleLines + 1, m_model->rowCount()) : startRow();
+}
+
+qreal NoteColumnRenderer::rowHeight() const
+{
+    return m_visibleLines > 0 ? height() / m_visibleLines : 0.0;
+}
+
+qreal NoteColumnRenderer::curveMargin() const
+{
+    // Inset so the extremes stay visible instead of merging with the column border
+    return std::min(4.0, width() / 8.0);
+}
+
+std::vector<NoteColumnRenderer::CurveGeometry> NoteColumnRenderer::automationCurveGeometry(int startRow, int endRow, qreal rowHeight) const
+{
+    std::vector<CurveGeometry> geometry;
     const auto model = qobject_cast<NoteColumnModel *>(m_model.data());
     if (!model || endRow <= startRow) {
-        return;
+        return geometry;
     }
 
     // Rows, not lines: the model shifts by the position bar and the offset areas hold no lines
     const auto curves = model->automationCurves(startRow, endRow);
-    if (curves.empty()) {
-        return;
-    }
-
-    // Inset so the extremes stay visible instead of merging with the column border
-    const qreal margin = std::min(4.0, width() / 8.0);
+    const qreal margin = curveMargin();
     const qreal usableWidth = std::max(1.0, width() - 2.0 * margin);
     const auto valueX = [&](double value) { return margin + value * usableWidth; };
     const auto rowY = [&](int row) { return (static_cast<double>(row) - m_scrollOffset + 0.5) * rowHeight; };
 
-    const auto & palette = m_automationCurveColors;
-    if (palette.isEmpty()) {
-        return;
-    }
-
-    // Pitch bend swings around a centre the eye needs to find, so mark it once behind the traces
-    if (std::ranges::any_of(curves, [](auto && curve) { return curve.isPitchBend; })) {
-        QColor centerColor = m_automationCurveCenterLineColor;
-        centerColor.setAlphaF(0.35);
-        painter->setPen(QPen { centerColor, 1.0, Qt::DashLine });
-        painter->drawLine(QPointF(valueX(0.5), 0.0), QPointF(valueX(0.5), height()));
-    }
-
-    painter->setRenderHint(QPainter::Antialiasing, true);
     for (const auto & curve : curves) {
-        QColor color = palette.at(static_cast<int>(curve.indexInPattern % static_cast<size_t>(palette.size())));
-        // A curve from the offset areas belongs to a neighboring pattern, and reads as context the
-        // way the ghost rows under it do rather than competing with the pattern being edited.
-        color.setAlphaF(curve.isGhost ? 0.3 : 0.75);
-        painter->setPen(QPen { color, static_cast<double>(m_automationCurveThicknessTenths) / 10.0 });
-
+        CurveGeometry shape { .id = curve.id,
+                              .kind = static_cast<int>(curve.kind),
+                              .isPitchBend = curve.kind == AutomationService::AutomationKind::PitchBend,
+                              .isGhost = curve.isGhost,
+                              .indexInPattern = curve.indexInPattern,
+                              .runs = {} };
         for (auto && [first, last] : valueRuns(curve.values)) {
+            QPolygonF run;
             // A run of one has no segment to draw, so a polyline would paint nothing at all. Mark it
             // with a dash across its own line instead: tied to the row height so it scales with zoom.
             if (first == last) {
                 const qreal tickWidth = std::min(usableWidth, rowHeight * 0.8);
                 const qreal centerX = valueX(*curve.values.at(first));
                 const qreal y = rowY(startRow + static_cast<int>(first));
-                const qreal left = std::max(margin, centerX - tickWidth / 2.0);
-                const qreal right = std::min(margin + usableWidth, centerX + tickWidth / 2.0);
-                painter->drawLine(QPointF(left, y), QPointF(right, y));
-                continue;
+                run.append(QPointF(std::max(margin, centerX - tickWidth / 2.0), y));
+                run.append(QPointF(std::min(margin + usableWidth, centerX + tickWidth / 2.0), y));
+            } else {
+                for (size_t i = first; i <= last; i++) {
+                    run.append(QPointF(valueX(*curve.values.at(i)), rowY(startRow + static_cast<int>(i))));
+                }
             }
-            QPolygonF run;
-            for (size_t i = first; i <= last; i++) {
-                run.append(QPointF(valueX(*curve.values.at(i)), rowY(startRow + static_cast<int>(i))));
+            shape.runs.push_back(std::move(run));
+        }
+        geometry.push_back(std::move(shape));
+    }
+    return geometry;
+}
+
+namespace {
+
+double distanceToSegment(const QPointF & point, const QPointF & a, const QPointF & b)
+{
+    const QPointF ab = b - a;
+    const double lengthSquared = QPointF::dotProduct(ab, ab);
+    const double t = lengthSquared > 0.0 ? std::clamp(QPointF::dotProduct(point - a, ab) / lengthSquared, 0.0, 1.0) : 0.0;
+    const QPointF nearest = a + t * ab;
+    return std::hypot(point.x() - nearest.x(), point.y() - nearest.y());
+}
+
+} // namespace
+
+std::optional<NoteColumnRenderer::CurveKey> NoteColumnRenderer::curveAt(QPointF point) const
+{
+    if (m_automationDisplayMode != static_cast<int>(Constants::AutomationDisplayMode::Curve) || m_visibleLines <= 0) {
+        return {};
+    }
+
+    // Generous enough to hit a thin trace with a mouse, and never less than the trace itself
+    const double reach = std::max(6.0, static_cast<double>(m_automationCurveThicknessTenths) / 10.0);
+    std::optional<std::pair<double, CurveKey>> nearest;
+    const auto geometry = automationCurveGeometry(startRow(), endRow(), rowHeight());
+    for (const auto & curve : geometry) {
+        if (curve.isGhost) {
+            continue;
+        }
+        for (const auto & run : curve.runs) {
+            for (qsizetype i = 0; i + 1 < run.size(); i++) {
+                if (const double distance = distanceToSegment(point, run.at(i), run.at(i + 1)); distance <= reach && (!nearest || distance < nearest->first)) {
+                    nearest = std::pair { distance, CurveKey { curve.id, curve.kind } };
+                }
             }
+        }
+    }
+    if (!nearest) {
+        return {};
+    }
+    return nearest->second;
+}
+
+QVariantMap NoteColumnRenderer::automationCurveAt(qreal x, qreal y) const
+{
+    if (const auto curve = curveAt({ x, y }); curve) {
+        return { { "id", curve->id }, { "kind", curve->kind } };
+    }
+    return {};
+}
+
+void NoteColumnRenderer::setHoverPosition(qreal x, qreal y)
+{
+    setHoveredCurve(curveAt({ x, y }));
+}
+
+void NoteColumnRenderer::clearHover()
+{
+    setHoveredCurve({});
+}
+
+bool NoteColumnRenderer::automationCurveHovered() const
+{
+    return m_hoveredCurve.has_value();
+}
+
+void NoteColumnRenderer::setHoveredCurve(std::optional<CurveKey> curve)
+{
+    if (m_hoveredCurve != curve) {
+        const bool wasHovered = m_hoveredCurve.has_value();
+        m_hoveredCurve = curve;
+        if (wasHovered != m_hoveredCurve.has_value()) {
+            emit automationCurveHoveredChanged();
+        }
+        requestFullRepaint();
+    }
+}
+
+void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
+{
+    const auto & palette = m_automationCurveColors;
+    const auto geometry = automationCurveGeometry(startRow, endRow, rowHeight);
+    if (geometry.empty() || palette.isEmpty()) {
+        return;
+    }
+
+    const qreal margin = curveMargin();
+    const qreal usableWidth = std::max(1.0, width() - 2.0 * margin);
+
+    // Pitch bend swings around a centre the eye needs to find, so mark it once behind the traces
+    if (std::ranges::any_of(geometry, [](auto && curve) { return curve.isPitchBend; })) {
+        QColor centerColor = m_automationCurveCenterLineColor;
+        centerColor.setAlphaF(0.35);
+        painter->setPen(QPen { centerColor, 1.0, Qt::DashLine });
+        const qreal centerX = margin + 0.5 * usableWidth;
+        painter->drawLine(QPointF(centerX, 0.0), QPointF(centerX, height()));
+    }
+
+    const double thickness = static_cast<double>(m_automationCurveThicknessTenths) / 10.0;
+    const CurveGeometry * hovered = nullptr;
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    for (const auto & curve : geometry) {
+        if (!curve.isGhost && m_hoveredCurve == CurveKey { curve.id, curve.kind }) {
+            hovered = &curve; // Last, so that it stays on top of any curve crossing it
+            continue;
+        }
+        QColor color = palette.at(static_cast<int>(curve.indexInPattern % static_cast<size_t>(palette.size())));
+        // A curve from the offset areas belongs to a neighboring pattern, and reads as context the
+        // way the ghost rows under it do rather than competing with the pattern being edited.
+        color.setAlphaF(curve.isGhost ? 0.3 : 0.75);
+        painter->setPen(QPen { color, thickness });
+        for (const auto & run : curve.runs) {
+            painter->drawPolyline(run);
+        }
+    }
+    if (hovered) {
+        const QColor color = palette.at(static_cast<int>(hovered->indexInPattern % static_cast<size_t>(palette.size()))).lighter(150);
+        painter->setPen(QPen { color, thickness * 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin });
+        for (const auto & run : hovered->runs) {
             painter->drawPolyline(run);
         }
     }
@@ -331,9 +458,9 @@ void NoteColumnRenderer::paint(QPainter * painter)
         return;
     }
 
-    const qreal rowHeight = height() / m_visibleLines;
-    const int startRow = static_cast<int>(m_scrollOffset);
-    const int endRow = std::min(startRow + m_visibleLines + 1, m_model->rowCount());
+    const qreal rowHeight = this->rowHeight();
+    const int startRow = this->startRow();
+    const int endRow = this->endRow();
 
     QFont font;
     font.setFamily("monospace");

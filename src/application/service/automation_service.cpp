@@ -358,10 +358,10 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
 
     // Values are normalized to 0..1 so both kinds share one axis. Lines the automation does not
     // cover are left unset, which is what breaks the drawn curve instead of running it to the edge.
-    const auto collect = [&](quint64 id, bool isPitchBend, quint64 line0, quint64 line1, auto && valueAt) {
+    const auto collect = [&](quint64 id, AutomationKind kind, quint64 line0, quint64 line1, auto && valueAt) {
         AutomationCurve curve;
         curve.id = id;
-        curve.isPitchBend = isPitchBend;
+        curve.kind = kind;
         curve.values.resize(lineCount);
         bool any = false;
         for (size_t i = 0; i < lineCount; i++) {
@@ -383,7 +383,7 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
             continue;
         }
         const auto maxValue = controllerMaxValue(automation.controller(), location.track());
-        collect(automation.id(), false, automation.interpolation().line0, automation.interpolation().line1,
+        collect(automation.id(), AutomationKind::MidiCc, automation.interpolation().line0, automation.interpolation().line1,
                 [&](size_t line) { return maxValue > 0 ? static_cast<double>(midiCcValueAt(automation, line)) / maxValue : 0.0; });
     }
 
@@ -392,7 +392,7 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
         if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
             continue;
         }
-        collect(automation.id(), true, automation.interpolation().line0, automation.interpolation().line1,
+        collect(automation.id(), AutomationKind::PitchBend, automation.interpolation().line0, automation.interpolation().line1,
                 [&](size_t line) { return (static_cast<double>(pitchBendValueAt(automation, line)) + 100.0) / 200.0; });
     }
 
@@ -402,7 +402,7 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
         if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
             continue;
         }
-        collect(automation.id(), false, automation.interpolation().line0, automation.interpolation().line1,
+        collect(automation.id(), AutomationKind::Parameter, automation.interpolation().line0, automation.interpolation().line1,
                 [&](size_t line) { return parameterValueAt(automation, static_cast<double>(line)); });
     }
 

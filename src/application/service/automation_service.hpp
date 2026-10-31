@@ -118,10 +118,18 @@ public:
     //! One automation's value on each line of a range, normalized to 0..1 so MIDI CC and pitch bend
     //! share an axis. Lines the automation does not cover are left unset, which is what makes the
     //! drawn curve stop at its ends instead of running to the edge of the pattern.
+    //! Which list an automation id belongs to: ids are only unique within one kind.
+    enum class AutomationKind
+    {
+        MidiCc,
+        PitchBend,
+        Parameter
+    };
+
     struct AutomationCurve
     {
         quint64 id { 0 };
-        bool isPitchBend { false };
+        AutomationKind kind { AutomationKind::MidiCc };
         //! Set by whoever asked, not here: a curve is a ghost by virtue of being drawn in a pattern
         //! peek rather than by anything about the automation itself.
         bool isGhost { false };

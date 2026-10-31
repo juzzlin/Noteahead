@@ -35,6 +35,12 @@ Item {
     property int _lastTriggeredLine: -1
     readonly property string _tag: "NoteColumnLineContainer"
     property NoteColumnRenderer _renderer
+    //! The automation curve a left press landed on, decided at the press: the cursor move a plain
+    //! click makes scrolls the curves away from under the mouse before the click arrives.
+    property var _pressedCurve: ({})
+    function _isCurvePress(): bool {
+        return _pressedCurve.id !== undefined;
+    }
     function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
@@ -55,6 +61,17 @@ Item {
         _lastTriggeredLine = -1;
         _renderer.scrollOffset = _scrollOffset;
     }
+    function _updateCurveHover(): void {
+        // The curves scroll under a mouse that stays put, and a click does nothing during playback
+        if (!_renderer) {
+            return;
+        }
+        if (inputHandler.containsMouse && (!inputHandler.pressed || _isCurvePress()) && !UiService.isPlaying()) {
+            _renderer.setHoverPosition(inputHandler.mouseX, inputHandler.mouseY);
+        } else {
+            _renderer.clearHover();
+        }
+    }
     function _getEffectiveLine(lineIndex: int): int {
         return lineIndex - editorService.positionBarLine();
     }
@@ -63,6 +80,7 @@ Item {
             _scrollOffset = position.line;
             if (_renderer) {
                 _renderer.scrollOffset = _scrollOffset;
+                _updateCurveHover();
             }
         }
 
@@ -137,6 +155,9 @@ Item {
         id: inputHandler
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+        hoverEnabled: true
+        cursorShape: _renderer && _renderer.automationCurveHovered ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onExited: _updateCurveHover()
         onWheel: event => {
             if (!UiService.isPlaying()) {
                 if (event.angleDelta.y > 0) {
@@ -154,6 +175,14 @@ Item {
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
             if (mouse.button === Qt.LeftButton) {
+                // A click on a drawn automation curve opens that automation, rather than going
+                // through the context menu for it, and leaves the cursor where it was
+                if (_isCurvePress()) {
+                    const curve = _pressedCurve;
+                    _pressedCurve = {};
+                    UiService.requestEditAutomationDialogById(curve.kind, curve.id);
+                    return;
+                }
                 uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${effectiveLineIndex}`);
                 rootItem.leftClicked(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {
@@ -167,6 +196,10 @@ Item {
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
             if (mouse.button === Qt.LeftButton) {
+                _pressedCurve = _renderer && !UiService.isPlaying() ? _renderer.automationCurveAt(mouse.x, mouse.y) : ({});
+                if (_isCurvePress()) {
+                    return; // Not the start of a selection either
+                }
                 uiLogger.info(_tag, `Column ${rootItem._index} left pressed on line ${effectiveLineIndex}`);
                 rootItem.leftPressed(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {
@@ -175,11 +208,15 @@ Item {
             }
         }
         onReleased: mouse => {
+            _updateCurveHover();
             const rowHeight = height / settingsService.visibleLines;
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
             if (mouse.button === Qt.LeftButton) {
+                if (_isCurvePress()) {
+                    return;
+                }
                 uiLogger.info(_tag, `Column ${rootItem._index} left released on line ${effectiveLineIndex}`);
                 rootItem.leftReleased(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {
@@ -188,6 +225,10 @@ Item {
             }
         }
         onPositionChanged: mouse => {
+            _updateCurveHover();
+            if (!pressed || _isCurvePress()) {
+                return;
+            }
             const rowHeight = height / settingsService.visibleLines;
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);

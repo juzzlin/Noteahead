@@ -26,6 +26,7 @@ class MidiCcAutomationsModelTest : public QObject
 
 private slots:
     void test_requestMidiCcAutomationsBySelection_shouldFilterByColumnsAndLines();
+    void test_requestMidiCcAutomationById_shouldKeepOnlyThatAutomation();
 
     void test_addMidiCcAutomations_shouldAddAutomations();
 
