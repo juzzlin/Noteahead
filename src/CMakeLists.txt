@@ -52,6 +52,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/AppTabBar.qml
     ${QML_BASE_DIR}/Components/AppTabButton.qml
     ${QML_BASE_DIR}/Components/AutoGainSwitch.qml
+    ${QML_BASE_DIR}/Components/AutomationCurveView.qml
+    ${QML_BASE_DIR}/Components/AutomationRowHeading.qml
     ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/DateField.qml
     ${QML_BASE_DIR}/Components/DeviceMenuButton.qml
@@ -94,6 +96,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AmbienceDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnalogFuzzDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AutomationCurveDialog.qml
     ${QML_BASE_DIR}/Dialogs/BitCrusherDialog.qml
     ${QML_BASE_DIR}/Dialogs/CrossfeedDialog.qml
     ${QML_BASE_DIR}/Dialogs/FlangerDialog.qml

@@ -41,6 +41,12 @@ public:
         Column,
         Comment,
         Curve,
+        //! What the curve looks like, [{ line, value }, ...]: the nodes when it is drawn, otherwise
+        //! the curve sampled. For the row's preview; not settable.
+        CurveShape,
+        //! The nodes of a drawn curve, [{ line, value }, ...], empty for any other curve. Setting
+        //! them makes the curve Drawn, and its ends the start and end values.
+        DrawnCurve,
         Owner,
         OwnerId,
         Enabled,

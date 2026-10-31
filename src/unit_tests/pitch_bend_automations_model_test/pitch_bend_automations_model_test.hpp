@@ -39,6 +39,7 @@ private slots:
 
     void test_setData_eventsPerBeat_shouldMapMinusOneToUnset();
     void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
+    void test_changeCurve_drawn_shouldStartFromTheRamp();
 };
 
 } // namespace noteahead

@@ -41,6 +41,7 @@ class AudioAnalysisService;
 class AudioEngine;
 class AudioService;
 class AudioSettingsModel;
+class AutomationCurveEditor;
 class AutomationService;
 class ColumnSettingsModel;
 class DataService;
@@ -245,6 +246,7 @@ private:
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<ParameterAutomationsModel> m_parameterAutomationsModel;
+    std::unique_ptr<AutomationCurveEditor> m_automationCurveEditor;
     std::unique_ptr<ColumnSettingsModel> m_columnSettingsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
@@ -256,8 +258,6 @@ private:
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<QTimer> m_instrumentTimer;
-
-
 };
 
 } // namespace noteahead

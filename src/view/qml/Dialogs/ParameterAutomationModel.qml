@@ -86,6 +86,31 @@ Item {
     function curve(): int {
         return curveComboBox.currentIndex;
     }
+    //! The nodes drawn for the new automation, [{ line, value }, ...], or none yet: held until it is
+    //! added, as there is no automation to hold them before that.
+    property var drawnCurve: []
+    //! Takes the nodes the curve dialog drew, whose ends are then the start and end values.
+    function setDrawnCurve(nodes: var): void {
+        drawnCurve = nodes || [];
+        if (drawnCurve.length) {
+            startPosition = drawnCurve[0].value;
+            endPosition = drawnCurve[drawnCurve.length - 1].value;
+        }
+    }
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("parameter", -1, {
+            "drawnCurve": drawnCurve,
+            "line0": startLine(),
+            "line1": endLine(),
+            "value0": startValue(),
+            "value1": endValue(),
+            "minValue": 0,
+            "maxValue": 1,
+            "valueStep": 0,
+            "formatValue": value => knobController.format(value, knobSetup.mapping, knobSetup.suffix, knobSetup.min, knobSetup.max),
+            "title": qsTr("Draw parameter automation curve")
+        });
+    }
     //! 0 for every tick, which is what makes a sweep smooth; otherwise that many a beat, on the lines.
     function eventsPerBeat(): int {
         return smoothCheckBox.checked ? 0 : eventsPerBeatSpinBox.value;
@@ -132,6 +157,7 @@ Item {
         startPosition = values.value0;
         endPosition = values.value1;
         curveComboBox.currentIndex = values.curve;
+        setDrawnCurve(values.drawnCurve);
         smoothCheckBox.checked = values.eventsPerBeat === 0;
         if (values.eventsPerBeat > 0) {
             eventsPerBeatSpinBox.value = values.eventsPerBeat;
@@ -149,6 +175,7 @@ Item {
         startPosition = 0;
         endPosition = 1;
         curveComboBox.currentIndex = 0;
+        drawnCurve = [];
         smoothCheckBox.checked = true;
         lineOffsetSpinBox.value = 0;
         modulationGroupBox.modulationType = 0;
@@ -248,6 +275,15 @@ Item {
                 InterpolationCurveComboBox {
                     id: curveComboBox
                     enabled: rootItem.startLine() !== rootItem.endLine()
+                    drawnAvailable: true
+                    // Drawn goes straight on to drawing; any other curve has no nodes to keep
+                    onActivated: comboBoxIndex => {
+                        if (comboBoxIndex === drawnIndex) {
+                            rootItem.openCurveDialog();
+                        } else {
+                            rootItem.drawnCurve = [];
+                        }
+                    }
                     Layout.fillWidth: true
                 }
                 Knob {

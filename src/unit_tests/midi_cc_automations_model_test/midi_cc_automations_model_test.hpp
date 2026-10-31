@@ -39,6 +39,7 @@ private slots:
     void test_changeController_shouldUpdateController();
 
     void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
+    void test_setData_drawnCurve_shouldRoundTheEndsIntoTheValues();
 };
 
 } // namespace noteahead

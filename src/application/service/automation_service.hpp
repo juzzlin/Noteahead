@@ -93,6 +93,12 @@ public:
     Q_INVOKABLE void setPitchBendAutomationCurve(quint64 automationId, int curve);
     //! A negative @p eventsPerBeat sends once a line, 0 is smooth. \see PitchBendAutomation::eventsPerBeat
     Q_INVOKABLE void setPitchBendAutomationEventsPerBeat(quint64 automationId, int eventsPerBeat, quint8 lineOffset);
+    //! Makes the curve Drawn, through @p nodes ([{ line, value }, ...]), fitted to the automation's
+    //! lines, whose ends become its start and end values. For the add forms, which draw a curve
+    //! before there is an automation to hold it.
+    Q_INVOKABLE void setMidiCcAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes);
+    Q_INVOKABLE void setPitchBendAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes);
+    Q_INVOKABLE void setParameterAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes);
     //! Every automation of the song, flattened into what QML can read straight off a plain list.
     //!
     //! Deliberately not routed through MidiCcAutomationsModel: that model is what the edit dialogs
@@ -195,6 +201,8 @@ private:
     //! Rounded to whole percent, as every automation saved before Events per Beat was played.
     int pitchBendValueAt(const PitchBendAutomation & automation, size_t line) const;
     void notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1);
+    //! The one body of the three set*AutomationDrawnCurve()
+    void setDrawnCurve(auto & automations, quint64 automationId, const QVariantList & nodes);
     void notifyChangedLines(const MidiCcAutomation & automation);
     void notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2);
     void notifyChangedLines(const PitchBendAutomation & automation);

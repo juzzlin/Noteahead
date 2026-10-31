@@ -35,6 +35,7 @@ QtObject {
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
     signal copyAutomationDialogRequested(string kind, int targetRow)
+    signal automationCurveDialogRequested(string kind, int targetRow, var setup)
     signal copyDeviceDialogRequested(int slotIndex)
     signal copyEffectDialogRequested(int slotIndex)
     signal copyEffectRackDialogRequested(string targetName)
@@ -384,6 +385,13 @@ QtObject {
     //! @p kind is "midiCc", "pitchBend" or "parameter": which automations to list.
     function requestCopyAutomationDialog(kind: string, targetRow: int): void {
         copyAutomationDialogRequested(kind, targetRow);
+    }
+    // Opens on top of an edit dialog, like the copy dialog above, and for the same reason unguarded.
+    //! Draws the curve of row @p targetRow of the @p kind edit dialog. @p setup holds the row's
+    //! drawnCurve, line0, line1, value0 and value1, the minValue, maxValue and valueStep its values
+    //! keep to, the formatValue function that reads one out, and the title.
+    function requestAutomationCurveDialog(kind: string, targetRow: int, setup: var): void {
+        automationCurveDialogRequested(kind, targetRow, setup);
     }
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {

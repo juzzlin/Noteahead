@@ -18,6 +18,7 @@
 #include "../../application/models/midi_cc_automations_model.hpp"
 #include "../../domain/midi/midi_cc_automation.hpp"
 
+#include "../../application/models/automation_curve_editor.hpp"
 #include <QSignalSpy>
 #include <QTest>
 
@@ -400,6 +401,20 @@ void MidiCcAutomationsModelTest::test_requestMidiCcAutomationsBySelection_should
     // Nor another track or pattern
     QCOMPARE(rows(1, 3, 3, 3, 11, 22), 0);
     QCOMPARE(rows(2, 2, 3, 3, 11, 22), 0);
+}
+
+void MidiCcAutomationsModelTest::test_setData_drawnCurve_shouldRoundTheEndsIntoTheValues()
+{
+    MidiCcAutomation midiCcAutomation { 42, { 1, 2, 3 }, 7, { 0, 8, 0, 0 }, {} };
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+
+    const AutomationCurve curve { { { 0, 63.6 }, { 4, 127 }, { 8, 12.2 } } };
+    QVERIFY(model.setData(model.index(0), AutomationCurveEditor::toVariantList(curve), static_cast<int>(MidiCcAutomationsModel::DataRole::DrawnCurve)));
+
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Curve)).toInt(), static_cast<int>(Interpolator::CurveType::Drawn));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value0)).toInt(), 64);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)).toInt(), 12);
 }
 
 } // namespace noteahead

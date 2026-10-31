@@ -168,6 +168,7 @@ set(HEADER_FILES
     tracker/automation_set.hpp
     tracker/column.hpp
     tracker/column_settings.hpp
+    tracker/drawn_curve_sync.hpp
     tracker/event.hpp
     tracker/event_data.hpp
     tracker/instrument.hpp
@@ -382,6 +383,7 @@ set(SOURCE_FILES
     tracker/automation_set.cpp
     tracker/column.cpp
     tracker/column_settings.cpp
+    tracker/drawn_curve_sync.cpp
     tracker/event.cpp
     tracker/event_data.cpp
     tracker/instrument.cpp

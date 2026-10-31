@@ -35,6 +35,32 @@ SectionBox {
     //! A ComboBox shadows the delegate's model with its own, so everything the combo boxes below read
     //! or write goes through the row as it is seen from here.
     readonly property var rowModel: model
+    // The title with the curve after it, so each row shows its shape without opening it
+    label: AutomationRowHeading {
+        x: delegateRoot.leftPadding
+        width: delegateRoot.availableWidth
+        text: delegateRoot.title
+        shape: delegateRoot.rowModel.curveShape
+        line0: delegateRoot.rowModel.line0
+        line1: delegateRoot.rowModel.line1
+        minValue: 0
+        maxValue: 1
+    }
+    //! Draws this automation's curve, in the dialog that writes it back into this row.
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("parameter", index, {
+            "drawnCurve": delegateRoot.rowModel.drawnCurve,
+            "line0": delegateRoot.rowModel.line0,
+            "line1": delegateRoot.rowModel.line1,
+            "value0": delegateRoot.rowModel.value0,
+            "value1": delegateRoot.rowModel.value1,
+            "minValue": 0,
+            "maxValue": 1,
+            "valueStep": 0,
+            "formatValue": value => knobController.format(value, delegateRoot.knobSetup.mapping, delegateRoot.knobSetup.suffix, delegateRoot.knobSetup.min, delegateRoot.knobSetup.max),
+            "title": qsTr("Draw parameter automation curve")
+        });
+    }
     readonly property bool hasLineRange: model.line0 !== model.line1
     readonly property int curve: model.curve
     readonly property int modulationType: model.modulationType
@@ -162,9 +188,16 @@ SectionBox {
                     Layout.fillWidth: true
                 }
                 InterpolationCurveComboBox {
+                    drawnAvailable: true
                     enabled: delegateRoot.hasLineRange
                     currentIndex: delegateRoot.curve
-                    onActivated: comboBoxIndex => delegateRoot.setCurve(comboBoxIndex)
+                    // Drawn starts from the ramp it replaces, and goes straight on to drawing
+                    onActivated: comboBoxIndex => {
+                        delegateRoot.setCurve(comboBoxIndex);
+                        if (comboBoxIndex === drawnIndex) {
+                            delegateRoot.openCurveDialog();
+                        }
+                    }
                     Layout.fillWidth: true
                 }
                 ComboBox {
@@ -314,6 +347,17 @@ SectionBox {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Replace this automation with the settings of another one")
                 onClicked: UiService.requestCopyAutomationDialog("parameter", index)
+            }
+            AppButton {
+                text: qsTr("Draw curve...")
+                enabled: delegateRoot.hasLineRange
+                Layout.fillWidth: true
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Draw the curve node by node")
+                onClicked: delegateRoot.openCurveDialog()
             }
             AppButton {
                 Layout.fillWidth: true

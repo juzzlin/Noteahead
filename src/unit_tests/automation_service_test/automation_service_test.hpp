@@ -74,6 +74,8 @@ private slots:
     void test_renderToEventsByColumn_midiCc_drawn_shouldFollowNodesRounded();
     void test_renderToEventsByColumn_pitchBend_drawn_shouldFollowNodesUnrounded();
     void test_renderToEventsByColumn_drawnWithoutNodes_shouldRampBetweenEnds();
+    void test_setParameterAutomationDrawnCurve_shouldFitTheLinesAndTakeTheEnds();
+    void test_addParameterAutomation_drawn_shouldStartFromTheRamp();
     void test_renderToEventsByColumn_shouldRenderToEvents();
     void test_renderToEventsByColumn_curve_shouldFollowCurve();
     void test_renderToEventsByColumn_shouldPruneRepeatingEvents();

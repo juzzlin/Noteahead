@@ -28,6 +28,34 @@ SectionBox {
     readonly property string portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
     //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
     readonly property bool hasLineRange: model.line0 !== model.line1
+    //! The row the curve dialog is opened with.
+    readonly property var rowModel: model
+    // The title with the curve after it, so each row shows its shape without opening it
+    label: AutomationRowHeading {
+        x: rootItem.leftPadding
+        width: rootItem.availableWidth
+        text: rootItem.title
+        shape: rootItem.rowModel.curveShape
+        line0: rootItem.rowModel.line0
+        line1: rootItem.rowModel.line1
+        minValue: propertyService.minValue(rootItem.rowModel.controller, rootItem.portName)
+        maxValue: propertyService.maxValue(rootItem.rowModel.controller, rootItem.portName)
+    }
+    //! Draws this automation's curve, in the dialog that writes it back into this row.
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("midiCc", index, {
+            "drawnCurve": rootItem.rowModel.drawnCurve,
+            "line0": rootItem.rowModel.line0,
+            "line1": rootItem.rowModel.line1,
+            "value0": rootItem.rowModel.value0,
+            "value1": rootItem.rowModel.value1,
+            "minValue": propertyService.minValue(rootItem.rowModel.controller, rootItem.portName),
+            "maxValue": propertyService.maxValue(rootItem.rowModel.controller, rootItem.portName),
+            "valueStep": 1,
+            "formatValue": value => String(Math.round(value)),
+            "title": qsTr("Draw MIDI CC automation curve")
+        });
+    }
     // Copying replaces this automation wholesale, and the controls below are set once on creation
     // rather than bound to the model, so they have to be re-read or the row would go on showing what
     // it was replaced from. A dedicated signal rather than dataChanged: that fires on every keystroke
@@ -213,8 +241,13 @@ SectionBox {
                     Layout.row: 1
                     Layout.column: 6
                     Layout.fillWidth: true
+                    drawnAvailable: true
+                    // Drawn starts from the ramp it replaces, and goes straight on to drawing
                     onActivated: function (comboBoxIndex) {
                         midiCcAutomationsModel.changeCurve(index, comboBoxIndex);
+                        if (comboBoxIndex === drawnIndex) {
+                            rootItem.openCurveDialog();
+                        }
                     }
                 }
             }
@@ -417,6 +450,17 @@ SectionBox {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Replace this automation with the settings of another one")
                 onClicked: UiService.requestCopyAutomationDialog("midiCc", index)
+            }
+            AppButton {
+                text: qsTr("Draw curve...")
+                enabled: rootItem.hasLineRange
+                Layout.fillWidth: true
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Draw the curve node by node")
+                onClicked: rootItem.openCurveDialog()
             }
             AppButton {
                 id: deleteButton

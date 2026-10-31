@@ -78,6 +78,12 @@ AnimatedDialog {
     function setCurve(curve: int): void {
         model.setCurve(curve);
     }
+    function drawnCurve(): var {
+        return model.drawnCurve;
+    }
+    function setDrawnCurve(nodes: var): void {
+        model.setDrawnCurve(nodes);
+    }
     function eventsPerBeat(): int {
         return model.eventsPerBeat();
     }
@@ -138,6 +144,7 @@ AnimatedDialog {
         setStartValue(values.value0);
         setEndValue(values.value1);
         setCurve(values.curve);
+        setDrawnCurve(values.drawnCurve);
         setEventsPerBeat(values.eventsPerBeat);
         setLineOffset(values.lineOffset);
         setModulationType(values.modulationType);

@@ -26,6 +26,34 @@ SectionBox {
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
     //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
     readonly property bool hasLineRange: model.line0 !== model.line1
+    //! The row the curve dialog is opened with.
+    readonly property var rowModel: model
+    // The title with the curve after it, so each row shows its shape without opening it
+    label: AutomationRowHeading {
+        x: delegateRoot.leftPadding
+        width: delegateRoot.availableWidth
+        text: delegateRoot.title
+        shape: delegateRoot.rowModel.curveShape
+        line0: delegateRoot.rowModel.line0
+        line1: delegateRoot.rowModel.line1
+        minValue: -100
+        maxValue: 100
+    }
+    //! Draws this automation's curve, in the dialog that writes it back into this row.
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("pitchBend", index, {
+            "drawnCurve": delegateRoot.rowModel.drawnCurve,
+            "line0": delegateRoot.rowModel.line0,
+            "line1": delegateRoot.rowModel.line1,
+            "value0": delegateRoot.rowModel.value0,
+            "value1": delegateRoot.rowModel.value1,
+            "minValue": -100,
+            "maxValue": 100,
+            "valueStep": 0,
+            "formatValue": value => value.toFixed(1) + " %",
+            "title": qsTr("Draw Pitch Bend automation curve")
+        });
+    }
 
     // Copying replaces this automation wholesale, and the controls below are set once on creation
     // rather than bound to the model, so they have to be re-read or the row would go on showing what
@@ -190,8 +218,13 @@ SectionBox {
                     Layout.row: 1
                     Layout.column: 4
                     Layout.fillWidth: true
+                    drawnAvailable: true
+                    // Drawn starts from the ramp it replaces, and goes straight on to drawing
                     onActivated: function (comboBoxIndex) {
                         pitchBendAutomationsModel.changeCurve(index, comboBoxIndex);
+                        if (comboBoxIndex === drawnIndex) {
+                            delegateRoot.openCurveDialog();
+                        }
                     }
                 }
             }
@@ -410,6 +443,17 @@ SectionBox {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Replace this automation with the settings of another one")
                 onClicked: UiService.requestCopyAutomationDialog("pitchBend", index)
+            }
+            AppButton {
+                text: qsTr("Draw curve...")
+                enabled: delegateRoot.hasLineRange
+                Layout.fillWidth: true
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Draw the curve node by node")
+                onClicked: delegateRoot.openCurveDialog()
             }
             AppButton {
                 id: deleteButton

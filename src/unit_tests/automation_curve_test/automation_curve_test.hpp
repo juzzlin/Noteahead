@@ -43,6 +43,13 @@ private slots:
     void test_setSpan_shrink_shouldDropOutsideAndKeepTheSound();
     void test_setSpan_grow_shouldHoldTheEnds();
     void test_snapLine_shouldRoundOnlyWhenSnapping();
+    void test_syncDrawnCurve_switchedToDrawn_shouldStartFromTheRamp();
+    void test_syncDrawnCurve_switchedAway_shouldDropTheNodes();
+    void test_syncDrawnCurve_newStartValue_shouldMoveTheStartNode();
+    void test_syncDrawnCurve_newLines_shouldRefitAndTakeTheEnds();
+    void test_syncDrawnCurve_newNodes_shouldRoundTheEndsIntoTheValues();
+    void test_curveShape_drawn_shouldBeTheNodes();
+    void test_curveShape_preset_shouldFollowTheCurve();
 };
 
 } // namespace noteahead

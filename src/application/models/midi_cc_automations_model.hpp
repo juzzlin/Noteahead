@@ -55,7 +55,13 @@ public:
         Modulation_Inverted,
         Modulation_Type,
         EventsPerBeat,
-        LineOffset
+        LineOffset,
+        //! The nodes of a drawn curve, [{ line, value }, ...], empty for any other curve. Setting
+        //! them makes the curve Drawn, and its ends the start and end values.
+        DrawnCurve,
+        //! What the curve looks like, [{ line, value }, ...]: the nodes when it is drawn, otherwise
+        //! the curve sampled. For the row's preview; not settable.
+        CurveShape
     };
 
     MidiCcAutomationsModel();

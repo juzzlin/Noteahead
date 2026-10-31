@@ -17,6 +17,7 @@
 
 #include "../../application/models/parameter_automations_model.hpp"
 
+#include "../../application/models/automation_curve_editor.hpp"
 #include <QSignalSpy>
 #include <QTest>
 
@@ -194,6 +195,61 @@ void ParameterAutomationsModelTest::test_applyValues_shouldKeepLocationEnabledAn
     QVERIFY(dataOf(model, 0, Role::Enabled).toBool());
     QCOMPARE(dataOf(model, 0, Role::OwnerId).toString(), QString { "effect-1" });
     QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
+}
+
+void ParameterAutomationsModelTest::test_setData_drawnCurve_shouldMakeTheCurveDrawnWithItsEnds()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 0, 0 }, 0, 8) });
+    QSignalSpy dataChangedSpy { &model, &ParameterAutomationsModel::dataChanged };
+
+    const AutomationCurve curve { { { 0, 0.1 }, { 3, 1 }, { 8, 0.4 } } };
+    QVERIFY(model.setData(model.index(0), AutomationCurveEditor::toVariantList(curve), static_cast<int>(Role::DrawnCurve)));
+
+    QCOMPARE(dataOf(model, 0, Role::Curve).toInt(), static_cast<int>(Interpolator::CurveType::Drawn));
+    QCOMPARE(AutomationCurveEditor::fromVariantList(dataOf(model, 0, Role::DrawnCurve).toList()), curve);
+    QCOMPARE(dataOf(model, 0, Role::Value0).toDouble(), 0.1);
+    QCOMPARE(dataOf(model, 0, Role::Value1).toDouble(), 0.4);
+    // Every role, as the ends moved with the nodes
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QVERIFY(dataChangedSpy.at(0).at(2).value<QList<int>>().isEmpty());
+}
+
+void ParameterAutomationsModelTest::test_setData_curveDrawn_shouldStartFromTheRamp()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 0, 0 }, 4, 12) });
+
+    QVERIFY(dataOf(model, 0, Role::DrawnCurve).toList().isEmpty());
+    QVERIFY(model.setData(model.index(0), static_cast<int>(Interpolator::CurveType::Drawn), static_cast<int>(Role::Curve)));
+
+    QCOMPARE(AutomationCurveEditor::fromVariantList(dataOf(model, 0, Role::DrawnCurve).toList()), AutomationCurve::ramp(4, 0.2, 12, 0.8));
+}
+
+void ParameterAutomationsModelTest::test_applyValues_drawnCurve_shouldFollowTheNewLines()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 1, 2 }, 0, 8) });
+
+    // A copy of a drawn automation on other lines: its nodes come with them
+    const AutomationCurve curve { { { 2, 0 }, { 4, 1 }, { 6, 0.5 } } };
+    model.applyValues(0, { { "line0", 2 }, { "line1", 6 }, { "value0", 0.0 }, { "value1", 0.5 }, { "curve", static_cast<int>(Interpolator::CurveType::Drawn) }, { "drawnCurve", AutomationCurveEditor::toVariantList(curve) } });
+
+    QCOMPARE(AutomationCurveEditor::fromVariantList(dataOf(model, 0, Role::DrawnCurve).toList()), curve);
+}
+
+void ParameterAutomationsModelTest::test_setData_value1_shouldReshapeThePreview()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 0, 0 }, 0, 8) });
+    QSignalSpy dataChangedSpy { &model, &ParameterAutomationsModel::dataChanged };
+
+    QVERIFY(model.setData(model.index(0), 0.5, static_cast<int>(Role::Value1)));
+
+    QCOMPARE(AutomationCurveEditor::fromVariantList(dataOf(model, 0, Role::CurveShape).toList()).nodes().back(), (AutomationCurve::Node { 8, 0.5 }));
+    // Every role, the preview's among them
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QVERIFY(dataChangedSpy.at(0).at(2).value<QList<int>>().isEmpty());
 }
 
 } // namespace noteahead

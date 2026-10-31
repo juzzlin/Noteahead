@@ -940,6 +940,9 @@ ApplicationWindow {
             const position = editorService.position;
             const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment(), true, addMidiCcAutomationDialog.eventsPerBeat(), addMidiCcAutomationDialog.lineOffset());
             automationService.setMidiCcAutomationCurve(automationId, addMidiCcAutomationDialog.curve());
+            if (addMidiCcAutomationDialog.drawnCurve().length) {
+                automationService.setMidiCcAutomationDrawnCurve(automationId, addMidiCcAutomationDialog.drawnCurve());
+            }
             if (addMidiCcAutomationDialog.cycles() > 0 || addMidiCcAutomationDialog.amplitude() > 0 || addMidiCcAutomationDialog.offset() !== 0) {
                 automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.modulationType(), addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.offset(), addMidiCcAutomationDialog.inverted());
             }
@@ -962,6 +965,9 @@ ApplicationWindow {
             const position = editorService.position;
             const automationId = automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
             automationService.setPitchBendAutomationCurve(automationId, addPitchBendAutomationDialog.curve());
+            if (addPitchBendAutomationDialog.drawnCurve().length) {
+                automationService.setPitchBendAutomationDrawnCurve(automationId, addPitchBendAutomationDialog.drawnCurve());
+            }
             automationService.setPitchBendAutomationEventsPerBeat(automationId, addPitchBendAutomationDialog.eventsPerBeat(), addPitchBendAutomationDialog.lineOffset());
             if (addPitchBendAutomationDialog.cycles() > 0 || addPitchBendAutomationDialog.amplitude() > 0 || addPitchBendAutomationDialog.offset() !== 0) {
                 automationService.addPitchBendModulation(automationId, addPitchBendAutomationDialog.modulationType(), addPitchBendAutomationDialog.cycles(), addPitchBendAutomationDialog.amplitude(), addPitchBendAutomationDialog.offset(), addPitchBendAutomationDialog.inverted());
@@ -996,12 +1002,44 @@ ApplicationWindow {
             }
         }
     }
+    AutomationCurveDialog {
+        id: automationCurveDialog
+        anchors.centerIn: parent
+        onAccepted: {
+            // Into the add form, or through the edit dialog's model like a copy: either way nothing
+            // reaches the song before the dialog underneath is accepted too
+            const nodes = automationCurveEditor.nodes;
+            const values = {
+                "drawnCurve": nodes
+            };
+            if (kind === "parameter") {
+                if (targetRow < 0) {
+                    addParameterAutomationDialog.form.setDrawnCurve(nodes);
+                } else {
+                    parameterAutomationsModel.applyValues(targetRow, values);
+                }
+            } else if (kind === "pitchBend") {
+                if (targetRow < 0) {
+                    addPitchBendAutomationDialog.setDrawnCurve(nodes);
+                } else {
+                    pitchBendAutomationsModel.applyValues(targetRow, values);
+                }
+            } else if (targetRow < 0) {
+                addMidiCcAutomationDialog.setDrawnCurve(nodes);
+            } else {
+                midiCcAutomationsModel.applyValues(targetRow, values);
+            }
+        }
+    }
     AddParameterAutomationDialog {
         id: addParameterAutomationDialog
         anchors.centerIn: parent
         onAccepted: {
             const position = editorService.position;
             const automationId = automationService.addParameterAutomation(position.pattern, position.track, position.column, form.owner(), form.ownerId(), form.parameterKey(), form.mode(), form.startLine(), form.endLine(), form.startValue(), form.endValue(), form.curve(), form.comment(), form.eventsPerBeat(), form.lineOffset());
+            if (form.drawnCurve.length) {
+                automationService.setParameterAutomationDrawnCurve(automationId, form.drawnCurve);
+            }
             if (form.cycles() > 0 || form.amplitude() > 0 || form.offset() !== 0) {
                 automationService.addParameterModulation(automationId, form.modulationType(), form.cycles(), form.amplitude(), form.offset(), form.inverted());
             }
@@ -1459,6 +1497,14 @@ ApplicationWindow {
             addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
+        });
+        UiService.automationCurveDialogRequested.connect((kind, targetRow, setup) => {
+            automationCurveEditor.edit(setup.drawnCurve, setup.line0, setup.line1, setup.value0, setup.value1, setup.minValue, setup.maxValue, setup.valueStep);
+            automationCurveDialog.kind = kind;
+            automationCurveDialog.targetRow = targetRow;
+            automationCurveDialog.formatValue = setup.formatValue;
+            automationCurveDialog.setTitle(setup.title);
+            automationCurveDialog.open();
         });
         UiService.copyAutomationDialogRequested.connect((kind, targetRow) => {
             copyAutomationDialog.kind = kind;

@@ -15,9 +15,21 @@
 
 #include "midi_cc_automations_model.hpp"
 
+#include "../../domain/tracker/drawn_curve_sync.hpp"
+#include "automation_curve_editor.hpp"
+
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
+
+namespace {
+//! Whether an edit of @p role reshapes the curve: its preview, and a drawn curve's ends with it
+bool reshapes(MidiCcAutomationsModel::DataRole role)
+{
+    using enum MidiCcAutomationsModel::DataRole;
+    return role == Line0 || role == Line1 || role == Value0 || role == Value1 || role == Curve || role == DrawnCurve;
+}
+} // namespace
 
 static const auto TAG = "MidiCcAutomationsModel";
 
@@ -145,6 +157,10 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return midiCcAutomation.interpolation().value1;
         case DataRole::Curve:
             return static_cast<int>(midiCcAutomation.interpolation().curve);
+        case DataRole::CurveShape:
+            return AutomationCurveEditor::toVariantList(curveShape(midiCcAutomation.interpolation()));
+        case DataRole::DrawnCurve:
+            return midiCcAutomation.interpolation().curve == Interpolator::CurveType::Drawn ? AutomationCurveEditor::toVariantList(midiCcAutomation.interpolation().drawnCurve) : QVariantList {};
         case DataRole::Pattern:
             return static_cast<quint64>(midiCcAutomation.location().pattern());
         case DataRole::Track:
@@ -195,42 +211,39 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
                 changed = true;
             }
             break;
-        case DataRole::Line0: {
-            auto interpolation = midiCcAutomation.interpolation();
-            if (const auto newLine0 = static_cast<uint16_t>(value.toUInt()); interpolation.line0 != newLine0) {
-                interpolation.line0 = newLine0;
-                midiCcAutomation.setInterpolation(interpolation);
-                changed = true;
+        case DataRole::Line0:
+        case DataRole::Line1:
+        case DataRole::Value0:
+        case DataRole::Value1:
+        case DataRole::Curve:
+        case DataRole::DrawnCurve: {
+            const auto previous = midiCcAutomation.interpolation();
+            auto interpolation = previous;
+            switch (static_cast<DataRole>(role)) {
+            case DataRole::Line0:
+                interpolation.line0 = static_cast<uint16_t>(value.toUInt());
+                break;
+            case DataRole::Line1:
+                interpolation.line1 = static_cast<uint16_t>(value.toUInt());
+                break;
+            case DataRole::Value0:
+                interpolation.value0 = static_cast<uint8_t>(value.toUInt());
+                break;
+            case DataRole::Value1:
+                interpolation.value1 = static_cast<uint8_t>(value.toUInt());
+                break;
+            case DataRole::Curve:
+                interpolation.curve = static_cast<Interpolator::CurveType>(value.toInt());
+                break;
+            default:
+                if (const auto drawnCurve = AutomationCurveEditor::fromVariantList(value.toList()); !drawnCurve.isEmpty()) {
+                    interpolation.curve = Interpolator::CurveType::Drawn;
+                    interpolation.drawnCurve = drawnCurve;
+                }
+                break;
             }
-        } break;
-        case DataRole::Line1: {
-            auto interpolation = midiCcAutomation.interpolation();
-            if (const auto newLine1 = static_cast<uint16_t>(value.toUInt()); interpolation.line1 != newLine1) {
-                interpolation.line1 = newLine1;
-                midiCcAutomation.setInterpolation(interpolation);
-                changed = true;
-            }
-        } break;
-        case DataRole::Value0: {
-            auto interpolation = midiCcAutomation.interpolation();
-            if (const auto newValue0 = static_cast<uint8_t>(value.toUInt()); interpolation.value0 != newValue0) {
-                interpolation.value0 = newValue0;
-                midiCcAutomation.setInterpolation(interpolation);
-                changed = true;
-            }
-        } break;
-        case DataRole::Value1: {
-            auto interpolation = midiCcAutomation.interpolation();
-            if (const auto newValue1 = static_cast<uint8_t>(value.toUInt()); interpolation.value1 != newValue1) {
-                interpolation.value1 = newValue1;
-                midiCcAutomation.setInterpolation(interpolation);
-                changed = true;
-            }
-        } break;
-        case DataRole::Curve: {
-            auto interpolation = midiCcAutomation.interpolation();
-            if (const auto newCurve = static_cast<Interpolator::CurveType>(value.toInt()); interpolation.curve != newCurve) {
-                interpolation.curve = newCurve;
+            syncDrawnCurve(interpolation, previous);
+            if (!(interpolation == previous)) {
                 midiCcAutomation.setInterpolation(interpolation);
                 changed = true;
             }
@@ -293,6 +306,7 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
         case DataRole::Track:
         case DataRole::Column:
         case DataRole::Id:
+        case DataRole::CurveShape:
             break;
         }
 
@@ -301,7 +315,8 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
             m_midiCcAutomationsChanged.erase(midiCcAutomation);
             m_midiCcAutomationsChanged.insert(midiCcAutomation);
             juzzlin::L(TAG).info() << "MIDI CC automation changed: " << midiCcAutomation.toString().toStdString();
-            emit dataChanged(index, index, { role });
+            // Every role for a new shape, which the preview draws and which can move a drawn curve's ends
+            emit dataChanged(index, index, reshapes(static_cast<DataRole>(role)) ? QList<int> {} : QList<int> { role });
             return true;
         }
     }
@@ -341,6 +356,8 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Value0), "value0" },
         { static_cast<int>(DataRole::Value1), "value1" },
         { static_cast<int>(DataRole::Curve), "curve" },
+        { static_cast<int>(DataRole::DrawnCurve), "drawnCurve" },
+        { static_cast<int>(DataRole::CurveShape), "curveShape" },
         { static_cast<int>(DataRole::Modulation_Cycles), "modulationCycles" },
         { static_cast<int>(DataRole::Modulation_Amplitude), "modulationAmplitude" },
         { static_cast<int>(DataRole::Modulation_Offset), "modulationOffset" },
@@ -400,7 +417,9 @@ void MidiCcAutomationsModel::applyValues(int index, const QVariantMap & values)
         { "modulationAmplitude", DataRole::Modulation_Amplitude },
         { "modulationOffset", DataRole::Modulation_Offset },
         { "modulationInverted", DataRole::Modulation_Inverted },
-        { "comment", DataRole::Comment }
+        { "comment", DataRole::Comment },
+        // Last, as the lines and the curve type above would otherwise reshape it
+        { "drawnCurve", DataRole::DrawnCurve }
     };
 
     const auto modelIndex = this->index(index);
@@ -445,18 +464,8 @@ void MidiCcAutomationsModel::changeModulationType(int index, int type)
 
 void MidiCcAutomationsModel::changeCurve(int index, int curve)
 {
-    if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {
-        auto && midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
-        auto interpolation = midiCcAutomation.interpolation();
-        if (const auto newCurve = static_cast<Interpolator::CurveType>(curve); interpolation.curve != newCurve) {
-            interpolation.curve = newCurve;
-            midiCcAutomation.setInterpolation(interpolation);
-            m_midiCcAutomationsChanged.erase(midiCcAutomation);
-            m_midiCcAutomationsChanged.insert(midiCcAutomation);
-            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Curve) });
-            juzzlin::L(TAG).info() << "MIDI CC automation curve changed via invokable: " << midiCcAutomation.toString().toStdString();
-        }
-    }
+    // Through setData(), which keeps a drawn curve in step with its type
+    setData(this->index(index), curve, static_cast<int>(DataRole::Curve));
 }
 
 } // namespace noteahead

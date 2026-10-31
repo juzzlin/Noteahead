@@ -18,6 +18,7 @@
 #include "../../application/models/pitch_bend_automations_model.hpp"
 #include "../../domain/midi/pitch_bend_automation.hpp"
 
+#include "../../application/models/automation_curve_editor.hpp"
 #include <QSignalSpy>
 #include <QTest>
 
@@ -390,6 +391,22 @@ void PitchBendAutomationsModelTest::test_requestPitchBendAutomationsBySelection_
     // Nor another track or pattern
     QCOMPARE(rows(1, 3, 3, 3, 11, 22), 0);
     QCOMPARE(rows(2, 2, 3, 3, 11, 22), 0);
+}
+
+void PitchBendAutomationsModelTest::test_changeCurve_drawn_shouldStartFromTheRamp()
+{
+    PitchBendAutomation automation { 42, { 1, 2, 3 }, { 0, 8, -50, 25 }, {} };
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ automation });
+
+    model.changeCurve(0, static_cast<int>(Interpolator::CurveType::Drawn));
+
+    const auto nodes = model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::DrawnCurve)).toList();
+    QCOMPARE(AutomationCurveEditor::fromVariantList(nodes), AutomationCurve::ramp(0, -50, 8, 25));
+
+    // And back: the nodes go with the curve
+    model.changeCurve(0, static_cast<int>(Interpolator::CurveType::Linear));
+    QVERIFY(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::DrawnCurve)).toList().isEmpty());
 }
 
 } // namespace noteahead

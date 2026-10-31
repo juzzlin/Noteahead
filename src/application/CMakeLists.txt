@@ -6,6 +6,7 @@ set(HEADER_FILES
     command/undo_stack.hpp
     instrument_request.hpp
     models/audio_settings_model.hpp
+    models/automation_curve_editor.hpp
     models/column_settings_model.hpp
     models/event_selection_model.hpp
     models/midi_cc_automations_model.hpp
@@ -73,6 +74,7 @@ set(SOURCE_FILES
     command/undo_stack.cpp
     instrument_request.cpp
     models/audio_settings_model.cpp
+    models/automation_curve_editor.cpp
     models/column_settings_model.cpp
     models/event_selection_model.cpp
     models/midi_cc_automations_model.cpp

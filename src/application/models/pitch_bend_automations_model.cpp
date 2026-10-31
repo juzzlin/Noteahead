@@ -15,9 +15,21 @@
 
 #include "pitch_bend_automations_model.hpp"
 
+#include "../../domain/tracker/drawn_curve_sync.hpp"
+#include "automation_curve_editor.hpp"
+
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
+
+namespace {
+//! Whether an edit of @p role reshapes the curve: its preview, and a drawn curve's ends with it
+bool reshapes(PitchBendAutomationsModel::DataRole role)
+{
+    using enum PitchBendAutomationsModel::DataRole;
+    return role == Line0 || role == Line1 || role == Value0 || role == Value1 || role == Curve || role == DrawnCurve;
+}
+} // namespace
 
 static const auto TAG = "PitchBendAutomationsModel";
 
@@ -143,6 +155,10 @@ QVariant PitchBendAutomationsModel::data(const QModelIndex & index, int role) co
             return PitchBendAutomation.interpolation().value1;
         case DataRole::Curve:
             return static_cast<int>(PitchBendAutomation.interpolation().curve);
+        case DataRole::CurveShape:
+            return AutomationCurveEditor::toVariantList(curveShape(PitchBendAutomation.interpolation()));
+        case DataRole::DrawnCurve:
+            return PitchBendAutomation.interpolation().curve == Interpolator::CurveType::Drawn ? AutomationCurveEditor::toVariantList(PitchBendAutomation.interpolation().drawnCurve) : QVariantList {};
         case DataRole::Pattern:
             return static_cast<quint64>(PitchBendAutomation.location().pattern());
         case DataRole::Track:
@@ -189,42 +205,39 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
         break;
-    case DataRole::Line0: {
-        auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newLine0 = static_cast<uint16_t>(value.toUInt()); interpolation.line0 != newLine0) {
-            interpolation.line0 = newLine0;
-            PitchBendAutomation.setInterpolation(interpolation);
-            changed = true;
+    case DataRole::Line0:
+    case DataRole::Line1:
+    case DataRole::Value0:
+    case DataRole::Value1:
+    case DataRole::Curve:
+    case DataRole::DrawnCurve: {
+        const auto previous = PitchBendAutomation.interpolation();
+        auto interpolation = previous;
+        switch (static_cast<DataRole>(role)) {
+        case DataRole::Line0:
+            interpolation.line0 = static_cast<uint16_t>(value.toUInt());
+            break;
+        case DataRole::Line1:
+            interpolation.line1 = static_cast<uint16_t>(value.toUInt());
+            break;
+        case DataRole::Value0:
+            interpolation.value0 = value.toInt();
+            break;
+        case DataRole::Value1:
+            interpolation.value1 = value.toInt();
+            break;
+        case DataRole::Curve:
+            interpolation.curve = static_cast<Interpolator::CurveType>(value.toInt());
+            break;
+        default:
+            if (const auto drawnCurve = AutomationCurveEditor::fromVariantList(value.toList()); !drawnCurve.isEmpty()) {
+                interpolation.curve = Interpolator::CurveType::Drawn;
+                interpolation.drawnCurve = drawnCurve;
+            }
+            break;
         }
-    } break;
-    case DataRole::Line1: {
-        auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newLine1 = static_cast<uint16_t>(value.toUInt()); interpolation.line1 != newLine1) {
-            interpolation.line1 = newLine1;
-            PitchBendAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Value0: {
-        auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newValue0 = value.toInt(); interpolation.value0 != newValue0) {
-            interpolation.value0 = newValue0;
-            PitchBendAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Value1: {
-        auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newValue1 = value.toInt(); interpolation.value1 != newValue1) {
-            interpolation.value1 = newValue1;
-            PitchBendAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Curve: {
-        auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newCurve = static_cast<Interpolator::CurveType>(value.toInt()); interpolation.curve != newCurve) {
-            interpolation.curve = newCurve;
+        syncDrawnCurve(interpolation, previous);
+        if (!(interpolation == previous)) {
             PitchBendAutomation.setInterpolation(interpolation);
             changed = true;
         }
@@ -286,6 +299,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
     case DataRole::Track:
     case DataRole::Column:
     case DataRole::Id:
+    case DataRole::CurveShape:
         break;
     }
 
@@ -293,7 +307,8 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
         m_pitchBendAutomations[static_cast<size_t>(index.row())] = PitchBendAutomation;
         m_pitchBendAutomationsChanged.erase(PitchBendAutomation);
         m_pitchBendAutomationsChanged.insert(PitchBendAutomation);
-        emit dataChanged(index, index, { role });
+        // Every role for a new shape, which the preview draws and which can move a drawn curve's ends
+        emit dataChanged(index, index, reshapes(static_cast<DataRole>(role)) ? QList<int> {} : QList<int> { role });
         return true;
     }
 
@@ -331,6 +346,8 @@ QHash<int, QByteArray> PitchBendAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Value0), "value0" },
         { static_cast<int>(DataRole::Value1), "value1" },
         { static_cast<int>(DataRole::Curve), "curve" },
+        { static_cast<int>(DataRole::DrawnCurve), "drawnCurve" },
+        { static_cast<int>(DataRole::CurveShape), "curveShape" },
         { static_cast<int>(DataRole::Modulation_Cycles), "modulationCycles" },
         { static_cast<int>(DataRole::Modulation_Amplitude), "modulationAmplitude" },
         { static_cast<int>(DataRole::Modulation_Offset), "modulationOffset" },
@@ -374,7 +391,9 @@ void PitchBendAutomationsModel::applyValues(int index, const QVariantMap & value
         { "modulationInverted", DataRole::Modulation_Inverted },
         { "eventsPerBeat", DataRole::EventsPerBeat },
         { "lineOffset", DataRole::LineOffset },
-        { "comment", DataRole::Comment }
+        { "comment", DataRole::Comment },
+        // Last, as the lines and the curve type above would otherwise reshape it
+        { "drawnCurve", DataRole::DrawnCurve }
     };
 
     const auto modelIndex = this->index(index);
@@ -406,19 +425,8 @@ void PitchBendAutomationsModel::changeModulationType(int index, int type)
 
 void PitchBendAutomationsModel::changeCurve(int index, int curve)
 {
-    if (index >= 0 && static_cast<size_t>(index) < m_pitchBendAutomations.size()) {
-        auto && pitchBendAutomation = m_pitchBendAutomations[static_cast<size_t>(index)];
-        auto interpolation = pitchBendAutomation.interpolation();
-        if (const auto newCurve = static_cast<Interpolator::CurveType>(curve); interpolation.curve != newCurve) {
-            interpolation.curve = newCurve;
-            pitchBendAutomation.setInterpolation(interpolation);
-            m_pitchBendAutomations[static_cast<size_t>(index)] = pitchBendAutomation;
-            m_pitchBendAutomationsChanged.erase(pitchBendAutomation);
-            m_pitchBendAutomationsChanged.insert(pitchBendAutomation);
-            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Curve) });
-            juzzlin::L(TAG).info() << "Pitch bend automation curve changed via invokable: " << pitchBendAutomation.toString().toStdString();
-        }
-    }
+    // Through setData(), which keeps a drawn curve in step with its type
+    setData(this->index(index), curve, static_cast<int>(DataRole::Curve));
 }
 
 } // namespace noteahead

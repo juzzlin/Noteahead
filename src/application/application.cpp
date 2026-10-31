@@ -78,6 +78,7 @@
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Components/phase_scope_renderer.hpp"
+#include "../view/qml/Dialogs/automation_curve_renderer.hpp"
 #include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
 #include "../view/qml/Dialogs/song_overview_renderer.hpp"
@@ -86,6 +87,7 @@
 #include "../view/qml/Editor/line_number_renderer.hpp"
 #include "../view/qml/Editor/note_column_renderer.hpp"
 #include "models/audio_settings_model.hpp"
+#include "models/automation_curve_editor.hpp"
 #include "models/column_settings_model.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
@@ -210,6 +212,7 @@ Application::Application(int & argc, char ** argv)
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_parameterAutomationsModel { std::make_unique<ParameterAutomationsModel>() }
+  , m_automationCurveEditor { std::make_unique<AutomationCurveEditor>() }
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
@@ -277,6 +280,7 @@ void Application::registerTypes()
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
+    qmlRegisterType<AutomationCurveRenderer>("Noteahead", majorVersion, minorVersion, "AutomationCurveRenderer");
     qmlRegisterType<EqCurveRenderer>("Noteahead", majorVersion, minorVersion, "EqCurveRenderer");
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
@@ -372,6 +376,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("noteColumnModelHandler", m_noteColumnModelHandler.get());
     m_engine->rootContext()->setContextProperty("pitchBendAutomationsModel", m_pitchBendAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("parameterAutomationsModel", m_parameterAutomationsModel.get());
+    m_engine->rootContext()->setContextProperty("automationCurveEditor", m_automationCurveEditor.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("propertyService", m_propertyService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());

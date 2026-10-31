@@ -21,8 +21,10 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
+#include "../../domain/tracker/drawn_curve_sync.hpp"
 #include "../../domain/tracker/interpolator.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
+#include "../models/automation_curve_editor.hpp"
 #include "../position.hpp"
 #include "property_service.hpp"
 
@@ -132,6 +134,7 @@ void AutomationService::setMidiCcAutomationCurve(quint64 automationId, int curve
         iter != m_automations.midiCc.end()) {
         auto interpolation = iter->interpolation();
         interpolation.curve = static_cast<Interpolator::CurveType>(curve);
+        syncDrawnCurve(interpolation, iter->interpolation());
         iter->setInterpolation(interpolation);
         notifyChangedLines(*iter);
         juzzlin::L(TAG).info() << "MIDI CC automation curve set on automation id " << automationId;
@@ -148,6 +151,7 @@ void AutomationService::setPitchBendAutomationCurve(quint64 automationId, int cu
         iter != m_automations.pitchBend.end()) {
         auto interpolation = iter->interpolation();
         interpolation.curve = static_cast<Interpolator::CurveType>(curve);
+        syncDrawnCurve(interpolation, iter->interpolation());
         iter->setInterpolation(interpolation);
         notifyChangedLines(*iter);
         juzzlin::L(TAG).info() << "Pitch Bend automation curve set on automation id " << automationId;
@@ -202,6 +206,39 @@ void AutomationService::setPitchBendAutomationEventsPerBeat(quint64 automationId
         juzzlin::L(TAG).info() << "Pitch Bend automation events per beat set on automation id " << automationId;
     } else {
         juzzlin::L(TAG).error() << "No such automation id to set events per beat on: " << automationId;
+    }
+}
+
+void AutomationService::setMidiCcAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes)
+{
+    setDrawnCurve(m_automations.midiCc, automationId, nodes);
+}
+
+void AutomationService::setPitchBendAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes)
+{
+    setDrawnCurve(m_automations.pitchBend, automationId, nodes);
+}
+
+void AutomationService::setParameterAutomationDrawnCurve(quint64 automationId, const QVariantList & nodes)
+{
+    setDrawnCurve(m_automations.parameter, automationId, nodes);
+}
+
+void AutomationService::setDrawnCurve(auto & automations, quint64 automationId, const QVariantList & nodes)
+{
+    if (const auto iter = std::ranges::find_if(automations, [&](auto && existingAutomation) {
+            return automationId == existingAutomation.id();
+        });
+        iter != automations.end()) {
+        auto interpolation = iter->interpolation();
+        interpolation.curve = Interpolator::CurveType::Drawn;
+        interpolation.drawnCurve = AutomationCurveEditor::fromVariantList(nodes);
+        syncDrawnCurve(interpolation, iter->interpolation());
+        iter->setInterpolation(interpolation);
+        notifyChangedLines(*iter);
+        juzzlin::L(TAG).info() << "Drawn curve set on automation id " << automationId;
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to set a drawn curve on: " << automationId;
     }
 }
 
@@ -488,7 +525,10 @@ quint64 AutomationService::addParameterAutomation(const ParameterAutomation & au
 
 quint64 AutomationService::addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & owner, const QString & ownerId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset)
 {
-    ParameterAutomation automation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() }, static_cast<ParameterAutomation::Mode>(mode), { line0, line1, std::clamp(value0, 0.0, 1.0), std::clamp(value1, 0.0, 1.0), static_cast<Interpolator::CurveType>(curve) }, {}, comment, true };
+    ParameterAutomation::InterpolationParameters interpolation { line0, line1, std::clamp(value0, 0.0, 1.0), std::clamp(value1, 0.0, 1.0), static_cast<Interpolator::CurveType>(curve) };
+    // Added as Drawn, it starts from the ramp it was given
+    syncDrawnCurve(interpolation, interpolation);
+    ParameterAutomation automation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() }, static_cast<ParameterAutomation::Mode>(mode), interpolation, {}, comment, true };
     automation.setEventsPerBeat(eventsPerBeat);
     automation.setLineOffset(lineOffset);
     return addParameterAutomation(automation);
@@ -636,6 +676,7 @@ QVariantMap commonAutomationVariants(const Automation & automation, const auto &
         { "value0", static_cast<int>(interpolation.value0) },
         { "value1", static_cast<int>(interpolation.value1) },
         { "curve", static_cast<int>(interpolation.curve) },
+        { "drawnCurve", interpolation.curve == Interpolator::CurveType::Drawn ? AutomationCurveEditor::toVariantList(interpolation.drawnCurve) : QVariantList {} },
         { "modulationType", static_cast<int>(modulation.type) },
         { "modulationCycles", modulation.cycles },
         { "modulationAmplitude", modulation.amplitude },

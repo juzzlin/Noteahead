@@ -15,11 +15,23 @@
 
 #include "parameter_automations_model.hpp"
 
+#include "../../domain/tracker/drawn_curve_sync.hpp"
+#include "automation_curve_editor.hpp"
+
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 
 namespace noteahead {
+
+namespace {
+//! Whether an edit of @p role reshapes the curve: its preview, and a drawn curve's ends with it
+bool reshapes(ParameterAutomationsModel::DataRole role)
+{
+    using enum ParameterAutomationsModel::DataRole;
+    return role == Line0 || role == Line1 || role == Value0 || role == Value1 || role == Curve || role == DrawnCurve;
+}
+} // namespace
 
 static const auto TAG = "ParameterAutomationsModel";
 
@@ -107,6 +119,10 @@ QVariant ParameterAutomationsModel::data(const QModelIndex & index, int role) co
         return automation.comment();
     case DataRole::Curve:
         return static_cast<int>(interpolation.curve);
+    case DataRole::CurveShape:
+        return AutomationCurveEditor::toVariantList(curveShape(interpolation));
+    case DataRole::DrawnCurve:
+        return interpolation.curve == Interpolator::CurveType::Drawn ? AutomationCurveEditor::toVariantList(interpolation.drawnCurve) : QVariantList {};
     case DataRole::Owner:
         return ParameterAutomation::Target::ownerToString(automation.target().owner);
     case DataRole::OwnerId:
@@ -166,6 +182,12 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
     case DataRole::Curve:
         interpolation.curve = static_cast<Interpolator::CurveType>(value.toInt());
         break;
+    case DataRole::DrawnCurve:
+        if (const auto drawnCurve = AutomationCurveEditor::fromVariantList(value.toList()); !drawnCurve.isEmpty()) {
+            interpolation.curve = Interpolator::CurveType::Drawn;
+            interpolation.drawnCurve = drawnCurve;
+        }
+        break;
     case DataRole::Enabled:
         automation.setEnabled(value.toBool());
         break;
@@ -208,6 +230,7 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
     // Where an automation sits is not edited here, and what it drives only all at once, through
     // setTarget()
     case DataRole::Column:
+    case DataRole::CurveShape:
     case DataRole::Owner:
     case DataRole::OwnerId:
     case DataRole::Id:
@@ -217,6 +240,7 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
         return false;
     }
 
+    syncDrawnCurve(interpolation, automation.interpolation());
     automation.setInterpolation(interpolation);
     automation.setModulation(modulation);
     if (automation == m_parameterAutomations.at(static_cast<size_t>(index.row()))) {
@@ -227,7 +251,8 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
     // Keyed by id, so the newest edit replaces the one held before it
     m_changed.erase(automation);
     m_changed.insert(automation);
-    emit dataChanged(index, index, { role });
+    // Every role for a new shape, which the preview draws and which can move a drawn curve's ends
+    emit dataChanged(index, index, reshapes(static_cast<DataRole>(role)) ? QList<int> {} : QList<int> { role });
     return true;
 }
 
@@ -258,6 +283,8 @@ QHash<int, QByteArray> ParameterAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Column), "column" },
         { static_cast<int>(DataRole::Comment), "comment" },
         { static_cast<int>(DataRole::Curve), "curve" },
+        { static_cast<int>(DataRole::CurveShape), "curveShape" },
+        { static_cast<int>(DataRole::DrawnCurve), "drawnCurve" },
         { static_cast<int>(DataRole::Owner), "owner" },
         { static_cast<int>(DataRole::OwnerId), "ownerId" },
         { static_cast<int>(DataRole::Enabled), "enabled" },
@@ -301,7 +328,9 @@ void ParameterAutomationsModel::applyValues(int index, const QVariantMap & value
         { "modulationAmplitude", DataRole::Modulation_Amplitude },
         { "modulationOffset", DataRole::Modulation_Offset },
         { "modulationInverted", DataRole::Modulation_Inverted },
-        { "comment", DataRole::Comment }
+        { "comment", DataRole::Comment },
+        // Last, as the lines and the curve type above would otherwise reshape it
+        { "drawnCurve", DataRole::DrawnCurve }
     };
 
     const auto modelIndex = this->index(index);

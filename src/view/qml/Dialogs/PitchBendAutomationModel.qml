@@ -57,6 +57,34 @@ Item {
     }
     function setCurve(curve: int): void {
         curveComboBox.currentIndex = curve;
+        if (curve !== curveComboBox.drawnIndex) {
+            drawnCurve = [];
+        }
+    }
+    //! The nodes drawn for the new automation, [{ line, value }, ...], or none yet: held until it is
+    //! added, as there is no automation to hold them before that.
+    property var drawnCurve: []
+    //! Takes the nodes the curve dialog drew, whose ends are then the start and end values.
+    function setDrawnCurve(nodes: var): void {
+        drawnCurve = nodes || [];
+        if (drawnCurve.length) {
+            setStartValue(Math.round(drawnCurve[0].value));
+            setEndValue(Math.round(drawnCurve[drawnCurve.length - 1].value));
+        }
+    }
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("pitchBend", -1, {
+            "drawnCurve": drawnCurve,
+            "line0": startLine(),
+            "line1": endLine(),
+            "value0": startValue(),
+            "value1": endValue(),
+            "minValue": -100,
+            "maxValue": 100,
+            "valueStep": 0,
+            "formatValue": value => value.toFixed(1) + " %",
+            "title": qsTr("Draw Pitch Bend automation curve")
+        });
     }
     //! 0 for every tick, which is what makes a bend smooth; -1 for once a line, as automations made
     //! before the setting play; otherwise that many a beat, on the lines.
@@ -205,6 +233,15 @@ Item {
                 InterpolationCurveComboBox {
                     id: curveComboBox
                     enabled: startLine() !== endLine()
+                    drawnAvailable: true
+                    // Drawn goes straight on to drawing; any other curve has no nodes to keep
+                    onActivated: comboBoxIndex => {
+                        if (comboBoxIndex === drawnIndex) {
+                            rootItem.openCurveDialog();
+                        } else {
+                            rootItem.drawnCurve = [];
+                        }
+                    }
                     Layout.row: 1
                     Layout.column: 4
                     Layout.fillWidth: true

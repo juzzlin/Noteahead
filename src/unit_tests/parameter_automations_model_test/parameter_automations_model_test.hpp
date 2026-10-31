@@ -33,6 +33,10 @@ private slots:
     void test_setTarget_shouldMoveTheWholeTargetOnApply();
     void test_removeAt_shouldDeleteOnApply();
     void test_applyValues_shouldKeepLocationEnabledAndTarget();
+    void test_setData_drawnCurve_shouldMakeTheCurveDrawnWithItsEnds();
+    void test_setData_curveDrawn_shouldStartFromTheRamp();
+    void test_applyValues_drawnCurve_shouldFollowTheNewLines();
+    void test_setData_value1_shouldReshapeThePreview();
 };
 
 } // namespace noteahead

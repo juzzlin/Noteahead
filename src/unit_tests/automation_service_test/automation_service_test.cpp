@@ -15,6 +15,7 @@
 
 #include "automation_service_test.hpp"
 
+#include "../../application/models/automation_curve_editor.hpp"
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
@@ -1227,6 +1228,31 @@ void AutomationServiceTest::test_renderToEventsByColumn_parameter_missingDevice_
     automationService.addParameterAutomation(0, 0, 0, "effect", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 0, 2, 0.0, 1.0, 0, {}, 0, 0);
 
     QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4).empty());
+}
+
+void AutomationServiceTest::test_setParameterAutomationDrawnCurve_shouldFitTheLinesAndTakeTheEnds()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addParameterAutomation(0, 0, 0, "device", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 0, 4, 0.0, 1.0, 0, {}, 0, 0);
+
+    // Drawn in the add form over more lines than it was then added with
+    const AutomationCurve drawn { { { 0, 0.2 }, { 2, 0.9 }, { 6, 0.0 } } };
+    automationService.setParameterAutomationDrawnCurve(id, AutomationCurveEditor::toVariantList(drawn));
+
+    const auto interpolation = automationService.parameterAutomations().at(0).interpolation();
+    QCOMPARE(interpolation.curve, Interpolator::CurveType::Drawn);
+    QCOMPARE(interpolation.drawnCurve.nodes().size(), size_t { 3 });
+    QCOMPARE(interpolation.drawnCurve.nodes().back().line, 4.0);
+    QCOMPARE(interpolation.value0, 0.2);
+    QCOMPARE(interpolation.value1, drawn.valueAt(4));
+}
+
+void AutomationServiceTest::test_addParameterAutomation_drawn_shouldStartFromTheRamp()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(0, 0, 0, "device", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 2, 10, 0.25, 0.75, static_cast<int>(Interpolator::CurveType::Drawn), {}, 0, 0);
+
+    QCOMPARE(automationService.parameterAutomations().at(0).interpolation().drawnCurve, AutomationCurve::ramp(2, 0.25, 10, 0.75));
 }
 
 } // namespace noteahead

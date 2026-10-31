@@ -69,6 +69,34 @@ Item {
     }
     function setCurve(curve: int): void {
         curveComboBox.currentIndex = curve;
+        if (curve !== curveComboBox.drawnIndex) {
+            drawnCurve = [];
+        }
+    }
+    //! The nodes drawn for the new automation, [{ line, value }, ...], or none yet: held until it is
+    //! added, as there is no automation to hold them before that.
+    property var drawnCurve: []
+    //! Takes the nodes the curve dialog drew, whose ends are then the start and end values.
+    function setDrawnCurve(nodes: var): void {
+        drawnCurve = nodes || [];
+        if (drawnCurve.length) {
+            setStartValue(Math.round(drawnCurve[0].value));
+            setEndValue(Math.round(drawnCurve[drawnCurve.length - 1].value));
+        }
+    }
+    function openCurveDialog(): void {
+        UiService.requestAutomationCurveDialog("midiCc", -1, {
+            "drawnCurve": drawnCurve,
+            "line0": startLine(),
+            "line1": endLine(),
+            "value0": startValue(),
+            "value1": endValue(),
+            "minValue": propertyService.minValue(controller(), portName),
+            "maxValue": propertyService.maxValue(controller(), portName),
+            "valueStep": 1,
+            "formatValue": value => String(Math.round(value)),
+            "title": qsTr("Draw MIDI CC automation curve")
+        });
     }
 
     function resetModulations(): void {
@@ -234,6 +262,15 @@ Item {
                 InterpolationCurveComboBox {
                     id: curveComboBox
                     enabled: startLine() !== endLine()
+                    drawnAvailable: true
+                    // Drawn goes straight on to drawing; any other curve has no nodes to keep
+                    onActivated: comboBoxIndex => {
+                        if (comboBoxIndex === drawnIndex) {
+                            rootItem.openCurveDialog();
+                        } else {
+                            rootItem.drawnCurve = [];
+                        }
+                    }
                     Layout.row: 1
                     Layout.column: 4
                     Layout.fillWidth: true

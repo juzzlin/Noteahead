@@ -16,8 +16,11 @@
 #include "automation_curve_test.hpp"
 
 #include "../../domain/tracker/automation_curve.hpp"
+#include "../../domain/tracker/drawn_curve_sync.hpp"
 
 #include <QTest>
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -198,6 +201,89 @@ void AutomationCurveTest::test_snapLine_shouldRoundOnlyWhenSnapping()
     QCOMPARE(AutomationCurve::snapLine(3.4, true), 3.0);
     QCOMPARE(AutomationCurve::snapLine(3.6, true), 4.0);
     QCOMPARE(AutomationCurve::snapLine(3.4, false), 3.4);
+}
+
+void AutomationCurveTest::test_syncDrawnCurve_switchedToDrawn_shouldStartFromTheRamp()
+{
+    const MidiCcAutomation::InterpolationParameters previous { 0, 8, 10, 100 };
+    auto edited = previous;
+    edited.curve = Interpolator::CurveType::Drawn;
+
+    syncDrawnCurve(edited, previous);
+
+    QCOMPARE(edited.drawnCurve.nodes(), (AutomationCurve::NodeList { { 0, 10 }, { 8, 100 } }));
+    QCOMPARE(edited.value0, 10);
+    QCOMPARE(edited.value1, 100);
+}
+
+void AutomationCurveTest::test_syncDrawnCurve_switchedAway_shouldDropTheNodes()
+{
+    const PitchBendAutomation::InterpolationParameters previous { 0, 8, -50, 50, Interpolator::CurveType::Drawn, AutomationCurve { { { 0, -50 }, { 4, 100 }, { 8, 50 } } } };
+    auto edited = previous;
+    edited.curve = Interpolator::CurveType::Linear;
+
+    syncDrawnCurve(edited, previous);
+
+    QVERIFY(edited.drawnCurve.isEmpty());
+    QCOMPARE(edited.value0, -50);
+    QCOMPARE(edited.value1, 50);
+}
+
+void AutomationCurveTest::test_syncDrawnCurve_newStartValue_shouldMoveTheStartNode()
+{
+    const ParameterAutomation::InterpolationParameters previous { 0, 8, 0.0, 0.5, Interpolator::CurveType::Drawn, AutomationCurve { { { 0, 0 }, { 4, 1 }, { 8, 0.5 } } } };
+    auto edited = previous;
+    edited.value0 = 0.25;
+
+    syncDrawnCurve(edited, previous);
+
+    QCOMPARE(edited.drawnCurve.nodes(), (AutomationCurve::NodeList { { 0, 0.25 }, { 4, 1 }, { 8, 0.5 } }));
+}
+
+void AutomationCurveTest::test_syncDrawnCurve_newLines_shouldRefitAndTakeTheEnds()
+{
+    const ParameterAutomation::InterpolationParameters previous { 0, 8, 0.0, 0.0, Interpolator::CurveType::Drawn, AutomationCurve { { { 0, 0 }, { 4, 1 }, { 8, 0 } } } };
+    auto edited = previous;
+    edited.line1 = 4;
+
+    syncDrawnCurve(edited, previous);
+
+    QCOMPARE(edited.drawnCurve.nodes(), (AutomationCurve::NodeList { { 0, 0 }, { 4, 1 } }));
+    QCOMPARE(edited.value1, 1.0);
+}
+
+void AutomationCurveTest::test_syncDrawnCurve_newNodes_shouldRoundTheEndsIntoTheValues()
+{
+    const MidiCcAutomation::InterpolationParameters previous { 0, 8, 0, 0, Interpolator::CurveType::Drawn, AutomationCurve::ramp(0, 0, 8, 0) };
+    auto edited = previous;
+    edited.drawnCurve = AutomationCurve { { { 0, 63.6 }, { 2, 127 }, { 8, 12.2 } } };
+
+    syncDrawnCurve(edited, previous);
+
+    QCOMPARE(edited.value0, 64);
+    QCOMPARE(edited.value1, 12);
+}
+
+void AutomationCurveTest::test_curveShape_drawn_shouldBeTheNodes()
+{
+    const AutomationCurve nodes { { { 0, 10 }, { 3, 120 }, { 8, 0 } } };
+    const MidiCcAutomation::InterpolationParameters interpolation { 0, 8, 10, 0, Interpolator::CurveType::Drawn, nodes };
+
+    QCOMPARE(curveShape(interpolation), nodes);
+}
+
+void AutomationCurveTest::test_curveShape_preset_shouldFollowTheCurve()
+{
+    const ParameterAutomation::InterpolationParameters interpolation { 4, 12, 0.0, 1.0, Interpolator::CurveType::Exponential };
+
+    const auto shape = curveShape(interpolation);
+
+    QCOMPARE(shape.nodes().front(), (AutomationCurve::Node { 4, 0 }));
+    QCOMPARE(shape.nodes().back(), (AutomationCurve::Node { 12, 1 }));
+    for (const double line : { 5.0, 8.0, 11.0 }) {
+        const double phase = (line - 4.0) / 8.0;
+        QVERIFY(std::abs(shape.valueAt(line) - Interpolator::applyCurve(Interpolator::CurveType::Exponential, phase)) < 0.01);
+    }
 }
 
 } // namespace noteahead
