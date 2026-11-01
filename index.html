@@ -26,7 +26,7 @@
                 <div class="row">
                     <div class="col-md-3 col-sm-12"></div>
                     <div class="col-md-6 col-sm-12">
-                        <p class="tagline">Fast, keyboard-driven tracker editing with the whole song in front of you &mdash; and a complete studio behind it. Ten internal instruments, per-device insert effects and sends, a mixer, 28 rack effects and analyzers, and a sample-accurate offline renderer. Point it outwards instead and it drives a room full of MIDI hardware with the same precision.</p>
+                        <p class="tagline">Fast, keyboard-driven tracker editing with the whole song in front of you &mdash; and a complete studio behind it. Twenty-one internal instruments, an LFO modulator, per-device insert effects and sends, a mixer, 46 rack effects and analyzers, automation of any parameter, and a sample-accurate offline renderer. Point it outwards instead and it drives a room full of MIDI hardware with the same precision.</p>
                         <div class="image-container">
                             <img id="animation-image-1"/>
                             <img id="animation-image-2"/>
@@ -37,21 +37,23 @@
                 <div class="features row">
                     <div class="col-md-4 col-sm-12">
                         <ul>
-                            <li>Ten internal instruments in a Virtual Device Rack</li>
-                            <li>Virtual analog, wavetable, acid bass and 11-voice drum synths</li>
-                            <li>Two physically modelled pianos, voiced against a real electric grand</li>
-                            <li>Two vintage string machines, after the VP-330 and the Solina</li>
-                            <li>A 16-pad sampler, and Sub Mixers to group it all</li>
-                            <li>Mixer view with channel strips, meters and clip LEDs</li>
+                            <li>21 internal instruments in a Virtual Device Rack</li>
+                            <li>Virtual analog, wavetable, four-operator FM and acid bass synths</li>
+                            <li>JU Synth and JU Synth 08, after the Juno-60 and the Jupiter-8</li>
+                            <li>Three drum machines, a physically modelled snare and an 808 kick</li>
+                            <li>Three physically modelled pianos, voiced against a real CP-80</li>
+                            <li>Four string machines, after the VP-330/VC340 and the Solina</li>
+                            <li>A 16-pad sampler with recording, a speech synth and Noise FX</li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <ul>
-                            <li>28 rack effects, on the master bus and on every device insert</li>
-                            <li>Four EQs, including 8-band parametric with Mid/Side</li>
-                            <li>Two reverbs, single-band and multiband compression</li>
-                            <li>Lookahead limiter, transient shaping, saturation and tube stages</li>
-                            <li>LUFS, true-peak and RTA metering</li>
+                            <li>46 rack effects and analyzers, on the master, inserts and sends</li>
+                            <li>Mixer view with channel strips, IN/OUT meters and clip LEDs</li>
+                            <li>Parametric, 32-band graphical, dynamic and vintage EQs</li>
+                            <li>Reverb 224 after the Lexicon 224, plus reverbs, ambience and early reflections</li>
+                            <li>Compression, gate, limiter, transient shaping, saturation and fuzz</li>
+                            <li>LUFS, true-peak, RTA and phase scope metering, reference monitoring</li>
                             <li>Offline renderer to WAV or FLAC, master mix or per-track stems</li>
                         </ul>
                     </div>
@@ -59,10 +61,11 @@
                         <ul>
                             <li>Sample-accurate, drift-free internal timing</li>
                             <li>Keyboard-driven tracker editing in decimal values (0-127)</li>
-                            <li>CC and pitch bend automation, arpeggiator, chords, step recording</li>
+                            <li>Automate any device or effect parameter, or draw the curve node by node</li>
+                            <li>LFO device, arpeggiator, chords, step recording and live play</li>
                             <li>MIDI hot-plug, per-track port and channel, SMF Type 1 export</li>
                             <li>ALSA, PulseAudio and JACK with optional transport sync</li>
-                            <li>Saves to a custom (but open!) XML-based .nahd format</li>
+                            <li>Translated into ten languages; saves to an open XML-based .nahd format</li>
                             <li>Will always be 100% FREE</li>
                         </ul>
                     </div>
@@ -73,7 +76,7 @@
             <p>© 2025-2026 Jussi Lind &lt;jussi.lind@iki.fi&gt;</p>
         </footer>
         <script>
-            const imageFiles = ["/Noteahead/img/Noteahead.png", "/Noteahead/img/Mixer.png", "/Noteahead/img/DeviceRack.png", "/Noteahead/img/Sampler.png", "/Noteahead/img/RTA.png"];
+            const imageFiles = ["/Noteahead/img/Noteahead.png", "/Noteahead/img/Mixer.png", "/Noteahead/img/DeviceRack.png", "/Noteahead/img/Sampler.png", "/Noteahead/img/JuSynth08.png", "/Noteahead/img/JuSynth.png", "/Noteahead/img/FmSynth.png", "/Noteahead/img/DynamicEQ.png", "/Noteahead/img/RTA.png"];
             const updateImage = (image1, image2, imageIndex) => {
                 image1.setAttribute("src", imageFiles.at(imageIndex));
             };
