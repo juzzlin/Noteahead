@@ -1,63 +1,153 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-        <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto+Condensed:400,700|Roboto:400,400i&amp;display=swap">
-        <link rel="stylesheet" href="css/bootstrap-5.0.0-beta1-dist/css/bootstrap-grid.min.css"/>
-        <link rel="stylesheet" href="css/style.css">
         <title>Noteahead - A MIDI tracker, sequencer and music production environment written in C++/Qt/QML</title>
+        <meta name="description" content="Noteahead is a free, open source tracker and music studio for Linux: keyboard-driven editing, 21 internal instruments, 46 effects, a mixer, automation and precise MIDI sequencing.">
+        <meta name="theme-color" content="#0e0f10">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Noteahead - a MIDI tracker and complete music studio for Linux">
+        <meta property="og:description" content="Fast, keyboard-driven tracker editing with a complete studio behind it. Free and open source.">
+        <meta property="og:image" content="https://juzzlin.github.io/Noteahead/img/og.png">
+        <meta name="twitter:card" content="summary_large_image">
+        <link rel="icon" href="favicon.ico">
+        <link rel="stylesheet" href="css/style.css">
     </head>
-    <body onload = "main();">
-        <h1>Noteahead - A MIDI tracker, sequencer and music production environment written in C++/Qt/QML</h1>
-        <article>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="header-project-home col-md-3 col-sm-12">
-                        <a href="https://github.com/juzzlin/Noteahead">Project Home</a>
-                    </div>
-                    <div class="header-downloads col-md-3 col-sm-12">
-                        <a href="https://github.com/juzzlin/Noteahead/releases">Downloads</a>
-                    </div>
-                    <div class="col-md-3 col-sm-12"></div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3 col-sm-12"></div>
-                    <div class="col-md-6 col-sm-12">
-                        <p class="tagline">Fast, keyboard-driven tracker editing with the whole song in front of you &mdash; and a complete studio behind it. Twenty-one internal instruments, an LFO modulator, per-device insert effects and sends, a mixer, 46 rack effects and analyzers, automation of any parameter, and a sample-accurate offline renderer. Point it outwards instead and it drives a room full of MIDI hardware with the same precision.</p>
-                        <div class="image-container">
-                            <img id="animation-image-1"/>
-                            <img id="animation-image-2"/>
+    <body>
+        <header class="nav">
+            <div class="wrap nav-inner">
+                <a class="brand" href="#top">Noteahead</a>
+                <nav aria-label="Sections">
+                    <a href="#music">Music</a>
+                    <a href="#features">Features</a>
+                    <a href="#screenshots">Screenshots</a>
+                    <a href="#download">Download</a>
+                    <a href="https://github.com/juzzlin/Noteahead">GitHub</a>
+                </nav>
+            </div>
+        </header>
+
+        <main id="top">
+            <section class="hero">
+                <div class="wrap hero-inner">
+                    <div class="hero-text">
+                        <p class="eyebrow">Free &amp; open source &middot; GPLv3 &middot; Linux</p>
+                        <h1>A MIDI tracker and a complete music studio.</h1>
+                        <p class="lead">Fast, keyboard-driven tracker editing with the whole song in front of you &mdash; and a complete studio behind it. Point it outwards instead and it drives a room full of MIDI hardware with the same precision.</p>
+                        <div class="actions">
+                            <a class="button primary" href="https://github.com/juzzlin/Noteahead/releases/latest">Download 11.0.0</a>
+                            <a class="button" href="https://github.com/juzzlin/Noteahead">View on GitHub</a>
                         </div>
                     </div>
-                    <div class="col-md-3 col-sm-12"></div>
+                    <figure class="window hero-shot">
+                        <img src="img/Noteahead.webp" width="1841" height="1260" alt="The Noteahead tracker editor playing a drum pattern, with per-track level meters">
+                    </figure>
                 </div>
-                <div class="features row">
-                    <div class="col-md-4 col-sm-12">
-                        <ul>
-                            <li>21 internal instruments in a Virtual Device Rack</li>
-                            <li>Virtual analog, wavetable, four-operator FM and acid bass synths</li>
-                            <li>JU Synth and JU Synth 08, after the Juno-60 and the Jupiter-8</li>
-                            <li>Three drum machines, a physically modelled snare and an 808 kick</li>
-                            <li>Three physically modelled pianos, voiced against a real CP-80</li>
-                            <li>Four string machines, after the VP-330/VC340 and the Solina</li>
-                            <li>A 16-pad sampler with recording, a speech synth and Noise FX</li>
-                        </ul>
+            </section>
+
+            <section class="stats" aria-label="At a glance">
+                <div class="wrap stats-inner">
+                    <div><strong>21</strong><span>internal instruments</span></div>
+                    <div><strong>46</strong><span>effects &amp; analyzers</span></div>
+                    <div><strong>10</strong><span>languages</span></div>
+                    <div><strong>100%</strong><span>free, forever</span></div>
+                </div>
+            </section>
+
+            <section id="music" class="section">
+                <div class="wrap">
+                    <h2>Made with Noteahead</h2>
+                    <p class="section-lead">Produced, mixed and mastered entirely in Noteahead by <a href="https://www.arcticmusicproject.com">Arctic Music Project</a>.</p>
+                    <div class="tracks">
+                        <!-- data-src: 30 s Opus clip; data-src-fallback: AAC .m4a. Peaks are RMS over the clip. -->
+                        <article class="track" data-src="audio/tears-of-the-snowman.opus" data-src-fallback="audio/tears-of-the-snowman.m4a"
+                                 data-peaks="69,67,73,70,61,58,62,76,63,66,54,63,64,69,65,72,80,77,87,86,81,66,94,86,80,64,90,74,79,72,100,87,91,75,89,80,80,78,95,85,92,82,95,92,90,93,95,90,96,75,79,76,75,72,77,75,70,71,75,70,73,76,76,76">
+                            <button class="play" type="button" aria-label="Play Tears Of The Snowman"></button>
+                            <div class="track-body">
+                                <h3>Tears Of The Snowman</h3>
+                                <p class="meta">Frozenland EP &middot; synthwave / progressive house &middot; 122 BPM</p>
+                                <div class="wave" aria-hidden="true"></div>
+                                <p class="links"><a href="https://arcticmusicproject.bandcamp.com/track/tears-of-the-snowman">Bandcamp</a> <a href="https://soundcloud.com/arctic-music-project/tears-of-the-snowman">SoundCloud</a></p>
+                            </div>
+                        </article>
+                        <article class="track" data-src="audio/incredible-times.opus" data-src-fallback="audio/incredible-times.m4a"
+                                 data-peaks="95,84,85,90,92,92,95,90,93,92,80,66,89,88,92,97,91,94,87,92,94,93,91,94,93,92,97,94,91,93,89,95,96,91,89,69,87,93,93,94,92,94,91,93,91,92,91,92,92,96,94,94,97,97,94,100,78,86,91,77,83,79,16,5">
+                            <button class="play" type="button" aria-label="Play Incredible Times"></button>
+                            <div class="track-body">
+                                <h3>Incredible Times <span class="version">(2026 Version)</span></h3>
+                                <p class="meta">Frozenland EP &middot; eurodance / trance &middot; 150 BPM</p>
+                                <div class="wave" aria-hidden="true"></div>
+                                <p class="links"><a href="https://arcticmusicproject.bandcamp.com/track/incredible-times">Bandcamp</a> <a href="https://soundcloud.com/arctic-music-project/incredible-times-2026">SoundCloud</a></p>
+                            </div>
+                        </article>
+                        <article class="track" data-src="audio/halla.opus" data-src-fallback="audio/halla.m4a"
+                                 data-peaks="91,99,81,86,88,90,83,98,95,78,73,90,83,54,82,90,87,86,91,95,87,81,81,97,88,92,95,90,84,81,90,93,100,91,92,84,91,86,95,95,84,85,97,90,86,82,88,80,90,88,95,90,96,80,88,87,91,85,98,97,78,78,89,84">
+                            <button class="play" type="button" aria-label="Play Halla"></button>
+                            <div class="track-body">
+                                <h3>Halla</h3>
+                                <p class="meta">Hypothermia EP &middot; progressive house &middot; 134 BPM</p>
+                                <div class="wave" aria-hidden="true"></div>
+                                <p class="links"><a href="https://arcticmusicproject.bandcamp.com/track/halla">Bandcamp</a> <a href="https://soundcloud.com/arctic-music-project/halla-2026">SoundCloud</a></p>
+                            </div>
+                        </article>
+                        <article class="track" data-src="audio/endless.opus" data-src-fallback="audio/endless.m4a"
+                                 data-peaks="92,91,91,91,88,88,87,91,94,96,92,100,93,87,89,92,97,93,93,90,89,91,87,96,91,93,92,92,96,92,95,90,99,100,91,93,93,95,91,91,96,92,94,95,92,92,93,92,95,93,94,92,95,92,93,97,98,93,96,94,96,90,93,92">
+                            <button class="play" type="button" aria-label="Play Endless"></button>
+                            <div class="track-body">
+                                <h3>Endless</h3>
+                                <p class="meta">Hypothermia EP &middot; melodic techno &middot; 134 BPM</p>
+                                <div class="wave" aria-hidden="true"></div>
+                                <p class="links"><a href="https://arcticmusicproject.bandcamp.com/track/endless">Bandcamp</a> <a href="https://soundcloud.com/arctic-music-project/endless-2026">SoundCloud</a></p>
+                            </div>
+                        </article>
                     </div>
-                    <div class="col-md-4 col-sm-12">
-                        <ul>
-                            <li>46 rack effects and analyzers, on the master, inserts and sends</li>
-                            <li>Mixer view with channel strips, IN/OUT meters and clip LEDs</li>
-                            <li>Parametric, 32-band graphical, dynamic and vintage EQs</li>
-                            <li>Reverb 224 after the Lexicon 224, plus reverbs, ambience and early reflections</li>
-                            <li>Compression, gate, limiter, transient shaping, saturation and fuzz</li>
-                            <li>LUFS, true-peak, RTA and phase scope metering, reference monitoring</li>
-                            <li>Offline renderer to WAV or FLAC, master mix or per-track stems</li>
-                        </ul>
+                </div>
+            </section>
+
+            <section id="features" class="section">
+                <div class="wrap">
+                    <h2>Everything in one place</h2>
+
+                    <div class="feature">
+                        <figure class="window">
+                            <img src="img/JuSynth08-960.webp" width="960" height="576" loading="lazy" alt="The JU Synth 08 instrument dialog">
+                        </figure>
+                        <div>
+                            <h3>Instruments</h3>
+                            <ul>
+                                <li>21 internal instruments in a Virtual Device Rack</li>
+                                <li>Virtual analog, wavetable, four-operator FM and acid bass synths</li>
+                                <li>JU Synth and JU Synth 08, after the Juno-60 and the Jupiter-8</li>
+                                <li>Three drum machines, a physically modelled snare and an 808 kick</li>
+                                <li>Three physically modelled pianos, voiced against a real CP-80</li>
+                                <li>Four string machines, after the VP-330/VC340 and the Solina</li>
+                                <li>A 16-pad sampler with recording, a speech synth and Noise FX</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-md-4 col-sm-12">
-                        <ul>
+
+                    <div class="feature reverse">
+                        <figure class="window">
+                            <img src="img/DynamicEQ-960.webp" width="960" height="575" loading="lazy" alt="The Dynamic EQ effect dialog">
+                        </figure>
+                        <div>
+                            <h3>Mixing &amp; effects</h3>
+                            <ul>
+                                <li>46 rack effects and analyzers, on the master, inserts and sends</li>
+                                <li>Mixer view with channel strips, IN/OUT meters and clip LEDs</li>
+                                <li>Parametric, 32-band graphical, dynamic and vintage EQs</li>
+                                <li>Reverb 224 after the Lexicon 224, plus reverbs, ambience and early reflections</li>
+                                <li>Compression, gate, limiter, transient shaping, saturation and fuzz</li>
+                                <li>LUFS, true-peak, RTA and phase scope metering, reference monitoring</li>
+                                <li>Offline renderer to WAV or FLAC, master mix or per-track stems</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature text-only">
+                        <h3>Sequencing &amp; MIDI</h3>
+                        <ul class="columns">
                             <li>Sample-accurate, drift-free internal timing</li>
                             <li>Keyboard-driven tracker editing in decimal values (0-127)</li>
                             <li>Automate any device or effect parameter, or draw the curve node by node</li>
@@ -69,42 +159,60 @@
                         </ul>
                     </div>
                 </div>
+            </section>
+
+            <section id="screenshots" class="section">
+                <div class="wrap">
+                    <h2>Screenshots</h2>
+                    <div class="gallery">
+                        <button type="button" data-full="img/Noteahead.webp"><img src="img/Noteahead-960.webp" width="960" height="657" loading="lazy" alt=""><span>Tracker</span></button>
+                        <button type="button" data-full="img/Mixer.webp"><img src="img/Mixer-960.webp" width="960" height="587" loading="lazy" alt=""><span>Mixer</span></button>
+                        <button type="button" data-full="img/DeviceRack.webp"><img src="img/DeviceRack-960.webp" width="960" height="561" loading="lazy" alt=""><span>Device Rack</span></button>
+                        <button type="button" data-full="img/Sampler.webp"><img src="img/Sampler-960.webp" width="960" height="657" loading="lazy" alt=""><span>Sampler</span></button>
+                        <button type="button" data-full="img/JuSynth08.webp"><img src="img/JuSynth08-960.webp" width="960" height="576" loading="lazy" alt=""><span>JU Synth 08</span></button>
+                        <button type="button" data-full="img/JuSynth.webp"><img src="img/JuSynth-960.webp" width="960" height="616" loading="lazy" alt=""><span>JU Synth</span></button>
+                        <button type="button" data-full="img/FmSynth.webp"><img src="img/FmSynth-960.webp" width="960" height="570" loading="lazy" alt=""><span>FM Synth</span></button>
+                        <button type="button" data-full="img/DynamicEQ.webp"><img src="img/DynamicEQ-960.webp" width="960" height="575" loading="lazy" alt=""><span>Dynamic EQ</span></button>
+                        <button type="button" data-full="img/RTA.webp"><img src="img/RTA-960.webp" width="960" height="582" loading="lazy" alt=""><span>RTA</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="download" class="section">
+                <div class="wrap">
+                    <h2>Download</h2>
+                    <div class="downloads">
+                        <a class="card" href="https://github.com/juzzlin/Noteahead/releases/latest">
+                            <h3>Debian package</h3>
+                            <p>For Ubuntu 24.04 LTS and 26.04 LTS. Uses the stock Qt 6 from the repositories.</p>
+                            <code>sudo apt install ./noteahead-*.deb</code>
+                        </a>
+                        <a class="card" href="https://github.com/juzzlin/Noteahead/releases/latest">
+                            <h3>AppImage</h3>
+                            <p>For other distributions. Carries its own Qt; needs glibc 2.38 or newer (Debian 13, Fedora 39 and later).</p>
+                            <code>chmod +x Noteahead-*.AppImage</code>
+                        </a>
+                        <a class="card" href="https://github.com/juzzlin/Noteahead">
+                            <h3>Source</h3>
+                            <p>C++, Qt 6 and QML, licensed under GPLv3. Build instructions are in the README.</p>
+                            <code>git clone https://github.com/juzzlin/Noteahead</code>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="wrap footer-inner">
+                <span>&copy; 2025-2026 Jussi Lind</span>
+                <span><a href="https://github.com/juzzlin/Noteahead">GitHub</a> &middot; <a href="https://github.com/juzzlin/Noteahead/releases">Releases</a> &middot; GPLv3</span>
             </div>
-        </article>
-        <footer>
-            <p>© 2025-2026 Jussi Lind &lt;jussi.lind@iki.fi&gt;</p>
         </footer>
-        <script>
-            const imageFiles = ["img/Noteahead.png", "img/Mixer.png", "img/DeviceRack.png", "img/Sampler.png", "img/JuSynth08.png", "img/JuSynth.png", "img/FmSynth.png", "img/DynamicEQ.png", "img/RTA.png"];
-            const updateImage = (image1, image2, imageIndex) => {
-                image1.setAttribute("src", imageFiles.at(imageIndex));
-            };
-            const main = () => {
-                const image1 = document.getElementById("animation-image-1");
-                const image2 = document.getElementById("animation-image-2");
-                let imageIndex = 0;
-                let tictoc = 0;
-                updateImage(image1, image2, imageIndex);
-                image1.classList.add("fade-in");
-                setInterval(() => {
-                    if (tictoc % 2 == 0) {
-                        if (image1.hasAttribute("src") && image1.getAttribute("src")) {
-                            image2.setAttribute("src", image1.getAttribute("src"));
-                        }
-                        if (image1.classList.contains("fade-in")) {
-                            image1.classList.remove("fade-in");
-                        }
-                    } else {
-                        imageIndex++;
-                        imageIndex = imageIndex % imageFiles.length;
-                        updateImage(image1, image2, imageIndex);
-                        if (!image1.classList.contains("fade-in")) {
-                            image1.classList.add("fade-in");
-                        }
-                    }
-                    tictoc++;
-                }, 2000);
-            };
-        </script>
+
+        <dialog class="lightbox" aria-label="Screenshot">
+            <img alt="">
+        </dialog>
+
+        <script src="js/site.js" defer></script>
     </body>
 </html>
