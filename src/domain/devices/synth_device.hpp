@@ -260,6 +260,10 @@ public:
     //! at. Run through the voices' own oscillator stage, without modulation, as if the VCO's level
     //! were up: a muted VCO still shows what raising it would give.
     std::vector<float> oscillatorPreview(size_t vco, size_t points) const;
+    //! What the VPM oscillator plays, as @p points values from -1 to 1: two cycles, 20 ms into a
+    //! note so that a type with an envelope shows its onset. Empty while the engine plays noise,
+    //! which has no cycle to draw.
+    std::vector<float> multiPreview(size_t points) const;
 
     // Parameter accessors (VCO3)
     PolyBlepOscillator::Waveform vco3Waveform() const;
@@ -298,6 +302,31 @@ public:
     void setMultiLevel(float level);
     float multiKeyTrack() const;
     void setMultiKeyTrack(float keyTrack);
+
+    //! Noise or VPM. Each remembers its own type, as on the Minilogue XD.
+    MultiEngine::Engine multiEngine() const;
+    void setMultiEngine(MultiEngine::Engine engine);
+    //! 16', 8', 4' or 2', as 0..3. 8' plays the note.
+    int multiOctave() const;
+    void setMultiOctave(int octave);
+    MultiEngine::VpmType vpmType() const;
+    void setVpmType(MultiEngine::VpmType type);
+    //! An index into MultiEngine::vpmRatioOffsets().
+    int vpmRatioOffset() const;
+    void setVpmRatioOffset(int index);
+    //! The six VPM parameters, 0..1 centred at 0.5, which leaves the type as designed.
+    float vpmFeedback() const;
+    void setVpmFeedback(float value);
+    float vpmNoiseDepth() const;
+    void setVpmNoiseDepth(float value);
+    float vpmShapeModInt() const;
+    void setVpmShapeModInt(float value);
+    float vpmModAttack() const;
+    void setVpmModAttack(float value);
+    float vpmModDecay() const;
+    void setVpmModDecay(float value);
+    float vpmModKeyTrack() const;
+    void setVpmModKeyTrack(float value);
 
     //! The multi engine's own filter section, the same as each oscillator's.
     float multiLpfCutoff() const;
@@ -610,6 +639,16 @@ private:
     float m_multiShape { 0.5f };
     float m_multiLevel { 0.0f };
     float m_multiKeyTrack { 0.0f };
+    MultiEngine::Engine m_multiEngine { MultiEngine::Engine::Noise };
+    int m_multiOctave { 1 };
+    MultiEngine::VpmType m_vpmType { MultiEngine::VpmType::Sin1 };
+    int m_vpmRatioOffset { static_cast<int>(MultiEngine::VpmRatioOffsetUnity) };
+    float m_vpmFeedback { 0.5f };
+    float m_vpmNoiseDepth { 0.5f };
+    float m_vpmShapeModInt { 0.5f };
+    float m_vpmModAttack { 0.5f };
+    float m_vpmModDecay { 0.5f };
+    float m_vpmModKeyTrack { 0.5f };
 
     float m_mixVco1 { 1.0f };
     float m_mixVco2 { 0.0f };
@@ -770,6 +809,8 @@ private:
         double vco2PitchMod { 0.0 };
         double vco3PitchMod { 0.0 };
         double vco4PitchMod { 0.0 };
+        //! The pitch modulation that reaches every source, which the multi engine follows.
+        double multiPitchMod { 0.0 };
         double resonanceMod { 0.0 };
         double panMod { 0.0 };
         double volumeMod { 0.0 };

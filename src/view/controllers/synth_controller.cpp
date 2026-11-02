@@ -105,6 +105,35 @@ QStringList SynthController::multiTypeNames() const
     return { tr("High Pass"), tr("Low Pass"), tr("Band Pass"), tr("Decimate") };
 }
 
+QStringList SynthController::multiEngineNames() const
+{
+    // In ordinal order, as MultiEngine::Engine has them. VPM is the Minilogue XD's own name for it.
+    return { tr("Noise"), "VPM" };
+}
+
+QStringList SynthController::multiOctaveNames() const
+{
+    return { "16'", "8'", "4'", "2'" };
+}
+
+QStringList SynthController::vpmTypeNames() const
+{
+    QStringList names;
+    for (auto && name : MultiEngine::vpmTypeNames()) {
+        names << QString::fromStdString(name);
+    }
+    return names;
+}
+
+QStringList SynthController::vpmRatioOffsetNames() const
+{
+    QStringList names;
+    for (auto && name : MultiEngine::vpmRatioOffsetNames()) {
+        names << QString::fromStdString(name);
+    }
+    return names;
+}
+
 QStringList SynthController::modTargetNames() const
 {
     // In ordinal order, not in a sensible reading order: a ComboBox's index is the value that gets
@@ -605,6 +634,17 @@ int SynthController::oscillatorPreviewRevision() const
     return m_oscillatorPreviewRevision;
 }
 
+QList<qreal> SynthController::multiPreview(int points) const
+{
+    QList<qreal> samples;
+    if (m_synth && points > 0) {
+        for (auto && value : m_synth->multiPreview(static_cast<size_t>(points))) {
+            samples << static_cast<qreal>(value);
+        }
+    }
+    return samples;
+}
+
 QList<qreal> SynthController::oscillatorPreview(int vco, int points) const
 {
     QList<qreal> preview;
@@ -731,6 +771,130 @@ void SynthController::setMultiHpfSlope(int value)
     if (m_synth) {
         m_synth->setMultiHpfSlope(value);
         emit multiHpfSlopeChanged();
+    }
+}
+
+int SynthController::multiEngine() const
+{
+    return m_synth ? static_cast<int>(m_synth->multiEngine()) : 0;
+}
+
+void SynthController::setMultiEngine(int engine)
+{
+    if (m_synth) {
+        m_synth->setMultiEngine(static_cast<MultiEngine::Engine>(engine));
+        emit multiEngineChanged();
+    }
+}
+
+int SynthController::multiOctave() const
+{
+    return m_synth ? m_synth->multiOctave() : 1;
+}
+
+void SynthController::setMultiOctave(int octave)
+{
+    if (m_synth) {
+        m_synth->setMultiOctave(octave);
+        emit multiOctaveChanged();
+    }
+}
+
+int SynthController::vpmType() const
+{
+    return m_synth ? static_cast<int>(m_synth->vpmType()) : 0;
+}
+
+void SynthController::setVpmType(int type)
+{
+    if (m_synth) {
+        m_synth->setVpmType(static_cast<MultiEngine::VpmType>(type));
+        emit vpmTypeChanged();
+    }
+}
+
+int SynthController::vpmRatioOffset() const
+{
+    return m_synth ? m_synth->vpmRatioOffset() : static_cast<int>(MultiEngine::VpmRatioOffsetUnity);
+}
+
+void SynthController::setVpmRatioOffset(int index)
+{
+    if (m_synth) {
+        m_synth->setVpmRatioOffset(index);
+        emit vpmRatioOffsetChanged();
+    }
+}
+
+int SynthController::vpmFeedback() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmFeedback() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmFeedback(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmFeedback(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vpmNoiseDepth() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmNoiseDepth() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmNoiseDepth(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmNoiseDepth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vpmShapeModInt() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmShapeModInt() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmShapeModInt(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmShapeModInt(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vpmModAttack() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmModAttack() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmModAttack(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmModAttack(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vpmModDecay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmModDecay() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmModDecay(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmModDecay(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vpmModKeyTrack() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vpmModKeyTrack() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling() / 2.0f);
+}
+
+void SynthController::setVpmModKeyTrack(int value)
+{
+    if (m_synth) {
+        m_synth->setVpmModKeyTrack(static_cast<float>(value) / Constants::uiInternalScaling());
     }
 }
 
@@ -1599,6 +1763,16 @@ void SynthController::requestSettings()
     emit multiLpfSlopeChanged();
     emit multiHpfCutoffChanged();
     emit multiHpfSlopeChanged();
+    emit multiEngineChanged();
+    emit multiOctaveChanged();
+    emit vpmTypeChanged();
+    emit vpmRatioOffsetChanged();
+    emit vpmFeedbackChanged();
+    emit vpmNoiseDepthChanged();
+    emit vpmShapeModIntChanged();
+    emit vpmModAttackChanged();
+    emit vpmModDecayChanged();
+    emit vpmModKeyTrackChanged();
 
     emit mixVco1Changed();
     emit mixVco2Changed();

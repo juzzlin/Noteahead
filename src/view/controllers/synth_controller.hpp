@@ -35,6 +35,10 @@ class SynthController : public DeviceController
     Q_PROPERTY(QStringList voiceModes READ voiceModes NOTIFY translationsChanged)
     Q_PROPERTY(QStringList octaveNames READ octaveNames CONSTANT)
     Q_PROPERTY(QStringList multiTypeNames READ multiTypeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList multiEngineNames READ multiEngineNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList multiOctaveNames READ multiOctaveNames CONSTANT)
+    Q_PROPERTY(QStringList vpmTypeNames READ vpmTypeNames CONSTANT)
+    Q_PROPERTY(QStringList vpmRatioOffsetNames READ vpmRatioOffsetNames CONSTANT)
     Q_PROPERTY(QStringList modTargetNames READ modTargetNames NOTIFY translationsChanged)
     Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames NOTIFY translationsChanged)
     Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames NOTIFY translationsChanged)
@@ -90,6 +94,16 @@ class SynthController : public DeviceController
     Q_PROPERTY(int multiLpfSlope READ multiLpfSlope WRITE setMultiLpfSlope NOTIFY multiLpfSlopeChanged)
     Q_PROPERTY(int multiHpfCutoff READ multiHpfCutoff WRITE setMultiHpfCutoff NOTIFY multiHpfCutoffChanged)
     Q_PROPERTY(int multiHpfSlope READ multiHpfSlope WRITE setMultiHpfSlope NOTIFY multiHpfSlopeChanged)
+    Q_PROPERTY(int multiEngine READ multiEngine WRITE setMultiEngine NOTIFY multiEngineChanged)
+    Q_PROPERTY(int multiOctave READ multiOctave WRITE setMultiOctave NOTIFY multiOctaveChanged)
+    Q_PROPERTY(int vpmType READ vpmType WRITE setVpmType NOTIFY vpmTypeChanged)
+    Q_PROPERTY(int vpmRatioOffset READ vpmRatioOffset WRITE setVpmRatioOffset NOTIFY vpmRatioOffsetChanged)
+    Q_PROPERTY(int vpmFeedback READ vpmFeedback WRITE setVpmFeedback NOTIFY vpmFeedbackChanged)
+    Q_PROPERTY(int vpmNoiseDepth READ vpmNoiseDepth WRITE setVpmNoiseDepth NOTIFY vpmNoiseDepthChanged)
+    Q_PROPERTY(int vpmShapeModInt READ vpmShapeModInt WRITE setVpmShapeModInt NOTIFY vpmShapeModIntChanged)
+    Q_PROPERTY(int vpmModAttack READ vpmModAttack WRITE setVpmModAttack NOTIFY vpmModAttackChanged)
+    Q_PROPERTY(int vpmModDecay READ vpmModDecay WRITE setVpmModDecay NOTIFY vpmModDecayChanged)
+    Q_PROPERTY(int vpmModKeyTrack READ vpmModKeyTrack WRITE setVpmModKeyTrack NOTIFY vpmModKeyTrackChanged)
 
     // Mixer
     Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
@@ -221,6 +235,10 @@ public:
     QStringList voiceModes() const;
     QStringList octaveNames() const;
     QStringList multiTypeNames() const;
+    QStringList multiEngineNames() const;
+    QStringList multiOctaveNames() const;
+    QStringList vpmTypeNames() const;
+    QStringList vpmRatioOffsetNames() const;
     QStringList modTargetNames() const;
     //! The eight per-oscillator filter corners, which both the Mod EG and the LFOs can reach. At the
     //! end of either list, because the ordinal a ComboBox writes is what the project stores.
@@ -308,6 +326,8 @@ public:
     int oscillatorPreviewRevision() const;
     //! What the given VCO (0 to 3) plays, as @p points values from -1 to 1. See SynthDevice.
     Q_INVOKABLE QList<qreal> oscillatorPreview(int vco, int points) const;
+    //! The VPM oscillator's picture, empty while the multi engine plays noise.
+    Q_INVOKABLE QList<qreal> multiPreview(int points) const;
     void setVco2Ring(bool ring);
 
     int vco3Waveform() const;
@@ -353,6 +373,26 @@ public:
     void setMultiHpfCutoff(int value);
     int multiHpfSlope() const;
     void setMultiHpfSlope(int value);
+    int multiEngine() const;
+    void setMultiEngine(int engine);
+    int multiOctave() const;
+    void setMultiOctave(int octave);
+    int vpmType() const;
+    void setVpmType(int type);
+    int vpmRatioOffset() const;
+    void setVpmRatioOffset(int index);
+    int vpmFeedback() const;
+    void setVpmFeedback(int value);
+    int vpmNoiseDepth() const;
+    void setVpmNoiseDepth(int value);
+    int vpmShapeModInt() const;
+    void setVpmShapeModInt(int value);
+    int vpmModAttack() const;
+    void setVpmModAttack(int value);
+    int vpmModDecay() const;
+    void setVpmModDecay(int value);
+    int vpmModKeyTrack() const;
+    void setVpmModKeyTrack(int value);
 
     int mixVco1() const;
     void setMixVco1(int lvl);
@@ -564,6 +604,16 @@ signals:
     void multiLpfSlopeChanged();
     void multiHpfCutoffChanged();
     void multiHpfSlopeChanged();
+    void multiEngineChanged();
+    void multiOctaveChanged();
+    void vpmTypeChanged();
+    void vpmRatioOffsetChanged();
+    void vpmFeedbackChanged();
+    void vpmNoiseDepthChanged();
+    void vpmShapeModIntChanged();
+    void vpmModAttackChanged();
+    void vpmModDecayChanged();
+    void vpmModKeyTrackChanged();
     void mixVco1Changed();
     void mixVco2Changed();
     void mixVco3Changed();

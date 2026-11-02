@@ -15,6 +15,8 @@ class SynthControllerTest : public QObject
 private slots:
     void test_lfoRateDivider_shouldReachTheDevice();
     void test_chorus_properties_shouldReachTheDevice();
+    void test_vpm_properties_shouldReachTheDevice();
+    void test_vpmNames_shouldMatchTheEngine();
     void test_requestSettings_shouldNotifyEveryProperty();
     void test_oscillatorPreview_shapeChange_shouldNotifyPreview();
     void test_parameterAutomation_announced_shouldRefreshWhenTheChangeLands();

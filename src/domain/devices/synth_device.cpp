@@ -130,6 +130,10 @@ void SynthDevice::Voice::applyTrigger(const Trigger & trigger, std::optional<Pha
     lfo.reset();
     lfo2.reset();
 
+    // The VPM's internal envelope starts with every note, and its operators from zero with a note
+    // starting from silence, as the VCOs do.
+    multi.trigger(phases.has_value());
+
     if (phases) {
         vco1.sync(phases->at(0));
         vco2.sync(phases->at(1));
@@ -205,6 +209,16 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiShape().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiLevel().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // The VPM oscillator. Noise by default, so a project saved before it existed loads as it was.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiEngine().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiOctave().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVpmType().toStdString(), 0.0f, 0, static_cast<int>(MultiEngine::VpmTypeCount) - 1, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVpmRatioOffset().toStdString(), static_cast<float>(MultiEngine::VpmRatioOffsetUnity), 0,
+                             static_cast<int>(MultiEngine::vpmRatioOffsets().size()) - 1, static_cast<int>(MultiEngine::VpmRatioOffsetUnity), 1, Parameter::Type::Discrete });
+    for (auto && key : { Constants::NahdXml::xmlKeyVpmFeedback(), Constants::NahdXml::xmlKeyVpmNoiseDepth(), Constants::NahdXml::xmlKeyVpmShapeModInt(),
+                         Constants::NahdXml::xmlKeyVpmModAttack(), Constants::NahdXml::xmlKeyVpmModDecay(), Constants::NahdXml::xmlKeyVpmModKeyTrack() }) {
+        addParameter(Parameter { key.toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    }
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel1().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel2().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -352,6 +366,17 @@ SynthDevice::SynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, C::xmlKeyChorusRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Chorus Rate"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyChorusDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Chorus Depth"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyDelayFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Feedback"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyMultiShape(), QT_TRANSLATE_NOOP("ParameterDisplay", "Multi Shape"));
+    // The XD's -100..+100 % around each VPM type's own setting
+    const auto vpmOffset = [&describe](const QString & key, const char * label) {
+        describe(key, { .mapping = Display::Mapping::Bipolar, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = label });
+    };
+    vpmOffset(C::xmlKeyVpmFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Feedback"));
+    vpmOffset(C::xmlKeyVpmNoiseDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Noise Depth"));
+    vpmOffset(C::xmlKeyVpmShapeModInt(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Shape Mod Int"));
+    vpmOffset(C::xmlKeyVpmModAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Mod Attack"));
+    vpmOffset(C::xmlKeyVpmModDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Mod Decay"));
+    vpmOffset(C::xmlKeyVpmModKeyTrack(), QT_TRANSLATE_NOOP("ParameterDisplay", "VPM Mod Key Track"));
 
     SynthDevice::syncParameters();
 }
@@ -540,6 +565,51 @@ std::vector<float> SynthDevice::oscillatorPreview(size_t vco, size_t points) con
     const auto windowSamples = 2 * cycleSamples;
     while (window.size() < windowSamples) {
         window.push_back(step());
+    }
+
+    std::vector<float> preview(points);
+    for (size_t i = 0; i < points; i++) {
+        const double position = static_cast<double>(i) / static_cast<double>(points - 1) * static_cast<double>(window.size() - 1);
+        const auto index = static_cast<size_t>(position);
+        const double fraction = position - static_cast<double>(index);
+        const double next = window.at(std::min(index + 1, window.size() - 1));
+        preview.at(i) = static_cast<float>(std::clamp(window.at(index) + (next - window.at(index)) * fraction, -1.0, 1.0));
+    }
+    return preview;
+}
+
+std::vector<float> SynthDevice::multiPreview(size_t points) const
+{
+    if (m_multiEngine != MultiEngine::Engine::Vpm || points < 2) {
+        return {};
+    }
+
+    // Played as the VCO previews are, at C3 at four times the rate
+    constexpr double previewNote = 130.81;
+    const double sampleRate = Constants::defaultSampleRate() * 4.0;
+    MultiEngine engine;
+    engine.setSampleRate(sampleRate);
+    engine.setEngine(MultiEngine::Engine::Vpm);
+    engine.setVpmType(m_vpmType);
+    engine.setVpmRatioOffset(static_cast<size_t>(m_vpmRatioOffset));
+    const auto offset = [](float value) { return static_cast<double>(value) * 2.0 - 1.0; };
+    engine.setVpmOffsets({ offset(m_vpmFeedback), offset(m_vpmNoiseDepth), offset(m_vpmShapeModInt),
+                           offset(m_vpmModAttack), offset(m_vpmModDecay), offset(m_vpmModKeyTrack) });
+    engine.setShape(m_multiShape);
+    engine.setFrequency(previewNote);
+    engine.reset();
+    engine.trigger(true);
+
+    // The carrier starts at phase zero, so whole cycles from the start of the note line up with it
+    const double cycleSamples = sampleRate / previewNote;
+    const auto startSamples = static_cast<size_t>(std::ceil(0.02 * previewNote) * cycleSamples);
+    const auto windowSamples = static_cast<size_t>(2.0 * cycleSamples);
+    for (size_t i = 0; i < startSamples; i++) {
+        engine.nextSample();
+    }
+    std::vector<double> window(windowSamples);
+    for (auto && value : window) {
+        value = engine.nextSample();
     }
 
     std::vector<float> preview(points);
@@ -827,6 +897,12 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.multi.setShape(m_multiShape);
     voice.multi.setKeyTrack(m_multiKeyTrack);
     voice.multi.setNote(voice.note);
+    voice.multi.setEngine(m_multiEngine);
+    voice.multi.setVpmType(m_vpmType);
+    voice.multi.setVpmRatioOffset(static_cast<size_t>(m_vpmRatioOffset));
+    const auto offset = [](float value) { return static_cast<double>(value) * 2.0 - 1.0; };
+    voice.multi.setVpmOffsets({ offset(m_vpmFeedback), offset(m_vpmNoiseDepth), offset(m_vpmShapeModInt),
+                                offset(m_vpmModAttack), offset(m_vpmModDecay), offset(m_vpmModKeyTrack) });
 
     // The detune has to follow the depth knob while a note sounds, not only at the note on.
     if (isStacked(m_voiceMode) || m_voiceMode == VoiceMode::Dual) {
@@ -1334,6 +1410,7 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice, ui
     mods.vco3PitchMod = (m_modTarget == ModTarget::Pitch3) ? modEnv : 0.0;
     mods.vco4PitchMod = (m_modTarget == ModTarget::Pitch4) ? modEnv : 0.0;
     if (m_modTarget == ModTarget::Pitch) {
+        mods.multiPitchMod += modEnv;
         mods.vco1PitchMod += modEnv;
         mods.vco2PitchMod += modEnv;
         mods.vco3PitchMod += modEnv;
@@ -1341,12 +1418,14 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice, ui
     }
 
     if (m_lfoTarget == LfoTarget::Pitch) {
+        mods.multiPitchMod += lfoVal;
         mods.vco1PitchMod += lfoVal;
         mods.vco2PitchMod += lfoVal;
         mods.vco3PitchMod += lfoVal;
         mods.vco4PitchMod += lfoVal;
     }
     if (m_lfo2Target == LfoTarget::Pitch) {
+        mods.multiPitchMod += lfo2Val;
         mods.vco1PitchMod += lfo2Val;
         mods.vco2PitchMod += lfo2Val;
         mods.vco3PitchMod += lfo2Val;
@@ -1454,6 +1533,11 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * pbRatio;
     double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * pbRatio;
     double vco4Freq = voice.glideFrequency * m_vco4BasePitchRatio * pbRatio;
+    // The multi engine's octave counts from 16', so 8' (one) plays the note itself.
+    double multiFreq = voice.glideFrequency * std::exp2(m_multiOctave - 1) * pbRatio;
+    if (mods.multiPitchMod != 0.0) {
+        multiFreq *= std::exp2(mods.multiPitchMod);
+    }
 
     if (mods.vco1PitchMod != 0.0) {
         vco1Freq *= std::exp2(mods.vco1PitchMod);
@@ -1481,6 +1565,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco2Freq *= driftRatio;
         vco3Freq *= driftRatio;
         vco4Freq *= driftRatio;
+        multiFreq *= driftRatio;
     }
 
     // And the same thing one level down, which is the one two oscillators can hear on each other.
@@ -1525,6 +1610,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     double multiVal = 0.0;
     if (m_multiLevel >= 0.001f) {
+        voice.multi.setFrequency(multiFreq);
         multiVal = voice.multi.nextSample();
     }
 
@@ -1665,6 +1751,26 @@ void SynthDevice::syncParameters()
         m_multiLevel = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString()); p)
         m_multiKeyTrack = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiEngine().toStdString()); p)
+        m_multiEngine = static_cast<MultiEngine::Engine>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiOctave().toStdString()); p)
+        m_multiOctave = p->get().xmlValue();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmType().toStdString()); p)
+        m_vpmType = static_cast<MultiEngine::VpmType>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmRatioOffset().toStdString()); p)
+        m_vpmRatioOffset = p->get().xmlValue();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmFeedback().toStdString()); p)
+        m_vpmFeedback = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmNoiseDepth().toStdString()); p)
+        m_vpmNoiseDepth = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmShapeModInt().toStdString()); p)
+        m_vpmShapeModInt = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmModAttack().toStdString()); p)
+        m_vpmModAttack = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmModDecay().toStdString()); p)
+        m_vpmModDecay = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVpmModKeyTrack().toStdString()); p)
+        m_vpmModKeyTrack = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel1().toStdString()); p)
         m_mixVco1 = p->get().value();
@@ -2303,6 +2409,106 @@ float SynthDevice::multiKeyTrack() const
 void SynthDevice::setMultiKeyTrack(float keyTrack)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), keyTrack);
+}
+
+MultiEngine::Engine SynthDevice::multiEngine() const
+{
+    return m_multiEngine;
+}
+
+void SynthDevice::setMultiEngine(MultiEngine::Engine engine)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyMultiEngine().toStdString(), static_cast<int>(engine));
+}
+
+int SynthDevice::multiOctave() const
+{
+    return m_multiOctave;
+}
+
+void SynthDevice::setMultiOctave(int octave)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyMultiOctave().toStdString(), octave);
+}
+
+MultiEngine::VpmType SynthDevice::vpmType() const
+{
+    return m_vpmType;
+}
+
+void SynthDevice::setVpmType(MultiEngine::VpmType type)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVpmType().toStdString(), static_cast<int>(type));
+}
+
+int SynthDevice::vpmRatioOffset() const
+{
+    return m_vpmRatioOffset;
+}
+
+void SynthDevice::setVpmRatioOffset(int index)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVpmRatioOffset().toStdString(), index);
+}
+
+float SynthDevice::vpmFeedback() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmFeedback(), m_vpmFeedback);
+}
+
+void SynthDevice::setVpmFeedback(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmFeedback().toStdString(), value);
+}
+
+float SynthDevice::vpmNoiseDepth() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmNoiseDepth(), m_vpmNoiseDepth);
+}
+
+void SynthDevice::setVpmNoiseDepth(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmNoiseDepth().toStdString(), value);
+}
+
+float SynthDevice::vpmShapeModInt() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmShapeModInt(), m_vpmShapeModInt);
+}
+
+void SynthDevice::setVpmShapeModInt(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmShapeModInt().toStdString(), value);
+}
+
+float SynthDevice::vpmModAttack() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmModAttack(), m_vpmModAttack);
+}
+
+void SynthDevice::setVpmModAttack(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmModAttack().toStdString(), value);
+}
+
+float SynthDevice::vpmModDecay() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmModDecay(), m_vpmModDecay);
+}
+
+void SynthDevice::setVpmModDecay(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmModDecay().toStdString(), value);
+}
+
+float SynthDevice::vpmModKeyTrack() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyVpmModKeyTrack(), m_vpmModKeyTrack);
+}
+
+void SynthDevice::setVpmModKeyTrack(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVpmModKeyTrack().toStdString(), value);
 }
 
 // Mixer

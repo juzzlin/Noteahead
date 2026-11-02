@@ -122,6 +122,11 @@ private slots:
     void test_vco2Ring_default_shouldBeOff();
     void test_vco2Ring_sines_shouldSoundSumAndDifferenceOnly();
     void test_vco2Ring_serialization_shouldPreserveState();
+
+    void test_multiEngine_default_shouldBeNoise();
+    void test_multiEngine_vpm_shouldPlayNotePitch();
+    void test_multiEngine_vpmOctave_shouldTransposeByOctave();
+    void test_multiEngine_vpmSettings_serialization_shouldPreserveState();
     void test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero();
     void test_oscillatorPreview_saw_shouldRampAndDrop();
     void test_oscillatorPreview_squareShape_shouldNarrowThePulse();

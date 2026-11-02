@@ -2356,6 +2356,97 @@ void SynthTest::test_vco2Ring_serialization_shouldPreserveState()
     QVERIFY(synth.vco2Ring());
 }
 
+void SynthTest::test_multiEngine_default_shouldBeNoise()
+{
+    // Projects saved before VPM existed have none of its values, and must keep sounding as they did
+    const SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.multiEngine(), MultiEngine::Engine::Noise);
+    QCOMPARE(synth.multiOctave(), 1);
+    QCOMPARE(synth.vpmType(), MultiEngine::VpmType::Sin1);
+    QCOMPARE(synth.vpmRatioOffset(), static_cast<int>(MultiEngine::VpmRatioOffsetUnity));
+    QCOMPARE(synth.vpmFeedback(), 0.5f);
+    QCOMPARE(synth.vpmNoiseDepth(), 0.5f);
+    QCOMPARE(synth.vpmShapeModInt(), 0.5f);
+    QCOMPARE(synth.vpmModAttack(), 0.5f);
+    QCOMPARE(synth.vpmModDecay(), 0.5f);
+    QCOMPARE(synth.vpmModKeyTrack(), 0.5f);
+}
+
+namespace {
+
+//! The multi engine alone, as a VPM sine with nothing modulating it.
+void setUpVpmSine(SynthDevice & synth)
+{
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(1.0f);
+    synth.setMultiEngine(MultiEngine::Engine::Vpm);
+    synth.setVpmType(MultiEngine::VpmType::Sin1);
+    synth.setMultiShape(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setDelayMix(0.0f);
+}
+
+} // namespace
+
+void SynthTest::test_multiEngine_vpm_shouldPlayNotePitch()
+{
+    SynthDevice synth { "Test Synth" };
+    setUpVpmSine(synth);
+    const auto rendered = renderSynth(synth); // C4
+    const double fundamental = magnitudeAt(rendered, 261.63);
+    QVERIFY(fundamental > 0.01);
+    QVERIFY(fundamental > magnitudeAt(rendered, 261.63 * 2.0) * 20.0);
+    QVERIFY(fundamental > magnitudeAt(rendered, 261.63 * 1.5) * 20.0);
+}
+
+void SynthTest::test_multiEngine_vpmOctave_shouldTransposeByOctave()
+{
+    SynthDevice synth { "Test Synth" };
+    setUpVpmSine(synth);
+    synth.setMultiOctave(2); // 4'
+    const auto rendered = renderSynth(synth);
+    QVERIFY(magnitudeAt(rendered, 523.25) > magnitudeAt(rendered, 261.63) * 20.0);
+}
+
+void SynthTest::test_multiEngine_vpmSettings_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setMultiEngine(MultiEngine::Engine::Vpm);
+        synth.setMultiOctave(3);
+        synth.setVpmType(MultiEngine::VpmType::Decay2);
+        synth.setVpmRatioOffset(4);
+        synth.setVpmFeedback(0.1f);
+        synth.setVpmNoiseDepth(0.2f);
+        synth.setVpmShapeModInt(0.3f);
+        synth.setVpmModAttack(0.6f);
+        synth.setVpmModDecay(0.7f);
+        synth.setVpmModKeyTrack(0.8f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    SynthDevice synth { "Test Synth" };
+    NahdXmlReader reader { data };
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+    synth.deserializeFromXml(reader);
+    QCOMPARE(synth.multiEngine(), MultiEngine::Engine::Vpm);
+    QCOMPARE(synth.multiOctave(), 3);
+    QCOMPARE(synth.vpmType(), MultiEngine::VpmType::Decay2);
+    QCOMPARE(synth.vpmRatioOffset(), 4);
+    QCOMPARE(synth.vpmFeedback(), 0.1f);
+    QCOMPARE(synth.vpmNoiseDepth(), 0.2f);
+    QCOMPARE(synth.vpmShapeModInt(), 0.3f);
+    QCOMPARE(synth.vpmModAttack(), 0.6f);
+    QCOMPARE(synth.vpmModDecay(), 0.7f);
+    QCOMPARE(synth.vpmModKeyTrack(), 0.8f);
+}
+
 void SynthTest::test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero()
 {
     // Two pulses multiplied have a mean of their own, on top of what sync and cross mod leave

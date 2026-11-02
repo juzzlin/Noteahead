@@ -1635,6 +1635,56 @@ QString xmlKeyMultiHpfSlope()
     return "multiHpfSlope";
 }
 
+QString xmlKeyMultiEngine()
+{
+    return "multiEngine";
+}
+
+QString xmlKeyMultiOctave()
+{
+    return "multiOctave";
+}
+
+QString xmlKeyVpmType()
+{
+    return "vpmType";
+}
+
+QString xmlKeyVpmRatioOffset()
+{
+    return "vpmRatioOffset";
+}
+
+QString xmlKeyVpmFeedback()
+{
+    return "vpmFeedback";
+}
+
+QString xmlKeyVpmNoiseDepth()
+{
+    return "vpmNoiseDepth";
+}
+
+QString xmlKeyVpmShapeModInt()
+{
+    return "vpmShapeModInt";
+}
+
+QString xmlKeyVpmModAttack()
+{
+    return "vpmModAttack";
+}
+
+QString xmlKeyVpmModDecay()
+{
+    return "vpmModDecay";
+}
+
+QString xmlKeyVpmModKeyTrack()
+{
+    return "vpmModKeyTrack";
+}
+
 QString xmlKeyMode()
 {
     return "mode";

@@ -576,6 +576,51 @@ void SynthControllerTest::test_chorus_properties_shouldReachTheDevice()
     QCOMPARE(controller.chorusMix(), static_cast<int>(0.4 * scaling));
 }
 
+void SynthControllerTest::test_vpm_properties_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<SynthDevice>("VPM");
+    SynthController controller { synth };
+    const auto scaling = Constants::uiInternalScaling();
+
+    QSignalSpy engineSpy { &controller, &SynthController::multiEngineChanged };
+    controller.setMultiEngine(static_cast<int>(MultiEngine::Engine::Vpm));
+    // The engine switch changes which controls are shown, so it has to say so at once.
+    QVERIFY(engineSpy.count() > 0);
+    controller.setMultiOctave(2);
+    controller.setVpmType(static_cast<int>(MultiEngine::VpmType::Air2));
+    controller.setVpmRatioOffset(5);
+    controller.setVpmFeedback(static_cast<int>(0.1 * scaling));
+    controller.setVpmNoiseDepth(static_cast<int>(0.2 * scaling));
+    controller.setVpmShapeModInt(static_cast<int>(0.3 * scaling));
+    controller.setVpmModAttack(static_cast<int>(0.6 * scaling));
+    controller.setVpmModDecay(static_cast<int>(0.7 * scaling));
+    controller.setVpmModKeyTrack(static_cast<int>(0.8 * scaling));
+
+    QCOMPARE(synth->multiEngine(), MultiEngine::Engine::Vpm);
+    QCOMPARE(synth->multiOctave(), 2);
+    QCOMPARE(synth->vpmType(), MultiEngine::VpmType::Air2);
+    QCOMPARE(synth->vpmRatioOffset(), 5);
+    QVERIFY(std::abs(synth->vpmFeedback() - 0.1f) < 0.001f);
+    QVERIFY(std::abs(synth->vpmNoiseDepth() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(synth->vpmShapeModInt() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(synth->vpmModAttack() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(synth->vpmModDecay() - 0.7f) < 0.001f);
+    QVERIFY(std::abs(synth->vpmModKeyTrack() - 0.8f) < 0.001f);
+    QCOMPARE(controller.vpmModKeyTrack(), static_cast<int>(0.8 * scaling));
+}
+
+void SynthControllerTest::test_vpmNames_shouldMatchTheEngine()
+{
+    const SynthController controller { std::make_shared<SynthDevice>("VPM") };
+    // A combo's index is what is stored, so each list has to follow its enum exactly.
+    QCOMPARE(controller.multiEngineNames().size(), 2);
+    QCOMPARE(controller.vpmTypeNames().size(), static_cast<qsizetype>(MultiEngine::VpmTypeCount));
+    QCOMPARE(controller.vpmTypeNames().last(), QString { "Throat" });
+    QCOMPARE(controller.vpmRatioOffsetNames().size(), static_cast<qsizetype>(MultiEngine::vpmRatioOffsets().size()));
+    QCOMPARE(controller.vpmRatioOffsetNames().at(static_cast<qsizetype>(MultiEngine::VpmRatioOffsetUnity)), QString { "1:1" });
+    QCOMPARE(controller.multiOctaveNames().at(controller.multiOctave()), QString { "8'" });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthControllerTest)
