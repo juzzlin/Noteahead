@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+11.1.0
+======
+
+Release date:
+
+Mon, 02 Nov 2026 23:42:40 +0200
+
+New features:
+
 * Synth: Ring switch on VCO2, ring modulating it with VCO1 like the Minilogue XD's
 
 * Synth: each VCO's waveform is previewed next to its title, with Sync, Ring and Cross Mod applied
