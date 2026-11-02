@@ -36,6 +36,18 @@ private slots:
 
     void test_peakType_keyTrack_shouldTrackOctaveExactly();
     void test_keyTrack_shouldNotExceedNyquist();
+
+    void test_vpm_sin1_shapeZero_shouldBePureSine();
+    void test_vpm_sin1_shape_shouldPlayFrequency();
+    void test_vpm_sin3_sidebands_shouldSkipThirdHarmonic();
+    void test_vpm_squ2_shapeZero_shouldHaveOnlyOddHarmonics();
+    void test_vpm_saw1_shapeZero_shouldFallAsOneOverN();
+    void test_vpm_ratioOffset_twoToOne_shouldHaveOnlyOddHarmonics();
+    void test_vpm_decay2_envelope_shouldSettleIntoSine();
+    void test_vpm_decay2_shapeModIntMinusFull_shouldDisableEnvelope();
+    void test_vpm_keyTrack_shouldReduceDepthOnHigherNote();
+    void test_vpm_allTypes_extremes_shouldStayBounded();
+    void test_vpm_reset_shouldReproduceRender();
 };
 
 } // namespace noteahead
