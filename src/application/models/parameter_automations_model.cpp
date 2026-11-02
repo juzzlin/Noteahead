@@ -45,25 +45,25 @@ void ParameterAutomationsModel::requestParameterAutomations()
 
 void ParameterAutomationsModel::requestParameterAutomationsByPattern(quint64 pattern)
 {
-    m_filter = { pattern, {}, {}, {} };
+    m_filter = { pattern, {}, {}, {}, {} };
     emit parameterAutomationsRequested();
 }
 
 void ParameterAutomationsModel::requestParameterAutomationsByTrack(quint64 pattern, quint64 track)
 {
-    m_filter = { pattern, track, {}, {} };
+    m_filter = { pattern, track, {}, {}, {} };
     emit parameterAutomationsRequested();
 }
 
 void ParameterAutomationsModel::requestParameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column)
 {
-    m_filter = { pattern, track, Range { column, column }, {} };
+    m_filter = { pattern, track, Range { column, column }, {}, {} };
     emit parameterAutomationsRequested();
 }
 
 void ParameterAutomationsModel::requestParameterAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line)
 {
-    m_filter = { pattern, track, Range { column, column }, Range { line, line } };
+    m_filter = { pattern, track, Range { column, column }, Range { line, line }, {} };
     emit parameterAutomationsRequested();
 }
 
@@ -77,7 +77,7 @@ void ParameterAutomationsModel::requestParameterAutomationById(quint64 automatio
 
 void ParameterAutomationsModel::requestParameterAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine)
 {
-    m_filter = { pattern, track, Range { minColumn, maxColumn }, Range { minLine, maxLine } };
+    m_filter = { pattern, track, Range { minColumn, maxColumn }, Range { minLine, maxLine }, {} };
     emit parameterAutomationsRequested();
 }
 
