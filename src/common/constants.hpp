@@ -738,6 +738,7 @@ QString xmlKeyVco2Pitch();
 QString xmlKeyVco2Shape();
 QString xmlKeyVco2Roundness();
 QString xmlKeyVco2Sync();
+QString xmlKeyVco2Ring();
 
 QString xmlKeyVco3Waveform();
 QString xmlKeyVco3Octave();

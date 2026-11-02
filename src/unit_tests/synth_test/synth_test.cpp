@@ -2304,6 +2304,113 @@ void SynthTest::test_dcOffset_syncWithCrossMod_shouldStayNearZero()
     QVERIFY(std::abs(dc) < rms * 0.005);
 }
 
+void SynthTest::test_vco2Ring_default_shouldBeOff()
+{
+    // Projects saved before Ring existed have no value for it, and must keep sounding as they did
+    QVERIFY(!SynthDevice { "Test Synth" }.vco2Ring());
+}
+
+void SynthTest::test_vco2Ring_sines_shouldSoundSumAndDifferenceOnly()
+{
+    // Two sines multiplied are their sum and difference and nothing at either pitch. VCO1 is muted,
+    // as in a typical ring patch, so it has to keep running only to modulate.
+    SynthDevice synth { "Test Synth" };
+    synth.setVco1Sync(true);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco2Octave(2);
+    synth.setVco2Ring(true);
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setDelayMix(0.0f);
+
+    const auto rendered = renderSynth(synth); // VCO1 at C4, VCO2 two octaves up
+    const double vco1Hz = 261.63;
+    const double vco2Hz = vco1Hz * 4.0;
+    const double difference = magnitudeAt(rendered, vco2Hz - vco1Hz);
+    const double sum = magnitudeAt(rendered, vco2Hz + vco1Hz);
+    const double strongestOriginal = std::max(magnitudeAt(rendered, vco1Hz), magnitudeAt(rendered, vco2Hz));
+    QVERIFY2(difference > strongestOriginal * 10.0 && sum > strongestOriginal * 10.0,
+             qPrintable(QString("difference %1, sum %2, originals %3").arg(difference).arg(sum).arg(strongestOriginal)));
+}
+
+void SynthTest::test_vco2Ring_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco2Ring(true);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    SynthDevice synth { "Test Synth" };
+    NahdXmlReader reader { data };
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+    synth.deserializeFromXml(reader);
+    QVERIFY(synth.vco2Ring());
+}
+
+void SynthTest::test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero()
+{
+    // Two pulses multiplied have a mean of their own, on top of what sync and cross mod leave
+    SynthDevice synth { "Test Synth" };
+    synth.setVco2Sync(true);
+    synth.setVco2Ring(true);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco1Shape(0.6f);
+    synth.setVco2Shape(0.3f);
+    synth.setCrossModDepth(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco2Pitch(0.35f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setVolume(1.0f);
+    synth.processMidiNoteOn(60, 100);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 512;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+
+    double sum = 0.0;
+    double sumOfSquares = 0.0;
+    size_t count = 0;
+    // A second of audio, less the first 100 ms: the note onset is a genuinely one-sided transient,
+    // and the blocker's ~5 Hz corner takes some 30 ms to settle after it.
+    const int skippedBlocks = static_cast<int>(0.1 * sampleRate / frameCount);
+    for (int block = 0; block < static_cast<int>(sampleRate / frameCount); block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+        if (block < skippedBlocks) {
+            continue;
+        }
+        for (uint32_t i = 0; i < frameCount; i++) {
+            sum += buffer[i * 2];
+            sumOfSquares += buffer[i * 2] * buffer[i * 2];
+            count++;
+        }
+    }
+
+    QVERIFY(count > 0);
+    const double rms = std::sqrt(sumOfSquares / static_cast<double>(count));
+    QVERIFY(rms > 0.001); // The patch must actually be sounding for the offset to mean anything
+    const double dc = sum / static_cast<double>(count);
+    QVERIFY(std::abs(dc) < rms * 0.005);
+}
+
 void SynthTest::test_midiCcResonance_shouldUpdateParameter()
 {
     SynthDevice synth { "Test Synth" };

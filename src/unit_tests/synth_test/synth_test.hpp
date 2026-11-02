@@ -119,6 +119,10 @@ private slots:
     void test_crossModDepth_serialization_shouldPreserveState();
 
     void test_dcOffset_syncWithCrossMod_shouldStayNearZero();
+    void test_vco2Ring_default_shouldBeOff();
+    void test_vco2Ring_sines_shouldSoundSumAndDifferenceOnly();
+    void test_vco2Ring_serialization_shouldPreserveState();
+    void test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero();
 
     void test_resetAudio_afterOtherNotes_shouldRenderIdenticalAudio();
 

@@ -2460,6 +2460,11 @@ QString xmlKeyVco2Sync()
     return "vco2Sync";
 }
 
+QString xmlKeyVco2Ring()
+{
+    return "vco2Ring";
+}
+
 QString xmlKeyVco3Waveform()
 {
     return "vco3Waveform";

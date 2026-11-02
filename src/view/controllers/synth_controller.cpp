@@ -595,6 +595,18 @@ void SynthController::setVco2Sync(bool s)
     }
 }
 
+bool SynthController::vco2Ring() const
+{
+    return m_synth ? m_synth->vco2Ring() : false;
+}
+
+void SynthController::setVco2Ring(bool ring)
+{
+    if (m_synth) {
+        m_synth->setVco2Ring(ring);
+    }
+}
+
 // Multi Engine
 int SynthController::multiType() const
 {
@@ -1543,6 +1555,7 @@ void SynthController::requestSettings()
     emit vco2ShapeChanged();
     emit vco2RoundnessChanged();
     emit vco2SyncChanged();
+    emit vco2RingChanged();
 
     emit vco3WaveformChanged();
     emit vco3OctaveChanged();

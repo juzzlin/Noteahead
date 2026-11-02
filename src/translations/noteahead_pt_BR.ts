@@ -12975,8 +12975,20 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Nível</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard sync com o VCO1</translation>
+        <source>Sync</source>
+        <translation>Sinc.</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard sync com o VCO1: o VCO2 reinicia seu ciclo sempre que o VCO1 começa um novo</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Modulação em anel com o VCO1: o VCO2 soa como seu produto com o VCO1, no nível do VCO2</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

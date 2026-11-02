@@ -12973,8 +12973,20 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>电平</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>硬同步到 VCO1</translation>
+        <source>Sync</source>
+        <translation>同步</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>硬同步到 VCO1：每当 VCO1 开始新的周期时，VCO2 都会重新开始其周期</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>环形</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>与 VCO1 环形调制：VCO2 以其与 VCO1 的乘积发声，电平由 VCO2 决定</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

@@ -62,6 +62,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco2Shape READ vco2Shape WRITE setVco2Shape NOTIFY vco2ShapeChanged)
     Q_PROPERTY(int vco2Roundness READ vco2Roundness WRITE setVco2Roundness NOTIFY vco2RoundnessChanged)
     Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
+    Q_PROPERTY(bool vco2Ring READ vco2Ring WRITE setVco2Ring NOTIFY vco2RingChanged)
 
     // VCO3
     Q_PROPERTY(int vco3Waveform READ vco3Waveform WRITE setVco3Waveform NOTIFY vco3WaveformChanged)
@@ -301,6 +302,8 @@ public:
     void setVco2Roundness(int r);
     bool vco2Sync() const;
     void setVco2Sync(bool s);
+    bool vco2Ring() const;
+    void setVco2Ring(bool ring);
 
     int vco3Waveform() const;
     void setVco3Waveform(int wave);
@@ -533,6 +536,7 @@ signals:
     void vco2ShapeChanged();
     void vco2RoundnessChanged();
     void vco2SyncChanged();
+    void vco2RingChanged();
     void vco3WaveformChanged();
     void vco3OctaveChanged();
     void vco3PitchChanged();

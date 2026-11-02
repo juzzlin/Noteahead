@@ -12975,8 +12975,20 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Niveau</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard sync naar VCO1</translation>
+        <source>Sync</source>
+        <translation>Sync</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard sync naar VCO1: VCO2 begint zijn cyclus opnieuw telkens wanneer VCO1 een nieuwe begint</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Ringmodulatie met VCO1: VCO2 klinkt als zijn product met VCO1, op het niveau van VCO2</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

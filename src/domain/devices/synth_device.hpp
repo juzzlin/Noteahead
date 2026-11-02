@@ -249,6 +249,9 @@ public:
     void setVco2Roundness(float roundness);
     bool vco2Sync() const;
     void setVco2Sync(bool sync);
+    //! Ring modulation: VCO2 sounds as its product with VCO1, at VCO2's level.
+    bool vco2Ring() const;
+    void setVco2Ring(bool ring);
 
     // Parameter accessors (VCO3)
     PolyBlepOscillator::Waveform vco3Waveform() const;
@@ -580,6 +583,7 @@ private:
     float m_vco2Shape { 0.0f };
     float m_vco2Roundness { 0.5f };
     bool m_vco2Sync { false };
+    bool m_vco2Ring { false };
 
     PolyBlepOscillator::Waveform m_vco3Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco3Octave { 0 };

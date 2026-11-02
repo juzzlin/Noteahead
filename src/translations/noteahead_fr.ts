@@ -12975,8 +12975,20 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Niveau</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard sync sur le VCO1</translation>
+        <source>Sync</source>
+        <translation>Sync</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard sync sur le VCO1 : le VCO2 recommence son cycle chaque fois que le VCO1 en commence un nouveau</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Modulation en anneau avec le VCO1 : le VCO2 sonne comme son produit avec le VCO1, au niveau du VCO2</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

@@ -12975,8 +12975,20 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Livello</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard sync su VCO1</translation>
+        <source>Sync</source>
+        <translation>Sync</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard sync su VCO1: VCO2 riavvia il suo ciclo ogni volta che VCO1 ne inizia uno nuovo</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Modulazione ad anello con VCO1: VCO2 suona come prodotto con VCO1, al livello di VCO2</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

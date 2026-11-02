@@ -185,6 +185,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Ring().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
@@ -1426,7 +1427,9 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     double vco1Val = 0.0;
     double oldPhase1 = voice.vco1.phase();
-    if (m_mixVco1 >= 0.001f || m_crossModDepth >= 0.001f) {
+    // Ring needs VCO1 even at zero level: a ring patch typically mutes it to hear the product alone
+    const bool ring = m_vco2Ring && m_mixVco2 >= 0.001f;
+    if (m_mixVco1 >= 0.001f || m_crossModDepth >= 0.001f || ring) {
         voice.vco1.setFrequency(vco1Freq);
         voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
         oldPhase1 = voice.vco1.phase();
@@ -1458,6 +1461,11 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         }
         oldPhase2 = voice.vco2.phase();
         vco2Val = voice.vco2.nextSample();
+        if (ring) {
+            // The Minilogue XD's Ring: VCO2's output is replaced by its product with VCO1. The raw
+            // VCO1, like cross mod reads, so VCO1's own filter shapes only what VCO1 adds to the mix.
+            vco2Val *= vco1Val;
+        }
     }
 
     double vco3Val = 0.0;
@@ -1597,6 +1605,8 @@ void SynthDevice::syncParameters()
         m_vco2Roundness = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Sync().toStdString()); p)
         m_vco2Sync = p->get().value() > 0.5f;
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Ring().toStdString()); p)
+        m_vco2Ring = p->get().value() > 0.5f;
 
     const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco2BasePitchRatio = std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0) / 12.0);
@@ -2228,6 +2238,16 @@ bool SynthDevice::vco2Sync() const
 void SynthDevice::setVco2Sync(bool sync)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Sync().toStdString(), sync ? 1.0f : 0.0f);
+}
+
+bool SynthDevice::vco2Ring() const
+{
+    return m_vco2Ring;
+}
+
+void SynthDevice::setVco2Ring(bool ring)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Ring().toStdString(), ring ? 1.0f : 0.0f);
 }
 
 // Multi Engine

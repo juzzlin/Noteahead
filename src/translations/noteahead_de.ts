@@ -12975,8 +12975,20 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Pegel</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard-Sync auf VCO1</translation>
+        <source>Sync</source>
+        <translation>Sync</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard-Sync auf VCO1: VCO2 beginnt seinen Zyklus neu, sobald VCO1 einen neuen beginnt</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Ringmodulation mit VCO1: VCO2 erklingt als Produkt mit VCO1, mit dem Pegel von VCO2</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>

@@ -1597,6 +1597,29 @@ void XmlSerializationTest::test_toXmlFromXml_device_uuid_shouldRoundTrip()
     QCOMPARE(deviceServiceIn.device(0)->uuid(), synthOut->uuid());
 }
 
+void XmlSerializationTest::test_toXmlFromXml_synthDevice_vco2Ring_shouldRoundTrip()
+{
+    DeviceFactory::init();
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto synthOut = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
+    synthOut->setVco2Ring(true);
+    deviceServiceOut.setDevice(0, synthOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto synthIn = std::dynamic_pointer_cast<SynthDevice>(deviceServiceIn.device(0));
+    QVERIFY(synthIn);
+    QVERIFY(synthIn->vco2Ring());
+}
+
 void XmlSerializationTest::test_toXmlFromXml_device_withoutUuid_shouldBeGivenOne()
 {
     DeviceFactory::init();

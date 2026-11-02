@@ -91,10 +91,26 @@ ColumnLayout {
                 onMoved: v => synthController.mixVco2 = v
                 Layout.fillWidth: true
             }
-            CheckBox {
-                text: qsTr("Hard Sync to VCO1")
-                checked: synthController.vco2Sync
-                onToggled: synthController.vco2Sync = checked
+            // The panel's own short names, side by side as on the Minilogue XD; what they do is in the tips
+            RowLayout {
+                CheckBox {
+                    text: qsTr("Sync")
+                    checked: synthController.vco2Sync
+                    onToggled: synthController.vco2Sync = checked
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one")
+                }
+                CheckBox {
+                    text: qsTr("Ring")
+                    checked: synthController.vco2Ring
+                    onToggled: synthController.vco2Ring = checked
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2's level")
+                }
             }
             Knob {
                 label: qsTr("Cross Mod Depth")

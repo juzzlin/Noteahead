@@ -12975,8 +12975,20 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Taso</translation>
     </message>
     <message>
-        <source>Hard Sync to VCO1</source>
-        <translation>Hard sync VCO1:een</translation>
+        <source>Sync</source>
+        <translation>Sync</translation>
+    </message>
+    <message>
+        <source>Hard sync to VCO1: VCO2 restarts its cycle every time VCO1 starts a new one</source>
+        <translation>Hard sync VCO1:een: VCO2 aloittaa jaksonsa alusta aina, kun VCO1 aloittaa uuden</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation>Ring</translation>
+    </message>
+    <message>
+        <source>Ring modulation with VCO1: VCO2 sounds as its product with VCO1, at VCO2&apos;s level</source>
+        <translation>Rengasmodulaatio VCO1:n kanssa: VCO2 soi tulona VCO1:n kanssa, VCO2:n tasolla</translation>
     </message>
     <message>
         <source>Cross Mod Depth</source>
