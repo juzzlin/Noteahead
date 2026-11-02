@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Oszillatoren</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Rauschen</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Multi-Engine</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Rauschen oder VPM: ein Träger, dessen Phase ein Modulator verschiebt, nach dem Vorbild des Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Verhältnis</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Multipliziert das eigene Modulatorverhältnis des Typs und fügt Obertöne hinzu. 1:1 lässt den Typ unverändert.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Oktave</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>Die Oktave, in der VPM spielt. 8&apos; spielt die Note.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Form</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Wie stark der Modulator die Phase des Trägers verschiebt.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Feedback</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Wie stark der Modulator auf sich selbst zurückwirkt, ausgehend vom eigenen Wert des Typs. Mehr klingt rauer, in Richtung Sägezahn.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Rauschtiefe</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Wie stark Rauschen die Phase des Trägers verschiebt, ausgehend vom eigenen Wert des Typs.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Form-Mod-Int.</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Wie stark die interne Hüllkurve die Modulation vertieft, ausgehend vom eigenen Wert des Typs. Ganz unten schaltet die Hüllkurve ab.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Mod-Attack</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Wie lange die interne Hüllkurve zum Ansteigen braucht, ausgehend von der eigenen Zeit des Typs.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Mod-Decay</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Wie lange die interne Hüllkurve zum Abklingen braucht, ausgehend von der eigenen Zeit des Typs.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Mod-Key-Tracking</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Wie stark die Modulation bei höheren Noten nachlässt, ausgehend vom eigenen Wert des Typs.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Rauschen</translation>
     </message>
     <message>
         <source>Pitch 1</source>

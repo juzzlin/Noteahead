@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Oscillateurs</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Bruit</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Moteur multi</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Bruit, ou VPM : une porteuse dont un modulateur déplace la phase, d&apos;après celui du Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Rapport</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Multiplie le rapport de modulateur propre au type, en ajoutant des harmoniques. 1:1 laisse le type tel quel.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Octave</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>L&apos;octave dans laquelle joue VPM. 8&apos; joue la note.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Forme</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>À quel point le modulateur déplace la phase de la porteuse.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filtre</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Réinjection</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>À quel point le modulateur se réinjecte en lui-même, autour de la quantité propre au type. Plus, c&apos;est plus rugueux, vers une dent de scie.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Profondeur de bruit</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>À quel point le bruit déplace la phase de la porteuse, autour de la quantité propre au type.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Int. mod. de forme</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>À quel point l&apos;enveloppe interne approfondit la modulation, autour de la quantité propre au type. Tout en bas, l&apos;enveloppe est coupée.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Attaque de mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Le temps que met l&apos;enveloppe interne à monter, autour du temps propre au type.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Déclin de mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Le temps que met l&apos;enveloppe interne à s&apos;éteindre, autour du temps propre au type.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Suivi de clavier de mod.</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>À quel point la modulation diminue sur les notes plus aiguës, autour de la quantité propre au type.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Bruit</translation>
     </message>
     <message>
         <source>Pitch 1</source>

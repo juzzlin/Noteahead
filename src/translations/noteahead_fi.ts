@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Oskillaattorit</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Kohina</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Multi-moottori</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Kohina tai VPM: kantoaalto, jonka vaihetta modulaattori liikuttaa, Minilogue XD:n tapaan.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Suhde</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Kertoo tyypin oman modulaattorisuhteen ja lisää yläsäveliä. 1:1 jättää tyypin ennalleen.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Oktaavi</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>Oktaavi, jossa VPM soi. 8&apos; soittaa nuotin.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Muoto</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Kuinka voimakkaasti modulaattori liikuttaa kantoaallon vaihetta.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Suodin</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Takaisinkytkentä</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Kuinka paljon modulaattori kytkeytyy takaisin itseensä, tyypin oman määrän molemmin puolin. Enemmän on karheampi, kohti saha-aaltoa.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Kohinan syvyys</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Kuinka paljon kohina liikuttaa kantoaallon vaihetta, tyypin oman määrän molemmin puolin.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Muodon mod. voimakkuus</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Kuinka paljon sisäinen verhokäyrä syventää modulaatiota, tyypin oman määrän molemmin puolin. Alimmillaan verhokäyrä on pois päältä.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Modulaation attack</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Kuinka kauan sisäinen verhokäyrä nousee, tyypin oman ajan molemmin puolin.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Modulaation decay</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Kuinka kauan sisäinen verhokäyrä vaimenee, tyypin oman ajan molemmin puolin.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Mod. koskettimen seuranta</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Kuinka paljon modulaatio hellittää korkeammilla nuoteilla, tyypin oman määrän molemmin puolin.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation>Desimointi</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Kohina</translation>
     </message>
     <message>
         <source>Pitch 1</source>

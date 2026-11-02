@@ -18,8 +18,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
 
-// The noise source, which is not an oscillator and had been sharing the oscillator tab with four of
-// them, and its filter. They are laid out at a module's width and left where the oscillators are
+// The multi engine -- noise, or the VPM oscillator and its parameters -- and its filter. They are laid out at a module's width and left where the oscillators are
 // rather than stretched across the dialog: the knobs then read at the same size they do everywhere
 // else.
 ScrollView {
@@ -35,11 +34,22 @@ ScrollView {
             Layout.fillWidth: true
 
             SynthDialog_Multi {
+                // Its own height, not the row's: a layout fills by default, and a shorter module
+                // stretched to the VPM panel's height spreads its controls down the page
+                Layout.fillHeight: false
                 Layout.preferredWidth: moduleWidth
                 Layout.alignment: Qt.AlignTop
             }
 
             SynthDialog_MultiFilter {
+                Layout.fillHeight: false
+                Layout.preferredWidth: moduleWidth
+                Layout.alignment: Qt.AlignTop
+            }
+
+            SynthDialog_Vpm {
+                visible: synthController.multiEngine === 1
+                Layout.fillHeight: false
                 Layout.preferredWidth: moduleWidth
                 Layout.alignment: Qt.AlignTop
             }

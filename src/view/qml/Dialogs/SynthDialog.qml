@@ -164,7 +164,7 @@ AnimatedDialog {
                         text: qsTr("Oscillators")
                     }
                     AppTabButton {
-                        text: qsTr("Noise")
+                        text: qsTr("Multi")
                     }
                     AppTabButton {
                         text: qsTr("Global Filter / Envelope")

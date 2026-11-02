@@ -51,7 +51,8 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        visible: width > 20
+        // Nothing to draw is no picture, rather than an empty frame
+        visible: width > 20 && root.samples.length > 0
         samples: root.samples
         dimmed: root.dimmed
         accentColor: themeService.accentColor

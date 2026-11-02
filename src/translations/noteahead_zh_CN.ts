@@ -8002,6 +8002,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12468,8 +12496,8 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>振荡器</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>噪声</translation>
+        <source>Multi</source>
+        <translation>多重</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12813,8 +12841,32 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>多重引擎</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>噪声，或 VPM：由调制器推动载波相位，仿照 Minilogue XD。</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>比率</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>将该类型自身的调制器比率相乘，加入泛音。1:1 保持类型不变。</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>八度</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>VPM 发声的八度。8&apos; 即演奏音符本身的音高。</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>形状</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>调制器推动载波相位的深度。</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13141,6 +13193,57 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Filter</source>
         <translation>滤波器</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>反馈</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>调制器自身反馈的程度，以该类型自身的量为中心。越多越粗糙，趋向锯齿波。</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>噪声深度</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>噪声推动载波相位的程度，以该类型自身的量为中心。</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>形状调制强度</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>内部包络加深调制的程度，以该类型自身的量为中心。调到最低则关闭包络。</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>调制起音</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>内部包络上升所需的时间，以该类型自身的时间为中心。</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>调制衰减</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>内部包络衰减消失所需的时间，以该类型自身的时间为中心。</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>调制键位跟踪</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>调制在较高音符上减弱的程度，以该类型自身的量为中心。</translation>
     </message>
 </context>
 <context>
@@ -14585,6 +14688,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>噪声</translation>
     </message>
     <message>
         <source>Pitch 1</source>

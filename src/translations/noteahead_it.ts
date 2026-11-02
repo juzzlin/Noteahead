@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Oscillatori</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Rumore</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Motore multi</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Rumore, o VPM: una portante la cui fase è spostata da un modulatore, come nel Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Rapporto</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Moltiplica il rapporto del modulatore proprio del tipo, aggiungendo armonici. 1:1 lascia il tipo com&apos;è.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Ottava</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>L&apos;ottava in cui suona VPM. 8&apos; suona la nota.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Forma</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Quanto il modulatore sposta la fase della portante.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filtro</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Feedback</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Quanto il modulatore si retroaziona su se stesso, attorno alla quantità propria del tipo. Di più è più ruvido, verso un dente di sega.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Profondità del rumore</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Quanto il rumore sposta la fase della portante, attorno alla quantità propria del tipo.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Int. mod. forma</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Quanto l&apos;inviluppo interno approfondisce la modulazione, attorno alla quantità propria del tipo. Al minimo l&apos;inviluppo è disattivato.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Attacco mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Quanto impiega l&apos;inviluppo interno a salire, attorno al tempo proprio del tipo.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Decadimento mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Quanto impiega l&apos;inviluppo interno a spegnersi, attorno al tempo proprio del tipo.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Key tracking mod.</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Quanto la modulazione si riduce sulle note più acute, attorno alla quantità propria del tipo.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Rumore</translation>
     </message>
     <message>
         <source>Pitch 1</source>

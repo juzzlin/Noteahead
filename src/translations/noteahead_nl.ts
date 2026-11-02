@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Oscillatoren</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Ruis</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Multi-engine</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Ruis, of VPM: een draaggolf waarvan een modulator de fase verschuift, naar die van de Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Verhouding</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Vermenigvuldigt de eigen modulatorverhouding van het type en voegt boventonen toe. 1:1 laat het type zoals het is.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Octaaf</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>Het octaaf waarin VPM speelt. 8&apos; speelt de noot.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Vorm</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Hoe sterk de modulator de fase van de draaggolf verschuift.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Feedback</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Hoeveel de modulator op zichzelf terugkoppelt, rond de eigen hoeveelheid van het type. Meer is ruwer, richting zaagtand.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Ruisdiepte</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Hoeveel ruis de fase van de draaggolf verschuift, rond de eigen hoeveelheid van het type.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Vorm-mod-int.</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Hoeveel de interne envelop de modulatie verdiept, rond de eigen hoeveelheid van het type. Helemaal omlaag schakelt de envelop uit.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Mod-attack</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Hoe lang de interne envelop over het stijgen doet, rond de eigen tijd van het type.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Mod-decay</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Hoe lang de interne envelop over het uitsterven doet, rond de eigen tijd van het type.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Mod-key tracking</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Hoeveel de modulatie afneemt bij hogere noten, rond de eigen hoeveelheid van het type.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruis</translation>
     </message>
     <message>
         <source>Pitch 1</source>

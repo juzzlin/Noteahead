@@ -8003,6 +8003,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12470,8 +12498,8 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Osciladores</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Ruido</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12815,8 +12843,32 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Motor multi</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Ruido, o VPM: una portadora cuya fase mueve un modulador, como en el Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Relación</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Multiplica la relación del modulador propia del tipo, añadiendo armónicos. 1:1 deja el tipo como está.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Octava</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>La octava en la que suena VPM. 8&apos; toca la nota.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Forma</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Cuánto mueve el modulador la fase de la portadora.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13143,6 +13195,57 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filtro</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Realimentación</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Cuánto se realimenta el modulador, en torno a la cantidad propia del tipo. Más es más áspero, hacia una sierra.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Profundidad de ruido</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Cuánto mueve el ruido la fase de la portadora, en torno a la cantidad propia del tipo.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Int. mod. de forma</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Cuánto profundiza la envolvente interna la modulación, en torno a la cantidad propia del tipo. Al mínimo desactiva la envolvente.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Ataque de mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Cuánto tarda en subir la envolvente interna, en torno al tiempo propio del tipo.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Caída de mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Cuánto tarda en apagarse la envolvente interna, en torno al tiempo propio del tipo.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Seguimiento de tecla de mod.</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Cuánto se reduce la modulación en las notas más agudas, en torno a la cantidad propia del tipo.</translation>
     </message>
 </context>
 <context>
@@ -14587,6 +14690,10 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruido</translation>
     </message>
     <message>
         <source>Pitch 1</source>

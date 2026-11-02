@@ -8004,6 +8004,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Noise Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Shape Mod Int</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPM Mod Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 1 Level</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12472,8 +12500,8 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Oscylatory</translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Szum</translation>
+        <source>Multi</source>
+        <translation>Multi</translation>
     </message>
     <message>
         <source>Global Filter / Envelope</source>
@@ -12817,8 +12845,32 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Silnik multi</translation>
     </message>
     <message>
+        <source>Noise, or VPM: a carrier whose phase a modulator moves, after the Minilogue XD&apos;s.</source>
+        <translation>Szum lub VPM: nośna, której fazę przesuwa modulator, wzorem Minilogue XD.</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Stosunek</translation>
+    </message>
+    <message>
+        <source>Multiplies the type&apos;s own modulator ratio, adding overtones. 1:1 leaves the type as it is.</source>
+        <translation>Mnoży własny stosunek modulatora danego typu, dodając alikwoty. 1:1 pozostawia typ bez zmian.</translation>
+    </message>
+    <message>
+        <source>Octave</source>
+        <translation>Oktawa</translation>
+    </message>
+    <message>
+        <source>The octave VPM plays in. 8&apos; plays the note.</source>
+        <translation>Oktawa, w której gra VPM. 8&apos; gra nutę.</translation>
+    </message>
+    <message>
         <source>Shape</source>
         <translation>Kształt</translation>
+    </message>
+    <message>
+        <source>How deeply the modulator moves the carrier&apos;s phase.</source>
+        <translation>Jak mocno modulator przesuwa fazę nośnej.</translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -13145,6 +13197,57 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Vpm</name>
+    <message>
+        <source>Feedback</source>
+        <translation>Sprzężenie</translation>
+    </message>
+    <message>
+        <source>How far the modulator feeds back into itself, around the type&apos;s own amount. More is rougher, toward a saw.</source>
+        <translation>Jak mocno modulator sprzęga się sam ze sobą, wokół własnej wartości typu. Więcej brzmi szorstko, w stronę piły.</translation>
+    </message>
+    <message>
+        <source>Noise Depth</source>
+        <translation>Głębokość szumu</translation>
+    </message>
+    <message>
+        <source>How far noise moves the carrier&apos;s phase, around the type&apos;s own amount.</source>
+        <translation>Jak mocno szum przesuwa fazę nośnej, wokół własnej wartości typu.</translation>
+    </message>
+    <message>
+        <source>Shape Mod Int</source>
+        <translation>Int. mod. kształtu</translation>
+    </message>
+    <message>
+        <source>How far the internal envelope deepens the modulation, around the type&apos;s own amount. All the way down switches the envelope off.</source>
+        <translation>Jak mocno wewnętrzna obwiednia pogłębia modulację, wokół własnej wartości typu. Całkiem w dół wyłącza obwiednię.</translation>
+    </message>
+    <message>
+        <source>Mod Attack</source>
+        <translation>Atak mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to rise, around the type&apos;s own time.</source>
+        <translation>Jak długo narasta wewnętrzna obwiednia, wokół własnego czasu typu.</translation>
+    </message>
+    <message>
+        <source>Mod Decay</source>
+        <translation>Opadanie mod.</translation>
+    </message>
+    <message>
+        <source>How long the internal envelope takes to die away, around the type&apos;s own time.</source>
+        <translation>Jak długo wygasa wewnętrzna obwiednia, wokół własnego czasu typu.</translation>
+    </message>
+    <message>
+        <source>Mod Key Track</source>
+        <translation>Śledzenie klawiatury mod.</translation>
+    </message>
+    <message>
+        <source>How much the modulation backs off on higher notes, around the type&apos;s own amount.</source>
+        <translation>Jak bardzo modulacja słabnie na wyższych nutach, wokół własnej wartości typu.</translation>
     </message>
 </context>
 <context>
@@ -14589,6 +14692,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Decimate</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Szum</translation>
     </message>
     <message>
         <source>Pitch 1</source>
