@@ -27,6 +27,10 @@ class PolyBlepOscillatorTest : public QObject
 private slots:
     void test_nextSample_saw_shouldReturnExpectedValues();
     void test_shapedSaw_shouldNotAliasMoreThanThePlainOne();
+    void test_sawFold_noShape_shouldBeThePlainSaw();
+    void test_sawFold_fullShape_shouldFoldIntoMAndW();
+    void test_sawFold_fullShape_shouldLeaveOnlyOddHarmonics();
+    void test_sawFold_shouldNotAliasMoreThanThePlainSaw();
     void test_nextSample_square_shouldReturnExpectedValues();
     void test_roundness_shouldSetTheEdgeRate();
     void test_roundness_default_shouldKeepTheOldEdgeRate();

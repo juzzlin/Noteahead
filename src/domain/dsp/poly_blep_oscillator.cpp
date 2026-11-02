@@ -91,7 +91,22 @@ double PolyBlepOscillator::nextSample()
     double value = 0.0;
     const double t = m_phase;
 
-    if (m_waveform == Waveform::Saw) {
+    if (m_waveform == Waveform::Saw && m_sawShaping == SawShaping::Fold) {
+        value = (2.0 * t) - 1.0;
+        // Each half of the ramp is scaled up and reflected back between zero and its rail, so the
+        // two halves fold apart rather than into each other: once at a gain of two, twice at four,
+        // which is where the M and the W of a fully shaped XD saw come from. At no shape the gain
+        // is one and nothing reaches a fold, so the ramp passes through bit for bit.
+        const double gain = 1.0 + 3.0 * m_shape;
+        const auto fold = [](double x) {
+            const double wrapped = std::fmod(x, 2.0);
+            return wrapped <= 1.0 ? wrapped : 2.0 - wrapped;
+        };
+        value = std::copysign(fold(std::abs(value) * gain), value);
+        // The ends of the ramp fold to the same magnitude, so the step at the wrap is 2 * fold(gain)
+        // rather than 2, and the correction has to be sized to it: at full shape there is no step.
+        value -= polyBlep(t) * fold(gain);
+    } else if (m_waveform == Waveform::Saw) {
         value = (2.0 * t) - 1.0;
         if (m_shape > 0.0) {
             // Basic saw shaping: mix in a bit of folding
@@ -210,6 +225,16 @@ double PolyBlepOscillator::shape() const
 double PolyBlepOscillator::roundness() const
 {
     return m_roundness;
+}
+
+void PolyBlepOscillator::setSawShaping(SawShaping shaping)
+{
+    m_sawShaping = shaping;
+}
+
+PolyBlepOscillator::SawShaping PolyBlepOscillator::sawShaping() const
+{
+    return m_sawShaping;
 }
 
 double PolyBlepOscillator::phase() const

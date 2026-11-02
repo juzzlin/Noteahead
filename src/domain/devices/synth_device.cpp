@@ -502,6 +502,7 @@ std::vector<float> SynthDevice::oscillatorPreview(size_t vco, size_t points) con
         oscillators.at(i).setSampleRate(sampleRate);
         oscillators.at(i).setWaveform(waveforms.at(i));
         oscillators.at(i).setRoundness(roundnesses.at(i));
+        oscillators.at(i).setSawShaping(SynthOscillatorStage::SawShaping);
         frequencies.at(i) = previewNote * pitchRatios.at(i);
     }
 
@@ -811,6 +812,9 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.vco2.setWaveform(m_vco2Waveform);
     voice.vco3.setWaveform(m_vco3Waveform);
     voice.vco4.setWaveform(m_vco4Waveform);
+    for (auto * vco : { &voice.vco1, &voice.vco2, &voice.vco3, &voice.vco4 }) {
+        vco->setSawShaping(SynthOscillatorStage::SawShaping);
+    }
     voice.vco1.setShape(m_vco1Shape);
     voice.vco1.setRoundness(m_vco1Roundness);
     voice.vco2.setShape(m_vco2Shape);

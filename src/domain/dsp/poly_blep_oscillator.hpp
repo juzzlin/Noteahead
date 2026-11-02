@@ -37,11 +37,23 @@ public:
 
     static std::vector<std::string> waveformNames();
 
+    //! What Shape does to the saw.
+    enum class SawShaping
+    {
+        //! Bends the ramp towards one cycle of a sine. What the string machines' slow sweep of
+        //! Shape around a few percent was voiced with.
+        Bend,
+        //! Folds each half of the ramp back on itself, as the Minilogue XD does: fully up, the top
+        //! half is an M and the bottom half a W, and the reset step is gone.
+        Fold
+    };
+
     void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
     void setPulseWidth(double pw); // 0.0 to 1.0
     void setShape(double shape); // 0.0 to 1.0
+    void setSawShaping(SawShaping shaping);
 
     //! How gently the pulse's edges get from one rail to the other, 0 for the fastest the stage can
     //! manage and 1 for the softest. Half way is the bandwidth the pulse has always had, so a patch
@@ -64,6 +76,7 @@ public:
     double pulseWidth() const;
     double shape() const;
     double roundness() const;
+    SawShaping sawShaping() const;
     double phase() const;
 
 private:
@@ -72,6 +85,7 @@ private:
     double m_pulseWidth { 0.5 };
     double m_shape { 0.0 };
     double m_roundness { 0.5 };
+    SawShaping m_sawShaping { SawShaping::Bend };
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
 

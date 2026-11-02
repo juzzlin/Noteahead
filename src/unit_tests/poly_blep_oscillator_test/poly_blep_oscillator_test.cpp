@@ -30,7 +30,7 @@ namespace {
 //! was filtered away or folded back to some unrelated frequency, and it is that folded rubbish this
 //! measures. The frequency is chosen so a period is not a whole number of samples: otherwise a
 //! folded harmonic lands on another harmonic's bin and is counted as signal.
-double aliasingRatio(PolyBlepOscillator::Waveform waveform, double frequency, double sampleRate, double shape)
+double aliasingRatio(PolyBlepOscillator::Waveform waveform, double frequency, double sampleRate, double shape, PolyBlepOscillator::SawShaping sawShaping = PolyBlepOscillator::SawShaping::Bend)
 {
     constexpr int periods = 97;
 
@@ -39,6 +39,7 @@ double aliasingRatio(PolyBlepOscillator::Waveform waveform, double frequency, do
     osc.setFrequency(frequency);
     osc.setWaveform(waveform);
     osc.setShape(shape);
+    osc.setSawShaping(sawShaping);
 
     const auto total = static_cast<size_t>(std::round(static_cast<double>(periods) * sampleRate / frequency));
     for (size_t i = 0; i < total; i++) {
@@ -75,7 +76,109 @@ double aliasingRatio(PolyBlepOscillator::Waveform waveform, double frequency, do
     return total2 > 0.0 ? std::max(0.0, total2 - harmonics) / total2 : 0.0;
 }
 
+//! One cycle of a folded saw at a hundred samples, from the start of the ramp.
+std::vector<double> foldedSawCycle(double shape)
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Saw);
+    osc.setSawShaping(PolyBlepOscillator::SawShaping::Fold);
+    osc.setShape(shape);
+    std::vector<double> cycle;
+    for (int i = 0; i < 100; i++) {
+        cycle.push_back(osc.nextSample());
+    }
+    return cycle;
+}
+
+//! The samples of a cycle that are peaks: higher than both neighbours.
+size_t peakCount(const std::vector<double> & cycle, size_t begin, size_t end)
+{
+    size_t peaks = 0;
+    for (size_t i = std::max<size_t>(begin, 1); i + 1 < end; i++) {
+        peaks += cycle.at(i) > cycle.at(i - 1) && cycle.at(i) >= cycle.at(i + 1) ? 1 : 0;
+    }
+    return peaks;
+}
+
 } // namespace
+
+void PolyBlepOscillatorTest::test_sawFold_noShape_shouldBeThePlainSaw()
+{
+    // Every Synth patch with the saw's Shape at zero has to sound exactly as it did before the fold
+    PolyBlepOscillator bent;
+    PolyBlepOscillator folded;
+    for (auto * osc : { &bent, &folded }) {
+        osc->setSampleRate(48000.0);
+        osc->setFrequency(437.0);
+        osc->setWaveform(PolyBlepOscillator::Waveform::Saw);
+    }
+    folded.setSawShaping(PolyBlepOscillator::SawShaping::Fold);
+
+    for (int i = 0; i < 1000; i++) {
+        QCOMPARE(folded.nextSample(), bent.nextSample());
+    }
+}
+
+void PolyBlepOscillatorTest::test_sawFold_fullShape_shouldFoldIntoMAndW()
+{
+    // What the XD's scope shows fully shaped: an M over the top half of the cycle and a W, the M
+    // upside down, under the bottom half
+    const auto cycle = foldedSawCycle(1.0);
+    std::vector<double> inverted;
+    std::ranges::transform(cycle, std::back_inserter(inverted), [](double value) { return -value; });
+
+    // The ramp starts at its bottom, so the W comes first
+    QCOMPARE(peakCount(inverted, 0, 50), size_t { 2 });
+    QCOMPARE(peakCount(cycle, 50, 100), size_t { 2 });
+    QVERIFY(std::ranges::all_of(cycle.begin() + 2, cycle.begin() + 48, [](double value) { return value <= 0.0; }));
+    QVERIFY(std::ranges::all_of(cycle.begin() + 52, cycle.end() - 2, [](double value) { return value >= 0.0; }));
+}
+
+void PolyBlepOscillatorTest::test_sawFold_fullShape_shouldLeaveOnlyOddHarmonics()
+{
+    // The beep it sounds like. The W is all below zero and the M all above, and each is the other
+    // upside down, so like a square the wave has odd harmonics only: a strong third, a fifth, and
+    // next to nothing past that. The bent saw goes to a pure sine instead.
+    PolyBlepOscillator osc;
+    osc.setSampleRate(48000.0);
+    osc.setFrequency(200.0);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Saw);
+    osc.setSawShaping(PolyBlepOscillator::SawShaping::Fold);
+    osc.setShape(1.0);
+    std::vector<double> samples;
+    for (int i = 0; i < 4800; i++) { // 20 whole cycles
+        samples.push_back(osc.nextSample());
+    }
+    const auto magnitude = [&samples](int harmonic) {
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = 0; i < samples.size(); i++) {
+            const double angle = 2.0 * std::numbers::pi * 200.0 * harmonic * static_cast<double>(i) / 48000.0;
+            re += samples[i] * std::cos(angle);
+            im += samples[i] * std::sin(angle);
+        }
+        return std::hypot(re, im);
+    };
+
+    const double fundamental = magnitude(1);
+    for (const int even : { 2, 4, 6 }) {
+        QVERIFY2(magnitude(even) < fundamental * 0.02, qPrintable(QString("harmonic %1").arg(even)));
+    }
+    QVERIFY(magnitude(3) > fundamental * 0.5);
+}
+
+void PolyBlepOscillatorTest::test_sawFold_shouldNotAliasMoreThanThePlainSaw()
+{
+    // The folds leave corners rather than steps, and at full shape there is no step left at all, so
+    // a folded saw has less to alias than a plain one. A correction sized to the wrong step would not.
+    const double plain = aliasingRatio(PolyBlepOscillator::Waveform::Saw, 880.0, 48000.0, 0.0);
+    for (const double shape : { 0.3, 0.6, 0.9, 1.0 }) {
+        const double folded = aliasingRatio(PolyBlepOscillator::Waveform::Saw, 880.0, 48000.0, shape, PolyBlepOscillator::SawShaping::Fold);
+        QVERIFY2(folded <= plain, qPrintable(QString("shape %1: %2 against %3").arg(shape).arg(folded).arg(plain)));
+    }
+}
 
 void PolyBlepOscillatorTest::test_shapedSaw_shouldNotAliasMoreThanThePlainOne()
 {

@@ -30,6 +30,8 @@ class SynthOscillatorStage
 {
 public:
     static constexpr size_t VcoCount = 4;
+    //! The Minilogue XD's: Shape folds the saw rather than bending it towards a sine.
+    static constexpr auto SawShaping = PolyBlepOscillator::SawShaping::Fold;
 
     using Values = std::array<double, VcoCount>;
     using Oscillators = std::array<std::reference_wrapper<PolyBlepOscillator>, VcoCount>;
