@@ -34,6 +34,7 @@ set(HEADER_FILES
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Components/phase_scope_renderer.hpp
+    qml/Components/wave_shape_renderer.hpp
     qml/Dialogs/automation_curve_renderer.hpp
     qml/Dialogs/eq_curve_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
@@ -81,6 +82,7 @@ set(SOURCE_FILES
     controllers/wavetable_synth_controller.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Components/phase_scope_renderer.cpp
+    qml/Components/wave_shape_renderer.cpp
     qml/Dialogs/automation_curve_renderer.cpp
     qml/Dialogs/eq_curve_renderer.cpp
     qml/Dialogs/rta_renderer.cpp

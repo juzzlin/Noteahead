@@ -26,9 +26,16 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    SectionHeading {
+    WaveShapeHeading {
+        id: heading
         text: qsTr("VCO 2")
-        Layout.alignment: Qt.AlignLeft
+        // The revision is what a control change moves; the call itself has nothing to depend on
+        samples: {
+            synthController.oscillatorPreviewRevision;
+            return synthController.oscillatorPreview(1, heading.previewPoints);
+        }
+        dimmed: synthController.mixVco2 === 0
+        Layout.fillWidth: true
         Layout.topMargin: 10
     }
 

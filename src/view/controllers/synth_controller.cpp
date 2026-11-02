@@ -600,6 +600,22 @@ bool SynthController::vco2Ring() const
     return m_synth ? m_synth->vco2Ring() : false;
 }
 
+int SynthController::oscillatorPreviewRevision() const
+{
+    return m_oscillatorPreviewRevision;
+}
+
+QList<qreal> SynthController::oscillatorPreview(int vco, int points) const
+{
+    QList<qreal> preview;
+    if (m_synth && vco >= 0 && points > 0) {
+        for (auto && value : m_synth->oscillatorPreview(static_cast<size_t>(vco), static_cast<size_t>(points))) {
+            preview.append(static_cast<qreal>(value));
+        }
+    }
+    return preview;
+}
+
 void SynthController::setVco2Ring(bool ring)
 {
     if (m_synth) {
@@ -1517,6 +1533,9 @@ void SynthController::initialize()
 
 void SynthController::requestSettings()
 {
+    // Every control change comes through here, and any of a dozen of them reshapes the previews
+    m_oscillatorPreviewRevision++;
+    emit oscillatorPreviewChanged();
     emit vco1WaveformChanged();
     emit vco1OctaveChanged();
     emit vco1PitchChanged();

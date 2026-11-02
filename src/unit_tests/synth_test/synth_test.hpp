@@ -123,6 +123,11 @@ private slots:
     void test_vco2Ring_sines_shouldSoundSumAndDifferenceOnly();
     void test_vco2Ring_serialization_shouldPreserveState();
     void test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero();
+    void test_oscillatorPreview_saw_shouldRampAndDrop();
+    void test_oscillatorPreview_squareShape_shouldNarrowThePulse();
+    void test_oscillatorPreview_sync_shouldRepeatAtTheMasterCycle();
+    void test_oscillatorPreview_ring_shouldBeTheProductOfTheVcos();
+    void test_oscillatorPreview_mutedVco1_shouldStillDriveRing();
 
     void test_resetAudio_afterOtherNotes_shouldRenderIdenticalAudio();
 

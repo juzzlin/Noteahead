@@ -474,6 +474,93 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     for (size_t i = 0; i < SourceFilterCount; i++) {
         m_sourceFilterEngagedThisBlock[i] = sourceFilterEngaged(i);
     }
+    m_oscillatorSettingsThisBlock = oscillatorSettings();
+    m_oscillatorsRunningThisBlock = SynthOscillatorStage::running(m_oscillatorSettingsThisBlock);
+}
+
+std::vector<float> SynthDevice::oscillatorPreview(size_t vco, size_t points) const
+{
+    if (vco >= SynthOscillatorStage::VcoCount || points < 2) {
+        return {};
+    }
+
+    // Everything the picture depends on, read up front: the audio thread may move the controls
+    auto settings = oscillatorSettings();
+    settings.levels.at(vco) = 1.0;
+    const auto running = SynthOscillatorStage::running(settings);
+    const std::array waveforms { m_vco1Waveform, m_vco2Waveform, m_vco3Waveform, m_vco4Waveform };
+    const std::array roundnesses { m_vco1Roundness, m_vco2Roundness, m_vco3Roundness, m_vco4Roundness };
+    const std::array pitchRatios { m_vco1BasePitchRatio, m_vco2BasePitchRatio, m_vco3BasePitchRatio, m_vco4BasePitchRatio };
+
+    // The note the picture is played at: low enough for the pulse's sag to show, and the rate high
+    // enough that an edge is a few points rather than a smear across one
+    constexpr double previewNote = 130.81; // C3
+    const double sampleRate = Constants::defaultSampleRate() * 4.0;
+    std::array<PolyBlepOscillator, SynthOscillatorStage::VcoCount> oscillators;
+    SynthOscillatorStage::Values frequencies {};
+    for (size_t i = 0; i < oscillators.size(); i++) {
+        oscillators.at(i).setSampleRate(sampleRate);
+        oscillators.at(i).setWaveform(waveforms.at(i));
+        oscillators.at(i).setRoundness(roundnesses.at(i));
+        frequencies.at(i) = previewNote * pitchRatios.at(i);
+    }
+
+    // The VCO whose cycle the coupled wave repeats at: down the chain for as long as each link holds
+    auto period = vco;
+    while (period > 0) {
+        const bool coupled = settings.syncs.at(period) && running.at(period - 1);
+        const bool driven = period == 1 && (settings.vco2Ring || settings.crossModDepth >= 0.001);
+        if (!coupled && !driven) {
+            break;
+        }
+        period--;
+    }
+
+    const SynthOscillatorStage::Oscillators stage { oscillators.at(0), oscillators.at(1), oscillators.at(2), oscillators.at(3) };
+    const auto step = [&] {
+        return SynthOscillatorStage::process(stage, frequencies, running, settings, 0.0, sampleRate).at(vco);
+    };
+
+    // Long enough for the pulse's coupling to settle, then on to the start of a cycle
+    const auto settleSamples = static_cast<size_t>(sampleRate * 0.05);
+    for (size_t i = 0; i < settleSamples; i++) {
+        step();
+    }
+    const auto cycleSamples = static_cast<size_t>(std::ceil(sampleRate / frequencies.at(period)));
+    std::vector<double> window;
+    for (size_t i = 0; i < cycleSamples + 1; i++) {
+        const double before = oscillators.at(period).phase();
+        const double value = step();
+        if (oscillators.at(period).phase() < before) {
+            window.push_back(value);
+            break;
+        }
+    }
+    const auto windowSamples = 2 * cycleSamples;
+    while (window.size() < windowSamples) {
+        window.push_back(step());
+    }
+
+    std::vector<float> preview(points);
+    for (size_t i = 0; i < points; i++) {
+        const double position = static_cast<double>(i) / static_cast<double>(points - 1) * static_cast<double>(window.size() - 1);
+        const auto index = static_cast<size_t>(position);
+        const double fraction = position - static_cast<double>(index);
+        const double next = window.at(std::min(index + 1, window.size() - 1));
+        preview.at(i) = static_cast<float>(std::clamp(window.at(index) + (next - window.at(index)) * fraction, -1.0, 1.0));
+    }
+    return preview;
+}
+
+SynthOscillatorStage::Settings SynthDevice::oscillatorSettings() const
+{
+    SynthOscillatorStage::Settings settings;
+    settings.levels = { m_mixVco1, m_mixVco2, m_mixVco3, m_mixVco4 };
+    settings.shapes = { m_vco1Shape, m_vco2Shape, m_vco3Shape, m_vco4Shape };
+    settings.crossModDepth = m_crossModDepth;
+    settings.syncs = { false, m_vco2Sync, m_vco3Sync, m_vco4Sync };
+    settings.vco2Ring = m_vco2Ring;
+    return settings;
 }
 
 bool SynthDevice::isStacked(VoiceMode mode)
@@ -1425,89 +1512,12 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         return static_cast<double>(hpf.process(lpf.process(value)));
     };
 
-    double vco1Val = 0.0;
-    double oldPhase1 = voice.vco1.phase();
-    // Ring needs VCO1 even at zero level: a ring patch typically mutes it to hear the product alone
-    const bool ring = m_vco2Ring && m_mixVco2 >= 0.001f;
-    if (m_mixVco1 >= 0.001f || m_crossModDepth >= 0.001f || ring) {
-        voice.vco1.setFrequency(vco1Freq);
-        voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
-        oldPhase1 = voice.vco1.phase();
-        vco1Val = voice.vco1.nextSample();
-    }
-
-    if (m_crossModDepth >= 0.001f) {
-        // Audio-rate FM: VCO1's instantaneous output modulates VCO2's frequency,
-        // mirroring the Minilogue XD's one-way Cross Mod Depth control.
-        vco2Freq *= std::exp2(vco1Val * m_crossModDepth * 4.0);
-    }
-
-    double vco2Val = 0.0;
-    double oldPhase2 = voice.vco2.phase();
-    if (m_mixVco2 >= 0.001f) {
-        voice.vco2.setFrequency(vco2Freq);
-        voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
-
-        if (m_vco2Sync && voice.vco1.phase() < oldPhase1) {
-            // Calculate fractional phase for VCO2 to maintain sync accuracy
-            const double phaseStep1 = vco1Freq / oversampledRate;
-            const double phaseStep2 = vco2Freq / oversampledRate;
-            if (phaseStep1 > 0.0) {
-                const double fraction = voice.vco1.phase() / phaseStep1;
-                voice.vco2.sync(fraction * phaseStep2);
-            } else {
-                voice.vco2.sync(0.0);
-            }
-        }
-        oldPhase2 = voice.vco2.phase();
-        vco2Val = voice.vco2.nextSample();
-        if (ring) {
-            // The Minilogue XD's Ring: VCO2's output is replaced by its product with VCO1. The raw
-            // VCO1, like cross mod reads, so VCO1's own filter shapes only what VCO1 adds to the mix.
-            vco2Val *= vco1Val;
-        }
-    }
-
-    double vco3Val = 0.0;
-    double oldPhase3 = voice.vco3.phase();
-    if (m_mixVco3 >= 0.001f) {
-        voice.vco3.setFrequency(vco3Freq);
-        voice.vco3.setShape(std::clamp(m_vco3Shape + mods.shapeMod, 0.0, 1.0));
-
-        // VCO3 Hard Sync to VCO2
-        if (m_vco3Sync && voice.vco2.phase() < oldPhase2) {
-            const double phaseStep2 = vco2Freq / oversampledRate;
-            const double phaseStep3 = vco3Freq / oversampledRate;
-            if (phaseStep2 > 0.0) {
-                const double fraction = voice.vco2.phase() / phaseStep2;
-                voice.vco3.sync(fraction * phaseStep3);
-            } else {
-                voice.vco3.sync(0.0);
-            }
-        }
-        oldPhase3 = voice.vco3.phase();
-        vco3Val = voice.vco3.nextSample();
-    }
-
-    double vco4Val = 0.0;
-    if (m_mixVco4 >= 0.001f) {
-        voice.vco4.setFrequency(vco4Freq);
-        voice.vco4.setShape(std::clamp(m_vco4Shape + mods.shapeMod, 0.0, 1.0));
-
-        // VCO4 hard syncs to VCO3, continuing the chain each oscillator makes with the one before
-        // it: 2 to 1, 3 to 2, 4 to 3.
-        if (m_vco4Sync && voice.vco3.phase() < oldPhase3) {
-            const double phaseStep3 = vco3Freq / oversampledRate;
-            const double phaseStep4 = vco4Freq / oversampledRate;
-            if (phaseStep3 > 0.0) {
-                const double fraction = voice.vco3.phase() / phaseStep3;
-                voice.vco4.sync(fraction * phaseStep4);
-            } else {
-                voice.vco4.sync(0.0);
-            }
-        }
-        vco4Val = voice.vco4.nextSample();
-    }
+    const auto vcoValues = SynthOscillatorStage::process({ voice.vco1, voice.vco2, voice.vco3, voice.vco4 }, { vco1Freq, vco2Freq, vco3Freq, vco4Freq },
+                                                         m_oscillatorsRunningThisBlock, m_oscillatorSettingsThisBlock, mods.shapeMod, oversampledRate);
+    double vco1Val = vcoValues.at(0);
+    double vco2Val = vcoValues.at(1);
+    double vco3Val = vcoValues.at(2);
+    double vco4Val = vcoValues.at(3);
 
     double multiVal = 0.0;
     if (m_multiLevel >= 0.001f) {

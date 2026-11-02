@@ -16,6 +16,8 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
+#include "synth_oscillator_stage.hpp"
+
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/analog_drift.hpp"
 #include "../dsp/cascaded_svf.hpp"
@@ -252,6 +254,12 @@ public:
     //! Ring modulation: VCO2 sounds as its product with VCO1, at VCO2's level.
     bool vco2Ring() const;
     void setVco2Ring(bool ring);
+
+    //! What the given VCO (0 to 3) plays, as @p points values from -1 to 1: two cycles, of the VCO it
+    //! is synced or ring modulated to when it is, since that is the period the coupled wave repeats
+    //! at. Run through the voices' own oscillator stage, without modulation, as if the VCO's level
+    //! were up: a muted VCO still shows what raising it would give.
+    std::vector<float> oscillatorPreview(size_t vco, size_t points) const;
 
     // Parameter accessors (VCO3)
     PolyBlepOscillator::Waveform vco3Waveform() const;
@@ -619,6 +627,10 @@ private:
     //! sourceFilterEngaged() as it stood when the block started, so the answer cannot change under the
     //! voices halfway through one.
     std::array<bool, SourceFilterCount> m_sourceFilterEngagedThisBlock {};
+    //! The oscillator stage's controls, likewise taken once a block.
+    SynthOscillatorStage::Settings m_oscillatorSettingsThisBlock;
+    std::array<bool, SynthOscillatorStage::VcoCount> m_oscillatorsRunningThisBlock {};
+    SynthOscillatorStage::Settings oscillatorSettings() const;
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };

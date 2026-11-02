@@ -34,6 +34,7 @@ set(HEADER_FILES
     devices/speech_device.hpp
     devices/sub_mixer_device.hpp
     devices/synth_device.hpp
+    devices/synth_oscillator_stage.hpp
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
     devices/wavetable_synth_presets.hpp
@@ -250,6 +251,7 @@ set(SOURCE_FILES
     devices/speech_device.cpp
     devices/sub_mixer_device.cpp
     devices/synth_device.cpp
+    devices/synth_oscillator_stage.cpp
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp
     devices/wavetable_synth_presets.cpp

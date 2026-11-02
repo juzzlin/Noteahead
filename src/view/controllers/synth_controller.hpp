@@ -63,6 +63,8 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco2Roundness READ vco2Roundness WRITE setVco2Roundness NOTIFY vco2RoundnessChanged)
     Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
     Q_PROPERTY(bool vco2Ring READ vco2Ring WRITE setVco2Ring NOTIFY vco2RingChanged)
+    //! Moves whenever an oscillator preview may have changed, for a binding to depend on.
+    Q_PROPERTY(int oscillatorPreviewRevision READ oscillatorPreviewRevision NOTIFY oscillatorPreviewChanged)
 
     // VCO3
     Q_PROPERTY(int vco3Waveform READ vco3Waveform WRITE setVco3Waveform NOTIFY vco3WaveformChanged)
@@ -303,6 +305,9 @@ public:
     bool vco2Sync() const;
     void setVco2Sync(bool s);
     bool vco2Ring() const;
+    int oscillatorPreviewRevision() const;
+    //! What the given VCO (0 to 3) plays, as @p points values from -1 to 1. See SynthDevice.
+    Q_INVOKABLE QList<qreal> oscillatorPreview(int vco, int points) const;
     void setVco2Ring(bool ring);
 
     int vco3Waveform() const;
@@ -537,6 +542,7 @@ signals:
     void vco2RoundnessChanged();
     void vco2SyncChanged();
     void vco2RingChanged();
+    void oscillatorPreviewChanged();
     void vco3WaveformChanged();
     void vco3OctaveChanged();
     void vco3PitchChanged();
@@ -627,6 +633,7 @@ public:
     void setDeviceService(std::shared_ptr<DeviceService> deviceService);
 
 private:
+    int m_oscillatorPreviewRevision { 0 };
     std::shared_ptr<SynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
 };

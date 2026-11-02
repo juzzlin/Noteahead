@@ -4169,6 +4169,126 @@ void SynthTest::test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo()
     QVERIFY2(std::abs(std::abs(second - first) - 0.5f) < 0.01f || std::abs(std::abs(second - first) - 1.5f) < 0.01f, qPrintable(QString { "%1 -> %2" }.arg(first).arg(second)));
 }
 
+namespace {
+
+std::vector<float> previewOf(const SynthDevice & synth, size_t vco)
+{
+    return synth.oscillatorPreview(vco, 400);
+}
+
+//! The largest difference between the first and the second half: zero for a wave that repeats
+//! exactly across the preview's two cycles.
+double halvesDifference(const std::vector<float> & preview)
+{
+    const size_t half = preview.size() / 2;
+    double largest = 0.0;
+    // Not the last point of each half: an edge right at the boundary lands either side of it
+    for (size_t i = 2; i + 2 < half; i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(preview.at(i) - preview.at(i + half))));
+    }
+    return largest;
+}
+
+} // namespace
+
+void SynthTest::test_oscillatorPreview_saw_shouldRampAndDrop()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+
+    const auto preview = previewOf(synth, 0);
+
+    QCOMPARE(preview.size(), size_t { 400 });
+    size_t rises = 0;
+    size_t drops = 0;
+    for (size_t i = 1; i < preview.size(); i++) {
+        rises += preview.at(i) > preview.at(i - 1) ? 1 : 0;
+        drops += preview.at(i) < preview.at(i - 1) - 0.5f ? 1 : 0;
+    }
+    // Two cycles from the start of one: a single drop between them, or a second one at the very end
+    QVERIFY2(drops >= 1 && drops <= 2, qPrintable(QString::number(drops)));
+    QVERIFY(rises > preview.size() * 9 / 10);
+}
+
+void SynthTest::test_oscillatorPreview_squareShape_shouldNarrowThePulse()
+{
+    const auto highFraction = [](float shape) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+        synth.setVco1Shape(shape);
+        const auto preview = previewOf(synth, 0);
+        return static_cast<double>(std::ranges::count_if(preview, [](float value) { return value > 0.0f; })) / static_cast<double>(preview.size());
+    };
+
+    const double square = highFraction(0.0f);
+    const double narrow = highFraction(0.8f);
+
+    QVERIFY2(std::abs(square - 0.5) < 0.05, qPrintable(QString::number(square)));
+    QVERIFY2(narrow < 0.35, qPrintable(QString::number(narrow)));
+}
+
+void SynthTest::test_oscillatorPreview_sync_shouldRepeatAtTheMasterCycle()
+{
+    // Out of tune with VCO1 and synced to it, VCO2 restarts with every VCO1 cycle, so the preview
+    // spans two of those and repeats across them. Unsynced, it is VCO2's own two plain cycles.
+    const auto preview = [](bool sync) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco2Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setVco2Pitch(0.8f);
+        synth.setVco2Sync(sync);
+        return previewOf(synth, 1);
+    };
+    const auto synced = preview(true);
+    const auto free = preview(false);
+
+    QVERIFY2(halvesDifference(synced) < 0.05, qPrintable(QString::number(halvesDifference(synced))));
+    double largest = 0.0;
+    for (size_t i = 0; i < synced.size(); i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(synced.at(i) - free.at(i))));
+    }
+    QVERIFY2(largest > 0.5, qPrintable(QString::number(largest)));
+}
+
+void SynthTest::test_oscillatorPreview_ring_shouldBeTheProductOfTheVcos()
+{
+    // Sines, so that resampling the product and multiplying the resampled waves agree. Synced, so
+    // that both of VCO2's previews span VCO1's cycle: synced to an octave above, it is unchanged.
+    const auto makeSynth = [](bool ring) {
+        auto synth = std::make_unique<SynthDevice>("Test Synth");
+        synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth->setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth->setVco2Octave(1);
+        synth->setVco2Sync(true);
+        synth->setVco2Ring(ring);
+        return synth;
+    };
+    const auto vco1 = previewOf(*makeSynth(false), 0);
+    const auto vco2 = previewOf(*makeSynth(false), 1);
+    const auto ringed = previewOf(*makeSynth(true), 1);
+
+    double largest = 0.0;
+    for (size_t i = 0; i < ringed.size(); i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(ringed.at(i) - vco1.at(i) * vco2.at(i))));
+    }
+    QVERIFY2(largest < 0.02, qPrintable(QString::number(largest)));
+}
+
+void SynthTest::test_oscillatorPreview_mutedVco1_shouldStillDriveRing()
+{
+    // The usual ring patch mutes VCO1, which still has to run for VCO2 to have something to multiply
+    const auto ringPreview = [](float vco1Level) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(vco1Level);
+        synth.setVco2Ring(true);
+        return previewOf(synth, 1);
+    };
+
+    const auto muted = ringPreview(0.0f);
+
+    QCOMPARE(muted, ringPreview(1.0f));
+    QVERIFY(std::ranges::any_of(muted, [](float value) { return std::abs(value) > 0.1f; }));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

@@ -366,6 +366,21 @@ void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
     QVERIFY(!synthB->scope().active());
 }
 
+void SynthControllerTest::test_oscillatorPreview_shapeChange_shouldNotifyPreview()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    QSignalSpy spy { &controller, &SynthController::oscillatorPreviewChanged };
+    const auto before = controller.oscillatorPreview(1, 64);
+
+    controller.setVco2Shape(8000);
+
+    QVERIFY(spy.count() >= 1);
+    const auto after = controller.oscillatorPreview(1, 64);
+    QCOMPARE(after.size(), 64);
+    QVERIFY(after != before);
+}
+
 void SynthControllerTest::test_parameterAutomation_announced_shouldRefreshWhenTheChangeLands()
 {
     // The audio thread that applies an automation signals nothing: the playback that schedules it
