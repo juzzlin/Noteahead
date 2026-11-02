@@ -18,6 +18,8 @@
 #include "service/application_service.hpp"
 #include "service/editor_service.hpp"
 
+#include <utility>
+
 namespace noteahead {
 
 StateMachine::StateMachine(ApplicationServiceS applicationService, EditorServiceS editorService, QObject * parent)
@@ -32,12 +34,7 @@ void StateMachine::calculateState(StateMachine::Action action)
     switch (action) {
 
     case Action::NewProjectRequested:
-        m_quitType = QuitType::New;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::InitializeNewProject;
-        }
+        leaveProject(QuitType::New, State::InitializeNewProject);
         break;
 
     case Action::ApplicationInitialized:
@@ -64,7 +61,9 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::UnsavedChangesDialogDiscarded:
     case Action::ProjectSaved:
     case Action::ProjectSavedAs:
-        switch (m_quitType) {
+        // Taken as it is acted on: left behind, it would make the next ordinary save start a new
+        // project or reopen a file all over again, throwing away everything done since
+        switch (std::exchange(m_quitType, QuitType::None)) {
         case QuitType::Close:
             m_state = State::Exit;
             break;
@@ -102,39 +101,19 @@ void StateMachine::calculateState(StateMachine::Action action)
         break;
 
     case Action::OpenExampleRequested:
-        m_quitType = QuitType::OpenExample;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::OpenExample;
-        }
+        leaveProject(QuitType::OpenExample, State::OpenExample);
         break;
 
     case Action::OpenTemplateRequested:
-        m_quitType = QuitType::OpenTemplate;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::OpenTemplate;
-        }
+        leaveProject(QuitType::OpenTemplate, State::OpenTemplate);
         break;
 
     case Action::OpenProjectRequested:
-        m_quitType = QuitType::Open;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::ShowOpenDialog;
-        }
+        leaveProject(QuitType::Open, State::ShowOpenDialog);
         break;
 
     case Action::QuitSelected:
-        m_quitType = QuitType::Close;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::Exit;
-        }
+        leaveProject(QuitType::Close, State::Exit);
         break;
 
     case Action::UnsavedChangesDialogAccepted:
@@ -160,16 +139,23 @@ void StateMachine::calculateState(StateMachine::Action action)
         break;
 
     case Action::RecentFileSelected:
-        m_quitType = QuitType::OpenRecent;
-        if (m_editorService->isModified()) {
-            m_state = State::ShowUnsavedChangesDialog;
-        } else {
-            m_state = State::OpenRecent;
-        }
+        leaveProject(QuitType::OpenRecent, State::OpenRecent);
         break;
     }
 
     emit stateChanged(m_state);
+}
+
+void StateMachine::leaveProject(QuitType quitType, State state)
+{
+    // There is something to come back to after a save only while the unsaved changes dialog is up
+    if (m_editorService->isModified()) {
+        m_quitType = quitType;
+        m_state = State::ShowUnsavedChangesDialog;
+    } else {
+        m_quitType = QuitType::None;
+        m_state = state;
+    }
 }
 
 QString StateMachine::stateToString(State state)

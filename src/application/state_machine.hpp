@@ -102,6 +102,9 @@ signals:
     void stateChanged(StateMachine::State state);
 
 private:
+    //! Off to do whatever @p quitType says, asking about unsaved changes first if there are any.
+    void leaveProject(QuitType quitType, State state);
+
     State m_state = State::Init;
 
     QuitType m_quitType = QuitType::None;

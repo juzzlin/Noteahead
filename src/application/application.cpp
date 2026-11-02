@@ -1129,6 +1129,7 @@ void Application::applyState(StateMachine::State state)
         m_automationService->clear();
         m_trackSettingsModel->reset();
         m_editorService->initialize();
+        m_stateMachine->calculateState(StateMachine::Action::NewProjectInitialized);
         break;
     case StateMachine::State::OpenExample:
         try {

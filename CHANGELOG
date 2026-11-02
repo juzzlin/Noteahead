@@ -13,6 +13,8 @@ Bug fixes:
 
 * Synth: Shape turned the saw into a sine instead of folding it like the Minilogue XD's
 
+* Saving a new project started another new project, clearing everything in it
+
 Other:
 
 11.0.0
