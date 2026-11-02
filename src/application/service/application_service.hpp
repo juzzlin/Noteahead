@@ -278,6 +278,7 @@ private:
 
     bool m_editMode = false;
     QString m_requestedTemplatePath;
+
     struct ActiveLiveNote
     {
         InstrumentS instrument;
@@ -287,6 +288,7 @@ private:
         std::vector<Arpeggiator::NoteInfo> arpeggioSequence;
         size_t currentArpIndex { 0 };
     };
+
     std::unordered_map<uint8_t, ActiveLiveNote> m_activeLiveNotes;
     //! The note started at the cursor, stopped by note rather than by what is under the cursor on
     //! release: typing a velocity scrolls on before the key comes up.

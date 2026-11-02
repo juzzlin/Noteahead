@@ -476,10 +476,10 @@ void ApplicationService::requestLiveMidiNoteOn(quint8 rawNote, quint8 velocity)
 
     uint8_t rootVelocity { velocity };
     rootVelocity = Utils::Midi::scaleVelocityByKey(
-        rootVelocity,
-        rootNote,
-        instrument->settings().midiEffects.velocityKeyTrack,
-        instrument->settings().midiEffects.velocityKeyTrackOffset);
+      rootVelocity,
+      rootNote,
+      instrument->settings().midiEffects.velocityKeyTrack,
+      instrument->settings().midiEffects.velocityKeyTrackOffset);
 
     if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
         const int maxDelta { (static_cast<int>(rootVelocity) * jitter) / 100 };
@@ -503,10 +503,10 @@ void ApplicationService::requestLiveMidiNoteOn(quint8 rawNote, quint8 velocity)
                     const int calculatedVel { static_cast<int>(std::round(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f))) };
                     uint8_t vel { static_cast<uint8_t>(std::clamp(calculatedVel, 1, 127)) };
                     vel = Utils::Midi::scaleVelocityByKey(
-                        vel,
-                        static_cast<uint8_t>(chordMidi),
-                        instrument->settings().midiEffects.velocityKeyTrack,
-                        instrument->settings().midiEffects.velocityKeyTrackOffset);
+                      vel,
+                      static_cast<uint8_t>(chordMidi),
+                      instrument->settings().midiEffects.velocityKeyTrack,
+                      instrument->settings().midiEffects.velocityKeyTrackOffset);
                     if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
                         const int maxDelta { (static_cast<int>(vel) * jitter) / 100 };
                         std::uniform_int_distribution<int> dist { -maxDelta, 0 };
@@ -565,10 +565,10 @@ void ApplicationService::requestLiveMidiNoteOn(quint8 rawNote, quint8 velocity)
                         const int calculatedVel { static_cast<int>(std::round(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f))) };
                         uint8_t vel { static_cast<uint8_t>(std::clamp(calculatedVel, 1, 127)) };
                         vel = Utils::Midi::scaleVelocityByKey(
-                            vel,
-                            static_cast<uint8_t>(chordMidi),
-                            instrument->settings().midiEffects.velocityKeyTrack,
-                            instrument->settings().midiEffects.velocityKeyTrackOffset);
+                          vel,
+                          static_cast<uint8_t>(chordMidi),
+                          instrument->settings().midiEffects.velocityKeyTrack,
+                          instrument->settings().midiEffects.velocityKeyTrackOffset);
                         if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
                             const int maxDelta { (static_cast<int>(vel) * jitter) / 100 };
                             std::uniform_int_distribution<int> dist { -maxDelta, 0 };

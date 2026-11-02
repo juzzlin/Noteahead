@@ -208,6 +208,7 @@ private:
         double release { 0.0 };
         double curve { 0.0 };
     };
+
     WaveformEnvelope m_waveformEnvelope;
 
     QVariantList m_waveformData;
