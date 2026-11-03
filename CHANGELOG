@@ -41,6 +41,8 @@ Bug fixes:
 
 * Drums no longer click when struck again while still ringing
 
+* Kick 909: the waveform shows a playhead while the drum sounds
+
 * Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
 
 * Device scopes and the Phase Scope draw their traces about twenty times faster, so they no longer stutter

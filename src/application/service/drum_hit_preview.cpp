@@ -13,35 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "kick_909_preview.hpp"
+#include "drum_hit_preview.hpp"
 
-#include "../../../common/constants.hpp"
-#include "../../../domain/dsp/audio_context.hpp"
-#include "../../../infra/xml/nahd_xml_reader.hpp"
-#include "../../../infra/xml/nahd_xml_writer.hpp"
-#include "kick_909_device.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/device.hpp"
+#include "../../domain/dsp/audio_context.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <algorithm>
 #include <cmath>
-#include <memory>
 #include <vector>
 
-namespace noteahead::Kick909Preview {
+namespace noteahead::DrumHitPreview {
 
 namespace {
 
-//! Longest a hit is followed: the 909 is done in half a second, but the amp envelope can hold it
+//! Long enough for the longest Decay any of the drums has, with room to spare
 constexpr double MaxPreviewSeconds { 6.0 };
 
-//! Below this a frame counts as silence when the audible length is measured.
+//! Where the hit counts as having gone quiet, so the picture is not mostly silence
 constexpr double SilenceFloor { 1.0e-4 };
 
 constexpr uint32_t BlockFrames { 256 };
 
-//! C-3: the note that plays the drum as it is set, Chromatic or not.
-constexpr uint8_t PreviewNote { 36 };
-
-std::unique_ptr<Kick909Device> clone(const Kick909Device & device)
+std::unique_ptr<Device> clone(const Device & device, const CopyFactory & createCopy)
 {
     QString xml;
     {
@@ -56,16 +52,19 @@ std::unique_ptr<Kick909Device> clone(const Kick909Device & device)
         return {};
     }
 
-    auto copy = std::make_unique<Kick909Device>(device.name());
-    copy->deserializeFromXml(reader);
+    auto copy = createCopy();
+    if (copy) {
+        copy->deserializeFromXml(reader);
+        // The hit is drawn at the note it is asked for, not shifted by the device's octave
+        copy->setOctave(0);
+    }
     return copy;
 }
 
-//! One hit at full velocity, interleaved stereo, until the drum stops or the limit is reached.
-std::vector<double> renderHit(Kick909Device & device, double sampleRate)
+std::vector<double> renderHit(Device & device, uint8_t note, double sampleRate)
 {
     device.resetAudio();
-    device.processDeviceMidiNoteOn(PreviewNote, 127);
+    device.processMidiNoteOn(note, 127);
 
     const auto maxFrames = static_cast<size_t>(MaxPreviewSeconds * sampleRate);
     std::vector<double> frames;
@@ -83,18 +82,7 @@ std::vector<double> renderHit(Kick909Device & device, double sampleRate)
     return frames;
 }
 
-double audibleLength(const std::vector<double> & frames, double sampleRate)
-{
-    for (size_t i = frames.size(); i > 0; i--) {
-        if (std::abs(frames.at(i - 1)) > SilenceFloor) {
-            return static_cast<double>(i / 2) / sampleRate;
-        }
-    }
-    return 0.0;
-}
-
-//! Where the drum has fallen under the floor for good: the picture stops there rather than at the
-//! end of the engine's inaudible tail.
+//! Frames up to and including the last one above the silence floor
 size_t audibleFrames(const std::vector<double> & frames)
 {
     for (size_t i = frames.size(); i > 0; i--) {
@@ -127,27 +115,26 @@ QVariantList toPeaks(const std::vector<double> & frames, size_t frameCount, int 
 
 } // namespace
 
-Preview render(const Kick909Device & device, int peakCount, double sampleRate)
+Preview render(const Device & device, const CopyFactory & createCopy, const EnvelopeBypass & bypassEnvelope, uint8_t note, int peakCount, double sampleRate)
 {
     if (peakCount <= 0 || sampleRate <= 0.0) {
         return {};
     }
 
-    const auto copy = clone(device);
+    const auto copy = clone(device, createCopy);
     if (!copy) {
         return {};
     }
 
     Preview preview;
 
-    const auto heard = renderHit(*copy, sampleRate);
-    preview.audibleSeconds = audibleLength(heard, sampleRate);
+    // As it is set, first: this is the one that says how long the drum is heard for
+    const auto heard = renderHit(*copy, note, sampleRate);
+    preview.audibleSeconds = static_cast<double>(audibleFrames(heard)) / sampleRate;
 
-    // Then with the envelope left out, for the picture it is drawn over
-    copy->setKnob(Constants::NahdXml::xmlKeyAmpAttack(), 0.0f);
-    copy->setKnob(Constants::NahdXml::xmlKeyAmpSustain(), 1.0f);
-    copy->setKnob(Constants::NahdXml::xmlKeyAmpRelease(), 0.0f);
-    const auto bare = renderHit(*copy, sampleRate);
+    // Then without the envelope, for the picture the overlay is drawn over
+    bypassEnvelope(*copy);
+    const auto bare = renderHit(*copy, note, sampleRate);
     const auto frameCount = audibleFrames(bare);
     preview.durationSeconds = static_cast<double>(frameCount) / sampleRate;
     preview.peaks = toPeaks(bare, frameCount, peakCount);
@@ -155,4 +142,4 @@ Preview render(const Kick909Device & device, int peakCount, double sampleRate)
     return preview;
 }
 
-} // namespace noteahead::Kick909Preview
+} // namespace noteahead::DrumHitPreview

@@ -42,6 +42,7 @@ private slots:
     void test_device_chromatic_shouldMovePitchWithTheNote();
     void test_device_ampEnvelope_shouldShortenTheHit();
     void test_preview_render_shouldDrawTheHit();
+    void test_preview_playhead_shouldFollowTheHit();
 };
 
 } // namespace noteahead

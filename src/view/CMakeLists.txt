@@ -6,6 +6,7 @@ set(HEADER_FILES
     controllers/device_meters_controller.hpp
     controllers/device_mixer_controller.hpp
     controllers/device_rack_controller.hpp
+    controllers/drum_hit_waveform_model.hpp
     controllers/drum_pad_dialog_model.hpp
     controllers/effect_dialog_model.hpp
     controllers/effect_rack_controller.hpp
@@ -42,6 +43,7 @@ set(SOURCE_FILES
     controllers/device_meters_controller.cpp
     controllers/device_mixer_controller.cpp
     controllers/device_rack_controller.cpp
+    controllers/drum_hit_waveform_model.cpp
     controllers/drum_pad_dialog_model.cpp
     controllers/effect_dialog_model.cpp
     controllers/effect_rack_controller.cpp

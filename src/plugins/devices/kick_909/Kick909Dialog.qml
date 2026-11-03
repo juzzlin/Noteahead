@@ -77,7 +77,8 @@ AnimatedDialog {
 
         // Under the presets, as Drum Synth V2 puts its own: what the knobs below are being set
         // against, so it stays put while they scroll
-        Kick909Dialog_Waveform {
+        DrumHitWaveformView {
+            model: kick909Controller.waveform
             dialogVisible: root.visible
         }
 
