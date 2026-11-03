@@ -16,6 +16,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
+import ".."
 
 MenuItem {
     id: rootItem
@@ -29,12 +31,12 @@ MenuItem {
         Text {
             text: rootItem.text
             anchors.left: parent.left
-            color: "white"
+            color: rootItem.enabled ? "white" : Theme.textDim
         }
         Text {
             text: rootItem?.action?.shortcut || rootItem?.action?.shortcutHint || ""
             anchors.right: parent.right
-            color: "white"
+            color: rootItem.enabled ? "white" : Theme.textDim
         }
     }
     // Same fix as AppButton: MenuItem's own click detection can drop clicks while the audio engine

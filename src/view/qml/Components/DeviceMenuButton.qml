@@ -34,6 +34,8 @@ AppButton {
     property var hostDialog
 
     property int _slot: -1
+    //! A modulator makes no sound, so it has no effects or sends to open
+    property bool _producesAudio: true
     property string _typeBeforeImport: ""
 
     text: qsTr("Device...")
@@ -47,6 +49,7 @@ AppButton {
             return;
         }
         rootItem._slot = deviceRackController.slotOfDevice(rootItem.controller.deviceName());
+        rootItem._producesAudio = deviceRackController.deviceProducesAudio(rootItem._slot);
         // open(), not popup(): popup() assigns x and y itself and would overwrite the placement
         // below with one that drops the menu off the bottom of the window.
         deviceMenu.open();
@@ -72,10 +75,12 @@ AppButton {
         }
         MenuItem {
             text: qsTr("Insert FX...")
+            enabled: rootItem._producesAudio
             onClicked: UiService.requestDeviceInsertEffectsDialog(rootItem.controller.deviceName())
         }
         MenuItem {
             text: qsTr("Sends...")
+            enabled: rootItem._producesAudio
             onClicked: UiService.requestEffectSendsDialog(rootItem.controller.deviceName())
         }
         MenuSeparator {}

@@ -247,7 +247,9 @@ AnimatedDialog {
                         toolTipText: qsTr("Insert effects of this device")
                         onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
                         Layout.preferredWidth: 80
-                        visible: deviceType !== "" && producesAudio
+                        visible: deviceType !== ""
+                        // Shown on a modulator too, so that the buttons line up row to row
+                        enabled: producesAudio
                     }
 
                     AppButton {
@@ -255,7 +257,9 @@ AnimatedDialog {
                         toolTipText: qsTr("Send levels of this device to the master send effects")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
                         Layout.preferredWidth: 80
-                        visible: deviceType !== "" && producesAudio
+                        visible: deviceType !== ""
+                        // Shown on a modulator too, so that the buttons line up row to row
+                        enabled: producesAudio
                     }
 
                     AppButton {
