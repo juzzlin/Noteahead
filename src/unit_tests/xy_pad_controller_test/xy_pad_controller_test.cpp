@@ -26,9 +26,13 @@
 #include "../../view/controllers/lfo_panel_controller.hpp"
 #include "../../view/controllers/xy_pad_controller.hpp"
 #include "../../view/controllers/xy_pad_panel_controller.hpp"
+#include "../../view/qml/Components/xy_pad_renderer.hpp"
 
+#include <QQuickWindow>
 #include <QSignalSpy>
 #include <QTest>
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -160,6 +164,71 @@ void XyPadControllerTest::test_deviceChange_shouldNotifyThePanels()
     QCOMPARE(panel(controller, 3).xDepth(), 900);
 }
 
+namespace {
+//! A 100 x 100 pad 0 in a window of its own, so that the mouse reaches it as it does in the app.
+struct RendererFixture
+{
+    RendererFixture()
+    {
+        controller.setDevice(device);
+        window.resize(200, 200);
+        renderer.setParentItem(window.contentItem());
+        renderer.setSize({ 100, 100 });
+        renderer.setController(&controller);
+        window.show();
+    }
+
+    //! Where the audio thread has pad 0 once it has had a second to get there.
+    QPointF settledPosition()
+    {
+        std::vector<ModulationSource::Step> steps;
+        device->evaluate(frame, 48000, 48000.0, 120.0, steps);
+        frame += 48000;
+        return { controller.positionX(0), controller.positionY(0) };
+    }
+
+    XyPadController controller { nullptr };
+    std::shared_ptr<XyPadDevice> device = std::make_shared<XyPadDevice>("XY");
+    QQuickWindow window;
+    XyPadRenderer renderer;
+    uint64_t frame = 0;
+};
+
+bool near(double actual, double expected)
+{
+    return std::abs(actual - expected) < 1.0e-3;
+}
+} // namespace
+
+void XyPadControllerTest::test_renderer_press_shouldPutTheHandThere()
+{
+    RendererFixture fixture;
+    QTest::mousePress(&fixture.window, Qt::LeftButton, {}, { 75, 25 });
+    QVERIFY(fixture.device->isPressed(0));
+    const auto position = fixture.settledPosition();
+    QVERIFY(near(position.x(), 0.5));
+    QVERIFY(near(position.y(), 0.5));
+}
+
+void XyPadControllerTest::test_renderer_dragPastTheEdge_shouldPinThePadToTheEdge()
+{
+    RendererFixture fixture;
+    QTest::mousePress(&fixture.window, Qt::LeftButton, {}, { 50, 50 });
+    QTest::mouseMove(&fixture.window, { 180, 150 });
+    QVERIFY(fixture.device->isPressed(0));
+    const auto position = fixture.settledPosition();
+    QVERIFY(near(position.x(), 1.0));
+    QVERIFY(near(position.y(), -1.0));
+}
+
+void XyPadControllerTest::test_renderer_release_shouldLetGo()
+{
+    RendererFixture fixture;
+    QTest::mousePress(&fixture.window, Qt::LeftButton, {}, { 75, 25 });
+    QTest::mouseRelease(&fixture.window, Qt::LeftButton, {}, { 75, 25 });
+    QVERIFY(!fixture.device->isPressed(0));
+}
+
 } // namespace noteahead
 
-QTEST_GUILESS_MAIN(noteahead::XyPadControllerTest)
+QTEST_MAIN(noteahead::XyPadControllerTest)

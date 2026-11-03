@@ -18,9 +18,9 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
+import "ParameterAutomationTargets.js" as Targets
 
-//! The XY pad device's settings: what each pad's axes move. The pads themselves are played from the
-//! performance panel.
+//! The XY pad device: its four pads, to play, and what each pad's axes move.
 AnimatedDialog {
     id: root
     title: xyPadController.displayName
@@ -28,6 +28,15 @@ AnimatedDialog {
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800
     height: parent ? parent.height * Constants.largeDialogScale : 700
+
+    //! The name of what pad @p pad moves on @p axis (0 for X, 1 for Y), or empty for nothing.
+    function axisLabel(pad, axis) {
+        const owner = axis === 0 ? pad.xTargetOwner : pad.yTargetOwner;
+        const ownerId = axis === 0 ? pad.xTargetOwnerId : pad.yTargetOwnerId;
+        const key = axis === 0 ? pad.xTargetParameter : pad.yTargetParameter;
+        const parameter = ownerId === "" ? null : Targets.findParameter(Targets.findTarget(root.targets, owner, ownerId, key), key);
+        return parameter ? parameter.label : "";
+    }
 
     //! Read when the dialog opens: what there is to modulate changes as devices and effects come and go
     property var targets: []
@@ -66,29 +75,62 @@ AnimatedDialog {
         onRejected: () => xyPadController.reject()
     }
 
-    ScrollView {
-        id: contentScrollView
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: 15
-        clip: true
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        spacing: 15
 
-        // Two by two, as the LFO device's dialog: four columns would leave the pickers too narrow
-        GridLayout {
-            width: contentScrollView.availableWidth
-            columns: 2
-            columnSpacing: 30
-            rowSpacing: 20
+        // The pads to play, all four in a row as the performance panel has them, and out of the
+        // scrolling area below so that they are always at hand
+        RowLayout {
+            id: padRow
+            spacing: 15
+            Layout.alignment: Qt.AlignHCenter
+            // Square, but never more than a third of the dialog: the settings need the rest. From the
+            // dialog's width, not the row's, which follows from this.
+            readonly property real padSize: Math.min((root.availableWidth - 30 - spacing * (xyPadController.padCount - 1)) / xyPadController.padCount, root.availableHeight / 3)
+            Layout.preferredHeight: padSize
+            Layout.minimumHeight: padSize
 
             Repeater {
                 model: xyPadController.pads
-                delegate: XyPadDialog_Pad {
+                delegate: XyPadRenderer {
                     required property var modelData
-                    pad: modelData
-                    targets: root.targets
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
+                    controller: xyPadController
+                    pad: modelData.index
+                    xLabel: root.axisLabel(modelData, 0)
+                    yLabel: root.axisLabel(modelData, 1)
+                    accentColor: themeService.accentColor
+                    Layout.preferredWidth: padRow.padSize
+                    Layout.preferredHeight: padRow.padSize
+                }
+            }
+        }
+
+        ScrollView {
+            id: contentScrollView
+            clip: true
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            // Two by two, as the LFO device's dialog: four columns would leave the pickers too narrow
+            GridLayout {
+                width: contentScrollView.availableWidth
+                columns: 2
+                columnSpacing: 30
+                rowSpacing: 20
+
+                Repeater {
+                    model: xyPadController.pads
+                    delegate: XyPadDialog_Pad {
+                        required property var modelData
+                        pad: modelData
+                        targets: root.targets
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                    }
                 }
             }
         }

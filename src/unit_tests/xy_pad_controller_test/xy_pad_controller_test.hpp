@@ -31,6 +31,9 @@ private slots:
     void test_panel_targetShared_withAnLfo_shouldWarn();
     void test_press_shouldReachTheDevice();
     void test_deviceChange_shouldNotifyThePanels();
+    void test_renderer_press_shouldPutTheHandThere();
+    void test_renderer_dragPastTheEdge_shouldPinThePadToTheEdge();
+    void test_renderer_release_shouldLetGo();
 };
 
 } // namespace noteahead

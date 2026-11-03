@@ -80,6 +80,7 @@
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Components/phase_scope_renderer.hpp"
 #include "../view/qml/Components/wave_shape_renderer.hpp"
+#include "../view/qml/Components/xy_pad_renderer.hpp"
 #include "../view/qml/Dialogs/automation_curve_renderer.hpp"
 #include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
@@ -291,6 +292,7 @@ void Application::registerTypes()
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PhaseScopeRenderer>("Noteahead", majorVersion, minorVersion, "PhaseScopeRenderer");
     qmlRegisterType<WaveShapeRenderer>("Noteahead", majorVersion, minorVersion, "WaveShapeRenderer");
+    qmlRegisterType<XyPadRenderer>("Noteahead", majorVersion, minorVersion, "XyPadRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<ParameterAutomationsModel>("Noteahead", majorVersion, minorVersion, "ParameterAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
