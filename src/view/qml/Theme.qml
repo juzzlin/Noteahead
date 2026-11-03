@@ -51,6 +51,8 @@ QtObject {
 
     // States
     readonly property color danger: "#ff6060"
+    //! Something that works but may not do what the user expects
+    readonly property color warning: "#e0a040"
 
     // Type, in pixels so that every size is one unit. Body is what a control's label reads in;
     // caption is smaller print beside it.

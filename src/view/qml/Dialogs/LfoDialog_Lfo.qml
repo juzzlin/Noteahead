@@ -19,7 +19,6 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
-import "ParameterAutomationTargets.js" as Targets
 
 //! One LFO of the LFO device: what it moves, and how. The dialog repeats this over lfoController.lfos.
 ColumnLayout {
@@ -29,9 +28,6 @@ ColumnLayout {
     required property var lfo
     //! Everything a parameter automation can drive, as propertyService.automationTargets() lists it.
     required property var targets
-
-    readonly property int targetIndex: root.lfo.targetOwnerId === "" ? -1 : Targets.findTargetIndex(root.targets, root.lfo.targetOwner, root.lfo.targetOwnerId, root.lfo.targetParameter)
-    readonly property var target: root.targetIndex >= 0 ? root.targets[root.targetIndex] : null
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -49,49 +45,14 @@ ColumnLayout {
         }
     }
 
-    // What it moves: the device or effect, then the parameter, from the same list automation offers
-    GridLayout {
-        columns: 2
-        columnSpacing: 10
-        Layout.fillWidth: true
-        Label {
-            text: qsTr("Target")
-        }
-        Label {
-            text: qsTr("Parameter")
-        }
-        ComboBox {
-            model: [qsTr("None")].concat(root.targets.map(target => Targets.targetLabel(target)))
-            // A target that is no longer in the project reads as nothing chosen rather than as
-            // something else
-            currentIndex: root.targetIndex + 1
-            onActivated: index => {
-                if (index === 0) {
-                    root.lfo.clearTarget();
-                } else {
-                    const target = root.targets[index - 1];
-                    root.lfo.setTarget(target.owner, target.ownerId, target.parameters.length ? target.parameters[0].key : "");
-                }
-            }
-            Layout.fillWidth: true
-            Layout.preferredWidth: 1
-        }
-        ComboBox {
-            enabled: root.target !== null
-            model: root.target ? root.target.parameters.map(parameter => parameter.label) : []
-            currentIndex: root.target ? root.target.parameters.findIndex(parameter => parameter.key === root.lfo.targetParameter) : -1
-            onActivated: index => root.lfo.setTarget(root.target.owner, root.target.ownerId, root.target.parameters[index].key)
-            Layout.fillWidth: true
-            Layout.preferredWidth: 1
-        }
-    }
-
-    // Missing rather than silently None: an LFO whose target was deleted still has it saved
-    Label {
-        visible: root.lfo.targetOwnerId !== "" && root.targetIndex < 0
-        text: qsTr("Target missing")
-        color: "#e57373"
-        font.pixelSize: 11
+    ModulationTargetPicker {
+        targets: root.targets
+        owner: root.lfo.targetOwner
+        ownerId: root.lfo.targetOwnerId
+        parameter: root.lfo.targetParameter
+        shared: root.lfo.targetShared
+        onTargetChosen: (owner, ownerId, parameter) => root.lfo.setTarget(owner, ownerId, parameter)
+        onTargetCleared: root.lfo.clearTarget()
     }
 
     RowLayout {

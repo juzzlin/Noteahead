@@ -54,6 +54,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString drumSynthV2DeviceName READ drumSynthV2DeviceName CONSTANT)
     Q_PROPERTY(QString fmDrumsDeviceName READ fmDrumsDeviceName CONSTANT)
     Q_PROPERTY(QString lfoDeviceName READ lfoDeviceName CONSTANT)
+    Q_PROPERTY(QString xyPadDeviceName READ xyPadDeviceName CONSTANT)
     //! Where --screenshots writes the screenshot tour, or empty for a normal run.
     Q_PROPERTY(QString screenshotDirectory READ screenshotDirectory CONSTANT)
     Q_PROPERTY(QString pianoSynthDeviceName READ pianoSynthDeviceName CONSTANT)
@@ -101,6 +102,7 @@ public:
     Q_INVOKABLE QString drumSynthV2DeviceName() const;
     Q_INVOKABLE QString fmDrumsDeviceName() const;
     Q_INVOKABLE QString lfoDeviceName() const;
+    Q_INVOKABLE QString xyPadDeviceName() const;
 
     QString screenshotDirectory() const;
     void setScreenshotDirectory(QString directory);

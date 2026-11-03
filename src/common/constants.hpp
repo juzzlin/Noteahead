@@ -103,6 +103,7 @@ QString speechDeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
 QString lfoDeviceName();
+QString xyPadDeviceName();
 QString noiseFxDeviceName();
 
 QString internalDevicePortPrefix();
@@ -991,6 +992,8 @@ QString xmlKeyRetrigger();
 QString xmlKeyModulationMode();
 QString xmlKeyLfo();
 QString xmlKeyLfos();
+QString xmlKeyAxis();
+QString xmlKeyReturnTime();
 QString xmlKeyFaderPosition();
 QString xmlKeySendTap();
 

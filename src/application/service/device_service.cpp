@@ -18,6 +18,7 @@
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/modulation_source.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
@@ -267,6 +268,20 @@ DeviceService::DeviceS DeviceService::deviceForPort(const QString & portName) co
         return device(*slotIndex);
     }
     return device(portName.toStdString());
+}
+
+size_t DeviceService::modulationSourceCount(const ParameterAutomation::Target & target) const
+{
+    if (target.ownerId.empty()) {
+        return 0;
+    }
+    size_t count = 0;
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (const auto source = std::dynamic_pointer_cast<ModulationSource>(device(slotIndex)); source) {
+            count += static_cast<size_t>(std::ranges::count(source->modulationTargets(), target));
+        }
+    }
+    return count;
 }
 
 DeviceService::DeviceS DeviceService::device(size_t slotIndex) const

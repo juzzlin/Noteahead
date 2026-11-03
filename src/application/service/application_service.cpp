@@ -190,6 +190,11 @@ QString ApplicationService::lfoDeviceName() const
     return Constants::lfoDeviceName();
 }
 
+QString ApplicationService::xyPadDeviceName() const
+{
+    return Constants::xyPadDeviceName();
+}
+
 QString ApplicationService::screenshotDirectory() const
 {
     return m_screenshotDirectory;

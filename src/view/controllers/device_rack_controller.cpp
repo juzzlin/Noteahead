@@ -42,6 +42,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "bass_synth_controller.hpp"
 #include "drum_synth_controller.hpp"
@@ -188,6 +189,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit juSynth08DialogRequested();
                 } else if (typeId == LfoDevice::typeIdString()) {
                     emit lfoDialogRequested();
+                } else if (typeId == XyPadDevice::typeIdString()) {
+                    emit xyPadDialogRequested();
                 } else if (typeId == PianoSynthDevice::typeIdString()) {
                     emit pianoSynthDialogRequested();
                 } else if (typeId == PianoSynthV2Device::typeIdString()) {
@@ -586,6 +589,7 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("Noise FX", QString::fromStdString(NoiseFxDevice::typeIdString()));
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
     addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()));
+    addDevice("XY Pad", QString::fromStdString(XyPadDevice::typeIdString()));
 
     return list;
 }

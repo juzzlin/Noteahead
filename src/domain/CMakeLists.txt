@@ -39,6 +39,7 @@ set(HEADER_FILES
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
     devices/wavetable_synth_presets.hpp
+    devices/xy_pad_device.hpp
     dsp/adsr_envelope.hpp
     dsp/analog_drift.hpp
     dsp/all_pass_chain.hpp
@@ -258,6 +259,7 @@ set(SOURCE_FILES
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp
     devices/wavetable_synth_presets.cpp
+    devices/xy_pad_device.cpp
     dsp/adsr_envelope.cpp
     dsp/analog_drift.cpp
     dsp/all_pass_chain.cpp

@@ -196,6 +196,7 @@ signals:
     void juSynthDialogRequested();
     void juSynth08DialogRequested();
     void lfoDialogRequested();
+    void xyPadDialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();
     void pianoSynthV3DialogRequested();

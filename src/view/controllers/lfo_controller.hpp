@@ -55,6 +55,7 @@ public:
 
     //! The device the panels read and write, or nothing.
     std::shared_ptr<LfoDevice> lfoDevice() const;
+    const std::shared_ptr<DeviceService> & deviceService() const;
 
 private:
     std::shared_ptr<DeviceService> m_deviceService;

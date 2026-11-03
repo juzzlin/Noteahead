@@ -37,6 +37,7 @@
 #include "sub_mixer_device.hpp"
 #include "synth_device.hpp"
 #include "wavetable_synth_device.hpp"
+#include "xy_pad_device.hpp"
 
 namespace noteahead {
 
@@ -81,6 +82,9 @@ void DeviceFactory::init()
     });
     registerDevice(WavetableSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<WavetableSynthDevice>(name);
+    });
+    registerDevice(XyPadDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<XyPadDevice>(name);
     });
     registerDevice(PianoSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<PianoSynthDevice>(name);

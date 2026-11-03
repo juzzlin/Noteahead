@@ -223,6 +223,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/MidiImportDialog.qml
     ${QML_BASE_DIR}/Dialogs/MixerDialog.qml
     ${QML_BASE_DIR}/Dialogs/ModulationGroupBox.qml
+    ${QML_BASE_DIR}/Dialogs/ModulationTargetPicker.qml
     ${QML_BASE_DIR}/Dialogs/MonitorDialog.qml
     ${QML_BASE_DIR}/Dialogs/MultibandCompressorDialog.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
@@ -383,6 +384,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab3.qml
+    ${QML_BASE_DIR}/Dialogs/XyPadDialog.qml
+    ${QML_BASE_DIR}/Dialogs/XyPadDialog_Pad.qml
     ${QML_BASE_DIR}/Editor/AudioWaveView.qml
     ${QML_BASE_DIR}/Editor/DeviceContextMenu.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml

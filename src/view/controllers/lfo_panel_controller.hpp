@@ -54,6 +54,8 @@ class LfoPanelController : public QObject
     Q_PROPERTY(QString targetOwner READ targetOwner NOTIFY changed)
     Q_PROPERTY(QString targetOwnerId READ targetOwnerId NOTIFY changed)
     Q_PROPERTY(QString targetParameter READ targetParameter NOTIFY changed)
+    //! Whether another modulation source -- an LFO, an XY pad axis -- moves the same parameter
+    Q_PROPERTY(bool targetShared READ targetShared NOTIFY changed)
 
 public:
     LfoPanelController(size_t index, LfoController & owner);
@@ -88,6 +90,7 @@ public:
     QString targetOwner() const;
     QString targetOwnerId() const;
     QString targetParameter() const;
+    bool targetShared() const;
     Q_INVOKABLE void setTarget(const QString & owner, const QString & ownerId, const QString & parameter);
     Q_INVOKABLE void clearTarget();
 

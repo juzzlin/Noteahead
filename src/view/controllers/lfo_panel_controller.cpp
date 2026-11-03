@@ -15,6 +15,7 @@
 
 #include "lfo_panel_controller.hpp"
 
+#include "../../application/service/device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "lfo_controller.hpp"
@@ -202,6 +203,12 @@ QString LfoPanelController::targetParameter() const
 {
     const auto device = m_owner.lfoDevice();
     return device ? QString::fromStdString(device->target(m_index).parameter) : QString {};
+}
+
+bool LfoPanelController::targetShared() const
+{
+    const auto device = m_owner.lfoDevice();
+    return device && m_owner.deviceService() && m_owner.deviceService()->modulationSourceCount(device->target(m_index)) > 1;
 }
 
 void LfoPanelController::setTarget(const QString & owner, const QString & ownerId, const QString & parameter)

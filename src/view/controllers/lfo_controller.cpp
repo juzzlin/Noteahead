@@ -84,6 +84,11 @@ std::shared_ptr<LfoDevice> LfoController::lfoDevice() const
     return m_device;
 }
 
+const std::shared_ptr<DeviceService> & LfoController::deviceService() const
+{
+    return m_deviceService;
+}
+
 void LfoController::requestSettings()
 {
     // Everything that changes an LFO arrives here: the panels through the device's dataChanged, and

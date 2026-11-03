@@ -52,6 +52,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/ambience.hpp"
@@ -1841,6 +1842,38 @@ void XmlSerializationTest::test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTarg
     QVERIFY(lfoIn);
     QCOMPARE(lfoIn->target(2), target);
     QCOMPARE(lfoIn->lfoParameterValue(2, Constants::NahdXml::xmlKeyRateDivider()), 8.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_xyPadDevice_shouldComeBackWithItsTargets()
+{
+    // Not pre-created on the way back in, so this also proves the factory knows the type
+    DeviceFactory::init();
+
+    const auto padName = "Noteahead Internal Device 1";
+    const ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Effect, "some-delay", Constants::NahdXml::xmlKeyFeedback().toStdString() };
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto padOut = std::make_shared<XyPadDevice>(padName);
+    padOut->setTarget(3, XyPadDevice::Axis::Y, target);
+    padOut->updatePadParameter(3, Constants::NahdXml::xmlKeyReturnTime(), 0.0f);
+    deviceServiceOut.setDevice(0, padOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto padIn = std::dynamic_pointer_cast<XyPadDevice>(deviceServiceIn->device(0));
+    QVERIFY(padIn);
+    QCOMPARE(padIn->target(3, XyPadDevice::Axis::Y), target);
+    QVERIFY(padIn->target(3, XyPadDevice::Axis::X).ownerId.empty());
+    QCOMPARE(padIn->padParameterValue(3, Constants::NahdXml::xmlKeyReturnTime()), 0.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()

@@ -179,6 +179,11 @@ QString lfoDeviceName()
     return "Noteahead LFO";
 }
 
+QString xyPadDeviceName()
+{
+    return "Noteahead XY Pad";
+}
+
 QString noiseFxDeviceName()
 {
     return "Noteahead Noise FX";
@@ -3607,6 +3612,16 @@ QString xmlKeyLfo()
 QString xmlKeyLfos()
 {
     return "Lfos";
+}
+
+QString xmlKeyAxis()
+{
+    return "axis";
+}
+
+QString xmlKeyReturnTime()
+{
+    return "returnTime";
 }
 
 QString xmlKeyFaderPosition()

@@ -422,6 +422,10 @@ ApplicationWindow {
         id: lfoDialog
         anchors.centerIn: parent
     }
+    XyPadDialog {
+        id: xyPadDialog
+        anchors.centerIn: parent
+    }
     NoiseFxDialog {
         id: noiseFxDialog
         anchors.centerIn: parent
@@ -1187,6 +1191,7 @@ ApplicationWindow {
         deviceRackController.juSynthDialogRequested.connect(juSynthDialog.open);
         deviceRackController.juSynth08DialogRequested.connect(juSynth08Dialog.open);
         deviceRackController.lfoDialogRequested.connect(lfoDialog.open);
+        deviceRackController.xyPadDialogRequested.connect(xyPadDialog.open);
         deviceRackController.noiseFxDialogRequested.connect(noiseFxDialog.open);
         deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
         deviceRackController.pianoSynthV2DialogRequested.connect(pianoSynthV2Dialog.open);

@@ -32,6 +32,8 @@ set(HEADER_FILES
     controllers/speech_controller.hpp
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
+    controllers/xy_pad_controller.hpp
+    controllers/xy_pad_panel_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Components/phase_scope_renderer.hpp
     qml/Components/wave_shape_renderer.hpp
@@ -80,6 +82,8 @@ set(SOURCE_FILES
     controllers/speech_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp
+    controllers/xy_pad_controller.cpp
+    controllers/xy_pad_panel_controller.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Components/phase_scope_renderer.cpp
     qml/Components/wave_shape_renderer.cpp

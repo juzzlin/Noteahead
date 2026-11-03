@@ -19,6 +19,7 @@
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
 #include <QObject>
@@ -66,6 +67,9 @@ public:
     void clearDevice(size_t slotIndex);
     virtual DeviceS device(size_t slotIndex) const;
     virtual DeviceS device(const std::string & name) const;
+    //! How many modulation slots in the rack -- LFOs, pad axes -- are aimed at @p target. Over one,
+    //! their offsets add up, which the dialogs warn about.
+    size_t modulationSourceCount(const ParameterAutomation::Target & target) const;
 
     Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
     //! Device::uuid() of the internal device behind a port, or empty for any other port. What lets
