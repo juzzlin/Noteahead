@@ -52,6 +52,10 @@ private slots:
     void test_modulation_clearAutomation_shouldStay();
     void test_modulation_clear_shouldRestoreTheUnmodulatedValue();
     void test_modulation_switch_shouldBeRefused();
+    void test_modulation_twoSources_shouldAddUp();
+    void test_modulation_twoSources_shouldClampTheSum();
+    void test_modulation_clearOneSource_shouldKeepTheOther();
+    void test_modulation_tooManySources_shouldRefuseTheExtraOne();
 };
 
 } // namespace noteahead

@@ -126,20 +126,22 @@ void Effect::clearParameterAutomation()
     sync();
 }
 
-bool Effect::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+bool Effect::applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth)
 {
     if (const auto p = parameter(key); p && p->get().type() == Parameter::Type::Continuous) {
-        p->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, p->get()));
+        if (!p->get().setModulatedValue(sourceId, ParameterModulation::modulatedValue(mode, source, depth, p->get()))) {
+            return false;
+        }
         sync();
         return true;
     }
     return false;
 }
 
-void Effect::clearParameterModulation(const std::string & key)
+void Effect::clearParameterModulation(const std::string & key, ModulationSourceId sourceId)
 {
     if (const auto p = parameter(key); p && p->get().isModulated()) {
-        p->get().clearModulation();
+        p->get().clearModulation(sourceId);
         sync();
     }
 }

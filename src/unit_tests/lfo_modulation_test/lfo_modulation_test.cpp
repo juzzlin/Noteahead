@@ -181,6 +181,28 @@ void LfoModulationTest::test_engine_stop_shouldKeepModulating()
     QVERIFY(rig.cutoff() != before);
 }
 
+void LfoModulationTest::test_engine_twoSourcesOnOneTarget_shouldAddUp()
+{
+    // Two LFOs of the same device and one of another, all on the cutoff: three offsets, not one
+    Rig rig;
+    const auto second = std::make_shared<LfoDevice>("LFO 2");
+    rig.lfo->setTarget(1, { ParameterAutomation::Target::Owner::Device, rig.synth->uuid(), cutoffKey() });
+    rig.lfo->updateLfoParameter(1, NahdXml::xmlKeyIntensity(), 0.5f);
+    second->setTarget(0, { ParameterAutomation::Target::Owner::Device, rig.synth->uuid(), cutoffKey() });
+    second->updateLfoParameter(0, NahdXml::xmlKeyIntensity(), 0.5f);
+    rig.engine.setDevice(2, second);
+
+    rig.run(4800, 256);
+    QCOMPARE(rig.synth->parameter(cutoffKey())->get().modulationSourceCount(), size_t { 3 });
+
+    // Taking one device out lets go of its own offset only
+    rig.engine.clearDevice(2);
+    QCOMPARE(rig.synth->parameter(cutoffKey())->get().modulationSourceCount(), size_t { 2 });
+    rig.engine.clearDevice(0);
+    QVERIFY(!rig.synth->parameter(cutoffKey())->get().isModulated());
+    QCOMPARE(rig.cutoff(), 0.5f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LfoModulationTest)

@@ -704,7 +704,7 @@ void AudioEngine::releaseModulationsOf(const Device * device)
     for (auto && active : m_activeModulations) {
         if (active.device == device) {
             if (const auto target = resolveModulationTarget(active.target); target) {
-                target->clearParameterModulation(active.target.parameter);
+                target->clearParameterModulation(active.target.parameter, { active.device, active.slot });
             }
         }
     }
@@ -716,9 +716,9 @@ void AudioEngine::evaluateModulation(const AudioContext & context)
     m_modulationSteps.clear();
     m_modulationSources.clear();
     for (auto && [slot, device] : m_devices) {
-        if (const auto lfoDevice = dynamic_cast<LfoDevice *>(device.get()); lfoDevice) {
-            m_modulationSources.push_back({ lfoDevice, m_modulationSteps.size() });
-            lfoDevice->evaluate(context.startFrame, context.frameCount, static_cast<double>(context.sampleRate), context.bpm, m_modulationSteps);
+        if (const auto source = dynamic_cast<ModulationSource *>(device.get()); source) {
+            m_modulationSources.push_back({ device.get(), m_modulationSteps.size() });
+            source->evaluate(context.startFrame, context.frameCount, static_cast<double>(context.sampleRate), context.bpm, m_modulationSteps);
         }
     }
     if (m_modulationSteps.empty()) {
@@ -727,47 +727,52 @@ void AudioEngine::evaluateModulation(const AudioContext & context)
 
     m_effectModulationSteps.clear();
     for (size_t source = 0; source < m_modulationSources.size(); source++) {
-        const auto lfoDevice = m_modulationSources.at(source).first;
+        const auto sourceDevice = m_modulationSources.at(source).first;
+        const size_t begin = m_modulationSources.at(source).second;
         const size_t end = source + 1 < m_modulationSources.size() ? m_modulationSources.at(source + 1).second : m_modulationSteps.size();
-        for (size_t i = m_modulationSources.at(source).second; i < end; i++) {
+        for (size_t i = begin; i < end; i++) {
             const auto & step = m_modulationSteps.at(i);
             const auto target = resolveModulationTarget(step.target);
             if (!target) {
                 continue;
             }
-            const auto active = std::ranges::find_if(m_activeModulations, [&](auto && entry) { return entry.device == lfoDevice && entry.lfo == step.lfo && entry.target == step.target; });
+            const auto active = std::ranges::find_if(m_activeModulations, [&](auto && entry) { return entry.device == sourceDevice && entry.slot == step.slot && entry.target == step.target; });
             if (!step.mode) {
-                target->clearParameterModulation(step.target.parameter);
                 if (active != m_activeModulations.end()) {
                     m_activeModulations.erase(active);
                 }
-                continue;
+            } else if (active == m_activeModulations.end()) {
+                m_activeModulations.push_back({ sourceDevice, step.slot, step.target });
             }
-            if (active == m_activeModulations.end()) {
-                m_activeModulations.push_back({ lfoDevice, step.lfo, step.target });
-            }
+            // A clear goes the same way as a step, in order with them: cleared at once, it would be
+            // undone by a step queued earlier in the same block that is applied only as it renders
             if (step.target.owner == ParameterAutomation::Target::Owner::Device) {
                 if (const auto device = dynamic_cast<Device *>(target.get()); device) {
-                    device->scheduleModulation({ step.frame, &step.target.parameter, *step.mode, step.source, step.depth });
+                    device->scheduleModulation({ step.frame, &step.target.parameter, { sourceDevice, step.slot }, step.mode, step.source, step.depth });
                 }
             } else {
-                // An effect runs once per block, so only the last step of each LFO is worth syncing
-                const auto previous = std::ranges::find_if(m_effectModulationSteps, [&](size_t index) {
-                    const auto & other = m_modulationSteps.at(index);
-                    return index >= m_modulationSources.at(source).second && index < end && other.lfo == step.lfo;
+                // An effect runs once per block, so only the last step of each slot on each target
+                // is worth syncing. Per target, so a slot's let-go of its old target is not lost.
+                const auto previous = std::ranges::find_if(m_effectModulationSteps, [&](auto && entry) {
+                    const auto & other = m_modulationSteps.at(entry.first);
+                    return entry.second == sourceDevice && other.slot == step.slot && other.target == step.target;
                 });
                 if (previous != m_effectModulationSteps.end()) {
-                    *previous = i;
+                    previous->first = i;
                 } else {
-                    m_effectModulationSteps.push_back(i);
+                    m_effectModulationSteps.push_back({ i, sourceDevice });
                 }
             }
         }
     }
-    for (const size_t index : m_effectModulationSteps) {
+    for (auto && [index, sourceDevice] : m_effectModulationSteps) {
         const auto & step = m_modulationSteps.at(index);
         if (const auto target = resolveModulationTarget(step.target); target) {
-            target->applyParameterModulation(step.target.parameter, *step.mode, step.source, step.depth);
+            if (step.mode) {
+                target->applyParameterModulation(step.target.parameter, { sourceDevice, step.slot }, *step.mode, step.source, step.depth);
+            } else {
+                target->clearParameterModulation(step.target.parameter, { sourceDevice, step.slot });
+            }
         }
     }
 }

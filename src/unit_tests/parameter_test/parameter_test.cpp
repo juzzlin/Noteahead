@@ -260,11 +260,17 @@ void ParameterTest::test_effectiveValue_relativeCentred_shouldScaleFromTheCentre
     QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.3f) < 1.0e-6f);
 }
 
+namespace {
+// Two slots of one source device: the owner is only ever compared, never dereferenced
+const ModulationSourceId FirstSource { nullptr, 0 };
+const ModulationSourceId SecondSource { nullptr, 1 };
+} // namespace
+
 void ParameterTest::test_modulation_shouldMoveOnlyTheValueInEffect()
 {
     // An LFO moves what the DSP runs on, never the knob, nor what is saved
     auto parameter = continuousParameter();
-    parameter.setModulatedValue(0.6f);
+    parameter.setModulatedValue(FirstSource, 0.6f);
 
     QCOMPARE(parameter.value(), 0.6f);
     QCOMPARE(parameter.unmodulatedValue(), 0.25f);
@@ -279,7 +285,7 @@ void ParameterTest::test_modulation_underAutomation_shouldKeepItsOffset()
 {
     // Between two LFO steps an automation step moves the base, and the wobble rides along with it
     auto parameter = continuousParameter();
-    parameter.setModulatedValue(0.35f);
+    parameter.setModulatedValue(FirstSource, 0.35f);
 
     parameter.setAutomationValue(0.5f);
     QCOMPARE(parameter.unmodulatedValue(), 0.5f);
@@ -297,7 +303,7 @@ void ParameterTest::test_modulation_clearAutomation_shouldStay()
     // Stopping clears automation; a free-running LFO keeps going, riding on the authored value
     auto parameter = continuousParameter();
     parameter.setAutomationValue(0.5f);
-    parameter.setModulatedValue(0.55f);
+    parameter.setModulatedValue(FirstSource, 0.55f);
 
     parameter.clearAutomation();
 
@@ -310,7 +316,7 @@ void ParameterTest::test_modulation_clear_shouldRestoreTheUnmodulatedValue()
 {
     auto parameter = continuousParameter();
     parameter.setAutomationValue(0.5f);
-    parameter.setModulatedValue(0.9f);
+    parameter.setModulatedValue(FirstSource, 0.9f);
 
     parameter.clearModulation();
 
@@ -323,10 +329,79 @@ void ParameterTest::test_modulation_switch_shouldBeRefused()
 {
     // A position between two choices means nothing
     Parameter choice { "mode", 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete };
-    choice.setModulatedValue(2.6f);
+    QVERIFY(!choice.setModulatedValue(FirstSource, 2.6f));
 
     QCOMPARE(choice.value(), 1.0f);
     QVERIFY(!choice.isModulated());
+}
+
+void ParameterTest::test_modulation_twoSources_shouldAddUp()
+{
+    // An LFO and a pad on the same cutoff both move it, rather than taking turns
+    auto parameter = continuousParameter();
+    QVERIFY(parameter.setModulatedValue(FirstSource, 0.35f));
+    QVERIFY(parameter.setModulatedValue(SecondSource, 0.45f));
+
+    QVERIFY(std::abs(parameter.value() - 0.55f) < 1.0e-6f);
+    QCOMPARE(parameter.modulationSourceCount(), size_t { 2 });
+
+    // A new step from one replaces only its own offset
+    QVERIFY(parameter.setModulatedValue(FirstSource, 0.15f));
+    QVERIFY(std::abs(parameter.value() - 0.35f) < 1.0e-6f);
+    QCOMPARE(parameter.modulationSourceCount(), size_t { 2 });
+
+    // And the sum rides on the base as one offset would
+    parameter.setAutomationValue(0.5f);
+    QVERIFY(std::abs(parameter.value() - 0.6f) < 1.0e-6f);
+}
+
+void ParameterTest::test_modulation_twoSources_shouldClampTheSum()
+{
+    auto parameter = continuousParameter();
+    QVERIFY(parameter.setModulatedValue(FirstSource, 0.9f));
+    QVERIFY(parameter.setModulatedValue(SecondSource, 0.9f));
+
+    QCOMPARE(parameter.value(), 1.0f);
+
+    // Each offset is kept as given, so taking one off leaves exactly the other
+    parameter.clearModulation(FirstSource);
+    QVERIFY(std::abs(parameter.value() - 0.9f) < 1.0e-6f);
+}
+
+void ParameterTest::test_modulation_clearOneSource_shouldKeepTheOther()
+{
+    auto parameter = continuousParameter();
+    parameter.setModulatedValue(FirstSource, 0.35f);
+    parameter.setModulatedValue(SecondSource, 0.45f);
+
+    parameter.clearModulation(SecondSource);
+
+    QVERIFY(parameter.isModulated());
+    QCOMPARE(parameter.modulationSourceCount(), size_t { 1 });
+    QVERIFY(std::abs(parameter.value() - 0.35f) < 1.0e-6f);
+
+    // A source that is not there is nothing to clear
+    parameter.clearModulation(SecondSource);
+    QCOMPARE(parameter.modulationSourceCount(), size_t { 1 });
+
+    parameter.clearModulation(FirstSource);
+    QVERIFY(!parameter.isModulated());
+    QCOMPARE(parameter.value(), 0.25f);
+}
+
+void ParameterTest::test_modulation_tooManySources_shouldRefuseTheExtraOne()
+{
+    auto parameter = continuousParameter();
+    for (size_t slot = 0; slot < Parameter::MaxModulationSources; slot++) {
+        QVERIFY(parameter.setModulatedValue({ nullptr, slot }, 0.26f));
+    }
+
+    QVERIFY(!parameter.setModulatedValue({ nullptr, Parameter::MaxModulationSources }, 1.0f));
+    QCOMPARE(parameter.modulationSourceCount(), Parameter::MaxModulationSources);
+    QVERIFY(std::abs(parameter.value() - (0.25f + 0.01f * static_cast<float>(Parameter::MaxModulationSources))) < 1.0e-5f);
+
+    // One already in keeps taking steps
+    QVERIFY(parameter.setModulatedValue({ nullptr, 0 }, 0.25f));
 }
 
 void ParameterTest::test_effectiveValue_relativeFader_shouldScaleTheGain()

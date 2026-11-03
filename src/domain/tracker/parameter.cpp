@@ -86,9 +86,21 @@ float Parameter::unmodulatedValue() const
 
 void Parameter::rebase(float base)
 {
-    const float offset = m_modulated ? m_value - m_baseValue : 0.0f;
     m_baseValue = base;
-    m_value = m_modulated ? clampToRange(base + offset) : base;
+    applyModulationOffsets();
+}
+
+void Parameter::applyModulationOffsets()
+{
+    if (m_modulationCount == 0) {
+        m_value = m_baseValue;
+        return;
+    }
+    float sum = 0.0f;
+    for (size_t i = 0; i < m_modulationCount; i++) {
+        sum += m_modulations.at(i).offset;
+    }
+    m_value = clampToRange(m_baseValue + sum);
 }
 
 bool Parameter::isAutomated() const
@@ -138,26 +150,53 @@ void Parameter::clearAutomation()
     }
 }
 
-void Parameter::setModulatedValue(float val)
+bool Parameter::setModulatedValue(ModulationSourceId source, float val)
 {
     if (m_type != Type::Continuous) {
-        return;
+        return false;
     }
-    m_value = clampToRange(val);
-    m_modulated = true;
+    const auto end = m_modulations.begin() + static_cast<std::ptrdiff_t>(m_modulationCount);
+    auto entry = std::find_if(m_modulations.begin(), end, [&source](auto && modulation) { return modulation.source == source; });
+    if (entry == end) {
+        if (m_modulationCount == MaxModulationSources) {
+            return false;
+        }
+        entry->source = source;
+        m_modulationCount++;
+    }
+    // The offset the source alone would give, so that a clamp at one end does not leak into the sum
+    entry->offset = clampToRange(val) - m_baseValue;
+    applyModulationOffsets();
+    return true;
+}
+
+void Parameter::clearModulation(ModulationSourceId source)
+{
+    const auto end = m_modulations.begin() + static_cast<std::ptrdiff_t>(m_modulationCount);
+    if (const auto entry = std::find_if(m_modulations.begin(), end, [&source](auto && modulation) { return modulation.source == source; }); entry != end) {
+        // Order does not matter to a sum, so the last entry fills the hole
+        *entry = m_modulations.at(m_modulationCount - 1);
+        m_modulationCount--;
+        applyModulationOffsets();
+    }
 }
 
 void Parameter::clearModulation()
 {
-    if (m_modulated) {
-        m_value = m_baseValue;
-        m_modulated = false;
+    if (m_modulationCount > 0) {
+        m_modulationCount = 0;
+        applyModulationOffsets();
     }
 }
 
 bool Parameter::isModulated() const
 {
-    return m_modulated;
+    return m_modulationCount > 0;
+}
+
+size_t Parameter::modulationSourceCount() const
+{
+    return m_modulationCount;
 }
 
 bool Parameter::update(float val)

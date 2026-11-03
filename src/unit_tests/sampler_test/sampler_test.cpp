@@ -2616,13 +2616,13 @@ void SamplerTest::test_applyParameterModulation_pad_shouldModulateThePadAndClear
     };
 
     // Half way from the knob towards the bottom, where a cutoff rests
-    QVERIFY(sampler->applyParameterModulation(key, ParameterModulation::Mode::Unipolar, 1.0, 0.5));
+    QVERIFY(sampler->applyParameterModulation(key, ModulationSourceId {}, ParameterModulation::Mode::Unipolar, 1.0, 0.5));
     QVERIFY(std::abs(padParameter().value() - 0.4f) < 1.0e-6f);
     QCOMPARE(padParameter().shownValue(), 0.8f);
     // An empty pad has nothing to modulate
-    QVERIFY(!sampler->applyParameterModulation(SamplerDevice::padAutomationKey(61, Constants::NahdXml::xmlKeyCutoff().toStdString()), ParameterModulation::Mode::Unipolar, 1.0, 1.0));
+    QVERIFY(!sampler->applyParameterModulation(SamplerDevice::padAutomationKey(61, Constants::NahdXml::xmlKeyCutoff().toStdString()), ModulationSourceId {}, ParameterModulation::Mode::Unipolar, 1.0, 1.0));
 
-    sampler->clearParameterModulation(key);
+    sampler->clearParameterModulation(key, ModulationSourceId {});
     QCOMPARE(padParameter().value(), 0.8f);
 }
 

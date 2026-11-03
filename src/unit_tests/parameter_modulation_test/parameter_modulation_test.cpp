@@ -104,7 +104,7 @@ void ParameterModulationTest::test_deviceModulation_fader_shouldMoveTheGainAndNo
     synth.setVolume(Constants::faderUnityPosition());
     const auto faderKey = Constants::NahdXml::xmlKeyFader().toStdString();
 
-    QVERIFY(synth.applyParameterModulation(faderKey, Mode::Tremolo, 1.0, 0.5));
+    QVERIFY(synth.applyParameterModulation(faderKey, ModulationSourceId {}, Mode::Tremolo, 1.0, 0.5));
 
     QVERIFY(std::abs(synth.faderGain() - 0.5 * ParameterMapper::mapFader(Constants::faderUnityPosition())) < 1.0e-5);
     QCOMPARE(synth.volume(), Constants::faderUnityPosition());
@@ -116,7 +116,7 @@ void ParameterModulationTest::test_deviceModulation_shouldSurviveStop()
     SynthDevice synth { "Synth" };
     const auto cutoffKey = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
     const float authored = synth.parameter(cutoffKey)->get().value();
-    QVERIFY(synth.applyParameterModulation(cutoffKey, Mode::Unipolar, 1.0, 0.5));
+    QVERIFY(synth.applyParameterModulation(cutoffKey, ModulationSourceId {}, Mode::Unipolar, 1.0, 0.5));
     const float modulated = synth.parameter(cutoffKey)->get().value();
     QVERIFY(std::abs(modulated - authored * 0.5f) < 1.0e-6f);
 
@@ -130,9 +130,9 @@ void ParameterModulationTest::test_deviceModulation_clear_shouldRestoreTheSettin
     SynthDevice synth { "Synth" };
     const auto cutoffKey = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
     const float authored = synth.parameter(cutoffKey)->get().value();
-    QVERIFY(synth.applyParameterModulation(cutoffKey, Mode::Bipolar, 1.0, 1.0));
+    QVERIFY(synth.applyParameterModulation(cutoffKey, ModulationSourceId {}, Mode::Bipolar, 1.0, 1.0));
 
-    synth.clearParameterModulation(cutoffKey);
+    synth.clearParameterModulation(cutoffKey, ModulationSourceId {});
 
     QCOMPARE(synth.parameter(cutoffKey)->get().value(), authored);
     QVERIFY(!synth.parameter(cutoffKey)->get().isModulated());
@@ -141,8 +141,8 @@ void ParameterModulationTest::test_deviceModulation_clear_shouldRestoreTheSettin
 void ParameterModulationTest::test_deviceModulation_switch_shouldBeRefused()
 {
     SynthDevice synth { "Synth" };
-    QVERIFY(!synth.applyParameterModulation(Constants::NahdXml::xmlKeyVoiceMode().toStdString(), Mode::Bipolar, 1.0, 1.0));
-    QVERIFY(!synth.applyParameterModulation("noSuchParameter", Mode::Bipolar, 1.0, 1.0));
+    QVERIFY(!synth.applyParameterModulation(Constants::NahdXml::xmlKeyVoiceMode().toStdString(), ModulationSourceId {}, Mode::Bipolar, 1.0, 1.0));
+    QVERIFY(!synth.applyParameterModulation("noSuchParameter", ModulationSourceId {}, Mode::Bipolar, 1.0, 1.0));
 }
 
 void ParameterModulationTest::test_effectModulation_shouldReachTheDsp()
@@ -156,13 +156,13 @@ void ParameterModulationTest::test_effectModulation_shouldReachTheDsp()
     QVERIFY(near(left, 1.0));
 
     // Bipolar at full depth and the top of the source: half the travel up from 0 dB
-    QVERIFY(gain.applyParameterModulation(gainKey, Mode::Bipolar, 1.0, 1.0));
+    QVERIFY(gain.applyParameterModulation(gainKey, ModulationSourceId {}, Mode::Bipolar, 1.0, 1.0));
     left = 1.0;
     right = 1.0;
     gain.process(left, right);
     QVERIFY(left > 10.0);
 
-    gain.clearParameterModulation(gainKey);
+    gain.clearParameterModulation(gainKey, ModulationSourceId {});
     left = 1.0;
     right = 1.0;
     gain.process(left, right);

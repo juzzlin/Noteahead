@@ -31,6 +31,7 @@ private slots:
     void test_engine_removingTheLfo_shouldReleaseItsTarget();
     void test_engine_targetChange_shouldReleaseTheOldTarget();
     void test_engine_stop_shouldKeepModulating();
+    void test_engine_twoSourcesOnOneTarget_shouldAddUp();
 };
 
 } // namespace noteahead

@@ -16,8 +16,10 @@
 #ifndef PARAMETER_HPP
 #define PARAMETER_HPP
 
+#include "modulation_source_id.hpp"
 #include "parameter_display.hpp"
 
+#include <array>
 #include <functional>
 #include <optional>
 #include <string>
@@ -79,13 +81,23 @@ public:
     void clearAutomation();
     bool isAutomated() const;
 
-    //! Sets the value in effect to @p val without touching what it is modulated around. An LFO
-    //! writes here on every step; automation and the user keep writing underneath it, and keep the
-    //! modulation's offset from what they set until its next step. Continuous parameters only.
-    void setModulatedValue(float val);
-    //! Puts the unmodulated value back in effect. A no-op unless a modulation has written here.
+    //! The most sources one parameter takes at once. Fixed so that a step never allocates on the
+    //! audio thread; a source beyond it is turned away.
+    static constexpr size_t MaxModulationSources { 8 };
+
+    //! Makes @p val what @p source alone would put in effect, without touching what it is modulated
+    //! around. What is in effect is the unmodulated value plus every source's offset from it, so
+    //! sources add up. An LFO writes here on every step; automation and the user keep writing
+    //! underneath, and every offset rides on what they set. Continuous parameters only. False, and
+    //! nothing done, when the parameter is not continuous or already has MaxModulationSources.
+    bool setModulatedValue(ModulationSourceId source, float val);
+    //! Takes @p source's offset off. The unmodulated value is back in effect once no source is left.
+    void clearModulation(ModulationSourceId source);
+    //! Takes every source's offset off.
     void clearModulation();
     bool isModulated() const;
+    //! How many sources are modulating this parameter now.
+    size_t modulationSourceCount() const;
 
     int xmlValue() const;
     //! The authored value in XML units. This, not xmlValue(), is what serialization writes.
@@ -118,8 +130,10 @@ public:
 
 private:
     int xmlValueOf(float value) const;
-    //! Makes @p base the unmodulated value, keeping a modulation's current offset from it.
+    //! Makes @p base the unmodulated value, keeping every modulation's offset from it.
     void rebase(float base);
+    //! Puts the unmodulated value plus every offset in effect.
+    void applyModulationOffsets();
     float clampToRange(float val) const;
 
     std::string m_name;
@@ -127,7 +141,15 @@ private:
     float m_authoredValue = 0.0f;
     //! The value in effect before modulation: the authored value, or what automation replaced it with.
     float m_baseValue = 0.0f;
-    bool m_modulated = false;
+
+    struct ModulationOffset
+    {
+        ModulationSourceId source;
+        float offset = 0.0f;
+    };
+
+    std::array<ModulationOffset, MaxModulationSources> m_modulations {};
+    size_t m_modulationCount = 0;
     bool m_automated = false;
     bool m_relativelyAutomated = false;
     int m_xmlMin = 0;

@@ -17,7 +17,7 @@
 #define AUDIO_ENGINE_HPP
 
 #include "../../domain/devices/device.hpp"
-#include "../../domain/devices/lfo_device.hpp"
+#include "../../domain/devices/modulation_source.hpp"
 #include "../../domain/dsp/metronome.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 
@@ -206,7 +206,7 @@ private:
     //! Applies every queued parameter change whose frame falls before @p blockEndFrame.
     void applyParameterChanges(uint64_t blockEndFrame);
 
-    //! Asks every LFO device for this block's modulation steps and hands them on: a device target
+    //! Asks every modulation source for this block's modulation steps and hands them on: a device target
     //! takes each at its own frame as it renders, an effect target the block's last at its start.
     //! Single-threaded and before anything renders, so the order is fixed and nothing races a lane.
     void evaluateModulation(const AudioContext & context);
@@ -286,11 +286,12 @@ private:
     //! without walking every rack and device in the project.
     std::vector<std::weak_ptr<ParameterAutomationTarget>> m_automatedTargets;
 
-    //! This block's steps from every LFO device, alive until the next block: the devices' queues
-    //! point into it rather than copy the keys.
-    std::vector<LfoDevice::Step> m_modulationSteps;
-    //! Where each LFO device's steps start in m_modulationSteps.
-    std::vector<std::pair<const LfoDevice *, size_t>> m_modulationSources;
+    //! This block's steps from every modulation source, alive until the next block: the devices'
+    //! queues point into it rather than copy the keys.
+    std::vector<ModulationSource::Step> m_modulationSteps;
+    //! Where each source device's steps start in m_modulationSteps. The device, not the source, is
+    //! what identifies a source's offsets on a parameter, so that releaseModulationsOf() matches it.
+    std::vector<std::pair<const Device *, size_t>> m_modulationSources;
 
     struct CachedModulationTarget
     {
@@ -300,17 +301,18 @@ private:
 
     std::vector<CachedModulationTarget> m_modulationTargetCache;
 
-    //! What each LFO is modulating, so that a device leaving the rack can let go of it.
+    //! What each source slot is modulating, so that a device leaving the rack can let go of it.
     struct ActiveModulation
     {
-        const LfoDevice * device {};
-        size_t lfo {};
+        const Device * device {};
+        size_t slot {};
         ParameterAutomation::Target target;
     };
 
     std::vector<ActiveModulation> m_activeModulations;
-    //! The latest step per LFO for an effect target, by index into m_modulationSteps.
-    std::vector<size_t> m_effectModulationSteps;
+    //! The latest step per source slot for an effect target: the index into m_modulationSteps,
+    //! and the device it came from.
+    std::vector<std::pair<size_t, const Device *>> m_effectModulationSteps;
     std::atomic<uint64_t> m_framesRendered { 0 };
     //! Even means settled, odd means being written. The audio thread bumps it either side of the
     //! anchor, so a reader that sees the same even value twice knows it read one whole anchor.

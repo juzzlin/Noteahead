@@ -141,7 +141,7 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
     return true;
 }
 
-bool Device::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+bool Device::applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     // A modulation is in travel either way, so a renamed parameter needs only its new name
@@ -150,18 +150,20 @@ bool Device::applyParameterModulation(const std::string & key, ParameterModulati
     if (!p || p->get().type() != Parameter::Type::Continuous) {
         return false;
     }
-    p->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, p->get()));
+    if (!p->get().setModulatedValue(sourceId, ParameterModulation::modulatedValue(mode, source, depth, p->get()))) {
+        return false;
+    }
     syncAutomatedParameter(name);
     // Not signalled, as automation is not: this runs on the audio thread
     return true;
 }
 
-void Device::clearParameterModulation(const std::string & key)
+void Device::clearParameterModulation(const std::string & key, ModulationSourceId sourceId)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     const auto name = parameter(key) ? key : renamedParameterName(key).value_or(key);
     if (const auto p = parameter(name); p && p->get().isModulated()) {
-        p->get().clearModulation();
+        p->get().clearModulation(sourceId);
         syncAutomatedParameter(name);
     }
 }
@@ -848,7 +850,11 @@ void Device::applyScheduledModulations(uint64_t frame)
     // In the order queued, so that of two due at once from the same source the later one wins
     for (auto && modulation : m_scheduledModulations) {
         if (modulation.frame <= frame && modulation.key) {
-            applyParameterModulation(*modulation.key, modulation.mode, modulation.source, modulation.depth);
+            if (modulation.mode) {
+                applyParameterModulation(*modulation.key, modulation.sourceId, *modulation.mode, modulation.source, modulation.depth);
+            } else {
+                clearParameterModulation(*modulation.key, modulation.sourceId);
+            }
         }
     }
     std::erase_if(m_scheduledModulations, [frame](auto && modulation) { return modulation.frame <= frame; });

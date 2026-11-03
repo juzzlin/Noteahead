@@ -16,6 +16,7 @@
 #ifndef PARAMETER_AUTOMATION_TARGET_HPP
 #define PARAMETER_AUTOMATION_TARGET_HPP
 
+#include "modulation_source_id.hpp"
 #include "parameter_automation.hpp"
 #include "parameter_modulation.hpp"
 
@@ -40,11 +41,12 @@ public:
     //! Puts every automated parameter back to its authored value. Modulation stays.
     virtual void clearParameterAutomation() = 0;
 
-    //! Modulates the named parameter around its unmodulated value: see ParameterModulation. Called
-    //! on the audio thread. False, and nothing done, when there is no such continuous parameter.
-    virtual bool applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth) = 0;
-    //! Takes a modulation off the named parameter, leaving whatever it was modulated around.
-    virtual void clearParameterModulation(const std::string & key) = 0;
+    //! Modulates the named parameter around its unmodulated value for @p sourceId: see
+    //! ParameterModulation. Sources on the same parameter add up. Called on the audio thread. False,
+    //! and nothing done, when there is no such continuous parameter or it takes no more sources.
+    virtual bool applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth) = 0;
+    //! Takes @p sourceId's modulation off the named parameter, leaving any other source's.
+    virtual void clearParameterModulation(const std::string & key, ModulationSourceId sourceId) = 0;
 };
 
 } // namespace noteahead

@@ -20,6 +20,7 @@
 #include "../tracker/parameter_automation.hpp"
 #include "../tracker/parameter_modulation.hpp"
 #include "device.hpp"
+#include "modulation_source.hpp"
 
 #include <array>
 #include <optional>
@@ -39,7 +40,7 @@ namespace noteahead {
 //!
 //! A device rather than an effect for what only a device has: a track. Notes on it restart the LFOs
 //! that are set to, at the grid step they land on, and their velocity can scale the depth.
-class LfoDevice : public Device
+class LfoDevice : public Device, public ModulationSource
 {
 public:
     static constexpr size_t LfoCount { 4 };
@@ -52,19 +53,6 @@ public:
     static constexpr double MaxRateHz { 19.05 };
     //! The longest smoothing, at the top of its knob.
     static constexpr double MaxSmoothingSeconds { 0.25 };
-
-    //! One modulation step for the engine to hand to a target.
-    struct Step
-    {
-        size_t lfo {};
-        //! Where on the engine's timeline it takes effect.
-        uint64_t frame {};
-        ParameterAutomation::Target target;
-        //! Nothing means take the modulation off: the LFO's target changed or was cleared.
-        std::optional<ParameterModulation::Mode> mode;
-        double source {};
-        double depth {};
-    };
 
     explicit LfoDevice(std::string name);
     ~LfoDevice() override;
@@ -117,7 +105,8 @@ public:
     //! stretch gives the same steps however it is cut into blocks, and a render -- which resets
     //! every device as it starts -- steps the same each time it is run. Notes queued for this device are applied here, at the
     //! step they land on, rather than when the device renders.
-    void evaluate(uint64_t startFrame, uint32_t frameCount, double sampleRate, double bpm, std::vector<Step> & steps);
+    void evaluate(uint64_t startFrame, uint32_t frameCount, double sampleRate, double bpm, std::vector<Step> & steps) override;
+    std::vector<ParameterAutomation::Target> modulationTargets() const override;
 
 protected:
     void syncParameters() override;

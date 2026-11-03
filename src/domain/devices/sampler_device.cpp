@@ -546,11 +546,11 @@ bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterA
     return true;
 }
 
-bool SamplerDevice::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+bool SamplerDevice::applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth)
 {
     const auto pad = parsePadAutomationKey(key);
     if (!pad) {
-        return Device::applyParameterModulation(key, mode, source, depth);
+        return Device::applyParameterModulation(key, sourceId, mode, source, depth);
     }
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     const auto & sample = m_samples.at(pad->first);
@@ -561,7 +561,9 @@ bool SamplerDevice::applyParameterModulation(const std::string & key, ParameterM
     if (!parameter || parameter->get().type() != Parameter::Type::Continuous) {
         return false;
     }
-    parameter->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, parameter->get()));
+    if (!parameter->get().setModulatedValue(sourceId, ParameterModulation::modulatedValue(mode, source, depth, parameter->get()))) {
+        return false;
+    }
     syncSampleFields(*sample);
     for (auto && voice : m_voices) {
         if (voice.active && voice.sample == sample.get()) {
@@ -571,17 +573,17 @@ bool SamplerDevice::applyParameterModulation(const std::string & key, ParameterM
     return true;
 }
 
-void SamplerDevice::clearParameterModulation(const std::string & key)
+void SamplerDevice::clearParameterModulation(const std::string & key, ModulationSourceId sourceId)
 {
     const auto pad = parsePadAutomationKey(key);
     if (!pad) {
-        Device::clearParameterModulation(key);
+        Device::clearParameterModulation(key, sourceId);
         return;
     }
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     if (const auto & sample = m_samples.at(pad->first); sample) {
         if (const auto parameter = sample->parameter(pad->second); parameter && parameter->get().isModulated()) {
-            parameter->get().clearModulation();
+            parameter->get().clearModulation(sourceId);
             syncSampleFields(*sample);
             for (auto && voice : m_voices) {
                 if (voice.active && voice.sample == sample.get()) {

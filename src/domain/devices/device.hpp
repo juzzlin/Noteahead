@@ -131,8 +131,8 @@ public:
     //! Under the device's lock, and followed by a resync, the way a MIDI controller is taken.
     bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
     void clearParameterAutomation() override;
-    bool applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth) override;
-    void clearParameterModulation(const std::string & key) override;
+    bool applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth) override;
+    void clearParameterModulation(const std::string & key, ModulationSourceId sourceId) override;
 
     //! Shifts the note by the device's octave and hands it to the device. Not virtual, so that no
     //! device can miss the octave by not implementing it, and every way a note arrives -- playback,
@@ -258,7 +258,9 @@ public:
         //! The parameter's key. Not owned: the engine keeps it alive until the block is rendered,
         //! which is all the time an entry spends here, so queueing one never allocates.
         const std::string * key {};
-        ParameterModulation::Mode mode {};
+        ModulationSourceId sourceId;
+        //! Nothing means take the source's modulation off.
+        std::optional<ParameterModulation::Mode> mode;
         double source {};
         double depth {};
     };

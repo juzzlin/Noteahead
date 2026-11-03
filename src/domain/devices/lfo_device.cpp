@@ -341,6 +341,18 @@ void LfoDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double sample
     }
 }
 
+std::vector<ParameterAutomation::Target> LfoDevice::modulationTargets() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    std::vector<ParameterAutomation::Target> targets;
+    for (auto && slot : m_slots) {
+        if (!slot.target.ownerId.empty()) {
+            targets.push_back(slot.target);
+        }
+    }
+    return targets;
+}
+
 Device::AutomatableParameterList LfoDevice::automatableParameters() const
 {
     const auto lfoOf = [](const std::string & key) -> std::optional<size_t> {

@@ -270,7 +270,7 @@ void RelativeAutomationTest::test_deviceDialogs_modulation_shouldLeaveEveryKnobA
         for (auto && entry : testCase.device->automatableParameters()) {
             const float authored = entry.parameter.value();
             const double source = authored > 0.5f ? -1.0 : 1.0;
-            if (testCase.device->applyParameterModulation(entry.key, ParameterModulation::Mode::Bipolar, source, 0.6)) {
+            if (testCase.device->applyParameterModulation(entry.key, ModulationSourceId {}, ParameterModulation::Mode::Bipolar, source, 0.6)) {
                 if (const auto p = testCase.device->parameter(entry.key); p && std::abs(p->get().value() - authored) > 1.0e-6f) {
                     followed++;
                 }
@@ -295,7 +295,7 @@ void RelativeAutomationTest::test_effectRack_modulation_shouldLeaveTheKnobAlone(
     const auto key = Constants::NahdXml::xmlKeyCutoff();
     const float authored = controller.parameterValue(0, key);
 
-    QVERIFY(effect->applyParameterModulation(key.toStdString(), ParameterModulation::Mode::Bipolar, authored > 0.5f ? -1.0 : 1.0, 0.6));
+    QVERIFY(effect->applyParameterModulation(key.toStdString(), ModulationSourceId {}, ParameterModulation::Mode::Bipolar, authored > 0.5f ? -1.0 : 1.0, 0.6));
     QVERIFY(std::abs(effect->parameter(key.toStdString())->get().value() - authored) > 1.0e-6f);
     QCOMPARE(controller.parameterValue(0, key), authored);
 }
@@ -311,7 +311,7 @@ void RelativeAutomationTest::test_samplerPad_modulation_shouldLeaveTheKnobAlone(
            { Constants::NahdXml::xmlKeyDetune(), [&] { return sampler.sampleDetune(60); } } }) {
         const float authored = read();
         const auto padKey = SamplerDevice::padAutomationKey(60, key.toStdString());
-        QVERIFY2(sampler.applyParameterModulation(padKey, ParameterModulation::Mode::Bipolar, -1.0, 0.6), qPrintable(key));
+        QVERIFY2(sampler.applyParameterModulation(padKey, ModulationSourceId {}, ParameterModulation::Mode::Bipolar, -1.0, 0.6), qPrintable(key));
         QVERIFY2(std::abs(read() - authored) < 1.0e-6f, qPrintable(key));
     }
 }

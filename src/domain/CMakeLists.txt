@@ -20,6 +20,7 @@ set(HEADER_FILES
     devices/ju_synth_08_presets.hpp
     devices/kick_808_device.hpp
     devices/lfo_device.hpp
+    devices/modulation_source.hpp
     devices/noise_fx_device.hpp
     devices/noise_fx_presets.hpp
     devices/snare_synth_device.hpp
@@ -180,6 +181,7 @@ set(HEADER_FILES
     tracker/metadata.hpp
     tracker/mixer_unit.hpp
     tracker/modulation.hpp
+    tracker/modulation_source_id.hpp
     tracker/note_data.hpp
     tracker/note_data_manipulator.hpp
     tracker/parameter.hpp
@@ -236,6 +238,7 @@ set(SOURCE_FILES
     devices/ju_synth_08_presets.cpp
     devices/kick_808_device.cpp
     devices/lfo_device.cpp
+    devices/modulation_source.cpp
     devices/noise_fx_device.cpp
     devices/noise_fx_presets.cpp
     devices/snare_synth_device.cpp
