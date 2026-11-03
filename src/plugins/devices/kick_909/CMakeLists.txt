@@ -5,9 +5,6 @@ noteahead_add_device(
         kick_909_presets.cpp
         kick_909_presets.hpp
         kick_909_registration.cpp
-    APPLICATION_SOURCES
-        kick_909_preview.cpp
-        kick_909_preview.hpp
     VIEW_SOURCES
         kick_909_dialog_model.cpp
         kick_909_dialog_model.hpp
@@ -19,5 +16,4 @@ noteahead_add_device(
         Kick909Dialog_Kick.qml
         Kick909Dialog_Pitch.qml
         Kick909Dialog_Presets.qml
-        Kick909Dialog_Waveform.qml
 )

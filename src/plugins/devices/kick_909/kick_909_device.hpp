@@ -37,6 +37,9 @@ namespace noteahead {
 class Kick909Device : public Device
 {
 public:
+    //! C-3: the note that plays the drum as it is set in Chromatic mode
+    static constexpr int RootNote { 36 };
+
     explicit Kick909Device(std::string name);
     ~Kick909Device() override;
 
@@ -86,6 +89,10 @@ public:
     bool chromatic() const;
     void setChromatic(bool chromatic);
 
+    //! How far into the hit sounding now, in seconds, or nothing when the drum is silent. What the
+    //! waveform view's playhead runs on.
+    std::optional<double> elapsedSeconds() const;
+
 protected:
     void syncParameters() override;
 
@@ -94,9 +101,6 @@ private:
     void syncEngine();
     void syncAmpEnvelope();
     float value(const QString & key) const;
-
-    //! C-3: the note that plays the drum as it is set in Chromatic mode
-    static constexpr int RootNote { 36 };
 
     std::string m_name;
     Kick909Engine m_engine {};
@@ -117,6 +121,8 @@ private:
     bool m_chromatic { false };
     //! The note that last struck the drum, for Pitch to follow it while it rings
     uint8_t m_note { RootNote };
+    //! Output frames since the drum was last struck, for the playhead
+    size_t m_elapsedFrames { 0 };
     float m_velocitySensitivity { 0.7f };
     float m_lpfCutoff { 1.0f };
     float m_hpfCutoff { 0.0f };

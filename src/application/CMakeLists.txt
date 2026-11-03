@@ -31,6 +31,7 @@ set(HEADER_FILES
     service/audio_analysis_worker.hpp
     service/audio_overview_service.hpp
     service/audio_service.hpp
+    service/drum_hit_preview.hpp
     service/drum_voice_preview.hpp
     service/audio_worker.hpp
     service/automation_service.hpp
@@ -101,6 +102,7 @@ set(SOURCE_FILES
     service/audio_analysis_worker.cpp
     service/audio_overview_service.cpp
     service/audio_service.cpp
+    service/drum_hit_preview.cpp
     service/drum_voice_preview.cpp
     service/audio_worker.cpp
     service/automation_service.cpp

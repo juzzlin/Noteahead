@@ -13,20 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef KICK_909_PREVIEW_HPP
-#define KICK_909_PREVIEW_HPP
+#ifndef DRUM_HIT_PREVIEW_HPP
+#define DRUM_HIT_PREVIEW_HPP
 
 #include <QVariantList>
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+
 namespace noteahead {
 
-class Kick909Device;
+class Device;
 
-//! Draws one hit of the Kick 909, for the waveform view.
+//! Draws one hit of a single drum, such as Kick 808 or Kick 909, for the waveform view.
 //!
 //! As DrumVoicePreview draws a drum machine's voice: rendered on a copy of the device, made through
 //! the format it is saved in, so that striking it does not tread on the one in the rack.
-namespace Kick909Preview {
+namespace DrumHitPreview {
 
 struct Preview
 {
@@ -39,11 +43,17 @@ struct Preview
     double audibleSeconds {};
 };
 
-//! \param peakCount How many points the view has room for. Zero or fewer renders nothing.
-Preview render(const Kick909Device & device, int peakCount, double sampleRate);
+//! A new device of the same kind, for the copy to be read into.
+using CopyFactory = std::function<std::unique_ptr<Device>()>;
+//! Sets the copy's amp envelope to do nothing.
+using EnvelopeBypass = std::function<void(Device &)>;
 
-} // namespace Kick909Preview
+//! \param note The note the hit is struck with.
+//! \param peakCount How many points the view has room for. Zero or fewer renders nothing.
+Preview render(const Device & device, const CopyFactory & createCopy, const EnvelopeBypass & bypassEnvelope, uint8_t note, int peakCount, double sampleRate);
+
+} // namespace DrumHitPreview
 
 } // namespace noteahead
 
-#endif // KICK_909_PREVIEW_HPP
+#endif // DRUM_HIT_PREVIEW_HPP

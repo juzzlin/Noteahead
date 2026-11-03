@@ -179,6 +179,7 @@ void Kick909Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     m_engine.setNoteRatio(noteRatio(note));
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
+    m_elapsedFrames = 0;
     if (m_ampEnvelopeEnabled) {
         m_strike.strike(m_engine, m_ampEnvelope, vel);
     } else {
@@ -267,6 +268,16 @@ void Kick909Device::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(sampleL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(sampleR);
     }
+    m_elapsedFrames += context.frameCount;
+}
+
+std::optional<double> Kick909Device::elapsedSeconds() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (!hasActiveAudio() || sampleRate() <= 0.0) {
+        return {};
+    }
+    return static_cast<double>(m_elapsedFrames) / sampleRate();
 }
 
 bool Kick909Device::hasActiveAudio() const
