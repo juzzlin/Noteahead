@@ -44,6 +44,8 @@ const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
+const auto performancePanelEnabledKey = "performancePanelEnabled";
+const auto performancePanelHeightKey = "performancePanelHeight";
 const auto metronomeEnabledKey = "metronomeEnabled";
 const auto metronomeClickDuringTakeKey = "metronomeClickDuringTake";
 const auto metronomePreCountBarsKey = "metronomePreCountBars";
@@ -147,6 +149,40 @@ void setWindowSize(QSize size)
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
     settings.setValue(windowSizeKey, size);
+    settings.endGroup();
+}
+
+bool performancePanelEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    const auto enabled = settings.value(performancePanelEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setPerformancePanelEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    settings.setValue(performancePanelEnabledKey, enabled);
+    settings.endGroup();
+}
+
+int performancePanelHeight(int defaultHeight)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    const auto height = settings.value(performancePanelHeightKey, defaultHeight).toInt();
+    settings.endGroup();
+    return height;
+}
+
+void setPerformancePanelHeight(int height)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    settings.setValue(performancePanelHeightKey, height);
     settings.endGroup();
 }
 

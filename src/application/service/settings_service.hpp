@@ -39,6 +39,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
+    Q_PROPERTY(bool performancePanelEnabled READ performancePanelEnabled WRITE setPerformancePanelEnabled NOTIFY performancePanelEnabledChanged)
+    Q_PROPERTY(int performancePanelHeight READ performancePanelHeight WRITE setPerformancePanelHeight NOTIFY performancePanelHeightChanged)
     Q_PROPERTY(bool patternPeekEnabled READ patternPeekEnabled WRITE setPatternPeekEnabled NOTIFY patternPeekEnabledChanged)
     Q_PROPERTY(bool tipsEnabled READ tipsEnabled WRITE setTipsEnabled NOTIFY tipsEnabledChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
@@ -109,6 +111,11 @@ public:
     virtual Q_INVOKABLE bool waveViewEnabled() const;
     virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool performancePanelEnabled() const;
+    virtual Q_INVOKABLE void setPerformancePanelEnabled(bool enabled);
+    virtual Q_INVOKABLE int performancePanelHeight() const;
+    virtual Q_INVOKABLE void setPerformancePanelHeight(int height);
+
     virtual Q_INVOKABLE bool patternPeekEnabled() const;
     virtual Q_INVOKABLE void setPatternPeekEnabled(bool enabled);
 
@@ -162,6 +169,8 @@ signals:
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();
     void waveViewEnabledChanged();
+    void performancePanelEnabledChanged();
+    void performancePanelHeightChanged();
     void patternPeekEnabledChanged();
     void tipsEnabledChanged();
     void midiExportForceDrumChannel10Changed();
@@ -198,6 +207,8 @@ private:
     bool m_jackBpmSyncEnabled;
     bool m_midiSyncEnabled;
     bool m_waveViewEnabled;
+    bool m_performancePanelEnabled;
+    int m_performancePanelHeight;
     bool m_patternPeekEnabled;
     bool m_tipsEnabled;
 

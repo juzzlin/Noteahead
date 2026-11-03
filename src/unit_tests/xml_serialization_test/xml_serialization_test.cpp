@@ -15,6 +15,7 @@
 
 #include "xml_serialization_test.hpp"
 
+#include "../../application/models/performance_panel_model.hpp"
 #include "../../application/position.hpp"
 #include "../../application/service/application_service.hpp"
 #include "../../application/service/audio_service.hpp"
@@ -1874,6 +1875,37 @@ void XmlSerializationTest::test_toXmlFromXml_xyPadDevice_shouldComeBackWithItsTa
     QCOMPARE(padIn->target(3, XyPadDevice::Axis::Y), target);
     QVERIFY(padIn->target(3, XyPadDevice::Axis::X).ownerId.empty());
     QCOMPARE(padIn->padParameterValue(3, Constants::NahdXml::xmlKeyReturnTime()), 0.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_performancePanel_shouldComeBackInOrder()
+{
+    PerformancePanelModel panelOut;
+    panelOut.addElement(Constants::PanelElementType::xyPad(), "second-pad");
+    panelOut.addElement(Constants::PanelElementType::xyPad(), "first-pad");
+    // A type a later version added: kept, so that saving here does not drop it
+    panelOut.addElement("somethingNew", "some-effect");
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::performancePanelSerializationRequested, &panelOut, &PerformancePanelModel::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    PerformancePanelModel panelIn;
+    panelIn.addElement(Constants::PanelElementType::xyPad(), "left-over-from-the-last-project");
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::performancePanelDeserializationRequested, &panelIn, &PerformancePanelModel::deserializeFromXml);
+    connect(&editorServiceIn, &EditorService::aboutToChangeSong, &panelIn, &PerformancePanelModel::clear);
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(panelIn.elements(), panelOut.elements());
+}
+
+void XmlSerializationTest::test_toXml_performancePanel_empty_shouldWriteNothing()
+{
+    PerformancePanelModel panel;
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::performancePanelSerializationRequested, &panel, &PerformancePanelModel::serializeToXml);
+
+    QVERIFY(!editorService.toXml().contains(Constants::NahdXml::xmlKeyPerformancePanel()));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()

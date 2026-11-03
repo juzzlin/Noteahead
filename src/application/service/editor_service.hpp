@@ -486,6 +486,8 @@ signals:
     void sideChainDeserializationRequested(ProjectReader & xmlStreamReader);
     void audioRecorderSerializationRequested(ProjectWriter & xmlStreamWriter);
     void audioRecorderDeserializationRequested(ProjectReader & xmlStreamReader);
+    void performancePanelSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void performancePanelDeserializationRequested(ProjectReader & xmlStreamReader);
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget

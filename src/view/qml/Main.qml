@@ -25,6 +25,7 @@ import "Dialogs"
 import "Editor"
 import "ToolBar"
 import "MainMenu"
+import "Panel"
 
 ApplicationWindow {
     id: mainWindow
@@ -87,7 +88,7 @@ ApplicationWindow {
         id: editorViewContainer
         anchors.top: songViewContainer.bottom
         anchors.topMargin: 20
-        anchors.bottom: audioWaveView.top
+        anchors.bottom: performancePanel.top
         anchors.left: parent.left
         anchors.right: parent.right
         onHeightChanged: _resize()
@@ -98,6 +99,15 @@ ApplicationWindow {
         EditorView {
             id: editorView
         }
+    }
+    PerformancePanel {
+        id: performancePanel
+        height: settingsService.performancePanelEnabled ? panelHeight : 0
+        visible: settingsService.performancePanelEnabled
+        maximumHeight: mainWindow.height * 0.4
+        anchors.bottom: audioWaveView.top
+        anchors.left: parent.left
+        anchors.right: parent.right
     }
     AudioWaveView {
         id: audioWaveView
@@ -1129,6 +1139,11 @@ ApplicationWindow {
         sequence: "Ctrl+M"
         context: Qt.ApplicationShortcut
         onActivated: _toggleRackWindow(mixerDialog, () => UiService.requestMixerDialog())
+    }
+    Shortcut {
+        sequence: "Ctrl+P"
+        context: Qt.ApplicationShortcut
+        onActivated: settingsService.performancePanelEnabled = !settingsService.performancePanelEnabled
     }
     Shortcut {
         sequence: "Ctrl+B"

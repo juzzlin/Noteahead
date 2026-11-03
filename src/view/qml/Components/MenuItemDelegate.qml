@@ -28,12 +28,19 @@ MenuItem {
     height: visible ? implicitHeight : 0
     contentItem: Item {
         anchors.centerIn: parent
+        // So that a menu widens to its longest row instead of running the label into the shortcut
+        implicitWidth: label.anchors.leftMargin + label.implicitWidth + (shortcutLabel.text ? 24 + shortcutLabel.implicitWidth : 0)
+        implicitHeight: label.implicitHeight
         Text {
+            id: label
             text: rootItem.text
             anchors.left: parent.left
+            // Clear of the check mark a checkable item draws at its left edge
+            anchors.leftMargin: rootItem.checkable && rootItem.indicator ? rootItem.indicator.width + rootItem.spacing : 0
             color: rootItem.enabled ? "white" : Theme.textDim
         }
         Text {
+            id: shortcutLabel
             text: rootItem?.action?.shortcut || rootItem?.action?.shortcutHint || ""
             anchors.right: parent.right
             color: rootItem.enabled ? "white" : Theme.textDim

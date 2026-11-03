@@ -40,6 +40,8 @@ namespace noteahead {
 //! steps do not zip, and eases it home along a half cosine that arrives exactly in the return time. Where the pad stands is not saved: it is played, not set.
 class XyPadDevice : public Device, public ModulationSource
 {
+    Q_OBJECT
+
 public:
     static constexpr size_t PadCount { 4 };
     static constexpr size_t AxisCount { 2 };
@@ -129,6 +131,11 @@ public:
     //! change anything to @p steps. For the engine, on the audio thread, before any device renders.
     void evaluate(uint64_t startFrame, uint32_t frameCount, double sampleRate, double bpm, std::vector<Step> & steps) override;
     std::vector<ParameterAutomation::Target> modulationTargets() const override;
+
+signals:
+    //! A hand went on @p pad. On the UI thread, so that every view of the pad, not only the one
+    //! played, redraws while it moves.
+    void padPressed(int pad);
 
 protected:
     void syncParameters() override;

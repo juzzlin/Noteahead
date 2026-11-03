@@ -78,6 +78,9 @@ quint64 minTrackCount();
 size_t deviceRackSize();
 size_t effectRackSize();
 
+//! The Performance Panel's height until it is resized, in pixels.
+int defaultPerformancePanelHeight();
+
 int transposeMin();
 int transposeMax();
 
@@ -306,6 +309,11 @@ QString flanger();
 QString tremolo();
 } // namespace RackEffectType
 
+//! What a Performance Panel element shows. Saved in projects: never rename.
+namespace PanelElementType {
+QString xyPad();
+} // namespace PanelElementType
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();
@@ -503,6 +511,9 @@ QString xmlKeyPatch();
 
 QString xmlKeyPattern();
 QString xmlKeyPatterns();
+QString xmlKeyPerformancePanel();
+QString xmlKeyPanelElement();
+QString xmlKeySourceId();
 
 QString xmlKeyPortName();
 

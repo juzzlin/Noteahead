@@ -64,6 +64,11 @@ public:
 
     Q_INVOKABLE void requestSettings() override;
 
+signals:
+    //! A hand went on pad @p pad, through this controller or any other view of the same device.
+    void padPressed(int pad);
+
+public:
     //! The device the panels read and write, or nothing.
     std::shared_ptr<XyPadDevice> xyPadDevice() const;
     const std::shared_ptr<DeviceService> & deviceService() const;

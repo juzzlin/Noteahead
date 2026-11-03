@@ -40,6 +40,11 @@ void setControllerPort(QString controllerPort);
 QSize windowSize(QSize defaultSize);
 void setWindowSize(QSize size);
 
+bool performancePanelEnabled();
+void setPerformancePanelEnabled(bool enabled);
+int performancePanelHeight(int defaultHeight);
+void setPerformancePanelHeight(int height);
+
 QStringList recentFiles();
 void setRecentFiles(const QStringList & fileList);
 

@@ -47,7 +47,14 @@ void XyPadRenderer::setController(QObject * controller)
 {
     if (const auto xyPadController = qobject_cast<XyPadController *>(controller); xyPadController != m_controller) {
         letGo();
+        if (m_controller) {
+            disconnect(m_controller, nullptr, this, nullptr);
+        }
         m_controller = xyPadController;
+        if (m_controller) {
+            // The same pad can be shown twice, in its dialog and on the performance panel
+            connect(m_controller, &XyPadController::padPressed, this, &XyPadRenderer::onPadPressed);
+        }
         emit controllerChanged();
         update();
     }
@@ -145,9 +152,17 @@ void XyPadRenderer::letGo()
 void XyPadRenderer::onFrame()
 {
     update();
-    // The pad is still gliding after the hand has gone, so the redraws stop only once it is home
-    if (!m_handOn && (!m_controller || !m_controller->isMoving(m_pad))) {
+    // The pad is still gliding after the hand has gone, so the redraws stop only once it is home.
+    // The hand can also be on it in another view of the same pad.
+    if (!m_handOn && (!m_controller || (!m_controller->isPressed(m_pad) && !m_controller->isMoving(m_pad)))) {
         m_frameTimer.stop();
+    }
+}
+
+void XyPadRenderer::onPadPressed(int pad)
+{
+    if (pad == m_pad && isVisible()) {
+        m_frameTimer.start();
     }
 }
 
@@ -237,7 +252,7 @@ void XyPadRenderer::paint(QPainter * painter)
     const double y = (1.0 - m_controller->positionY(m_pad)) / 2.0 * area.height();
     auto color = m_accentColor;
     // Fainter at rest, so a pad that is being played stands out from the other three
-    const bool active = m_handOn || m_controller->isMoving(m_pad);
+    const bool active = m_handOn || m_controller->isPressed(m_pad) || m_controller->isMoving(m_pad);
     color.setAlphaF(active ? 1.0 : 0.6);
     painter->setPen(QPen { color, 1.5 });
     painter->drawLine(QPointF { x, 0 }, QPointF { x, area.height() });

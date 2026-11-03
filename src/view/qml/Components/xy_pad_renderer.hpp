@@ -81,6 +81,7 @@ private:
     void handOn(const QPointF & position);
     void letGo();
     void onFrame();
+    void onPadPressed(int pad);
 
     QPointer<XyPadController> m_controller;
     int m_pad { 0 };

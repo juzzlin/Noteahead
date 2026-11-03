@@ -56,6 +56,8 @@ class LfoController;
 class XyPadController;
 class Kick808Controller;
 class SnareSynthController;
+class PerformancePanelController;
+class PerformancePanelModel;
 class PianoSynthController;
 class PianoSynthV2Controller;
 class SongOverviewController;
@@ -216,6 +218,8 @@ private:
     std::shared_ptr<SongOverviewService> m_songOverviewService;
     std::shared_ptr<SongOverviewController> m_songOverviewController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
+    std::unique_ptr<PerformancePanelModel> m_performancePanelModel;
+    std::unique_ptr<PerformancePanelController> m_performancePanelController;
     std::shared_ptr<KnobController> m_knobController;
 
     std::shared_ptr<JackService> m_jackService;

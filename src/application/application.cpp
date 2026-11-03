@@ -63,6 +63,7 @@
 #include "../view/controllers/knob_controller.hpp"
 #include "../view/controllers/lfo_controller.hpp"
 #include "../view/controllers/noise_fx_controller.hpp"
+#include "../view/controllers/performance_panel_controller.hpp"
 #include "../view/controllers/piano_synth_controller.hpp"
 #include "../view/controllers/piano_synth_v2_controller.hpp"
 #include "../view/controllers/piano_synth_v3_controller.hpp"
@@ -98,6 +99,7 @@
 #include "models/note_column_line_container_helper.hpp"
 #include "models/note_column_model_handler.hpp"
 #include "models/parameter_automations_model.hpp"
+#include "models/performance_panel_model.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/render_settings_model.hpp"
@@ -194,6 +196,8 @@ Application::Application(int & argc, char ** argv)
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_juSynth08Controller, m_bassSynthController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_snareSynthController, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_noiseFxController, m_lfoController, m_xyPadController }, m_editorService) }
+  , m_performancePanelModel { std::make_unique<PerformancePanelModel>() }
+  , m_performancePanelController { std::make_unique<PerformancePanelController>(m_deviceService, *m_performancePanelModel) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -358,6 +362,8 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("fmDrumsController", m_fmDrumsController.get());
     m_engine->rootContext()->setContextProperty("lfoController", m_lfoController.get());
     m_engine->rootContext()->setContextProperty("xyPadController", m_xyPadController.get());
+    m_engine->rootContext()->setContextProperty("performancePanelModel", m_performancePanelModel.get());
+    m_engine->rootContext()->setContextProperty("performancePanelController", m_performancePanelController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV2Controller", m_pianoSynthV2Controller.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV3Controller", m_pianoSynthV3Controller.get());
@@ -719,6 +725,13 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::sideChainSerializationRequested, m_sideChainService.get(), &SideChainService::serializeToXml);
     connect(m_editorService.get(), &EditorService::audioRecorderDeserializationRequested, m_audioService.get(), &AudioService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::audioRecorderSerializationRequested, m_audioService.get(), &AudioService::serializeToXml);
+    connect(m_editorService.get(), &EditorService::performancePanelDeserializationRequested, m_performancePanelModel.get(), &PerformancePanelModel::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::performancePanelSerializationRequested, m_performancePanelModel.get(), &PerformancePanelModel::serializeToXml);
+    connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_performancePanelModel.get(), &PerformancePanelModel::clear);
+    connect(m_editorService.get(), &EditorService::aboutToInitialize, m_performancePanelModel.get(), &PerformancePanelModel::clear);
+    connect(m_performancePanelModel.get(), &PerformancePanelModel::modified, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
     connect(m_editorService.get(), &EditorService::patternsDeleted, m_automationService.get(), &AutomationService::deletePatterns);
     connect(m_editorService.get(), &EditorService::patternsDeleted, m_noteColumnModelHandler.get(), &NoteColumnModelHandler::deletePatterns);
     connect(m_editorService.get(), &EditorService::trackDeleted, m_sideChainService.get(), &SideChainService::removeSettings);

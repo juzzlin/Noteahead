@@ -16,6 +16,7 @@ set(HEADER_FILES
     models/note_column_model.hpp
     models/note_column_model_handler.hpp
     models/parameter_automations_model.hpp
+    models/performance_panel_model.hpp
     models/pitch_bend_automations_model.hpp
     models/recent_files_model.hpp
     models/render_settings_model.hpp
@@ -84,6 +85,7 @@ set(SOURCE_FILES
     models/note_column_model.cpp
     models/note_column_model_handler.cpp
     models/parameter_automations_model.cpp
+    models/performance_panel_model.cpp
     models/pitch_bend_automations_model.cpp
     models/recent_files_model.cpp
     models/render_settings_model.cpp

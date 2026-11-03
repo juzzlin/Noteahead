@@ -44,6 +44,8 @@ SettingsService::SettingsService()
   , m_jackBpmSyncEnabled { Settings::jackBpmSyncEnabled() }
   , m_midiSyncEnabled { Settings::midiSyncEnabled() }
   , m_waveViewEnabled { Settings::waveViewEnabled() }
+  , m_performancePanelEnabled { Settings::performancePanelEnabled() }
+  , m_performancePanelHeight { Settings::performancePanelHeight(Constants::defaultPerformancePanelHeight()) }
   , m_patternPeekEnabled { Settings::patternPeekEnabled() }
   , m_tipsEnabled { Settings::tipsEnabled() }
   , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
@@ -279,6 +281,34 @@ void SettingsService::setWaveViewEnabled(bool enabled)
         m_waveViewEnabled = enabled;
         Settings::setWaveViewEnabled(enabled);
         emit waveViewEnabledChanged();
+    }
+}
+
+bool SettingsService::performancePanelEnabled() const
+{
+    return m_performancePanelEnabled;
+}
+
+void SettingsService::setPerformancePanelEnabled(bool enabled)
+{
+    if (m_performancePanelEnabled != enabled) {
+        m_performancePanelEnabled = enabled;
+        Settings::setPerformancePanelEnabled(enabled);
+        emit performancePanelEnabledChanged();
+    }
+}
+
+int SettingsService::performancePanelHeight() const
+{
+    return m_performancePanelHeight;
+}
+
+void SettingsService::setPerformancePanelHeight(int height)
+{
+    if (m_performancePanelHeight != height) {
+        m_performancePanelHeight = height;
+        Settings::setPerformancePanelHeight(height);
+        emit performancePanelHeightChanged();
     }
 }
 

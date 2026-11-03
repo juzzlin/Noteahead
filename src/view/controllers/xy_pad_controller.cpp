@@ -43,6 +43,7 @@ bool XyPadController::setDevice(DeviceS device)
         }
         m_device = xyPadDevice;
         connectDeviceSignals();
+        connect(m_device.get(), &XyPadDevice::padPressed, this, &XyPadController::padPressed);
         requestSettings();
         return true;
     }

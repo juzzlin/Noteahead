@@ -301,6 +301,7 @@ void XyPadDevice::press(size_t pad, float x, float y)
         state.handY.store(clampHand(y), std::memory_order_relaxed);
         // Released after the position, so the audio thread never sees a press without where it is
         state.pressed.store(true, std::memory_order_release);
+        emit padPressed(static_cast<int>(pad));
     }
 }
 

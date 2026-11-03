@@ -139,6 +139,11 @@ size_t deviceRackSize()
     return 16;
 }
 
+int defaultPerformancePanelHeight()
+{
+    return 180;
+}
+
 size_t effectRackSize()
 {
     return 16;
@@ -574,6 +579,13 @@ QString rta()
     return "rta";
 }
 } // namespace RackEffectType
+
+namespace PanelElementType {
+QString xyPad()
+{
+    return "xyPad";
+}
+} // namespace PanelElementType
 
 namespace NahdXml {
 
@@ -1393,6 +1405,21 @@ QString xmlKeyPattern()
 QString xmlKeyPatterns()
 {
     return "Patterns";
+}
+
+QString xmlKeyPerformancePanel()
+{
+    return "PerformancePanel";
+}
+
+QString xmlKeyPanelElement()
+{
+    return "Element";
+}
+
+QString xmlKeySourceId()
+{
+    return "sourceId";
 }
 
 QString xmlKeyPortName()

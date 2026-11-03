@@ -273,6 +273,8 @@ EditorService::SongS EditorService::deserializeProject(ProjectReader & reader, Q
             if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
                 song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, devicesDeserializationCallback, sideChainDeserializationCallback, audioRecorderDeserializationCallback);
+            } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPerformancePanel())) {
+                emit performancePanelDeserializationRequested(reader);
             }
             reader.readNext();
         }
@@ -414,6 +416,9 @@ QString EditorService::toXml()
         emit audioRecorderSerializationRequested(writer);
     };
     m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, devicesSerializationCallback, sideChainSerializationCallback, audioRecorderSerializationCallback);
+
+    // Beside the song rather than in it: the panel is how the project is played, not part of the music
+    emit performancePanelSerializationRequested(writer);
 
     emit dataSerializationRequested(writer);
 

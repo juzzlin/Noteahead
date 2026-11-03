@@ -69,6 +69,10 @@ AnimatedDialog {
             description: qsTr("Open or close the Master Effects")
         },
         {
+            key: qsTr("Ctrl + P"),
+            description: qsTr("Show or hide the performance panel")
+        },
+        {
             key: qsTr("INSERT"),
             description: qsTr("Insert empty line and move subsequent lines down")
         },

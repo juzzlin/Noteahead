@@ -164,6 +164,22 @@ void XyPadControllerTest::test_deviceChange_shouldNotifyThePanels()
     QCOMPARE(panel(controller, 3).xDepth(), 900);
 }
 
+void XyPadControllerTest::test_press_otherController_shouldNotifyThisOne()
+{
+    // The dialog and the performance panel each have a controller of the same device
+    const auto device = std::make_shared<XyPadDevice>("XY");
+    XyPadController played { nullptr };
+    played.setDevice(device);
+    XyPadController watching { nullptr };
+    watching.setDevice(device);
+    QSignalSpy spy { &watching, &XyPadController::padPressed };
+
+    played.press(2, 0.5, 0.5);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toInt(), 2);
+}
+
 namespace {
 //! A 100 x 100 pad 0 in a window of its own, so that the mouse reaches it as it does in the app.
 struct RendererFixture
