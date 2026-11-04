@@ -28,6 +28,7 @@ private slots:
     void test_undoRedo_noteOn_shouldUndoAndRedo();
     void test_undoRedo_automationDelete_shouldUndoAndRedo();
     void test_requestAutomationDelete_otherKind_shouldDeleteNothing();
+    void test_undo_automationDelete_shouldKeepTheCurveColors();
     void test_undoRedo_noteOff_shouldUndoAndRedo();
     void test_undoRedo_velocityChange_shouldUndoAndRedo();
     void test_undoRedo_deleteNote_shouldUndoAndRedo();

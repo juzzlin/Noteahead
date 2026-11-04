@@ -37,6 +37,19 @@ namespace noteahead {
 
 static const auto TAG = "AutomationService";
 
+namespace {
+
+//! Puts @p automation back where its id says it was. New automations take the next id and go at
+//! the end, so a list is in id order, and that order is what the editor colours a pattern's curves
+//! by: an undone delete appended instead would shift every colour after it.
+void insertById(auto & automations, const auto & automation)
+{
+    const auto next = std::ranges::find_if(automations, [&](auto && existing) { return existing.id() > automation.id(); });
+    automations.insert(next, automation);
+}
+
+} // namespace
+
 AutomationService::AutomationService(std::shared_ptr<PropertyService> propertyService)
   : m_propertyService { propertyService }
 {
@@ -91,7 +104,7 @@ quint64 AutomationService::addMidiCcAutomation(const MidiCcAutomation & automati
 
 void AutomationService::addMidiCcAutomationWithId(const MidiCcAutomation & automation)
 {
-    m_automations.midiCc.push_back(automation);
+    insertById(m_automations.midiCc, automation);
     notifyChangedLines(automation);
     juzzlin::L(TAG).info() << "MIDI CC Automation added (with ID): " << automation.toString().toStdString();
 }
@@ -309,7 +322,7 @@ quint64 AutomationService::addPitchBendAutomation(const PitchBendAutomation & au
 
 void AutomationService::addPitchBendAutomationWithId(const PitchBendAutomation & automation)
 {
-    m_automations.pitchBend.push_back(automation);
+    insertById(m_automations.pitchBend, automation);
     notifyChangedLines(automation);
     juzzlin::L(TAG).info() << "Pitch Bend Automation added (with ID): " << automation.toString().toStdString();
 }
@@ -546,7 +559,7 @@ void AutomationService::addParameterModulation(quint64 automationId, int type, q
 
 void AutomationService::addParameterAutomationWithId(const ParameterAutomation & automation)
 {
-    m_automations.parameter.push_back(automation);
+    insertById(m_automations.parameter, automation);
     notifyChangedLines(automation);
     juzzlin::L(TAG).info() << "Parameter Automation added (with ID): " << automation.toString().toStdString();
 }

@@ -88,6 +88,25 @@ void EditorServiceUndoTest::test_requestAutomationDelete_otherKind_shouldDeleteN
     QVERIFY(!editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undo_automationDelete_shouldKeepTheCurveColors()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), automationService, std::make_shared<DataService>() };
+    const auto first = automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 8, 0, 127, "", 0, 0);
+    const auto second = automationService->addMidiCcAutomation(0, 0, 0, 10, 0, 8, 0, 127, "", 0, 0);
+    const auto third = automationService->addMidiCcAutomation(0, 0, 0, 11, 0, 8, 0, 127, "", 0, 0);
+
+    editorService.requestAutomationDelete(static_cast<int>(AutomationService::AutomationKind::MidiCc), first);
+    editorService.undo();
+
+    // A curve's color is its place among the column's curves, so the undone one goes back to its own
+    const auto curves = automationService->automationCurves(0, 0, 0, 0, 8);
+    QCOMPARE(curves.size(), size_t { 3 });
+    QCOMPARE(curves.at(0).id, first);
+    QCOMPARE(curves.at(1).id, second);
+    QCOMPARE(curves.at(2).id, third);
+}
+
 void EditorServiceUndoTest::test_undoRedo_noteOff_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
