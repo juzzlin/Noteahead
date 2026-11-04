@@ -48,7 +48,10 @@ public:
     //! hang at the last block that had anything in it instead of falling away.
     bool isSettled() const override;
 
-    void setAnalysisEnabled(bool enabled);
+    //! Something has started or stopped showing the spectrum. The analysis runs while anything
+    //! shows it: the RTA's dialog and the performance panel can both be open on the same one.
+    void addAnalysisViewer();
+    void removeAnalysisViewer();
 
     std::vector<float> bandMagnitudesDb() const;
     std::vector<std::pair<float, float>> bandLogPositions() const;
@@ -59,7 +62,7 @@ private:
 
     RtaCore m_core;
 
-    std::atomic<bool> m_analysisEnabled { false };
+    std::atomic<int> m_analysisViewers { 0 };
     bool m_shouldSync = false;
 };
 

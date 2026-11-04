@@ -31,6 +31,11 @@ private slots:
     void test_clear_shouldNotMarkModified();
 
     void test_availableElements_shouldListXyPadDevicesOnly();
+    void test_availableElements_rta_shouldListItWithItsLocation();
+    void test_addEffect_otherEffect_shouldBeRefused();
+    void test_effectLocation_effectRemoved_shouldBeEmpty();
+    void test_rtaSetActive_twice_shouldCountAsOneViewer();
+    void test_rtaSetActive_effectRemoved_shouldStillLetGoOfIt();
     void test_addDevice_otherDevice_shouldBeRefused();
     void test_deviceSlot_shouldFollowTheDevice();
     void test_xyPadController_shouldPlayThatDevice();

@@ -64,7 +64,7 @@ static void feedBuffer(Rta & rta, std::vector<double> & buf, uint32_t sampleRate
 static std::unique_ptr<Rta> makeRta(float bandCountMode)
 {
     auto rta = std::make_unique<Rta>();
-    rta->setAnalysisEnabled(true);
+    rta->addAnalysisViewer();
     if (auto p = rta->parameter(Constants::NahdXml::xmlKeyBandCount().toStdString()); p) {
         p->get().update(bandCountMode);
     }
@@ -178,10 +178,31 @@ void RtaTest::test_process_audioContext_analysisDisabled_shouldNotUpdateBands()
     QCOMPARE(rta.bandMagnitudesDb(), initialMags);
 }
 
+void RtaTest::test_removeAnalysisViewer_oneOfTwo_shouldKeepAnalysing()
+{
+    // Its dialog and the performance panel both show it, and one of them closes
+    Rta rta;
+    QVERIFY(rta.isSettled());
+    rta.addAnalysisViewer();
+    rta.addAnalysisViewer();
+    rta.removeAnalysisViewer();
+    QVERIFY(!rta.isSettled());
+    rta.removeAnalysisViewer();
+    QVERIFY(rta.isSettled());
+}
+
+void RtaTest::test_removeAnalysisViewer_tooOften_shouldNotHoldTheNextViewerBack()
+{
+    Rta rta;
+    rta.removeAnalysisViewer();
+    rta.addAnalysisViewer();
+    QVERIFY(!rta.isSettled());
+}
+
 void RtaTest::test_process_audioContext_analysisEnabled_silence_shouldGoLowAfterAnalysis()
 {
     Rta rta;
-    rta.setAnalysisEnabled(true);
+    rta.addAnalysisViewer();
 
     // Feed enough silence to trigger multiple analysis hops (fast hop = 128 @ 44100 Hz in default mode)
     auto buf = makeSilentBuffer(8192);
@@ -196,7 +217,7 @@ void RtaTest::test_process_audioContext_analysisEnabled_silence_shouldGoLowAfter
 void RtaTest::test_process_audioContext_analysisEnabled_sine1kHz_shouldDetectEnergy()
 {
     Rta rta;
-    rta.setAnalysisEnabled(true);
+    rta.addAnalysisViewer();
 
     // Feed a loud 1 kHz sine — well above the crossover (400 Hz) so the fast FFT handles it
     // Feed multiple hops to let the smoother converge
@@ -214,7 +235,7 @@ void RtaTest::test_process_audioContext_analysisEnabled_sine1kHz_shouldDetectEne
 void RtaTest::test_reset_shouldClearBandMagnitudesToFloor()
 {
     Rta rta;
-    rta.setAnalysisEnabled(true);
+    rta.addAnalysisViewer();
 
     // Drive the bands up
     for (int pass = 0; pass < 10; pass++) {
@@ -247,7 +268,7 @@ void RtaTest::test_bandCount_mode64_shouldIncreaseBandCount()
     rta.sync();
 
     // Process one frame with analysis enabled to trigger syncParameters → buildBands
-    rta.setAnalysisEnabled(true);
+    rta.addAnalysisViewer();
     auto buf = makeSilentBuffer(1);
     feedBuffer(rta, buf);
 

@@ -19,6 +19,7 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import ".."
 import "../Components"
+import "../Dialogs/ParameterAutomationTargets.js" as Targets
 
 //! A strip under the editor for playing the project without opening a window: a row of elements,
 //! each showing one device. Not modal and never takes the keyboard, so the tracker keeps it while
@@ -107,32 +108,46 @@ Rectangle {
                 x: 44
                 height: 32
                 verticalAlignment: Text.AlignVCenter
-                text: qsTr("Play devices from here while the song plays. Add one with +.")
+                text: qsTr("Play pads and watch meters here while the song plays. Add one with +.")
                 color: Theme.textMuted
                 font.pixelSize: Theme.bodyPixelSize
             }
         }
     }
 
-    Menu {
+    FittedMenu {
         id: addMenu
         Universal.theme: Universal.Dark
         Universal.accent: themeService.accentColor
         delegate: MenuItemDelegate {}
 
+        //! The XY pads first, then the RTAs, as availableElements() lists them
         property var elements: []
+        readonly property int rtaCount: elements.filter(element => element.type === performancePanelController.rtaType).length
+        readonly property int xyPadCount: elements.length - rtaCount
         onAboutToShow: elements = performancePanelController.availableElements()
 
         Instantiator {
             model: addMenu.elements
-            onObjectAdded: (index, object) => addMenu.insertItem(index, object)
+            // An RTA goes after the separator that follows the XY pads
+            onObjectAdded: (index, object) => addMenu.insertItem(index < addMenu.xyPadCount ? index : index + 1, object)
             onObjectRemoved: (index, object) => addMenu.removeItem(object)
             delegate: MenuItem {
                 required property var modelData
-                text: qsTr("Slot %1: %2").arg(modelData.slot + 1).arg(deviceRackController.deviceDisplayName(modelData.slot))
+                text: modelData.type === performancePanelController.rtaType ? Targets.targetLabel(modelData.location) : qsTr("Slot %1: %2").arg(modelData.slot + 1).arg(deviceRackController.deviceDisplayName(modelData.slot))
                 enabled: !modelData.onPanel
-                onTriggered: performancePanelController.addDevice(modelData.slot)
+                onTriggered: {
+                    if (modelData.type === performancePanelController.rtaType) {
+                        performancePanelController.addEffect(modelData.sourceId);
+                    } else {
+                        performancePanelController.addDevice(modelData.slot);
+                    }
+                }
             }
+        }
+        MenuSeparator {
+            visible: addMenu.xyPadCount > 0 && addMenu.rtaCount > 0
+            height: visible ? implicitHeight : 0
         }
         MenuSeparator {
             visible: addMenu.elements.length > 0
@@ -142,6 +157,26 @@ Rectangle {
             text: qsTr("New XY Pad")
             onTriggered: root._addNewXyPad()
         }
+        MenuItem {
+            text: qsTr("New RTA")
+            onTriggered: root._addNewRta()
+        }
+    }
+
+    //! Puts a new RTA in the first free master insert slot, where it hears the whole mix, and on
+    //! the panel
+    function _addNewRta(): void {
+        effectRackController.targetDeviceName = "";
+        effectRackController.isInsertRack = true;
+        effectRackController.targetSubIndex = -1;
+        for (let slot = 0; slot < effectRackController.effectCount; slot++) {
+            if (effectRackController.effectType(slot) === "") {
+                effectRackController.setEffect(slot, effectRackController.rtaType);
+                performancePanelController.addEffect(effectRackController.effectId(slot));
+                return;
+            }
+        }
+        applicationService.requestAlertDialog(qsTr("The master insert rack is full."));
     }
 
     //! Puts a new XY pad device in the first free slot of the rack, and on the panel

@@ -728,6 +728,8 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::performancePanelDeserializationRequested, m_performancePanelModel.get(), &PerformancePanelModel::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::performancePanelSerializationRequested, m_performancePanelModel.get(), &PerformancePanelModel::serializeToXml);
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_performancePanelModel.get(), &PerformancePanelModel::clear);
+    // Effects come and go through the effect rack, which the device service does not announce
+    connect(m_effectRackController.get(), &EffectRackController::revisionChanged, m_performancePanelController.get(), &PerformancePanelController::refresh);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_performancePanelModel.get(), &PerformancePanelModel::clear);
     connect(m_performancePanelModel.get(), &PerformancePanelModel::modified, this, [this]() {
         m_editorService->setIsModified(true);

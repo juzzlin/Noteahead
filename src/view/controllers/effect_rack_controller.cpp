@@ -623,6 +623,16 @@ QString EffectRackController::effectType(quint32 effectIndex) const
     return "";
 }
 
+QString EffectRackController::effectId(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            return QString::fromStdString(effect->id());
+        }
+    }
+    return "";
+}
+
 QString EffectRackController::effectDisplayName(const QString & typeId) const
 {
     for (const auto & item : availableEffects()) {
@@ -3640,7 +3650,11 @@ void EffectRackController::rtaSetActive(quint32 effectIndex, bool active)
     if (const auto rack = currentRack()) {
         if (const auto effect = rack->get().effect(effectIndex)) {
             if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
-                rta->setAnalysisEnabled(active);
+                if (active) {
+                    rta->addAnalysisViewer();
+                } else {
+                    rta->removeAnalysisViewer();
+                }
             }
         }
     }

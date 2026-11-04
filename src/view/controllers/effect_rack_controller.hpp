@@ -246,6 +246,8 @@ public:
 
     Q_INVOKABLE QStringList parameterNames(quint32 effectIndex) const;
     Q_INVOKABLE QString effectType(quint32 effectIndex) const;
+    //! The id of the effect in @p effectIndex of the current rack, empty for none. See Effect::id().
+    Q_INVOKABLE QString effectId(quint32 effectIndex) const;
 
     Q_INVOKABLE QString reverbSizeKey() const;
     Q_INVOKABLE QString reverbDecayKey() const;

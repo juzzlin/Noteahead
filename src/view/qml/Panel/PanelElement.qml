@@ -19,9 +19,10 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import ".."
 import "../Components"
+import "../Dialogs/ParameterAutomationTargets.js" as Targets
 
-//! One element of the Performance Panel: a title bar naming the device, with its settings and a
-//! remove button, over a body chosen by the element's type.
+//! One element of the Performance Panel: a title bar naming the device or effect, with its settings
+//! and a remove button, over a body chosen by the element's type.
 Rectangle {
     id: root
 
@@ -30,8 +31,35 @@ Rectangle {
 
     signal removeRequested
 
+    readonly property bool isEffect: root.type === performancePanelController.rtaType
     //! The device's rack slot, read again whenever the rack changes; -1 once it is gone.
-    readonly property int slot: performancePanelController.revision >= 0 ? performancePanelController.deviceSlot(root.sourceId) : -1
+    readonly property int slot: !root.isEffect && performancePanelController.revision >= 0 ? performancePanelController.deviceSlot(root.sourceId) : -1
+    //! Where the effect sits, read again whenever a rack changes; empty once it is gone.
+    readonly property var location: root.isEffect && performancePanelController.revision >= 0 ? performancePanelController.effectLocation(root.sourceId) : ({})
+    //! Whether what the element shows is still in the project. An element of a type this version
+    //! does not know is kept for the version that does, but shows nothing.
+    readonly property bool found: root.isEffect ? root.location.ownerId !== undefined : root.slot >= 0
+
+    function _title(): string {
+        if (root.isEffect) {
+            return root.found ? Targets.targetLabel(root.location) : qsTr("Effect missing");
+        }
+        return root.found ? qsTr("Slot %1: %2").arg(root.slot + 1).arg(deviceRackController.deviceDisplayName(root.slot)) : qsTr("Device missing");
+    }
+
+    //! Opens the settings of what the element shows, as its own rack would
+    function _openSettings(): void {
+        if (!root.isEffect) {
+            deviceRackController.openDevice(root.slot);
+            return;
+        }
+        // The rack numbers are DeviceService::EffectLocation::Rack
+        const rack = root.location.rack;
+        effectRackController.targetDeviceName = rack === 0 || rack === 1 ? root.location.deviceName : "";
+        effectRackController.isInsertRack = rack === 0 || rack === 1 || rack === 2;
+        effectRackController.targetSubIndex = rack === 1 || rack === 4 ? root.location.rackIndex : -1;
+        effectDialogLauncher.open(effectRackController.effectType(root.location.effectSlot), root.location.effectSlot);
+    }
 
     implicitWidth: Math.max(body.item ? body.item.implicitWidth : 0, 180) + 12
     width: implicitWidth
@@ -48,8 +76,8 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 4
             Label {
-                text: root.slot >= 0 ? qsTr("Slot %1: %2").arg(root.slot + 1).arg(deviceRackController.deviceDisplayName(root.slot)) : qsTr("Device missing")
-                color: root.slot >= 0 ? Theme.textSecondary : Theme.danger
+                text: root._title()
+                color: root.found ? Theme.textSecondary : Theme.danger
                 font.pixelSize: Theme.bodyPixelSize
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -59,9 +87,9 @@ Rectangle {
                 implicitWidth: 28
                 implicitHeight: 20
                 focusPolicy: Qt.NoFocus
-                enabled: root.slot >= 0
+                enabled: root.found
                 toolTipText: qsTr("Settings")
-                onClicked: deviceRackController.openDevice(root.slot)
+                onClicked: root._openSettings()
             }
             AppButton {
                 text: "×"
@@ -77,7 +105,14 @@ Rectangle {
             id: body
             Layout.fillWidth: true
             Layout.fillHeight: true
-            sourceComponent: root.slot < 0 ? null : root.type === performancePanelController.xyPadType ? xyPadBody : null
+            sourceComponent: !root.found ? null : root.type === performancePanelController.xyPadType ? xyPadBody : root.isEffect ? rtaBody : null
+        }
+    }
+
+    Component {
+        id: rtaBody
+        RtaPanelElement {
+            sourceId: root.sourceId
         }
     }
 

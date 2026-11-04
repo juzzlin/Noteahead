@@ -31,6 +31,8 @@ private slots:
     void test_bandMagnitudesDb_afterConstruction_shouldBeNonEmpty();
     void test_bandLogPositions_sizeMatchesBandCount();
     void test_process_audioContext_analysisDisabled_shouldNotUpdateBands();
+    void test_removeAnalysisViewer_oneOfTwo_shouldKeepAnalysing();
+    void test_removeAnalysisViewer_tooOften_shouldNotHoldTheNextViewerBack();
     void test_process_audioContext_analysisEnabled_silence_shouldGoLowAfterAnalysis();
     void test_process_audioContext_analysisEnabled_sine1kHz_shouldDetectEnergy();
     void test_reset_shouldClearBandMagnitudesToFloor();

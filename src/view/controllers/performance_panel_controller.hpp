@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QVariantList>
+#include <QVariantMap>
 
 #include <map>
 #include <memory>
@@ -27,6 +28,7 @@ namespace noteahead {
 
 class DeviceService;
 class PerformancePanelModel;
+class Rta;
 class XyPadController;
 
 //! What the Performance Panel's elements point at: finds a device by the id an element keeps, and
@@ -40,6 +42,7 @@ class PerformancePanelController : public QObject
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
     //! The element types, as the model's type role holds them.
     Q_PROPERTY(QString xyPadType READ xyPadType CONSTANT)
+    Q_PROPERTY(QString rtaType READ rtaType CONSTANT)
     //! The device a new XY pad element puts in the rack.
     Q_PROPERTY(QString xyPadDeviceTypeId READ xyPadDeviceTypeId CONSTANT)
 
@@ -48,28 +51,44 @@ public:
 
     int revision() const;
     QString xyPadType() const;
+    QString rtaType() const;
     QString xyPadDeviceTypeId() const;
 
-    //! Everything that could be put on the panel now, one map per element: type, sourceId, the
-    //! device's slot and whether the panel already shows it.
+    //! Everything that could be put on the panel now, one map per element: type, sourceId,
+    //! whether the panel already shows it, and the device's slot or the effect's location.
     Q_INVOKABLE QVariantList availableElements() const;
     //! Puts the device in @p slotIndex on the panel, if the panel can show it.
     Q_INVOKABLE bool addDevice(int slotIndex);
+    //! Puts the effect with id @p effectId on the panel, if the panel can show it.
+    Q_INVOKABLE bool addEffect(const QString & effectId);
     //! The rack slot of the device with uuid @p sourceId, or -1 when it is gone.
     Q_INVOKABLE int deviceSlot(const QString & sourceId) const;
     //! A controller playing the XY pad device with uuid @p sourceId, or null when there is none.
     //! Owned by this controller and kept for as long as the device is.
     Q_INVOKABLE QObject * xyPadController(const QString & sourceId);
 
+    //! Where the effect with id @p sourceId sits, as automation targets name it (owner, type,
+    //! rack, deviceSlot, deviceTypeName, rackIndex, effectSlot) plus the deviceName its rack is
+    //! opened by. Empty when the effect is gone.
+    Q_INVOKABLE QVariantMap effectLocation(const QString & sourceId) const;
+    //! Starts or stops the analysis of the RTA with id @p sourceId for the panel. The panel counts
+    //! as one viewer however often it asks, and lets go of the same RTA it took even after the
+    //! rack has moved on.
+    Q_INVOKABLE void rtaSetActive(const QString & sourceId, bool active);
+    //! Copies the RTA's spectrum and display settings into @p renderer, an RtaRenderer.
+    Q_INVOKABLE void rtaUpdateRenderer(const QString & sourceId, QObject * renderer) const;
+
+    //! Reads the rack again: drops what points at devices that are gone and bumps the revision.
+    void refresh();
+
 signals:
     void revisionChanged();
 
 private:
-    void onDevicesChanged();
-
     std::shared_ptr<DeviceService> m_deviceService;
     PerformancePanelModel & m_model;
     std::map<QString, QPointer<XyPadController>> m_xyPadControllers;
+    std::map<QString, std::weak_ptr<Rta>> m_activeRtas;
     int m_revision { 0 };
 };
 

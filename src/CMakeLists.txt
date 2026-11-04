@@ -68,6 +68,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/LfoLed.qml
     ${QML_BASE_DIR}/Components/LevelMeterBar.qml
     ${QML_BASE_DIR}/Components/LoudnessReadout.qml
+    ${QML_BASE_DIR}/Components/FittedMenu.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
     ${QML_BASE_DIR}/Components/OctaveKnob.qml
@@ -427,6 +428,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/Panel/PanelElement.qml
     ${QML_BASE_DIR}/Panel/PerformancePanel.qml
+    ${QML_BASE_DIR}/Panel/RtaPanelElement.qml
     ${QML_BASE_DIR}/Panel/XyPadPanelElement.qml
     ${QML_BASE_DIR}/Theme.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml

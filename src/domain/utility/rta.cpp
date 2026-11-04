@@ -51,12 +51,20 @@ std::string Rta::typeId() const
 
 bool Rta::isSettled() const
 {
-    return !m_analysisEnabled.load(std::memory_order_relaxed);
+    return m_analysisViewers.load(std::memory_order_relaxed) == 0;
 }
 
-void Rta::setAnalysisEnabled(bool enabled)
+void Rta::addAnalysisViewer()
 {
-    m_analysisEnabled.store(enabled, std::memory_order_relaxed);
+    m_analysisViewers.fetch_add(1, std::memory_order_relaxed);
+}
+
+void Rta::removeAnalysisViewer()
+{
+    // Never below zero: a viewer that lets go twice must not keep the next one from starting it
+    auto viewers = m_analysisViewers.load(std::memory_order_relaxed);
+    while (viewers > 0 && !m_analysisViewers.compare_exchange_weak(viewers, viewers - 1, std::memory_order_relaxed)) {
+    }
 }
 
 std::vector<float> Rta::bandMagnitudesDb() const
@@ -80,7 +88,7 @@ void Rta::processSample(double &, double &)
 
 void Rta::processBlock(AudioContext & context)
 {
-    if (!m_analysisEnabled.load(std::memory_order_relaxed)) {
+    if (m_analysisViewers.load(std::memory_order_relaxed) == 0) {
         return;
     }
 

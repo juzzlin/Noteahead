@@ -312,6 +312,7 @@ QString tremolo();
 //! What a Performance Panel element shows. Saved in projects: never rename.
 namespace PanelElementType {
 QString xyPad();
+QString rta();
 } // namespace PanelElementType
 
 namespace NahdXml {

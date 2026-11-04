@@ -19,19 +19,8 @@ import QtQuick.Controls.Universal 2.15
 import ".."
 import "../Components"
 
-Menu {
+FittedMenu {
     title: qsTr("&Devices")
-    // A Universal menu is a fixed 200 wide, which the check mark leaves too little of
-    width: {
-        let result = 200;
-        for (let i = 0; i < count; i++) {
-            const item = itemAt(i);
-            if (item && item.contentItem) {
-                result = Math.max(result, item.contentItem.implicitWidth + item.leftPadding + item.rightPadding);
-            }
-        }
-        return result;
-    }
     // The sequences are registered as application shortcuts in Main.qml. See ShortcutHintAction.
     ShortcutHintAction {
         text: qsTr("Device rack...")

@@ -585,6 +585,11 @@ QString xyPad()
 {
     return "xyPad";
 }
+
+QString rta()
+{
+    return "rta";
+}
 } // namespace PanelElementType
 
 namespace NahdXml {

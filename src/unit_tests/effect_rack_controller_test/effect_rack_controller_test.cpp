@@ -132,6 +132,19 @@ void EffectRackControllerTest::cleanupTestCase()
     EffectFactory::clear();
 }
 
+void EffectRackControllerTest::test_effectId_shouldNameTheEffectInThatSlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(2, QString::fromStdString(Reverb::typeIdString()));
+
+    QCOMPARE(controller.effectId(2), QString::fromStdString(deviceService->insertEffectRack().effect(2)->id()));
+    QVERIFY(controller.effectId(1).isEmpty());
+}
+
 void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

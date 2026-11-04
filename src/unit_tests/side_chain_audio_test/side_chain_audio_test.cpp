@@ -887,7 +887,7 @@ void SideChainAudioTest::test_audioEngine_silentDeviceWithRta_shouldKeepMeasurin
     device->setToneHz(1000.0);
 
     const auto rta = std::make_shared<Rta>();
-    rta->setAnalysisEnabled(true);
+    rta->addAnalysisViewer();
     device->insertEffectRack().setEffect(0, rta);
 
     engine.setDevice(0, device);
