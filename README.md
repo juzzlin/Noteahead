@@ -269,6 +269,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
 - Parameter Automation
   - Drive any instrument's or effect's controls directly, in their own units (Hz, ms, dB) rather than 128 MIDI steps, absolutely or relative to the knob's own setting. Sampler pads and drum machine drums are targets of their own.
+- Automation Curves
+  - Every automation is drawn as a vertical curve over its note column, so what moves is seen beside the notes. Curves can be drawn node by node; click one to edit it, right-click to edit or delete it. XY pad moves recorded while playing land here as drawn curves too.
 - Pattern-Based Sequencing
   - Flexible play order management with independent pattern lengths.
 - Track & Column Management
