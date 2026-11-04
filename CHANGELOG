@@ -8,6 +8,12 @@ New features:
 * Synth: VPM Multi engine after the Minilogue XD's
   - 16 phase modulation types, with Ratio, Octave and the XD's six VPM parameters
 
+* XY Pad: four hand-played pads, each axis moving any device or effect parameter
+
+* Performance Panel: XY pads and RTAs under the editor, shown with Ctrl+P
+
+* LFOs and XY pads on the same parameter add up
+
 Bug fixes:
 
 Other:
