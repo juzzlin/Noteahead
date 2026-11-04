@@ -71,6 +71,7 @@ Rectangle {
 
         ListView {
             id: elementList
+            readonly property real scrollBarSpace: 10
             orientation: ListView.Horizontal
             model: performancePanelModel
             spacing: 6
@@ -84,7 +85,10 @@ Rectangle {
             }
             delegate: PanelElement {
                 required property int index
-                height: elementList.height - (elementList.contentWidth > elementList.width ? 10 : 0)
+                // Room for the scroll bar is kept whether it shows or not. Taking it only while it
+                // shows froze the application: shorter elements have narrower square pads, which
+                // could hide the bar again, and so on forever.
+                height: elementList.height - elementList.scrollBarSpace
                 onRemoveRequested: performancePanelModel.removeElement(index)
             }
             footer: Item {
