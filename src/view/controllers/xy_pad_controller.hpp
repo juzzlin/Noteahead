@@ -67,6 +67,8 @@ public:
 signals:
     //! A hand went on pad @p pad, through this controller or any other view of the same device.
     void padPressed(int pad);
+    //! An automation will move the device's pads @p delayMs from now: a recorded take playing.
+    void padsAutomated(qint64 delayMs);
 
 public:
     //! The device the panels read and write, or nothing.

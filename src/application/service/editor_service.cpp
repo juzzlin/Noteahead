@@ -1985,6 +1985,22 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     }
 }
 
+void EditorService::requestAutomationEdit(AutomationSet additions, AutomationSet deletions)
+{
+    if (!m_automationService || (additions.empty() && deletions.empty())) {
+        return;
+    }
+    m_undoStack->push(std::make_shared<AutomationCommand>(m_automationService, std::move(additions), std::move(deletions)));
+    setIsModified(true);
+}
+
+void EditorService::requestAutomationDelete(int kind, quint64 automationId)
+{
+    if (m_automationService) {
+        requestAutomationEdit({}, m_automationService->automationById(static_cast<AutomationService::AutomationKind>(kind), automationId));
+    }
+}
+
 void EditorService::pushNoteAndAutomationEdit(NoteChangeList changes, AutomationSet additions, AutomationSet deletions)
 {
     auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {

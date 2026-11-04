@@ -56,6 +56,38 @@ void EditorServiceUndoTest::test_undoRedo_noteOn_shouldUndoAndRedo()
     QVERIFY(editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_automationDelete_shouldUndoAndRedo()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), automationService, std::make_shared<DataService>() };
+    const auto kept = automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 8, 0, 127, "", 0, 0);
+    const auto deleted = automationService->addMidiCcAutomation(0, 0, 0, 10, 0, 8, 0, 127, "", 0, 0);
+
+    editorService.requestAutomationDelete(static_cast<int>(AutomationService::AutomationKind::MidiCc), deleted);
+    QCOMPARE(automationService->midiCcAutomations().size(), size_t { 1 });
+    QCOMPARE(automationService->midiCcAutomations().front().id(), kept);
+    QVERIFY(editorService.isModified());
+
+    editorService.undo();
+    QCOMPARE(automationService->midiCcAutomations().size(), size_t { 2 });
+    QVERIFY(!automationService->automationById(AutomationService::AutomationKind::MidiCc, deleted).empty());
+
+    editorService.redo();
+    QCOMPARE(automationService->midiCcAutomations().size(), size_t { 1 });
+}
+
+void EditorServiceUndoTest::test_requestAutomationDelete_otherKind_shouldDeleteNothing()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), automationService, std::make_shared<DataService>() };
+    const auto id = automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 8, 0, 127, "", 0, 0);
+
+    // Ids are only unique within one kind
+    editorService.requestAutomationDelete(static_cast<int>(AutomationService::AutomationKind::PitchBend), id);
+    QCOMPARE(automationService->midiCcAutomations().size(), size_t { 1 });
+    QVERIFY(!editorService.canUndo());
+}
+
 void EditorServiceUndoTest::test_undoRedo_noteOff_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

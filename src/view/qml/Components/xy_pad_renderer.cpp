@@ -27,6 +27,8 @@ namespace noteahead {
 namespace {
 // About a display frame: smooth enough to watch the glide, and it only runs while the pad moves
 const auto frameInterval = std::chrono::milliseconds { 16 };
+//! How long a pad goes on moving after an automation's step: a few of its slew times
+constexpr qint64 AutomationFollowMs { 100 };
 } // namespace
 
 XyPadRenderer::XyPadRenderer(QQuickItem * parent)
@@ -54,6 +56,7 @@ void XyPadRenderer::setController(QObject * controller)
         if (m_controller) {
             // The same pad can be shown twice, in its dialog and on the performance panel
             connect(m_controller, &XyPadController::padPressed, this, &XyPadRenderer::onPadPressed);
+            connect(m_controller, &XyPadController::padsAutomated, this, &XyPadRenderer::onPadsAutomated);
         }
         emit controllerChanged();
         update();
@@ -154,15 +157,40 @@ void XyPadRenderer::onFrame()
     update();
     // The pad is still gliding after the hand has gone, so the redraws stop only once it is home.
     // The hand can also be on it in another view of the same pad.
-    if (!m_handOn && (!m_controller || (!m_controller->isPressed(m_pad) && !m_controller->isMoving(m_pad)))) {
+    // An automation moves it in steps, and it rests between them
+    const bool automated = std::chrono::steady_clock::now() < m_automatedUntil;
+    if (!m_handOn && !automated && (!m_controller || (!m_controller->isPressed(m_pad) && !m_controller->isMoving(m_pad)))) {
         m_frameTimer.stop();
+    }
+}
+
+bool XyPadRenderer::showsPad(int pad) const
+{
+    return pad == m_pad;
+}
+
+void XyPadRenderer::startRedrawing()
+{
+    // Not restarted: a drawn automation steps every tick, far more often than a frame, and
+    // restarting the timer on each step would keep it from ever firing
+    if (!m_frameTimer.isActive()) {
+        m_frameTimer.start();
     }
 }
 
 void XyPadRenderer::onPadPressed(int pad)
 {
-    if (pad == m_pad && isVisible()) {
-        m_frameTimer.start();
+    if (showsPad(pad) && isVisible()) {
+        startRedrawing();
+    }
+}
+
+void XyPadRenderer::onPadsAutomated(qint64 delayMs)
+{
+    if (isVisible()) {
+        // Past the step itself, by the time the pad takes to follow it
+        m_automatedUntil = std::max(m_automatedUntil, std::chrono::steady_clock::now() + std::chrono::milliseconds { delayMs + AutomationFollowMs });
+        startRedrawing();
     }
 }
 

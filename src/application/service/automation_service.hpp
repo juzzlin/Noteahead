@@ -176,6 +176,8 @@ public:
     AutomationSet automationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
     AutomationSet automationsByTrack(quint64 pattern, quint64 track) const;
     AutomationSet automationsByPattern(quint64 pattern) const;
+    //! The automation of @p kind with id @p automationId, or an empty set when there is none.
+    AutomationSet automationById(AutomationKind kind, quint64 automationId) const;
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;

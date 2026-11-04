@@ -22,6 +22,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
@@ -61,6 +62,14 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
     // Whatever was being held for this slot has just been replaced by a real device
     m_unknownDevices.erase(slotIndex);
     connect(device.get(), &Device::dataChanged, this, &DeviceService::dataChanged);
+    if (const auto xyPad = std::dynamic_pointer_cast<XyPadDevice>(device); xyPad) {
+        connect(xyPad.get(), &XyPadDevice::padPressed, this, [this, xyPad = std::weak_ptr { xyPad }](int pad) {
+            // The uuid is renewed when a device is copied, so it is read when the pad is pressed
+            if (const auto device = xyPad.lock(); device) {
+                emit xyPadPressed(QString::fromStdString(device->uuid()), pad);
+            }
+        });
+    }
     device->setId(slotIndex);
     if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
         sampler->setProjectPath(m_projectPath);

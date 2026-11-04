@@ -32,12 +32,17 @@ private slots:
     void test_evaluate_release_shouldSpringBackWithinTheReturnTime();
     void test_evaluate_zeroReturnTime_shouldHold();
     void test_evaluate_depth_shouldBeSent();
+    void test_evaluate_positionAutomated_shouldMoveThePad();
+    void test_evaluate_positionAutomatedWhileHeld_shouldFollowTheHand();
+    void test_evaluate_positionAutomatedWhileSpringingBack_shouldSpringBackFirst();
+    void test_isHandActive_shouldLastUntilTheSpringBackEnds();
     void test_evaluate_anyBufferSize_shouldStepTheSame();
     void test_setTarget_shouldReleaseTheOldTarget();
     void test_press_outOfRange_shouldClamp();
     void test_xmlSerialization_shouldRestoreTargetsAndControls();
     void test_xmlSerialization_untouched_shouldWriteNoTargets();
     void test_automatableParameters_shouldBeGroupedByPad();
+    void test_automatableParameters_position_shouldBeListed();
     void test_engine_padAndLfoOnOneCutoff_shouldAddUp();
     void test_engine_padOnEffect_shouldLetGoAtHome();
 };

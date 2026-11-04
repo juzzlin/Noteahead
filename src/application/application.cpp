@@ -132,6 +132,7 @@
 #include "service/theme_service.hpp"
 #include "service/tip_service.hpp"
 #include "service/util_service.hpp"
+#include "service/xy_pad_recording_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
 
@@ -209,6 +210,7 @@ Application::Application(int & argc, char ** argv)
   , m_sideChainService { std::make_shared<SideChainService>() }
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
   , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
+  , m_xyPadRecordingService { std::make_shared<XyPadRecordingService>(m_deviceService, m_editorService, m_automationService) }
   , m_midiExporter { std::make_shared<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_midiImporter { std::make_shared<MidiImporter>() }
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
@@ -364,6 +366,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("xyPadController", m_xyPadController.get());
     m_engine->rootContext()->setContextProperty("performancePanelModel", m_performancePanelModel.get());
     m_engine->rootContext()->setContextProperty("performancePanelController", m_performancePanelController.get());
+    m_engine->rootContext()->setContextProperty("xyPadRecordingService", m_xyPadRecordingService.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV2Controller", m_pianoSynthV2Controller.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV3Controller", m_pianoSynthV3Controller.get());
@@ -861,6 +864,17 @@ void Application::connectPlayerService()
         m_playerService->setSong(m_editorService->song());
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
+
+    // The XY pads record while the song plays in edit mode, as notes do
+    connect(m_playerService.get(), &PlayerService::tickUpdated, this, [this](quint64 tick) {
+        m_xyPadRecordingService->setTick(tick, m_deviceService->scheduleLookahead().value_or(std::chrono::steady_clock::duration::zero()));
+    });
+    const auto armXyPadRecording = [this] {
+        m_xyPadRecordingService->setArmed(m_playerService->isPlaying() && m_applicationService->editMode());
+    };
+    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, armXyPadRecording);
+    connect(m_applicationService.get(), &ApplicationService::editModeChanged, this, armXyPadRecording);
+    connect(m_deviceService.get(), &DeviceService::xyPadPressed, m_xyPadRecordingService.get(), &XyPadRecordingService::startTake);
 
     // A stop asked for: nothing playback wrote may outlive it, so the devices go back to the values
     // the user set. At once, so that a jump in the play order -- a stop and a play back to back --

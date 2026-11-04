@@ -258,6 +258,9 @@ public:
 signals:
     void dataChanged();
 
+    //! A hand went on pad @p pad of the XY pad device with uuid @p deviceUuid, in any view of it.
+    void xyPadPressed(QString deviceUuid, int pad);
+
     //! An automation will move a parameter of @p target @p delayMs from now. The target is only an
     //! identity to compare against, never to be followed: it may be gone by the time this arrives.
     //! Zero means every target, as when playback stops and automation lets go of them all.

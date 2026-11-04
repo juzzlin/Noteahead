@@ -656,6 +656,26 @@ AutomationSet AutomationService::automationsByPattern(quint64 pattern) const
     });
 }
 
+AutomationSet AutomationService::automationById(AutomationKind kind, quint64 automationId) const
+{
+    AutomationSet result;
+    const auto withId = [automationId](auto && automation) {
+        return automation.id() == automationId;
+    };
+    switch (kind) {
+    case AutomationKind::MidiCc:
+        std::ranges::copy_if(m_automations.midiCc, std::back_inserter(result.midiCc), withId);
+        break;
+    case AutomationKind::PitchBend:
+        std::ranges::copy_if(m_automations.pitchBend, std::back_inserter(result.pitchBend), withId);
+        break;
+    case AutomationKind::Parameter:
+        std::ranges::copy_if(m_automations.parameter, std::back_inserter(result.parameter), withId);
+        break;
+    }
+    return result;
+}
+
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomations() const
 {
     return m_automations.midiCc;

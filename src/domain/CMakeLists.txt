@@ -169,6 +169,7 @@ set(HEADER_FILES
     tracker/automation_curve.hpp
     tracker/automation_location.hpp
     tracker/automation_set.hpp
+    tracker/automation_take.hpp
     tracker/column.hpp
     tracker/column_settings.hpp
     tracker/drawn_curve_sync.hpp
@@ -388,6 +389,7 @@ set(SOURCE_FILES
     tracker/automation_curve.cpp
     tracker/automation_location.cpp
     tracker/automation_set.cpp
+    tracker/automation_take.cpp
     tracker/column.cpp
     tracker/column_settings.cpp
     tracker/drawn_curve_sync.cpp

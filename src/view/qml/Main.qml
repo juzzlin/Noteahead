@@ -1103,6 +1103,9 @@ ApplicationWindow {
         id: contextMenu
         width: parent.width * 0.25
     }
+    AutomationCurveMenu {
+        id: automationCurveMenu
+    }
     LanguageMenu {
         id: languageMenu
     }
@@ -1771,6 +1774,7 @@ ApplicationWindow {
             contextMenu.y = y;
             contextMenu.open();
         });
+        UiService.automationCurveMenuRequested.connect((kind, automationId, x, y) => automationCurveMenu.openFor(kind, automationId, x, y));
         UiService.languageMenuRequested.connect((x, y) => {
             // Right-aligned to the selector that asked for it, so the menu stays inside the window.
             languageMenu.x = x - languageMenu.width;

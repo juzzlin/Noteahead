@@ -28,6 +28,7 @@ QtObject {
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal contextMenuRequested(int globalX, int globalY)
+    signal automationCurveMenuRequested(int kind, int automationId, int globalX, int globalY)
     signal languageMenuRequested(int globalX, int globalY)
     signal delayCalculatorDialogRequested
     signal deleteUnusedPatternsConfirmed
@@ -537,6 +538,13 @@ QtObject {
     }
     function requestContextMenu(globalX: int, globalY: int): void {
         contextMenuRequested(globalX, globalY);
+    }
+    //! What can be done to one automation, @p kind being Constants' automationKind*: what a right
+    //! click on its curve in the editor opens.
+    function requestAutomationCurveMenu(kind: int, automationId: int, globalX: int, globalY: int): void {
+        if (!isPlaying()) {
+            automationCurveMenuRequested(kind, automationId, globalX, globalY);
+        }
     }
     function requestLanguageMenu(globalX: int, globalY: int): void {
         languageMenuRequested(globalX, globalY);

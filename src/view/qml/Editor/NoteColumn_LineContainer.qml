@@ -186,6 +186,13 @@ Item {
                 uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${effectiveLineIndex}`);
                 rootItem.leftClicked(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {
+                // A right click on a curve offers what can be done to that automation instead
+                if (_isCurvePress()) {
+                    const curve = _pressedCurve;
+                    _pressedCurve = {};
+                    UiService.requestAutomationCurveMenu(curve.kind, curve.id, globalPos.x, globalPos.y);
+                    return;
+                }
                 uiLogger.info(_tag, `Column ${rootItem._index} right clicked on line ${effectiveLineIndex}`);
                 rootItem.rightClicked(effectiveLineIndex, globalPos.x, globalPos.y);
             }
@@ -195,11 +202,11 @@ Item {
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            _pressedCurve = _renderer && !UiService.isPlaying() ? _renderer.automationCurveAt(mouse.x, mouse.y) : ({});
+            if (_isCurvePress()) {
+                return; // Not the start of a selection either
+            }
             if (mouse.button === Qt.LeftButton) {
-                _pressedCurve = _renderer && !UiService.isPlaying() ? _renderer.automationCurveAt(mouse.x, mouse.y) : ({});
-                if (_isCurvePress()) {
-                    return; // Not the start of a selection either
-                }
                 uiLogger.info(_tag, `Column ${rootItem._index} left pressed on line ${effectiveLineIndex}`);
                 rootItem.leftPressed(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {
@@ -213,10 +220,10 @@ Item {
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            if (_isCurvePress()) {
+                return;
+            }
             if (mouse.button === Qt.LeftButton) {
-                if (_isCurvePress()) {
-                    return;
-                }
                 uiLogger.info(_tag, `Column ${rootItem._index} left released on line ${effectiveLineIndex}`);
                 rootItem.leftReleased(effectiveLineIndex, globalPos.x, globalPos.y);
             } else {

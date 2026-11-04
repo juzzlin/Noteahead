@@ -21,6 +21,8 @@
 #include <QQuickPaintedItem>
 #include <QTimer>
 
+#include <chrono>
+
 namespace noteahead {
 
 class XyPadController;
@@ -81,10 +83,18 @@ private:
     void handOn(const QPointF & position);
     void letGo();
     void onFrame();
+    //! Whether @p pad is the pad this renderer draws.
+    bool showsPad(int pad) const;
+    //! Redraws every frame from now on, until onFrame() finds the pad at rest. Does nothing while
+    //! already redrawing.
+    void startRedrawing();
     void onPadPressed(int pad);
+    void onPadsAutomated(qint64 delayMs);
 
     QPointer<XyPadController> m_controller;
     int m_pad { 0 };
+    //! Until when an automation is known to move the pad: redraws go on at least as long.
+    std::chrono::steady_clock::time_point m_automatedUntil;
     QString m_xLabel;
     QString m_yLabel;
     QColor m_accentColor { "#4fc3f7" };

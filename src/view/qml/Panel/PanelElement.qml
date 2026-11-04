@@ -73,14 +73,22 @@ Rectangle {
         spacing: 4
 
         RowLayout {
+            id: header
             Layout.fillWidth: true
             spacing: 4
-            Label {
-                text: root._title()
-                color: root.found ? Theme.textSecondary : Theme.danger
-                font.pixelSize: Theme.bodyPixelSize
-                elide: Text.ElideRight
+            Item {
                 Layout.fillWidth: true
+                Layout.preferredHeight: titleLabel.implicitHeight
+                Label {
+                    id: titleLabel
+                    text: root._title()
+                    color: root.found ? Theme.textSecondary : Theme.danger
+                    font.pixelSize: Theme.bodyPixelSize
+                    elide: Text.ElideRight
+                    anchors.verticalCenter: parent.verticalCenter
+                    // Clear of the recording note in the middle
+                    width: recordingLabel.visible ? Math.max(0, Math.min(parent.width, recordingLabel.x - 6 - 8)) : parent.width
+                }
             }
             AppButton {
                 text: "..."
@@ -107,6 +115,18 @@ Rectangle {
             Layout.fillHeight: true
             sourceComponent: !root.found ? null : root.type === performancePanelController.xyPadType ? xyPadBody : root.isEffect ? rtaBody : null
         }
+    }
+
+    //! What a hand on the pads does while the song plays in edit mode, in the middle of the title bar
+    Label {
+        id: recordingLabel
+        visible: root.found && root.type === performancePanelController.xyPadType && xyPadRecordingService.armed
+        text: qsTr("Recording on column")
+        color: Theme.danger
+        font.pixelSize: Theme.bodyPixelSize
+        font.bold: true
+        x: (root.width - width) / 2
+        y: header.y + 6 + (header.height - height) / 2
     }
 
     Component {

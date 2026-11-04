@@ -37,7 +37,11 @@ namespace noteahead {
 //!
 //! The pad is written from the UI thread, through atomics, and read on the audio thread in
 //! evaluate(), which slews it on the same fixed grid as the LFO device so that a mouse's coarse
-//! steps do not zip, and eases it home along a half cosine that arrives exactly in the return time. Where the pad stands is not saved: it is played, not set.
+//! steps do not zip, and eases it home along a half cosine that arrives exactly in the return time.
+//!
+//! Where each pad stands is also a parameter of its own, one per axis, which is what a recorded take
+//! automates: while no hand is on the pad and it is not springing back, an automation of it moves
+//! the pad as a hand would. The hand always wins.
 class XyPadDevice : public Device, public ModulationSource
 {
     Q_OBJECT
@@ -110,6 +114,9 @@ public:
     static std::string padKey(size_t pad, const QString & key);
     //! The key an axis's own control is stored under, "pad2_y_intensity".
     static std::string axisKey(size_t pad, Axis axis, const QString & key);
+    //! The key of the parameter where @p axis of @p pad stands, "pad2_y_position". From 0 to 1,
+    //! with the centre of the pad at 0.5.
+    static std::string positionKey(size_t pad, Axis axis);
 
     //! Puts the hand on @p pad at @p x, @p y, each from -1 to 1 with 0 at the centre and y up.
     //! Lock-free; for the UI thread.
@@ -126,6 +133,10 @@ public:
     bool isPressed(size_t pad) const;
     //! Whether @p pad is still on its way back to the centre, or to where the hand left it.
     bool isMoving(size_t pad) const;
+    //! Whether a hand still shapes @p pad: on it, or let go of it while it springs back. What a
+    //! recorded take lasts for. Follows a press at once and a release once the audio thread has
+    //! seen it, so it never ends a take before the spring back has begun.
+    bool isHandActive(size_t pad) const;
 
     //! Advances every pad over [startFrame, startFrame + frameCount) and appends the steps that
     //! change anything to @p steps. For the engine, on the audio thread, before any device renders.
@@ -161,6 +172,7 @@ private:
         std::atomic<float> shownX { 0.0f };
         std::atomic<float> shownY { 0.0f };
         std::atomic<bool> moving { false };
+        std::atomic<bool> handActive { false };
         //! The audio thread's own: where the pad stands, and where it is heading once let go.
         double x { 0.0 };
         double y { 0.0 };
@@ -173,6 +185,12 @@ private:
         double returnFromY { 0.0 };
         std::optional<uint64_t> returnStep;
         float returnTime { 0.0f };
+        //! Where an automation of the pad's position puts it, when one does.
+        std::optional<double> automatedX;
+        std::optional<double> automatedY;
+        //! Where the pad is heading when no hand shapes it: where it was left, or the automation.
+        double goalX { 0.0 };
+        double goalY { 0.0 };
         std::array<AxisSlot, AxisCount> axes;
     };
 

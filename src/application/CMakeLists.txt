@@ -63,6 +63,7 @@ set(HEADER_FILES
     service/theme_service.hpp
     service/tip_service.hpp
     service/util_service.hpp
+    service/xy_pad_recording_service.hpp
     state_machine.hpp
     ui_logger.hpp
 )
@@ -130,6 +131,7 @@ set(SOURCE_FILES
     service/theme_service.cpp
     service/tip_service.cpp
     service/util_service.cpp
+    service/xy_pad_recording_service.cpp
     state_machine.cpp
     ui_logger.cpp
 )

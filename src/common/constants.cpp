@@ -2132,6 +2132,11 @@ QString xmlKeyIntensity()
     return "intensity";
 }
 
+QString xmlKeyPadPosition()
+{
+    return "position";
+}
+
 QString xmlKeyTarget()
 {
     return "target";

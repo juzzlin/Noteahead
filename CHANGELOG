@@ -14,6 +14,10 @@ New features:
 
 * LFOs and XY pads on the same parameter add up
 
+* XY Pad: moves recorded as automations while playing in edit mode
+
+* Delete an automation by right-clicking its curve
+
 Bug fixes:
 
 Other:

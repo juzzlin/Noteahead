@@ -388,6 +388,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/XyPadDialog.qml
     ${QML_BASE_DIR}/Dialogs/XyPadDialog_Pad.qml
     ${QML_BASE_DIR}/Editor/AudioWaveView.qml
+    ${QML_BASE_DIR}/Editor/AutomationCurveMenu.qml
     ${QML_BASE_DIR}/Editor/DeviceContextMenu.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml

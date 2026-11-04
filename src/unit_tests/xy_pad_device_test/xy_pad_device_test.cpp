@@ -80,6 +80,18 @@ uint64_t seconds(double value)
     return static_cast<uint64_t>(value * SampleRate);
 }
 
+//! Plays an automation of where @p axis of @p pad stands, as a recorded take does: @p position from
+//! -1 to 1
+void automatePosition(XyPadDevice & device, size_t pad, Axis axis, double position)
+{
+    QVERIFY(device.applyParameterAutomation(XyPadDevice::positionKey(pad, axis), ParameterAutomation::Mode::Absolute, (position + 1.0) * 0.5));
+}
+
+void setReturnSeconds(XyPadDevice & device, size_t pad, double returnSeconds)
+{
+    QVERIFY(device.updatePadParameter(pad, NahdXml::xmlKeyReturnTime(), static_cast<float>(std::cbrt(returnSeconds / XyPadDevice::MaxReturnSeconds))));
+}
+
 } // namespace
 
 void XyPadDeviceTest::test_typeId_shouldBeAModulator()
@@ -275,6 +287,71 @@ void XyPadDeviceTest::test_xmlSerialization_shouldRestoreTargetsAndControls()
     QCOMPARE(toXml(restored), toXml(original));
 }
 
+void XyPadDeviceTest::test_evaluate_positionAutomated_shouldMoveThePad()
+{
+    XyPadDevice device { "XY" };
+    device.setTarget(0, Axis::X, cutoffTarget());
+    automatePosition(device, 0, Axis::X, 0.5);
+
+    const auto steps = stepsOf(run(device, 0, seconds(0.1)), XyPadDevice::slot(0, Axis::X));
+    QVERIFY(!steps.empty());
+    QVERIFY(std::abs(steps.back().source - 0.5) < 1.0e-3);
+    QVERIFY(std::abs(device.positionX(0) - 0.5f) < 1.0e-3f);
+    QVERIFY(!device.isPressed(0));
+    QVERIFY(!device.isHandActive(0));
+
+    // Let go of, the pad is back where it rests
+    device.clearParameterAutomation();
+    run(device, seconds(0.1), seconds(0.1));
+    QCOMPARE(device.positionX(0), 0.0f);
+}
+
+void XyPadDeviceTest::test_evaluate_positionAutomatedWhileHeld_shouldFollowTheHand()
+{
+    XyPadDevice device { "XY" };
+    automatePosition(device, 0, Axis::Y, 0.8);
+    device.press(0, 0.0f, -0.4f);
+    run(device, 0, seconds(0.1));
+    QVERIFY(std::abs(device.positionY(0) + 0.4f) < 1.0e-3f);
+}
+
+void XyPadDeviceTest::test_evaluate_positionAutomatedWhileSpringingBack_shouldSpringBackFirst()
+{
+    XyPadDevice device { "XY" };
+    setReturnSeconds(device, 0, 1.0);
+    automatePosition(device, 0, Axis::X, -0.5);
+    device.press(0, 1.0f, 0.0f);
+    run(device, 0, seconds(0.1));
+    device.release(0);
+
+    // Halfway home, on the way to the centre, not to the automation
+    run(device, seconds(0.1), seconds(0.5));
+    QVERIFY2(std::abs(device.positionX(0) - 0.5f) < 0.01f, qPrintable(QString::number(device.positionX(0))));
+
+    // Then the automation has it
+    run(device, seconds(0.6), seconds(0.6));
+    QVERIFY(std::abs(device.positionX(0) + 0.5f) < 1.0e-3f);
+}
+
+void XyPadDeviceTest::test_isHandActive_shouldLastUntilTheSpringBackEnds()
+{
+    XyPadDevice device { "XY" };
+    setReturnSeconds(device, 0, 0.5);
+    QVERIFY(!device.isHandActive(0));
+    device.press(0, 1.0f, 1.0f);
+    QVERIFY(device.isHandActive(0));
+    run(device, 0, seconds(0.1));
+
+    // Let go of but not yet seen by the audio thread, and then springing back
+    device.release(0);
+    QVERIFY(device.isHandActive(0));
+    run(device, seconds(0.1), seconds(0.25));
+    QVERIFY(device.isHandActive(0));
+
+    run(device, seconds(0.35), seconds(0.3));
+    QVERIFY(!device.isHandActive(0));
+}
+
 void XyPadDeviceTest::test_xmlSerialization_untouched_shouldWriteNoTargets()
 {
     QVERIFY(!toXml(XyPadDevice { "XY" }).contains("<" + NahdXml::xmlKeyPad() + " "));
@@ -290,6 +367,17 @@ void XyPadDeviceTest::test_automatableParameters_shouldBeGroupedByPad()
         QVERIFY(entry != list.end());
         QCOMPARE(entry->groupName, "Pad " + std::to_string(pad + 1));
     }
+}
+
+void XyPadDeviceTest::test_automatableParameters_position_shouldBeListed()
+{
+    const XyPadDevice device { "XY" };
+    const auto list = device.automatableParameters();
+    const auto key = XyPadDevice::positionKey(3, Axis::Y);
+    QCOMPARE(key, std::string { "pad4_y_position" });
+    const auto entry = std::ranges::find_if(list, [&key](auto && candidate) { return candidate.key == key; });
+    QVERIFY(entry != list.end());
+    QCOMPARE(entry->groupName, std::string { "Pad 4" });
 }
 
 void XyPadDeviceTest::test_engine_padAndLfoOnOneCutoff_shouldAddUp()

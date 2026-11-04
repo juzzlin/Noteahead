@@ -671,6 +671,8 @@ QString xmlKeyDecay();
 QString xmlKeySustain();
 QString xmlKeyReleaseTime();
 QString xmlKeyIntensity();
+//! Where an XY pad stands on one axis: what a recorded take automates.
+QString xmlKeyPadPosition();
 QString xmlKeyTarget();
 QString xmlKeyDelayType();
 QString xmlKeyDelayTime();

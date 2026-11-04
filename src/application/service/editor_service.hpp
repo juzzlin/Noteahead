@@ -431,6 +431,12 @@ public:
     virtual Q_INVOKABLE void undo();
     virtual Q_INVOKABLE void redo();
 
+    //! Adds @p additions and takes @p deletions away as one undoable step: a recorded take.
+    void requestAutomationEdit(AutomationSet additions, AutomationSet deletions);
+    //! Deletes one automation, undoably. @p kind is an AutomationService::AutomationKind, as the
+    //! editor's curves name it.
+    Q_INVOKABLE void requestAutomationDelete(int kind, quint64 automationId);
+
     using LineListCR = const LineList &;
 
 signals:

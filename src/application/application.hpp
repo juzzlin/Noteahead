@@ -89,6 +89,7 @@ class NoteColumnModelHandler;
 class ParameterAutomationsModel;
 class PitchBendAutomationsModel;
 class PlayerService;
+class XyPadRecordingService;
 class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
@@ -236,6 +237,7 @@ private:
     std::shared_ptr<SideChainService> m_sideChainService;
     std::shared_ptr<PlayerService> m_playerService;
     std::shared_ptr<KeyboardService> m_keyboardService;
+    std::shared_ptr<XyPadRecordingService> m_xyPadRecordingService;
 
     std::shared_ptr<MidiExporter> m_midiExporter;
     std::shared_ptr<MidiImporter> m_midiImporter;

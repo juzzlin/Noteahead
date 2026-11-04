@@ -105,6 +105,11 @@ std::string XyPadDevice::axisKey(size_t pad, Axis axis, const QString & key)
     return "pad" + std::to_string(pad + 1) + "_" + axisName(axis) + "_" + key.toStdString();
 }
 
+std::string XyPadDevice::positionKey(size_t pad, Axis axis)
+{
+    return axisKey(pad, axis, NahdXml::xmlKeyPadPosition());
+}
+
 void XyPadDevice::addPadParameters(size_t pad)
 {
     const auto continuous = [this](const std::string & key, float value) {
@@ -114,6 +119,9 @@ void XyPadDevice::addPadParameters(size_t pad)
     // Full depth: the edges of a pad reach half the knob's travel either way of the setting
     continuous(axisKey(pad, Axis::X, NahdXml::xmlKeyIntensity()), 1.0f);
     continuous(axisKey(pad, Axis::Y, NahdXml::xmlKeyIntensity()), 1.0f);
+    // At the centre, so that the pad rests where it would without it
+    continuous(positionKey(pad, Axis::X), 0.5f);
+    continuous(positionKey(pad, Axis::Y), 0.5f);
 }
 
 void XyPadDevice::describePadParameters(size_t pad)
@@ -122,6 +130,8 @@ void XyPadDevice::describePadParameters(size_t pad)
     setParameterDisplay(padKey(pad, NahdXml::xmlKeyReturnTime()), { .mapping = Display::Mapping::Cubic, .unit = "s", .min = 0.0, .max = MaxReturnSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Return") });
     setParameterDisplay(axisKey(pad, Axis::X, NahdXml::xmlKeyIntensity()), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "X Depth") });
     setParameterDisplay(axisKey(pad, Axis::Y, NahdXml::xmlKeyIntensity()), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Y Depth") });
+    setParameterDisplay(positionKey(pad, Axis::X), { .mapping = Display::Mapping::Bipolar, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "X") });
+    setParameterDisplay(positionKey(pad, Axis::Y), { .mapping = Display::Mapping::Bipolar, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Y") });
 }
 
 void XyPadDevice::syncParameters()
@@ -136,6 +146,15 @@ void XyPadDevice::syncParameters()
         state.returnTime = value(padKey(pad, NahdXml::xmlKeyReturnTime()));
         state.axes.at(static_cast<size_t>(Axis::X)).depth = value(axisKey(pad, Axis::X, NahdXml::xmlKeyIntensity()));
         state.axes.at(static_cast<size_t>(Axis::Y)).depth = value(axisKey(pad, Axis::Y, NahdXml::xmlKeyIntensity()));
+        // Only an automation or a modulation moves the pad: the value it rests at is the centre
+        const auto position = [this](const std::string & key) -> std::optional<double> {
+            if (const auto p = parameter(key); p && (p->get().isAutomated() || p->get().isModulated())) {
+                return std::clamp(static_cast<double>(p->get().value()) * 2.0 - 1.0, -1.0, 1.0);
+            }
+            return std::nullopt;
+        };
+        state.automatedX = position(positionKey(pad, Axis::X));
+        state.automatedY = position(positionKey(pad, Axis::Y));
     }
 }
 
@@ -196,6 +215,9 @@ void XyPadDevice::resetDeviceAudio()
         pad.shownX.store(0.0f, std::memory_order_relaxed);
         pad.shownY.store(0.0f, std::memory_order_relaxed);
         pad.moving.store(false, std::memory_order_relaxed);
+        pad.handActive.store(false, std::memory_order_relaxed);
+        pad.goalX = 0.0;
+        pad.goalY = 0.0;
         for (auto && axis : pad.axes) {
             axis.lastSent.reset();
         }
@@ -340,6 +362,11 @@ bool XyPadDevice::isMoving(size_t pad) const
     return pad < PadCount && m_pads.at(pad).moving.load(std::memory_order_relaxed);
 }
 
+bool XyPadDevice::isHandActive(size_t pad) const
+{
+    return pad < PadCount && (m_pads.at(pad).pressed.load(std::memory_order_acquire) || m_pads.at(pad).handActive.load(std::memory_order_acquire));
+}
+
 void XyPadDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double sampleRate, double, std::vector<Step> & steps)
 {
     if (sampleRate <= 0.0 || !frameCount) {
@@ -394,13 +421,16 @@ void XyPadDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double samp
                     state.returnStep.reset();
                 }
             } else {
-                state.x = state.restX + slewCoefficient * (state.x - state.restX);
-                state.y = state.restY + slewCoefficient * (state.y - state.restY);
-                if (std::abs(state.x - state.restX) < ArrivalThreshold) {
-                    state.x = state.restX;
+                // An automation of the pad moves it only once the hand is done with it
+                state.goalX = !pressed && state.automatedX ? *state.automatedX : state.restX;
+                state.goalY = !pressed && state.automatedY ? *state.automatedY : state.restY;
+                state.x = state.goalX + slewCoefficient * (state.x - state.goalX);
+                state.y = state.goalY + slewCoefficient * (state.y - state.goalY);
+                if (std::abs(state.x - state.goalX) < ArrivalThreshold) {
+                    state.x = state.goalX;
                 }
-                if (std::abs(state.y - state.restY) < ArrivalThreshold) {
-                    state.y = state.restY;
+                if (std::abs(state.y - state.goalY) < ArrivalThreshold) {
+                    state.y = state.goalY;
                 }
             }
 
@@ -431,7 +461,8 @@ void XyPadDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double samp
     for (auto && state : m_pads) {
         state.shownX.store(static_cast<float>(state.x), std::memory_order_relaxed);
         state.shownY.store(static_cast<float>(state.y), std::memory_order_relaxed);
-        state.moving.store(state.x != state.restX || state.y != state.restY, std::memory_order_relaxed);
+        state.moving.store(state.returnStep.has_value() || state.x != state.goalX || state.y != state.goalY, std::memory_order_relaxed);
+        state.handActive.store(state.wasPressed || state.returnStep.has_value(), std::memory_order_release);
     }
 }
 
