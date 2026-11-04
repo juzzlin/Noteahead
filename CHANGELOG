@@ -9,12 +9,11 @@ New features:
   - 16 phase modulation types, with Ratio, Octave and the XD's six VPM parameters
 
 * XY Pad: four hand-played pads, each axis moving any device or effect parameter
+  - Moves recorded as automations while playing in edit mode
 
 * Performance Panel: XY pads and RTAs under the editor, shown with Ctrl+P
 
 * LFOs and XY pads on the same parameter add up
-
-* XY Pad: moves recorded as automations while playing in edit mode
 
 * Delete an automation by right-clicking its curve
 
@@ -40,8 +39,6 @@ Bug fixes:
 * Synth: Shape turned the saw into a sine instead of folding it like the Minilogue XD's
 
 * Saving a new project started another new project, clearing everything in it
-
-Other:
 
 11.0.0
 ======
