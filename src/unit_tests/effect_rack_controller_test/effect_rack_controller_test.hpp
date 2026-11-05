@@ -42,6 +42,7 @@ private slots:
     void test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary();
     void test_effectParametersSummary_emptySlot_shouldReturnEmptyString();
     void test_availableEffects_shouldBeSortedByName();
+    void test_availableEffects_shouldHaveCategories();
     void test_availableEffects_shouldOfferTheMonitoringEffects();
     void test_partSend_shouldAddressOnePadOnly();
     void test_partSend_negativeSubIndex_shouldBeTheDeviceItself();

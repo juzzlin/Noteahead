@@ -39,6 +39,7 @@ private slots:
     void test_clearDevice_shouldRemoveDeviceAndNotify();
     void test_addMethods_shouldAddDevicesToFirstEmptySlot();
     void test_availableDevices_shouldReturnCorrectList();
+    void test_availableDevices_shouldHaveCategories();
     void test_deviceMeterLevels_shouldReportPreInsertLevel();
     void test_deviceMeterLevels_afterSlotChanged_shouldFollowTheActiveGate();
     void test_deviceOutputMeters_shouldCarryEveryReadingOfTheOutputTaps();

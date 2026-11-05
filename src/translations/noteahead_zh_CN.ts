@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -2465,7 +2465,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -3834,7 +3834,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4254,7 +4254,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4671,7 +4671,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5053,7 +5053,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5497,7 +5497,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Assign Instrument Port</source>
@@ -7445,7 +7445,7 @@
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">目标</translation>
     </message>
     <message>
         <source>Depth</source>
@@ -7702,7 +7702,7 @@
     <name>ParameterAutomationModel</name>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">目标</translation>
     </message>
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
@@ -7718,7 +7718,7 @@
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">参数</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -9382,7 +9382,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -9400,7 +9400,7 @@
     <name>PropertyService</name>
     <message>
         <source>Pad %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pad %1</translation>
     </message>
 </context>
 <context>
@@ -11000,7 +11000,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -13028,7 +13028,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14185,7 +14185,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14270,6 +14270,37 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>必须先保存项目才能录制音频。</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::DeviceRackController</name>
+    <message>
+        <source>Synths</source>
+        <translation>合成器</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>键盘</translation>
+    </message>
+    <message>
+        <source>Strings &amp; Voice</source>
+        <translation>弦乐与人声</translation>
+    </message>
+    <message>
+        <source>Drums</source>
+        <translation>鼓</translation>
+    </message>
+    <message>
+        <source>Samplers</source>
+        <translation>采样器</translation>
+    </message>
+    <message>
+        <source>Mixers</source>
+        <translation>混音器</translation>
+    </message>
+    <message>
+        <source>Modulators</source>
+        <translation>调制器</translation>
     </message>
 </context>
 <context>
@@ -14492,6 +14523,34 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">立体声</translation>
+    </message>
+    <message>
+        <source>Dynamics</source>
+        <translation>动态</translation>
+    </message>
+    <message>
+        <source>EQ &amp; Filter</source>
+        <translation>均衡与滤波</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>失真</translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation>调制</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>空间</translation>
+    </message>
+    <message>
+        <source>Utility</source>
+        <translation>工具</translation>
+    </message>
+    <message>
+        <source>Meters</source>
+        <translation>仪表</translation>
     </message>
     <message>
         <source>Linear Phase</source>

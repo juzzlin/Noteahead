@@ -559,37 +559,47 @@ QVariantList DeviceRackController::deviceTypes()
 {
     QVariantList list;
 
-    const auto addDevice = [&](const QString & name, const QString & typeId) {
+    // The gallery's grouping, shown after each name: finer than Device::category(), which is saved
+    const auto synths = tr("Synths");
+    const auto keys = tr("Keys");
+    const auto stringsAndVoice = tr("Strings & Voice");
+    const auto drums = tr("Drums");
+    const auto samplers = tr("Samplers");
+    const auto mixers = tr("Mixers");
+    const auto modulators = tr("Modulators");
+
+    const auto addDevice = [&](const QString & name, const QString & typeId, const QString & category) {
         QVariantMap map;
         map["name"] = name;
         map["typeId"] = typeId;
+        map["category"] = category;
         list.append(map);
     };
 
-    addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()));
-    addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()));
-    addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()));
-    addDevice("FM Synth", QString::fromStdString(FmSynthDevice::typeIdString()));
-    addDevice("JU Synth", QString::fromStdString(JuSynthDevice::typeIdString()));
-    addDevice("JU Synth 08", QString::fromStdString(JuSynth08Device::typeIdString()));
-    addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
-    addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
-    addDevice("Drum Synth V2", QString::fromStdString(DrumSynthV2Device::typeIdString()));
-    addDevice("FM Drums", QString::fromStdString(FmDrumsDevice::typeIdString()));
-    addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
-    addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()));
-    addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()));
-    addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()));
-    addDevice("Snare Synth", QString::fromStdString(SnareSynthDevice::typeIdString()));
-    addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()));
-    addDevice("String & Voice V2", QString::fromStdString(StringVoiceV2Device::typeIdString()));
-    addDevice("String & Voice V3", QString::fromStdString(StringVoiceV3Device::typeIdString()));
-    addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()));
-    addDevice("Speech", QString::fromStdString(SpeechDevice::typeIdString()));
-    addDevice("Noise FX", QString::fromStdString(NoiseFxDevice::typeIdString()));
-    addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
-    addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()));
-    addDevice("XY Pad", QString::fromStdString(XyPadDevice::typeIdString()));
+    addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()), samplers);
+    addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()), synths);
+    addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()), synths);
+    addDevice("FM Synth", QString::fromStdString(FmSynthDevice::typeIdString()), synths);
+    addDevice("JU Synth", QString::fromStdString(JuSynthDevice::typeIdString()), synths);
+    addDevice("JU Synth 08", QString::fromStdString(JuSynth08Device::typeIdString()), synths);
+    addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()), synths);
+    addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()), drums);
+    addDevice("Drum Synth V2", QString::fromStdString(DrumSynthV2Device::typeIdString()), drums);
+    addDevice("FM Drums", QString::fromStdString(FmDrumsDevice::typeIdString()), drums);
+    addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()), keys);
+    addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()), keys);
+    addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()), keys);
+    addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()), drums);
+    addDevice("Snare Synth", QString::fromStdString(SnareSynthDevice::typeIdString()), drums);
+    addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()), stringsAndVoice);
+    addDevice("String & Voice V2", QString::fromStdString(StringVoiceV2Device::typeIdString()), stringsAndVoice);
+    addDevice("String & Voice V3", QString::fromStdString(StringVoiceV3Device::typeIdString()), stringsAndVoice);
+    addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()), stringsAndVoice);
+    addDevice("Speech", QString::fromStdString(SpeechDevice::typeIdString()), stringsAndVoice);
+    addDevice("Noise FX", QString::fromStdString(NoiseFxDevice::typeIdString()), synths);
+    addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()), mixers);
+    addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()), modulators);
+    addDevice("XY Pad", QString::fromStdString(XyPadDevice::typeIdString()), modulators);
 
     return list;
 }

@@ -383,59 +383,70 @@ QVariantList EffectRackController::availableEffects() const
 {
     QVariantList list;
 
-    const auto addEffect = [&](const QString & name, const std::string & typeId) {
+    // The gallery's grouping, shown after each name
+    const auto dynamics = tr("Dynamics");
+    const auto eqAndFilter = tr("EQ & Filter");
+    const auto distortion = tr("Distortion");
+    const auto modulation = tr("Modulation");
+    const auto space = tr("Space");
+    const auto stereo = tr("Stereo");
+    const auto utility = tr("Utility");
+    const auto meters = tr("Meters");
+
+    const auto addEffect = [&](const QString & name, const std::string & typeId, const QString & category) {
         QVariantMap map;
         map["name"] = name;
         map["typeId"] = QString::fromStdString(typeId);
+        map["category"] = category;
         list.append(map);
     };
 
-    addEffect("All-Pass Filter", AllPassFilter::typeIdString());
-    addEffect("Ambience", Ambience::typeIdString());
-    addEffect("Analog Fuzz", Constants::RackEffectType::analogFuzz().toStdString());
-    addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
-    addEffect("Auto Filter", Constants::RackEffectType::autoFilter().toStdString());
-    addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
-    addEffect("Bass Grinder", Constants::RackEffectType::bassGrinder().toStdString());
-    addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString());
-    addEffect("Chorus", Chorus::typeIdString());
-    addEffect("Clipper", Constants::RackEffectType::clipper().toStdString());
-    addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
-    addEffect("dBTP Meter", DbTpMeter::typeIdString());
-    addEffect("Delay", Constants::RackEffectType::delay().toStdString());
-    addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString());
-    addEffect("Bit Crusher", Constants::RackEffectType::bitCrusher().toStdString());
-    addEffect("Flanger", Constants::RackEffectType::flanger().toStdString());
-    addEffect("Gate", Constants::RackEffectType::gate().toStdString());
-    addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString());
-    addEffect("Dynamic EQ", DynamicEq::typeIdString());
-    addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
-    addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
-    addEffect("Drive", Constants::RackEffectType::drive().toStdString());
-    addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
-    addEffect("EQ 32-Band Graphical", Constants::RackEffectType::eq32BandGraphical().toStdString());
-    addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
-    addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
-    addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
-    addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
-    addEffect("Gain", Constants::RackEffectType::gain().toStdString());
-    addEffect("Phase Scope", Constants::RackEffectType::phaseScope().toStdString());
-    addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
-    addEffect("Reference", Constants::RackEffectType::reference().toStdString());
-    addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
-    addEffect("LUFS Meter", LufsMeter::typeIdString());
-    addEffect("Panner", Constants::RackEffectType::panner().toStdString());
-    addEffect("Phaser", Constants::RackEffectType::phaser().toStdString());
-    addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
-    addEffect("Reverb 224", Reverb224::typeIdString());
-    addEffect("RTA", Constants::RackEffectType::rta().toStdString());
-    addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
-    addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
-    addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString());
-    addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString());
-    addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString());
-    addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString());
-    addEffect("Stereo Field Meter", Constants::RackEffectType::stereoFieldMeter().toStdString());
+    addEffect("All-Pass Filter", AllPassFilter::typeIdString(), eqAndFilter);
+    addEffect("Ambience", Ambience::typeIdString(), space);
+    addEffect("Analog Fuzz", Constants::RackEffectType::analogFuzz().toStdString(), distortion);
+    addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString(), dynamics);
+    addEffect("Auto Filter", Constants::RackEffectType::autoFilter().toStdString(), modulation);
+    addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString(), modulation);
+    addEffect("Bass Grinder", Constants::RackEffectType::bassGrinder().toStdString(), distortion);
+    addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString(), space);
+    addEffect("Chorus", Chorus::typeIdString(), modulation);
+    addEffect("Clipper", Constants::RackEffectType::clipper().toStdString(), dynamics);
+    addEffect("Compressor", Constants::RackEffectType::compressor().toStdString(), dynamics);
+    addEffect("dBTP Meter", DbTpMeter::typeIdString(), meters);
+    addEffect("Delay", Constants::RackEffectType::delay().toStdString(), space);
+    addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString(), stereo);
+    addEffect("Bit Crusher", Constants::RackEffectType::bitCrusher().toStdString(), distortion);
+    addEffect("Flanger", Constants::RackEffectType::flanger().toStdString(), modulation);
+    addEffect("Gate", Constants::RackEffectType::gate().toStdString(), dynamics);
+    addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString(), modulation);
+    addEffect("Dynamic EQ", DynamicEq::typeIdString(), eqAndFilter);
+    addEffect("Dimension", Constants::RackEffectType::dimension().toStdString(), modulation);
+    addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString(), space);
+    addEffect("Drive", Constants::RackEffectType::drive().toStdString(), distortion);
+    addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString(), eqAndFilter);
+    addEffect("EQ 32-Band Graphical", Constants::RackEffectType::eq32BandGraphical().toStdString(), eqAndFilter);
+    addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString(), eqAndFilter);
+    addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString(), eqAndFilter);
+    addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString(), eqAndFilter);
+    addEffect("Limiter", Constants::RackEffectType::limiter().toStdString(), dynamics);
+    addEffect("Gain", Constants::RackEffectType::gain().toStdString(), utility);
+    addEffect("Phase Scope", Constants::RackEffectType::phaseScope().toStdString(), meters);
+    addEffect("Monitor", Constants::RackEffectType::monitor().toStdString(), utility);
+    addEffect("Reference", Constants::RackEffectType::reference().toStdString(), utility);
+    addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString(), dynamics);
+    addEffect("LUFS Meter", LufsMeter::typeIdString(), meters);
+    addEffect("Panner", Constants::RackEffectType::panner().toStdString(), stereo);
+    addEffect("Phaser", Constants::RackEffectType::phaser().toStdString(), modulation);
+    addEffect("Reverb", Constants::RackEffectType::reverb().toStdString(), space);
+    addEffect("Reverb 224", Reverb224::typeIdString(), space);
+    addEffect("RTA", Constants::RackEffectType::rta().toStdString(), meters);
+    addEffect("Saturator", Constants::RackEffectType::saturator().toStdString(), distortion);
+    addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString(), distortion);
+    addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString(), dynamics);
+    addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString(), stereo);
+    addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString(), stereo);
+    addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString(), stereo);
+    addEffect("Stereo Field Meter", Constants::RackEffectType::stereoFieldMeter().toStdString(), meters);
 
     // Sorted here rather than by hand at the call sites above: the gallery is one flat list, so the
     // order it is built in is the order the user reads, and a list kept alphabetical by convention

@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -2466,7 +2466,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -3835,7 +3835,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4255,7 +4255,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4672,7 +4672,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5054,7 +5054,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5498,7 +5498,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Assign Instrument Port</source>
@@ -7446,7 +7446,7 @@
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Doel</translation>
     </message>
     <message>
         <source>Depth</source>
@@ -7703,7 +7703,7 @@
     <name>ParameterAutomationModel</name>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Doel</translation>
     </message>
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
@@ -7719,7 +7719,7 @@
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parameter</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -9383,7 +9383,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -9401,7 +9401,7 @@
     <name>PropertyService</name>
     <message>
         <source>Pad %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pad %1</translation>
     </message>
 </context>
 <context>
@@ -11002,7 +11002,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -13030,7 +13030,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14187,7 +14187,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14272,6 +14272,37 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Het project moet worden opgeslagen voordat audio kan worden opgenomen.</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::DeviceRackController</name>
+    <message>
+        <source>Synths</source>
+        <translation>Synthesizers</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>Toetsen</translation>
+    </message>
+    <message>
+        <source>Strings &amp; Voice</source>
+        <translation>Strijkers en stem</translation>
+    </message>
+    <message>
+        <source>Drums</source>
+        <translation>Drums</translation>
+    </message>
+    <message>
+        <source>Samplers</source>
+        <translation>Samplers</translation>
+    </message>
+    <message>
+        <source>Mixers</source>
+        <translation>Mixers</translation>
+    </message>
+    <message>
+        <source>Modulators</source>
+        <translation>Modulators</translation>
     </message>
 </context>
 <context>
@@ -14494,6 +14525,34 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Dynamics</source>
+        <translation>Dynamiek</translation>
+    </message>
+    <message>
+        <source>EQ &amp; Filter</source>
+        <translation>EQ en filter</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Vervorming</translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation>Modulatie</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Ruimte</translation>
+    </message>
+    <message>
+        <source>Utility</source>
+        <translation>Hulpmiddelen</translation>
+    </message>
+    <message>
+        <source>Meters</source>
+        <translation>Meters</translation>
     </message>
     <message>
         <source>Linear Phase</source>

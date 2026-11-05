@@ -98,7 +98,11 @@ AnimatedDialog {
 
         ListView {
             id: deviceListView
-            model: deviceRackController.availableDevices()
+            model: {
+                // The categories are translated in C++
+                languageService.activeLanguage;
+                return deviceRackController.availableDevices();
+            }
             property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -126,7 +130,7 @@ AnimatedDialog {
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: modelData.name
+                    text: modelData.name + " (" + modelData.category + ")"
                     color: "white"
                     font.pointSize: 12
                     font.bold: deviceListView.hoveredIndex === index && root.activeFocus

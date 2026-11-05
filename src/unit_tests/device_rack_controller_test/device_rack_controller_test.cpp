@@ -496,6 +496,19 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(23).toMap()["name"].toString(), QString("XY Pad"));
 }
 
+void DeviceRackControllerTest::test_availableDevices_shouldHaveCategories()
+{
+    DeviceRackController controller { nullptr, {}, nullptr };
+
+    // The gallery shows each device's category after its name
+    for (auto && entry : controller.availableDevices()) {
+        const auto map = entry.toMap();
+        QVERIFY2(!map["category"].toString().isEmpty(), qPrintable(map["name"].toString()));
+    }
+    QCOMPARE(controller.availableDevices().at(0).toMap()["category"].toString(), QString { "Samplers" });
+    QCOMPARE(controller.availableDevices().at(1).toMap()["category"].toString(), QString { "Synths" });
+}
+
 void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

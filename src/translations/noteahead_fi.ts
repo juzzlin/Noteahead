@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -2466,7 +2466,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -3835,7 +3835,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4255,7 +4255,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4672,7 +4672,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5054,7 +5054,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5498,7 +5498,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Assign Instrument Port</source>
@@ -7446,7 +7446,7 @@
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kohde</translation>
     </message>
     <message>
         <source>Depth</source>
@@ -7703,7 +7703,7 @@
     <name>ParameterAutomationModel</name>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kohde</translation>
     </message>
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
@@ -7719,7 +7719,7 @@
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parametri</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -9383,7 +9383,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -9401,7 +9401,7 @@
     <name>PropertyService</name>
     <message>
         <source>Pad %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pad %1</translation>
     </message>
 </context>
 <context>
@@ -11002,7 +11002,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -13030,7 +13030,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14187,7 +14187,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14272,6 +14272,37 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Projekti täytyy tallentaa ennen kuin ääntä voi nauhoittaa.</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::DeviceRackController</name>
+    <message>
+        <source>Synths</source>
+        <translation>Syntikat</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>Koskettimet</translation>
+    </message>
+    <message>
+        <source>Strings &amp; Voice</source>
+        <translation>Jouset ja ääni</translation>
+    </message>
+    <message>
+        <source>Drums</source>
+        <translation>Rummut</translation>
+    </message>
+    <message>
+        <source>Samplers</source>
+        <translation>Samplerit</translation>
+    </message>
+    <message>
+        <source>Mixers</source>
+        <translation>Mikserit</translation>
+    </message>
+    <message>
+        <source>Modulators</source>
+        <translation>Modulaattorit</translation>
     </message>
 </context>
 <context>
@@ -14494,6 +14525,34 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Dynamics</source>
+        <translation>Dynamiikka</translation>
+    </message>
+    <message>
+        <source>EQ &amp; Filter</source>
+        <translation>EQ ja suodin</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Särö</translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation>Modulaatio</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Tila</translation>
+    </message>
+    <message>
+        <source>Utility</source>
+        <translation>Työkalut</translation>
+    </message>
+    <message>
+        <source>Meters</source>
+        <translation>Mittarit</translation>
     </message>
     <message>
         <source>Linear Phase</source>

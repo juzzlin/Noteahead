@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -2467,7 +2467,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -3836,7 +3836,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4256,7 +4256,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -4673,7 +4673,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5055,7 +5055,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -5499,7 +5499,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Assign Instrument Port</source>
@@ -7447,7 +7447,7 @@
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cel</translation>
     </message>
     <message>
         <source>Depth</source>
@@ -7704,7 +7704,7 @@
     <name>ParameterAutomationModel</name>
     <message>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cel</translation>
     </message>
     <message>
         <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
@@ -7720,7 +7720,7 @@
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parametr</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -9384,7 +9384,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -9402,7 +9402,7 @@
     <name>PropertyService</name>
     <message>
         <source>Pad %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pad %1</translation>
     </message>
 </context>
 <context>
@@ -11004,7 +11004,7 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -13032,7 +13032,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14189,7 +14189,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
@@ -14274,6 +14274,37 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Projekt musi zostać zapisany, zanim będzie można nagrywać dźwięk.</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::DeviceRackController</name>
+    <message>
+        <source>Synths</source>
+        <translation>Syntezatory</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>Klawisze</translation>
+    </message>
+    <message>
+        <source>Strings &amp; Voice</source>
+        <translation>Smyczki i głos</translation>
+    </message>
+    <message>
+        <source>Drums</source>
+        <translation>Perkusja</translation>
+    </message>
+    <message>
+        <source>Samplers</source>
+        <translation>Samplery</translation>
+    </message>
+    <message>
+        <source>Mixers</source>
+        <translation>Miksery</translation>
+    </message>
+    <message>
+        <source>Modulators</source>
+        <translation>Modulatory</translation>
     </message>
 </context>
 <context>
@@ -14496,6 +14527,34 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Dynamics</source>
+        <translation>Dynamika</translation>
+    </message>
+    <message>
+        <source>EQ &amp; Filter</source>
+        <translation>EQ i filtr</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Przester</translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation>Modulacja</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Przestrzeń</translation>
+    </message>
+    <message>
+        <source>Utility</source>
+        <translation>Narzędzia</translation>
+    </message>
+    <message>
+        <source>Meters</source>
+        <translation>Mierniki</translation>
     </message>
     <message>
         <source>Linear Phase</source>

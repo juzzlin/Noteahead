@@ -1494,6 +1494,29 @@ void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
     }
 }
 
+void EffectRackControllerTest::test_availableEffects_shouldHaveCategories()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    // The gallery shows each effect's category after its name
+    for (auto && entry : controller.availableEffects()) {
+        const auto map = entry.toMap();
+        QVERIFY2(!map["category"].toString().isEmpty(), qPrintable(map["name"].toString()));
+    }
+    const auto categoryOf = [&](const QString & name) {
+        for (auto && entry : controller.availableEffects()) {
+            if (const auto map = entry.toMap(); map["name"].toString() == name) {
+                return map["category"].toString();
+            }
+        }
+        return QString {};
+    };
+    QCOMPARE(categoryOf("Phase Scope"), QString { "Meters" });
+    QCOMPARE(categoryOf("Reverb"), QString { "Space" });
+}
+
 void EffectRackControllerTest::test_partSend_shouldAddressOnePadOnly()
 {
     // A pad's send belongs to the pad: setting one must not move its neighbours or the device.

@@ -82,7 +82,11 @@ AnimatedDialog {
 
         ListView {
             id: effectListView
-            model: effectRackController.availableEffects()
+            model: {
+                // The categories are translated in C++
+                languageService.activeLanguage;
+                return effectRackController.availableEffects();
+            }
             property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -110,7 +114,7 @@ AnimatedDialog {
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: modelData.name
+                    text: modelData.name + " (" + modelData.category + ")"
                     color: "white"
                     font.pointSize: 12
                     font.bold: effectListView.hoveredIndex === index && root.activeFocus
