@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ruimte</translation>
     </message>
     <message>
         <source>Size</source>
@@ -883,6 +883,17 @@
     <message>
         <source>Undo</source>
         <translation>Ongedaan maken</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveMenu</name>
+    <message>
+        <source>Edit...</source>
+        <translation>Bewerken...</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
     </message>
 </context>
 <context>
@@ -3839,7 +3850,7 @@
     </message>
     <message>
         <source>Sound</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Geluid</translation>
     </message>
     <message>
         <source>Load a sound...</source>
@@ -4832,7 +4843,7 @@
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Beide</translation>
     </message>
     <message>
         <source>PWM Source</source>
@@ -5223,22 +5234,6 @@
 </context>
 <context>
     <name>LfoDialog_Lfo</name>
-    <message>
-        <source>Target</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parameter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Geen</translation>
-    </message>
-    <message>
-        <source>Target missing</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Free</source>
         <translation type="unfinished">Vrij</translation>
@@ -6230,6 +6225,10 @@
         <translation>Apparatenrek...</translation>
     </message>
     <message>
+        <source>Performance panel</source>
+        <translation>Performancepaneel</translation>
+    </message>
+    <message>
         <source>Mixer...</source>
         <translation>Mixer...</translation>
     </message>
@@ -7011,6 +7010,29 @@
     </message>
 </context>
 <context>
+    <name>ModulationTargetPicker</name>
+    <message>
+        <source>Target</source>
+        <translation>Doel</translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation>Parameter</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Geen</translation>
+    </message>
+    <message>
+        <source>Target missing</source>
+        <translation>Doel ontbreekt</translation>
+    </message>
+    <message>
+        <source>Also moved by another modulator: their movements add up</source>
+        <translation>Wordt ook door een andere modulator bewogen: de bewegingen tellen op</translation>
+    </message>
+</context>
+<context>
     <name>MonitorDialog</name>
     <message>
         <source>Monitor (Slot %1)</source>
@@ -7636,6 +7658,33 @@
     </message>
 </context>
 <context>
+    <name>PanelElement</name>
+    <message>
+        <source>Effect missing</source>
+        <translation>Effect ontbreekt</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Slot %1: %2</translation>
+    </message>
+    <message>
+        <source>Device missing</source>
+        <translation>Apparaat ontbreekt</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Instellingen</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Uit het paneel verwijderen</translation>
+    </message>
+    <message>
+        <source>Recording on column</source>
+        <translation>Opname op kolom</translation>
+    </message>
+</context>
+<context>
     <name>PannerDialog</name>
     <message>
         <source>Panner Parameters (Slot %1)</source>
@@ -7722,7 +7771,7 @@
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vloeiend</translation>
     </message>
     <message>
         <source>Move the value on every tick. Turn off to step it on the lines instead.</source>
@@ -8689,6 +8738,57 @@
     <message>
         <source>Treble Decay</source>
         <translation>Hoog-decay</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Terugkeer</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X-diepte</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y-diepte</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+</context>
+<context>
+    <name>PerformancePanel</name>
+    <message>
+        <source>Add to the panel</source>
+        <translation>Aan het paneel toevoegen</translation>
+    </message>
+    <message>
+        <source>Play pads and watch meters here while the song plays. Add one with +.</source>
+        <translation>Speel hier pads en bekijk meters terwijl het nummer speelt. Voeg er een toe met +.</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Slot %1: %2</translation>
+    </message>
+    <message>
+        <source>New XY Pad</source>
+        <translation>Nieuwe XY Pad</translation>
+    </message>
+    <message>
+        <source>New RTA</source>
+        <translation>Nieuwe RTA</translation>
+    </message>
+    <message>
+        <source>The master insert rack is full.</source>
+        <translation>Het master-insertrack is vol.</translation>
+    </message>
+    <message>
+        <source>The device rack is full.</source>
+        <translation>Het apparaatrack is vol.</translation>
     </message>
 </context>
 <context>
@@ -10489,6 +10589,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Open or close the Master Effects</source>
         <translation>Master-effectenrek openen of sluiten</translation>
+    </message>
+    <message>
+        <source>Ctrl + P</source>
+        <translation>Ctrl + P</translation>
+    </message>
+    <message>
+        <source>Show or hide the performance panel</source>
+        <translation>Performancepaneel tonen of verbergen</translation>
     </message>
     <message>
         <source>INSERT</source>
@@ -12565,7 +12673,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Instability</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instabiliteit</translation>
     </message>
     <message>
         <source>How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.</source>
@@ -14103,6 +14211,48 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Nothing has been released yet.</source>
         <translation>Er is nog niets uitgebracht.</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
+    <message>
+        <source>Pad %1</source>
+        <translation>Pad %1</translation>
+    </message>
+    <message>
+        <source>X target</source>
+        <translation>X-doel</translation>
+    </message>
+    <message>
+        <source>Y target</source>
+        <translation>Y-doel</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X-diepte</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y-diepte</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Terugkeer</translation>
+    </message>
+    <message>
+        <source>How long the pad takes to glide back to the centre when let go. At 0 ms it stays where it was let go.</source>
+        <translation>Hoe lang de pad erover doet om na het loslaten terug naar het midden te glijden. Bij 0 ms blijft hij waar hij werd losgelaten.</translation>
     </message>
 </context>
 <context>

@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Przestrzeń</translation>
     </message>
     <message>
         <source>Size</source>
@@ -883,6 +883,17 @@
     <message>
         <source>Undo</source>
         <translation>Cofnij</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveMenu</name>
+    <message>
+        <source>Edit...</source>
+        <translation>Edytuj...</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
     </message>
 </context>
 <context>
@@ -3840,7 +3851,7 @@
     </message>
     <message>
         <source>Sound</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dźwięk</translation>
     </message>
     <message>
         <source>Load a sound...</source>
@@ -4833,7 +4844,7 @@
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Oba</translation>
     </message>
     <message>
         <source>PWM Source</source>
@@ -5224,22 +5235,6 @@
 </context>
 <context>
     <name>LfoDialog_Lfo</name>
-    <message>
-        <source>Target</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parameter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Brak</translation>
-    </message>
-    <message>
-        <source>Target missing</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Free</source>
         <translation type="unfinished">Swobodny</translation>
@@ -6231,6 +6226,10 @@
         <translation>Rack urządzeń...</translation>
     </message>
     <message>
+        <source>Performance panel</source>
+        <translation>Panel występu</translation>
+    </message>
+    <message>
         <source>Mixer...</source>
         <translation>Mikser...</translation>
     </message>
@@ -7012,6 +7011,29 @@
     </message>
 </context>
 <context>
+    <name>ModulationTargetPicker</name>
+    <message>
+        <source>Target</source>
+        <translation>Cel</translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation>Parametr</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Brak</translation>
+    </message>
+    <message>
+        <source>Target missing</source>
+        <translation>Brak celu</translation>
+    </message>
+    <message>
+        <source>Also moved by another modulator: their movements add up</source>
+        <translation>Porusza nim też inny modulator: ich ruchy się sumują</translation>
+    </message>
+</context>
+<context>
     <name>MonitorDialog</name>
     <message>
         <source>Monitor (Slot %1)</source>
@@ -7637,6 +7659,33 @@
     </message>
 </context>
 <context>
+    <name>PanelElement</name>
+    <message>
+        <source>Effect missing</source>
+        <translation>Brak efektu</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Slot %1: %2</translation>
+    </message>
+    <message>
+        <source>Device missing</source>
+        <translation>Brak urządzenia</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Ustawienia</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Usuń z panelu</translation>
+    </message>
+    <message>
+        <source>Recording on column</source>
+        <translation>Nagrywanie w kolumnie</translation>
+    </message>
+</context>
+<context>
     <name>PannerDialog</name>
     <message>
         <source>Panner Parameters (Slot %1)</source>
@@ -7723,7 +7772,7 @@
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Płynnie</translation>
     </message>
     <message>
         <source>Move the value on every tick. Turn off to step it on the lines instead.</source>
@@ -8690,6 +8739,57 @@
     <message>
         <source>Treble Decay</source>
         <translation>Opadanie sopranów</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Powrót</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>Głębokość X</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Głębokość Y</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+</context>
+<context>
+    <name>PerformancePanel</name>
+    <message>
+        <source>Add to the panel</source>
+        <translation>Dodaj do panelu</translation>
+    </message>
+    <message>
+        <source>Play pads and watch meters here while the song plays. Add one with +.</source>
+        <translation>Graj na padach i obserwuj mierniki podczas odtwarzania utworu. Dodaj element przyciskiem +.</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Slot %1: %2</translation>
+    </message>
+    <message>
+        <source>New XY Pad</source>
+        <translation>Nowy XY Pad</translation>
+    </message>
+    <message>
+        <source>New RTA</source>
+        <translation>Nowy RTA</translation>
+    </message>
+    <message>
+        <source>The master insert rack is full.</source>
+        <translation>Rack insertów master jest pełny.</translation>
+    </message>
+    <message>
+        <source>The device rack is full.</source>
+        <translation>Rack urządzeń jest pełny.</translation>
     </message>
 </context>
 <context>
@@ -10491,6 +10591,14 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Open or close the Master Effects</source>
         <translation>Otwórz lub zamknij rack efektów master</translation>
+    </message>
+    <message>
+        <source>Ctrl + P</source>
+        <translation>Ctrl + P</translation>
+    </message>
+    <message>
+        <source>Show or hide the performance panel</source>
+        <translation>Pokaż lub ukryj panel występu</translation>
     </message>
     <message>
         <source>INSERT</source>
@@ -12567,7 +12675,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Instability</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Niestabilność</translation>
     </message>
     <message>
         <source>How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.</source>
@@ -14105,6 +14213,48 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Nothing has been released yet.</source>
         <translation>Nic jeszcze nie zostało wydane.</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
+    <message>
+        <source>Pad %1</source>
+        <translation>Pad %1</translation>
+    </message>
+    <message>
+        <source>X target</source>
+        <translation>Cel X</translation>
+    </message>
+    <message>
+        <source>Y target</source>
+        <translation>Cel Y</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>Głębokość X</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Głębokość Y</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Powrót</translation>
+    </message>
+    <message>
+        <source>How long the pad takes to glide back to the centre when let go. At 0 ms it stays where it was let go.</source>
+        <translation>Jak długo pad wraca do środka po puszczeniu. Przy 0 ms zostaje tam, gdzie go puszczono.</translation>
     </message>
 </context>
 <context>

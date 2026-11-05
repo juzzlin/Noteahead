@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tila</translation>
     </message>
     <message>
         <source>Size</source>
@@ -883,6 +883,17 @@
     <message>
         <source>Undo</source>
         <translation>Kumoa</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveMenu</name>
+    <message>
+        <source>Edit...</source>
+        <translation>Muokkaa...</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
     </message>
 </context>
 <context>
@@ -3839,7 +3850,7 @@
     </message>
     <message>
         <source>Sound</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ääni</translation>
     </message>
     <message>
         <source>Load a sound...</source>
@@ -4832,7 +4843,7 @@
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Molemmat</translation>
     </message>
     <message>
         <source>PWM Source</source>
@@ -5223,22 +5234,6 @@
 </context>
 <context>
     <name>LfoDialog_Lfo</name>
-    <message>
-        <source>Target</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parameter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">Ei mitään</translation>
-    </message>
-    <message>
-        <source>Target missing</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Free</source>
         <translation type="unfinished">Vapaa</translation>
@@ -6230,6 +6225,10 @@
         <translation>Laiteräkki...</translation>
     </message>
     <message>
+        <source>Performance panel</source>
+        <translation>Esityspaneeli</translation>
+    </message>
+    <message>
         <source>Mixer...</source>
         <translation>Mikseri...</translation>
     </message>
@@ -7011,6 +7010,29 @@
     </message>
 </context>
 <context>
+    <name>ModulationTargetPicker</name>
+    <message>
+        <source>Target</source>
+        <translation>Kohde</translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation>Parametri</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ei mitään</translation>
+    </message>
+    <message>
+        <source>Target missing</source>
+        <translation>Kohde puuttuu</translation>
+    </message>
+    <message>
+        <source>Also moved by another modulator: their movements add up</source>
+        <translation>Myös toinen modulaattori liikuttaa tätä: liikkeet lasketaan yhteen</translation>
+    </message>
+</context>
+<context>
     <name>MonitorDialog</name>
     <message>
         <source>Monitor (Slot %1)</source>
@@ -7636,6 +7658,33 @@
     </message>
 </context>
 <context>
+    <name>PanelElement</name>
+    <message>
+        <source>Effect missing</source>
+        <translation>Efekti puuttuu</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Paikka %1: %2</translation>
+    </message>
+    <message>
+        <source>Device missing</source>
+        <translation>Laite puuttuu</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Asetukset</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Poista paneelista</translation>
+    </message>
+    <message>
+        <source>Recording on column</source>
+        <translation>Tallennus sarakkeelle</translation>
+    </message>
+</context>
+<context>
     <name>PannerDialog</name>
     <message>
         <source>Panner Parameters (Slot %1)</source>
@@ -7722,7 +7771,7 @@
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pehmeä</translation>
     </message>
     <message>
         <source>Move the value on every tick. Turn off to step it on the lines instead.</source>
@@ -8689,6 +8738,57 @@
     <message>
         <source>Treble Decay</source>
         <translation>Diskantin decay</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Paluu</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X-syvyys</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y-syvyys</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+</context>
+<context>
+    <name>PerformancePanel</name>
+    <message>
+        <source>Add to the panel</source>
+        <translation>Lisää paneeliin</translation>
+    </message>
+    <message>
+        <source>Play pads and watch meters here while the song plays. Add one with +.</source>
+        <translation>Soita padeja ja seuraa mittareita täällä kappaleen soidessa. Lisää +:lla.</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Paikka %1: %2</translation>
+    </message>
+    <message>
+        <source>New XY Pad</source>
+        <translation>Uusi XY Pad</translation>
+    </message>
+    <message>
+        <source>New RTA</source>
+        <translation>Uusi RTA</translation>
+    </message>
+    <message>
+        <source>The master insert rack is full.</source>
+        <translation>Masterin insert-räkki on täynnä.</translation>
+    </message>
+    <message>
+        <source>The device rack is full.</source>
+        <translation>Laiteräkki on täynnä.</translation>
     </message>
 </context>
 <context>
@@ -10489,6 +10589,14 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Open or close the Master Effects</source>
         <translation>Avaa tai sulje masterin efektiräkki</translation>
+    </message>
+    <message>
+        <source>Ctrl + P</source>
+        <translation>Ctrl + P</translation>
+    </message>
+    <message>
+        <source>Show or hide the performance panel</source>
+        <translation>Näytä tai piilota esityspaneeli</translation>
     </message>
     <message>
         <source>INSERT</source>
@@ -12565,7 +12673,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Instability</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Epävakaus</translation>
     </message>
     <message>
         <source>How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.</source>
@@ -14103,6 +14211,48 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Nothing has been released yet.</source>
         <translation>Mitään ei ole vielä julkaistu.</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
+    <message>
+        <source>Pad %1</source>
+        <translation>Pad %1</translation>
+    </message>
+    <message>
+        <source>X target</source>
+        <translation>X-kohde</translation>
+    </message>
+    <message>
+        <source>Y target</source>
+        <translation>Y-kohde</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X-syvyys</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y-syvyys</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Paluu</translation>
+    </message>
+    <message>
+        <source>How long the pad takes to glide back to the centre when let go. At 0 ms it stays where it was let go.</source>
+        <translation>Kuinka kauan padi liukuu takaisin keskelle, kun se päästetään irti. 0 ms:llä se jää siihen, mihin se jäi.</translation>
     </message>
 </context>
 <context>

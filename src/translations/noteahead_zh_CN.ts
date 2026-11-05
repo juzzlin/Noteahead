@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">空间</translation>
     </message>
     <message>
         <source>Size</source>
@@ -883,6 +883,17 @@
     <message>
         <source>Undo</source>
         <translation>撤销</translation>
+    </message>
+</context>
+<context>
+    <name>AutomationCurveMenu</name>
+    <message>
+        <source>Edit...</source>
+        <translation>编辑...</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
     </message>
 </context>
 <context>
@@ -3838,7 +3849,7 @@
     </message>
     <message>
         <source>Sound</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">声音</translation>
     </message>
     <message>
         <source>Load a sound...</source>
@@ -4831,7 +4842,7 @@
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">两者</translation>
     </message>
     <message>
         <source>PWM Source</source>
@@ -5222,22 +5233,6 @@
 </context>
 <context>
     <name>LfoDialog_Lfo</name>
-    <message>
-        <source>Target</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parameter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">无</translation>
-    </message>
-    <message>
-        <source>Target missing</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Free</source>
         <translation type="unfinished">自由</translation>
@@ -6229,6 +6224,10 @@
         <translation>设备架...</translation>
     </message>
     <message>
+        <source>Performance panel</source>
+        <translation>演奏面板</translation>
+    </message>
+    <message>
         <source>Mixer...</source>
         <translation>混音器...</translation>
     </message>
@@ -7010,6 +7009,29 @@
     </message>
 </context>
 <context>
+    <name>ModulationTargetPicker</name>
+    <message>
+        <source>Target</source>
+        <translation>目标</translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation>参数</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Target missing</source>
+        <translation>目标缺失</translation>
+    </message>
+    <message>
+        <source>Also moved by another modulator: their movements add up</source>
+        <translation>也受另一个调制器控制：两者的变化会叠加</translation>
+    </message>
+</context>
+<context>
     <name>MonitorDialog</name>
     <message>
         <source>Monitor (Slot %1)</source>
@@ -7635,6 +7657,33 @@
     </message>
 </context>
 <context>
+    <name>PanelElement</name>
+    <message>
+        <source>Effect missing</source>
+        <translation>效果缺失</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>插槽 %1：%2</translation>
+    </message>
+    <message>
+        <source>Device missing</source>
+        <translation>设备缺失</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>从面板移除</translation>
+    </message>
+    <message>
+        <source>Recording on column</source>
+        <translation>正在录制到列</translation>
+    </message>
+</context>
+<context>
     <name>PannerDialog</name>
     <message>
         <source>Panner Parameters (Slot %1)</source>
@@ -7721,7 +7770,7 @@
     </message>
     <message>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">平滑</translation>
     </message>
     <message>
         <source>Move the value on every tick. Turn off to step it on the lines instead.</source>
@@ -8688,6 +8737,57 @@
     <message>
         <source>Treble Decay</source>
         <translation>高频衰减</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>回中</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X 深度</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y 深度</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+</context>
+<context>
+    <name>PerformancePanel</name>
+    <message>
+        <source>Add to the panel</source>
+        <translation>添加到面板</translation>
+    </message>
+    <message>
+        <source>Play pads and watch meters here while the song plays. Add one with +.</source>
+        <translation>播放歌曲时在此演奏打击垫并查看仪表。用 + 添加。</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>插槽 %1：%2</translation>
+    </message>
+    <message>
+        <source>New XY Pad</source>
+        <translation>新建 XY Pad</translation>
+    </message>
+    <message>
+        <source>New RTA</source>
+        <translation>新建 RTA</translation>
+    </message>
+    <message>
+        <source>The master insert rack is full.</source>
+        <translation>主插入机架已满。</translation>
+    </message>
+    <message>
+        <source>The device rack is full.</source>
+        <translation>设备机架已满。</translation>
     </message>
 </context>
 <context>
@@ -10487,6 +10587,14 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Open or close the Master Effects</source>
         <translation>打开或关闭主效果架</translation>
+    </message>
+    <message>
+        <source>Ctrl + P</source>
+        <translation>Ctrl + P</translation>
+    </message>
+    <message>
+        <source>Show or hide the performance panel</source>
+        <translation>显示或隐藏演奏面板</translation>
     </message>
     <message>
         <source>INSERT</source>
@@ -12563,7 +12671,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Instability</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">不稳定度</translation>
     </message>
     <message>
         <source>How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.</source>
@@ -14101,6 +14209,48 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Nothing has been released yet.</source>
         <translation>尚未发布任何内容。</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
+    <message>
+        <source>Pad %1</source>
+        <translation>Pad %1</translation>
+    </message>
+    <message>
+        <source>X target</source>
+        <translation>X 目标</translation>
+    </message>
+    <message>
+        <source>Y target</source>
+        <translation>Y 目标</translation>
+    </message>
+    <message>
+        <source>X Depth</source>
+        <translation>X 深度</translation>
+    </message>
+    <message>
+        <source>Y Depth</source>
+        <translation>Y 深度</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>回中</translation>
+    </message>
+    <message>
+        <source>How long the pad takes to glide back to the centre when let go. At 0 ms it stays where it was let go.</source>
+        <translation>松开后打击垫滑回中心所需的时间。为 0 ms 时停留在松开的位置。</translation>
     </message>
 </context>
 <context>
