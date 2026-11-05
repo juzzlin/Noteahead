@@ -9631,6 +9631,14 @@
         <translation>Ausgang</translation>
     </message>
     <message>
+        <source>Low Cut</source>
+        <translation>Low Cut</translation>
+    </message>
+    <message>
+        <source>Keeps the lows out of the reverb, not out of the dry signal. Fully down it is off</source>
+        <translation>Hält die Tiefen aus dem Hall heraus, nicht aus dem trockenen Signal. Ganz unten ist er aus</translation>
+    </message>
+    <message>
         <source>Mix</source>
         <translation>Mix</translation>
     </message>

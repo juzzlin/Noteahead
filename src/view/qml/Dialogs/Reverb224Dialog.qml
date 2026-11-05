@@ -187,6 +187,7 @@ EffectDialog {
                 spacing: 24
                 Layout.fillWidth: true
                 ParameterKnob {
+                    id: preDelayKnob
                     label: qsTr("Pre-Delay")
                     suffix: "ms"
                     scale: 255
@@ -229,11 +230,34 @@ EffectDialog {
                 spacing: 24
                 Layout.fillWidth: true
                 ParameterKnob {
+                    label: qsTr("Low Cut")
+                    suffix: "Hz"
+                    mapping: "logFrequencyHighPass"
+                    mapMin: 20
+                    mapMax: 1000
+                    scale: 1000
+                    key: effectRackController.reverb224LowCutKey()
+                    // In the Space knobs' column
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: preDelayKnob.width
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Keeps the lows out of the reverb, not out of the dry signal. Fully down it is off")
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
+            }
+            // Mix and Solo together in the Space knobs' column
+            RowLayout {
+                spacing: 12
+                Layout.fillWidth: false
+                Layout.preferredWidth: preDelayKnob.width
+                ParameterKnob {
                     label: qsTr("Mix")
                     suffix: "%"
                     key: effectRackController.reverb224MixKey()
-                    Layout.fillWidth: false
-                    Layout.preferredWidth: 120
                 }
                 Switch {
                     text: qsTr("Solo")
@@ -247,9 +271,6 @@ EffectDialog {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Pass only the reverb, so it can be heard without the source")
                     Layout.alignment: Qt.AlignVCenter
-                }
-                Item {
-                    Layout.fillWidth: true
                 }
             }
         }

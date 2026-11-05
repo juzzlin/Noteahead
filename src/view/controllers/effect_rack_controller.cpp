@@ -3031,6 +3031,11 @@ QString EffectRackController::reverb224ConvertersKey() const
     return Constants::NahdXml::xmlKeyConverters();
 }
 
+QString EffectRackController::reverb224LowCutKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
 QString EffectRackController::reverb224MixKey() const
 {
     return Constants::NahdXml::xmlKeyMix();

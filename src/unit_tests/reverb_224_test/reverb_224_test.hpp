@@ -33,6 +33,8 @@ private slots:
     void test_processBlock_decay_bassAndMid_shouldDecayApart();
     void test_processBlock_trebleDecay_shouldShortenTheTop();
     void test_processBlock_bandwidth_shouldStopAboveEightKilohertz();
+    void test_processBlock_lowCut_shouldThinTheLowsOfTheTail();
+    void test_process_lowCut_shouldLeaveTheDryLowsAlone();
     void test_processBlock_converters_shouldKeepTheLevel();
     void test_processBlock_depth_plates_shouldChangeNothing();
     void test_processBlock_depth_halls_shouldBalanceTheEarlyReflections();

@@ -9630,6 +9630,14 @@
         <translation>输出</translation>
     </message>
     <message>
+        <source>Low Cut</source>
+        <translation>低切</translation>
+    </message>
+    <message>
+        <source>Keeps the lows out of the reverb, not out of the dry signal. Fully down it is off</source>
+        <translation>只滤除混响中的低频，不影响干声。旋到最低时关闭</translation>
+    </message>
+    <message>
         <source>Mix</source>
         <translation>混合</translation>
     </message>

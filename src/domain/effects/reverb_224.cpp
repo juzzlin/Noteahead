@@ -35,6 +35,11 @@ constexpr double maxDecaySeconds { 70.0 };
 constexpr double minCutoffHz { 100.0 };
 constexpr double maxCutoffHz { 10900.0 };
 constexpr double maxPreDelayMs { 255.0 };
+//! The Low Cut's travel. At the bottom it is out of the circuit, not a filter at 20 Hz, so a
+//! project saved before it existed sounds as it did.
+constexpr double minLowCutHz { 20.0 };
+constexpr double maxLowCutHz { 1000.0 };
+constexpr double lowCutQ { 1.0 / std::numbers::sqrt2 };
 
 //! The machine's band limit, an eighth-order low-pass in front of the converter. The same is put
 //! behind it to take the images of the machine's rate back out.
@@ -192,6 +197,7 @@ Reverb224::Reverb224()
     continuous(C::xmlKeyDiffusion(), 0.8f);
     continuous(C::xmlKeyEnhance(), 0.5f);
     addParameter(Parameter { key(C::xmlKeyConverters()), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
+    continuous(C::xmlKeyHpfCutoff(), 0.0f);
 
     // Audible from the start, as on the Ambience: a reverb that is silent when added reads as broken
     addMixParameter(0.3f, MixLaw::Additive, 0, 10000, 100);
@@ -206,6 +212,7 @@ Reverb224::Reverb224()
     describe(C::xmlKeyMidDecay(), { .mapping = Display::Mapping::Exponential, .unit = "s", .min = minDecaySeconds, .max = maxDecaySeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Mid Decay") });
     describe(C::xmlKeyCrossoverFreq(0), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = minCutoffHz, .max = maxCutoffHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Crossover") });
     describe(C::xmlKeyTrebleDecay(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = minCutoffHz, .max = maxCutoffHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Treble Decay") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = minLowCutHz, .max = maxLowCutHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Low Cut") });
 
     for (auto && allpass : m_diffusers) {
         allpass.line.buffer.assign(machineSamples(1.0) + static_cast<uint32_t>(std::ceil(*std::ranges::max_element(diffuserLengths) * rateScale)), 0.0);
@@ -270,6 +277,16 @@ double Reverb224::trebleHz(float position)
 float Reverb224::treblePosition(double hz)
 {
     return crossoverPosition(hz);
+}
+
+double Reverb224::lowCutHz(float position)
+{
+    return ParameterMapper::mapLogFrequency(std::clamp(static_cast<double>(position), 0.0, 1.0), minLowCutHz, maxLowCutHz);
+}
+
+float Reverb224::lowCutPosition(double hz)
+{
+    return static_cast<float>(ParameterMapper::unmapLogFrequency(hz, minLowCutHz, maxLowCutHz));
 }
 
 double Reverb224::preDelayMs(float position)
@@ -372,6 +389,8 @@ void Reverb224::syncParameters()
     const auto & shape = programShapes.at(static_cast<size_t>(m_program));
 
     m_preDelaySamples = machineSamples(preDelayMs(valueOf(C::xmlKeyPreDelay())));
+    m_lowCutHz = lowCutHz(valueOf(C::xmlKeyHpfCutoff()));
+    updateLowCut();
     // Equal power across the travel. A program without early reflections is all tank whatever
     // Depth says, so switching to a plate does not turn it down.
     const double depth = std::clamp(static_cast<double>(valueOf(C::xmlKeyDepth())), 0.0, 1.0);
@@ -431,6 +450,18 @@ void Reverb224::syncParameters()
     }
 }
 
+void Reverb224::updateLowCut()
+{
+    m_lowCutActive = m_lowCutHz > minLowCutHz + 0.01;
+    if (m_lowCutActive) {
+        const double rate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
+        m_lowCut.calculateLowCut(m_lowCutHz, rate, lowCutQ);
+    } else {
+        // Picked up from silence when it comes back in
+        m_lowCut.reset();
+    }
+}
+
 void Reverb224::updateHostRate()
 {
     const double rate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
@@ -444,6 +475,7 @@ void Reverb224::updateHostRate()
         m_outputFiltersRight[i].calculateHighCut(cutoff, rate, q);
     }
     m_lastSampleRate = static_cast<uint32_t>(rate);
+    updateLowCut();
 
     // A new rate is a new stream: whatever is left belongs to the old one
     reset();
@@ -516,6 +548,10 @@ void Reverb224::tick(double input)
 void Reverb224::renderFrame(double & left, double & right)
 {
     double input = (left + right) * 0.5;
+    // On the way in only: the dry signal the Mix puts back keeps its lows
+    if (m_lowCutActive) {
+        input = m_lowCut.process(input);
+    }
     for (auto && filter : m_inputFilters) {
         input = filter.process(input);
     }
@@ -582,6 +618,7 @@ void Reverb224::reset()
         // A quarter turn apart
         m_halves[i].lfoPhase = std::numbers::pi * 0.5 * static_cast<double>(i);
     }
+    m_lowCut.reset();
     for (auto && filters : { std::ref(m_inputFilters), std::ref(m_outputFiltersLeft), std::ref(m_outputFiltersRight) }) {
         for (auto && filter : filters.get()) {
             filter.reset();

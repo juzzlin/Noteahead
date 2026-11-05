@@ -572,6 +572,7 @@ public:
     Q_INVOKABLE QString reverb224DiffusionKey() const;
     Q_INVOKABLE QString reverb224EnhanceKey() const;
     Q_INVOKABLE QString reverb224ConvertersKey() const;
+    Q_INVOKABLE QString reverb224LowCutKey() const;
     Q_INVOKABLE QString reverb224MixKey() const;
     Q_INVOKABLE QString reverb224SoloKey() const;
     //! Whether @p program has early reflections for Depth to balance, which the plates do not.

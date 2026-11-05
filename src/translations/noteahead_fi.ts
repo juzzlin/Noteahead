@@ -9631,6 +9631,14 @@
         <translation>Ulostulo</translation>
     </message>
     <message>
+        <source>Low Cut</source>
+        <translation>Alaleikkuri</translation>
+    </message>
+    <message>
+        <source>Keeps the lows out of the reverb, not out of the dry signal. Fully down it is off</source>
+        <translation>Pitää bassot poissa kaiusta, ei kuivasta signaalista. Ääriasennossa alhaalla se on pois päältä</translation>
+    </message>
+    <message>
         <source>Mix</source>
         <translation>Mix</translation>
     </message>

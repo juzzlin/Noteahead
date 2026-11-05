@@ -9631,6 +9631,14 @@
         <translation>Uscita</translation>
     </message>
     <message>
+        <source>Low Cut</source>
+        <translation>Taglio bassi</translation>
+    </message>
+    <message>
+        <source>Keeps the lows out of the reverb, not out of the dry signal. Fully down it is off</source>
+        <translation>Tiene i bassi fuori dal riverbero, non dal segnale secco. Al minimo è disattivato</translation>
+    </message>
+    <message>
         <source>Mix</source>
         <translation>Mix</translation>
     </message>

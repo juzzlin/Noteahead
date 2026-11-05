@@ -155,7 +155,7 @@ Ambience::Ambience()
     describe(C::xmlKeyEarlyLate(), { .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Early/Late") });
     describe(C::xmlKeyRate(), { .mapping = Display::Mapping::Exponential, .unit = "Hz", .min = minModRateHz, .max = maxModRateHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Mod Rate") });
     describe(C::xmlKeyWidth(), { .mapping = Display::Mapping::Value, .unit = "%", .min = 0.0, .max = maxWidth * 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Width") });
-    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = minLowCutHz, .max = maxLowCutHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Low Cut") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = minLowCutHz, .max = maxLowCutHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Low Cut") });
     describe(C::xmlKeyLpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = minHighCutHz, .max = maxHighCutHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "High Cut") });
 
     syncParameters();

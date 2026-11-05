@@ -87,6 +87,8 @@ public:
     static float crossoverPosition(double hz);
     static double trebleHz(float position);
     static float treblePosition(double hz);
+    static double lowCutHz(float position);
+    static float lowCutPosition(double hz);
     static double preDelayMs(float position);
     static float preDelayPosition(double ms);
 
@@ -142,6 +144,7 @@ private:
 
     void syncParameters();
     void updateHostRate();
+    void updateLowCut();
     void renderFrame(double & left, double & right);
     //! One sample of the machine, at InternalRate.
     void tick(double input);
@@ -164,6 +167,12 @@ private:
     std::array<double, NumEarlyTaps> m_earlyGainsRight {};
     //! The output taps into the tank, in samples, scaled with the program.
     std::array<uint32_t, 14> m_outputTaps {};
+
+    //! A high-pass on the input, at the host's rate: Bass Decay sets how long the lows ring, this
+    //! how much of them gets in at all.
+    SvfFilter m_lowCut;
+    double m_lowCutHz { 0.0 };
+    bool m_lowCutActive { false };
 
     // The host side: the band limit, and the resampling to and from the machine's rate
     std::array<SvfFilter, NumBandwidthSections> m_inputFilters;

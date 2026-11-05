@@ -2978,6 +2978,7 @@ void XmlSerializationTest::test_toXmlFromXml_reverb224Effect_shouldLoadCorrectly
         { C::xmlKeyDiffusion(), 0.91f },
         { C::xmlKeyEnhance(), 0.18f },
         { C::xmlKeyConverters(), 0.0f },
+        { C::xmlKeyHpfCutoff(), 0.37f },
         { C::xmlKeyMix(), 0.44f },
         { C::xmlKeySolo(), 1.0f },
     };

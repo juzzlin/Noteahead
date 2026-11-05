@@ -317,6 +317,38 @@ void Reverb224Test::test_processBlock_bandwidth_shouldStopAboveEightKilohertz()
     QVERIFY2(ratio < -40.0, qPrintable(QString::number(ratio)));
 }
 
+void Reverb224Test::test_processBlock_lowCut_shouldThinTheLowsOfTheTail()
+{
+    const double rate = 48000.0;
+    const auto wetEnergy = [rate](float lowCut, double hz) {
+        auto effect = makeReverb(rate);
+        setParameter(*effect, C::xmlKeyConverters(), 0.0f);
+        setParameter(*effect, C::xmlKeyHpfCutoff(), lowCut);
+        return energyOf(renderWet(*effect, sine(hz, 0.3, 48000, rate), rate), 24000);
+    };
+    const float cut = Reverb224::lowCutPosition(500.0);
+    const double lows = db(wetEnergy(cut, 60.0) / wetEnergy(0.0f, 60.0));
+    QVERIFY2(lows < -24.0, qPrintable(QString::number(lows)));
+    // Well above the cutoff the tail is as it was
+    const double mids = db(wetEnergy(cut, 4000.0) / wetEnergy(0.0f, 4000.0));
+    QVERIFY2(std::abs(mids) < 0.5, qPrintable(QString::number(mids)));
+}
+
+void Reverb224Test::test_process_lowCut_shouldLeaveTheDryLowsAlone()
+{
+    // Only what goes into the reverb is cut: a bass note keeps its own lows whatever the Mix
+    const double rate = 48000.0;
+    auto effect = makeReverb(rate);
+    setParameter(*effect, C::xmlKeyHpfCutoff(), 1.0f);
+    setParameter(*effect, C::xmlKeyMix(), 0.5f);
+    const auto input = sine(50.0, 0.3, 48000, rate);
+    auto output = input;
+    AudioContext context { std::span(output.data(), output.size()), 48000, static_cast<uint32_t>(rate) };
+    effect->process(context);
+    const double change = db(energyOf(output, 24000) / energyOf(input, 24000));
+    QVERIFY2(std::abs(change) < 0.2, qPrintable(QString::number(change)));
+}
+
 void Reverb224Test::test_processBlock_converters_shouldKeepTheLevel()
 {
     const double rate = 48000.0;

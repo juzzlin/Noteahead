@@ -21,6 +21,8 @@ New features:
 
 * Doubler effect: widens a part with a short delayed copy, mono-safe or Haas
 
+* Reverb 224: Low Cut keeps the lows out of the reverb
+
 Bug fixes:
 
 Other:
