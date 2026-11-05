@@ -852,7 +852,7 @@ void SideChainAudioTest::test_audioEngine_silentDeviceWithStereoFieldMeter_shoul
     device->setGenerateSignal(true);
 
     const auto meter = std::make_shared<StereoFieldMeter>();
-    meter->setAnalysisEnabled(true);
+    meter->addAnalysisViewer();
     device->insertEffectRack().setEffect(0, meter);
 
     engine.setDevice(0, device);

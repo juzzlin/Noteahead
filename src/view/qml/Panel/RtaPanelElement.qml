@@ -27,22 +27,22 @@ Item {
     implicitWidth: 320
 
     function _setActive(active: bool): void {
-        performancePanelController.rtaSetActive(root.sourceId, active);
+        performancePanelController.setAnalysisActive(root.sourceId, active);
         if (active) {
-            performancePanelController.rtaUpdateRenderer(root.sourceId, renderer);
+            performancePanelController.updateRenderer(root.sourceId, renderer);
         }
     }
 
     onRunningChanged: root._setActive(root.running)
     Component.onCompleted: root._setActive(root.running)
-    Component.onDestruction: performancePanelController.rtaSetActive(root.sourceId, false)
+    Component.onDestruction: performancePanelController.setAnalysisActive(root.sourceId, false)
 
     // A meter has to be read to move; it is read only while it is shown, as the dialog's is
     Timer {
         interval: 33
         running: root.running
         repeat: true
-        onTriggered: performancePanelController.rtaUpdateRenderer(root.sourceId, renderer)
+        onTriggered: performancePanelController.updateRenderer(root.sourceId, renderer)
     }
 
     RtaRenderer {

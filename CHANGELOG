@@ -11,7 +11,7 @@ New features:
 * XY Pad: four hand-played pads, each axis moving any device or effect parameter
   - Moves recorded as automations while playing in edit mode
 
-* Performance Panel: XY pads and RTAs under the editor, shown with Ctrl+P
+* Performance Panel: XY pads, RTAs and LUFS, dBTP and Stereo Field meters under the editor, shown with Ctrl+P
 
 * LFOs and XY pads on the same parameter add up
 

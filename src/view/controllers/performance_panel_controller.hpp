@@ -28,7 +28,7 @@ namespace noteahead {
 
 class DeviceService;
 class PerformancePanelModel;
-class Rta;
+class Effect;
 class XyPadController;
 
 //! What the Performance Panel's elements point at: finds a device by the id an element keeps, and
@@ -43,6 +43,9 @@ class PerformancePanelController : public QObject
     //! The element types, as the model's type role holds them.
     Q_PROPERTY(QString xyPadType READ xyPadType CONSTANT)
     Q_PROPERTY(QString rtaType READ rtaType CONSTANT)
+    Q_PROPERTY(QString lufsMeterType READ lufsMeterType CONSTANT)
+    Q_PROPERTY(QString dbtpMeterType READ dbtpMeterType CONSTANT)
+    Q_PROPERTY(QString stereoFieldMeterType READ stereoFieldMeterType CONSTANT)
     //! The device a new XY pad element puts in the rack.
     Q_PROPERTY(QString xyPadDeviceTypeId READ xyPadDeviceTypeId CONSTANT)
 
@@ -52,6 +55,9 @@ public:
     int revision() const;
     QString xyPadType() const;
     QString rtaType() const;
+    QString lufsMeterType() const;
+    QString dbtpMeterType() const;
+    QString stereoFieldMeterType() const;
     QString xyPadDeviceTypeId() const;
 
     //! Everything that could be put on the panel now, one map per element: type, sourceId,
@@ -61,6 +67,8 @@ public:
     Q_INVOKABLE bool addDevice(int slotIndex);
     //! Puts the effect with id @p effectId on the panel, if the panel can show it.
     Q_INVOKABLE bool addEffect(const QString & effectId);
+    //! Whether elements of @p type show an effect rather than a device.
+    Q_INVOKABLE bool isEffectType(const QString & type) const;
     //! The rack slot of the device with uuid @p sourceId, or -1 when it is gone.
     Q_INVOKABLE int deviceSlot(const QString & sourceId) const;
     //! A controller playing the XY pad device with uuid @p sourceId, or null when there is none.
@@ -71,12 +79,13 @@ public:
     //! rack, deviceSlot, deviceTypeName, rackIndex, effectSlot) plus the deviceName its rack is
     //! opened by. Empty when the effect is gone.
     Q_INVOKABLE QVariantMap effectLocation(const QString & sourceId) const;
-    //! Starts or stops the analysis of the RTA with id @p sourceId for the panel. The panel counts
-    //! as one viewer however often it asks, and lets go of the same RTA it took even after the
-    //! rack has moved on.
-    Q_INVOKABLE void rtaSetActive(const QString & sourceId, bool active);
-    //! Copies the RTA's spectrum and display settings into @p renderer, an RtaRenderer.
-    Q_INVOKABLE void rtaUpdateRenderer(const QString & sourceId, QObject * renderer) const;
+    //! Starts or stops the analysis of the meter with id @p sourceId for the panel, for the meters
+    //! that analyse only while shown. The panel counts as one viewer however often it asks, and
+    //! lets go of the same meter it took even after the rack has moved on.
+    Q_INVOKABLE void setAnalysisActive(const QString & sourceId, bool active);
+    //! Copies the readings of the meter with id @p sourceId, and its display settings, into
+    //! @p renderer: an RtaRenderer, a StereoFieldRenderer or a LevelMeterRenderer.
+    Q_INVOKABLE void updateRenderer(const QString & sourceId, QObject * renderer) const;
 
     //! Reads the rack again: drops what points at devices that are gone and bumps the revision.
     void refresh();
@@ -88,7 +97,8 @@ private:
     std::shared_ptr<DeviceService> m_deviceService;
     PerformancePanelModel & m_model;
     std::map<QString, QPointer<XyPadController>> m_xyPadControllers;
-    std::map<QString, std::weak_ptr<Rta>> m_activeRtas;
+    //! What setAnalysisActive() took, so that it lets go of the same meter
+    std::map<QString, std::weak_ptr<Effect>> m_analysedEffects;
     int m_revision { 0 };
 };
 

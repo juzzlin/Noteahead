@@ -125,23 +125,23 @@ Rectangle {
         Universal.accent: themeService.accentColor
         delegate: MenuItemDelegate {}
 
-        //! The XY pads first, then the RTAs, as availableElements() lists them
+        //! The XY pads first, then the meters, as availableElements() lists them
         property var elements: []
-        readonly property int rtaCount: elements.filter(element => element.type === performancePanelController.rtaType).length
-        readonly property int xyPadCount: elements.length - rtaCount
+        readonly property int effectCount: elements.filter(element => performancePanelController.isEffectType(element.type)).length
+        readonly property int xyPadCount: elements.length - effectCount
         onAboutToShow: elements = performancePanelController.availableElements()
 
         Instantiator {
             model: addMenu.elements
-            // An RTA goes after the separator that follows the XY pads
+            // A meter goes after the separator that follows the XY pads
             onObjectAdded: (index, object) => addMenu.insertItem(index < addMenu.xyPadCount ? index : index + 1, object)
             onObjectRemoved: (index, object) => addMenu.removeItem(object)
             delegate: MenuItem {
                 required property var modelData
-                text: modelData.type === performancePanelController.rtaType ? Targets.targetLabel(modelData.location) : qsTr("Slot %1: %2").arg(modelData.slot + 1).arg(deviceRackController.deviceDisplayName(modelData.slot))
+                text: performancePanelController.isEffectType(modelData.type) ? Targets.targetLabel(modelData.location) : qsTr("Slot %1: %2").arg(modelData.slot + 1).arg(deviceRackController.deviceDisplayName(modelData.slot))
                 enabled: !modelData.onPanel
                 onTriggered: {
-                    if (modelData.type === performancePanelController.rtaType) {
+                    if (performancePanelController.isEffectType(modelData.type)) {
                         performancePanelController.addEffect(modelData.sourceId);
                     } else {
                         performancePanelController.addDevice(modelData.slot);
@@ -150,7 +150,7 @@ Rectangle {
             }
         }
         MenuSeparator {
-            visible: addMenu.xyPadCount > 0 && addMenu.rtaCount > 0
+            visible: addMenu.xyPadCount > 0 && addMenu.effectCount > 0
             height: visible ? implicitHeight : 0
         }
         MenuSeparator {
@@ -163,19 +163,31 @@ Rectangle {
         }
         MenuItem {
             text: qsTr("New RTA")
-            onTriggered: root._addNewRta()
+            onTriggered: root._addNewEffect(effectRackController.rtaType)
+        }
+        MenuItem {
+            text: qsTr("New LUFS Meter")
+            onTriggered: root._addNewEffect(effectRackController.lufsMeterType)
+        }
+        MenuItem {
+            text: qsTr("New dBTP Meter")
+            onTriggered: root._addNewEffect(effectRackController.dbtpMeterType)
+        }
+        MenuItem {
+            text: qsTr("New Stereo Field Meter")
+            onTriggered: root._addNewEffect(effectRackController.stereoFieldMeterType)
         }
     }
 
-    //! Puts a new RTA in the first free master insert slot, where it hears the whole mix, and on
-    //! the panel
-    function _addNewRta(): void {
+    //! Puts a new meter of @p effectType in the first free master insert slot, where it hears the
+    //! whole mix, and on the panel
+    function _addNewEffect(effectType: string): void {
         effectRackController.targetDeviceName = "";
         effectRackController.isInsertRack = true;
         effectRackController.targetSubIndex = -1;
         for (let slot = 0; slot < effectRackController.effectCount; slot++) {
             if (effectRackController.effectType(slot) === "") {
-                effectRackController.setEffect(slot, effectRackController.rtaType);
+                effectRackController.setEffect(slot, effectType);
                 performancePanelController.addEffect(effectRackController.effectId(slot));
                 return;
             }

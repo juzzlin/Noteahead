@@ -21,11 +21,15 @@
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/panner.hpp"
+#include "../../domain/utility/dbtp_meter.hpp"
+#include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
+#include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../view/controllers/performance_panel_controller.hpp"
 #include "../../view/controllers/xy_pad_controller.hpp"
+#include "../../view/qml/Components/level_meter_renderer.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -139,6 +143,94 @@ void PerformancePanelTest::test_addEffect_otherEffect_shouldBeRefused()
     QCOMPARE(model.elements(), (PerformancePanelModel::ElementList { { rtaType, QString::fromStdString(rta->id()) } }));
 }
 
+void PerformancePanelTest::test_availableElements_meters_shouldListThemByType()
+{
+    const auto deviceService = createDeviceService();
+    deviceService->insertEffectRack().setEffect(0, std::make_shared<LufsMeter>());
+    deviceService->insertEffectRack().setEffect(1, std::make_shared<DbTpMeter>());
+    deviceService->insertEffectRack().setEffect(2, std::make_shared<StereoFieldMeter>());
+    PerformancePanelModel model;
+    PerformancePanelController controller { deviceService, model };
+
+    QStringList types;
+    for (auto && element : controller.availableElements()) {
+        types << element.toMap()["type"].toString();
+    }
+    QCOMPARE(types, (QStringList { controller.lufsMeterType(), controller.dbtpMeterType(), controller.stereoFieldMeterType() }));
+    for (auto && type : types) {
+        QVERIFY(controller.isEffectType(type));
+    }
+    QVERIFY(!controller.isEffectType(controller.xyPadType()));
+}
+
+void PerformancePanelTest::test_addEffect_meter_shouldAddItByType()
+{
+    const auto deviceService = createDeviceService();
+    const auto meter = std::make_shared<DbTpMeter>();
+    deviceService->insertEffectRack().setEffect(0, meter);
+    PerformancePanelModel model;
+    PerformancePanelController controller { deviceService, model };
+
+    QVERIFY(controller.addEffect(QString::fromStdString(meter->id())));
+    QCOMPARE(model.elements(), (PerformancePanelModel::ElementList { { controller.dbtpMeterType(), QString::fromStdString(meter->id()) } }));
+}
+
+void PerformancePanelTest::test_setAnalysisActive_stereoFieldMeter_shouldStartAndStopIt()
+{
+    const auto deviceService = createDeviceService();
+    const auto meter = std::make_shared<StereoFieldMeter>();
+    deviceService->insertEffectRack().setEffect(0, meter);
+    PerformancePanelModel model;
+    PerformancePanelController controller { deviceService, model };
+    const auto id = QString::fromStdString(meter->id());
+
+    // Its dialog showing it too: the panel letting go must leave the dialog's analysis running
+    meter->addAnalysisViewer();
+    controller.setAnalysisActive(id, true);
+    controller.setAnalysisActive(id, true);
+    controller.setAnalysisActive(id, false);
+    QVERIFY(!meter->isSettled());
+
+    meter->removeAnalysisViewer();
+    QVERIFY(meter->isSettled());
+}
+
+void PerformancePanelTest::test_updateRenderer_lufsMeter_shouldShowItsThreeReadings()
+{
+    const auto deviceService = createDeviceService();
+    const auto meter = std::make_shared<LufsMeter>();
+    deviceService->insertEffectRack().setEffect(0, meter);
+    PerformancePanelModel model;
+    PerformancePanelController controller { deviceService, model };
+    LevelMeterRenderer renderer;
+
+    controller.updateRenderer(QString::fromStdString(meter->id()), &renderer);
+
+    QCOMPARE(renderer.bars().size(), size_t { 3 });
+    QCOMPARE(renderer.bars().at(0).label, QString { "M" });
+    QCOMPARE(renderer.bars().at(0).value, static_cast<double>(meter->momentaryLufs()));
+    QCOMPARE(renderer.bars().at(2).label, QString { "I" });
+    QVERIFY(!renderer.bars().at(0).hold);
+    QCOMPARE(renderer.scale().unit, QString { "LUFS" });
+}
+
+void PerformancePanelTest::test_updateRenderer_dbtpMeter_shouldShowBothChannelsWithHolds()
+{
+    const auto deviceService = createDeviceService();
+    const auto meter = std::make_shared<DbTpMeter>();
+    deviceService->insertEffectRack().setEffect(0, meter);
+    PerformancePanelModel model;
+    PerformancePanelController controller { deviceService, model };
+    LevelMeterRenderer renderer;
+
+    controller.updateRenderer(QString::fromStdString(meter->id()), &renderer);
+
+    QCOMPARE(renderer.bars().size(), size_t { 2 });
+    QCOMPARE(renderer.bars().at(1).label, QString { "R" });
+    QVERIFY(renderer.bars().at(1).hold);
+    QCOMPARE(renderer.scale().unit, QString { "dBTP" });
+}
+
 void PerformancePanelTest::test_effectLocation_effectRemoved_shouldBeEmpty()
 {
     const auto deviceService = createDeviceService();
@@ -154,7 +246,7 @@ void PerformancePanelTest::test_effectLocation_effectRemoved_shouldBeEmpty()
     QVERIFY(controller.effectLocation(id).isEmpty());
 }
 
-void PerformancePanelTest::test_rtaSetActive_twice_shouldCountAsOneViewer()
+void PerformancePanelTest::test_setAnalysisActive_rtaTwice_shouldCountAsOneViewer()
 {
     const auto deviceService = createDeviceService();
     const auto rta = std::make_shared<Rta>();
@@ -163,15 +255,15 @@ void PerformancePanelTest::test_rtaSetActive_twice_shouldCountAsOneViewer()
     PerformancePanelController controller { deviceService, model };
     const auto id = QString::fromStdString(rta->id());
 
-    controller.rtaSetActive(id, true);
-    controller.rtaSetActive(id, true);
+    controller.setAnalysisActive(id, true);
+    controller.setAnalysisActive(id, true);
     QVERIFY(!rta->isSettled());
 
-    controller.rtaSetActive(id, false);
+    controller.setAnalysisActive(id, false);
     QVERIFY(rta->isSettled());
 }
 
-void PerformancePanelTest::test_rtaSetActive_effectRemoved_shouldStillLetGoOfIt()
+void PerformancePanelTest::test_setAnalysisActive_effectRemoved_shouldStillLetGoOfIt()
 {
     // The rack moves on before the element is gone: the RTA taken must be the one let go of
     const auto deviceService = createDeviceService();
@@ -180,10 +272,10 @@ void PerformancePanelTest::test_rtaSetActive_effectRemoved_shouldStillLetGoOfIt(
     PerformancePanelModel model;
     PerformancePanelController controller { deviceService, model };
     const auto id = QString::fromStdString(rta->id());
-    controller.rtaSetActive(id, true);
+    controller.setAnalysisActive(id, true);
 
     deviceService->insertEffectRack().setEffect(0, nullptr);
-    controller.rtaSetActive(id, false);
+    controller.setAnalysisActive(id, false);
 
     QVERIFY(rta->isSettled());
 }

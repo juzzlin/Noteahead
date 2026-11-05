@@ -78,6 +78,7 @@
 #include "../view/controllers/synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/controllers/xy_pad_controller.hpp"
+#include "../view/qml/Components/level_meter_renderer.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Components/phase_scope_renderer.hpp"
 #include "../view/qml/Components/wave_shape_renderer.hpp"
@@ -299,6 +300,7 @@ void Application::registerTypes()
     qmlRegisterType<PhaseScopeRenderer>("Noteahead", majorVersion, minorVersion, "PhaseScopeRenderer");
     qmlRegisterType<WaveShapeRenderer>("Noteahead", majorVersion, minorVersion, "WaveShapeRenderer");
     qmlRegisterType<XyPadRenderer>("Noteahead", majorVersion, minorVersion, "XyPadRenderer");
+    qmlRegisterType<LevelMeterRenderer>("Noteahead", majorVersion, minorVersion, "LevelMeterRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<ParameterAutomationsModel>("Noteahead", majorVersion, minorVersion, "ParameterAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");

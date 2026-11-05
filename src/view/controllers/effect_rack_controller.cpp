@@ -2361,7 +2361,11 @@ void EffectRackController::stereoFieldMeterSetActive(quint32 effectIndex, bool a
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto meter = std::dynamic_pointer_cast<StereoFieldMeter>(effect); meter) {
-                meter->setAnalysisEnabled(active);
+                if (active) {
+                    meter->addAnalysisViewer();
+                } else {
+                    meter->removeAnalysisViewer();
+                }
             }
         }
     }

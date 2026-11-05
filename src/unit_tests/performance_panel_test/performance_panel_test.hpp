@@ -33,9 +33,14 @@ private slots:
     void test_availableElements_shouldListXyPadDevicesOnly();
     void test_availableElements_rta_shouldListItWithItsLocation();
     void test_addEffect_otherEffect_shouldBeRefused();
+    void test_availableElements_meters_shouldListThemByType();
+    void test_addEffect_meter_shouldAddItByType();
+    void test_setAnalysisActive_stereoFieldMeter_shouldStartAndStopIt();
+    void test_updateRenderer_lufsMeter_shouldShowItsThreeReadings();
+    void test_updateRenderer_dbtpMeter_shouldShowBothChannelsWithHolds();
     void test_effectLocation_effectRemoved_shouldBeEmpty();
-    void test_rtaSetActive_twice_shouldCountAsOneViewer();
-    void test_rtaSetActive_effectRemoved_shouldStillLetGoOfIt();
+    void test_setAnalysisActive_rtaTwice_shouldCountAsOneViewer();
+    void test_setAnalysisActive_effectRemoved_shouldStillLetGoOfIt();
     void test_addDevice_otherDevice_shouldBeRefused();
     void test_deviceSlot_shouldFollowTheDevice();
     void test_xyPadController_shouldPlayThatDevice();

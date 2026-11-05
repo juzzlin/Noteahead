@@ -427,9 +427,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/MainMenu_Song.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
+    ${QML_BASE_DIR}/Panel/LevelMeterPanelElement.qml
     ${QML_BASE_DIR}/Panel/PanelElement.qml
     ${QML_BASE_DIR}/Panel/PerformancePanel.qml
     ${QML_BASE_DIR}/Panel/RtaPanelElement.qml
+    ${QML_BASE_DIR}/Panel/StereoFieldPanelElement.qml
     ${QML_BASE_DIR}/Panel/XyPadPanelElement.qml
     ${QML_BASE_DIR}/Theme.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml

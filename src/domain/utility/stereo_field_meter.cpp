@@ -134,13 +134,25 @@ std::string StereoFieldMeter::typeId() const
 
 bool StereoFieldMeter::isSettled() const
 {
-    return !m_analysisEnabled.load(std::memory_order_relaxed);
+    return m_analysisViewers.load(std::memory_order_relaxed) == 0;
 }
 
-void StereoFieldMeter::setAnalysisEnabled(bool enabled)
+void StereoFieldMeter::addAnalysisViewer()
 {
-    m_analysisEnabled.store(enabled, std::memory_order_relaxed);
-    m_scope.setActive(enabled);
+    if (m_analysisViewers.fetch_add(1, std::memory_order_relaxed) == 0) {
+        m_scope.setActive(true);
+    }
+}
+
+void StereoFieldMeter::removeAnalysisViewer()
+{
+    // Never below zero: a viewer that lets go twice must not keep the next one from starting it
+    auto viewers = m_analysisViewers.load(std::memory_order_relaxed);
+    while (viewers > 0 && !m_analysisViewers.compare_exchange_weak(viewers, viewers - 1, std::memory_order_relaxed)) {
+    }
+    if (viewers == 1) {
+        m_scope.setActive(false);
+    }
 }
 
 void StereoFieldMeter::analyse(double left, double right)
@@ -163,7 +175,7 @@ void StereoFieldMeter::analyse(double left, double right)
 
 void StereoFieldMeter::processSample(double & left, double & right)
 {
-    if (!m_analysisEnabled.load(std::memory_order_relaxed) || m_sampleRate <= 0) {
+    if (m_analysisViewers.load(std::memory_order_relaxed) == 0 || m_sampleRate <= 0) {
         return;
     }
 
@@ -173,7 +185,7 @@ void StereoFieldMeter::processSample(double & left, double & right)
 
 void StereoFieldMeter::processBlock(AudioContext & context)
 {
-    if (!m_analysisEnabled.load(std::memory_order_relaxed)) {
+    if (m_analysisViewers.load(std::memory_order_relaxed) == 0) {
         return;
     }
 

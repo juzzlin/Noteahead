@@ -68,7 +68,7 @@ std::unique_ptr<StereoFieldMeter> makeMeter()
 {
     auto meter = std::make_unique<StereoFieldMeter>();
     meter->setSampleRate(sampleRate);
-    meter->setAnalysisEnabled(true);
+    meter->addAnalysisViewer();
     return meter;
 }
 
@@ -104,6 +104,23 @@ void StereoFieldMeterTest::test_process_meter_shouldPassAudioThrough()
 
     // A meter that changed what it measures would be worse than no meter at all.
     QCOMPARE(buffer, expected);
+}
+
+void StereoFieldMeterTest::test_removeAnalysisViewer_oneOfTwo_shouldKeepAnalysing()
+{
+    // The dialog and the performance panel can show the same meter: one closing leaves the other's
+    StereoFieldMeter meter;
+    QVERIFY(meter.isSettled());
+    meter.addAnalysisViewer();
+    meter.addAnalysisViewer();
+    meter.removeAnalysisViewer();
+    QVERIFY(!meter.isSettled());
+    meter.removeAnalysisViewer();
+    QVERIFY(meter.isSettled());
+    // Letting go once too often must not keep the next viewer from starting it
+    meter.removeAnalysisViewer();
+    meter.addAnalysisViewer();
+    QVERIFY(!meter.isSettled());
 }
 
 void StereoFieldMeterTest::test_correlation_monoInput_shouldReadOne()

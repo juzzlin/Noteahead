@@ -228,6 +228,20 @@ void StereoFieldRenderer::setShowGuides(bool show)
     }
 }
 
+bool StereoFieldRenderer::compact() const
+{
+    return m_compact;
+}
+
+void StereoFieldRenderer::setCompact(bool compact)
+{
+    if (m_compact != compact) {
+        m_compact = compact;
+        emit compactChanged();
+        update();
+    }
+}
+
 QColor StereoFieldRenderer::accentColor() const
 {
     return m_accentColor;
@@ -329,6 +343,11 @@ void StereoFieldRenderer::paintGoniometerGuides(QPainter * painter, const QRectF
     painter->setPen(QPen { guideFaintColor, 1.0, Qt::DashLine });
     painter->drawLine(QPointF { centre.x() - diagonal, centre.y() - diagonal }, QPointF { centre.x() + diagonal, centre.y() + diagonal });
     painter->drawLine(QPointF { centre.x() + diagonal, centre.y() - diagonal }, QPointF { centre.x() - diagonal, centre.y() + diagonal });
+
+    // Too small for words: the compact dial is read by its shape and the bar under it
+    if (m_compact) {
+        return;
+    }
 
     // Words rather than initials: the point of the graticule is that the display can be read
     // without the manual open beside it.
@@ -547,6 +566,11 @@ void StereoFieldRenderer::paint(QPainter * painter)
         return;
     }
 
+    if (m_compact) {
+        paintCompact(painter, bounds);
+        return;
+    }
+
     // The dial takes a square off the left and the readings take the rest, so the goniometer keeps
     // its aspect whatever the dialog is resized to.
     const double dialSide = std::min(bounds.height(), bounds.width() * 0.52);
@@ -609,6 +633,20 @@ void StereoFieldRenderer::paint(QPainter * painter)
     y += rowHeight + innerGap;
     paintLevelBar(painter, QRectF { panel.left(), y, panel.width(), rowHeight }, tr("Side"), m_sideDb,
                   QColor { m_accentColor.red() * 3 / 4, m_accentColor.green() * 3 / 4, m_accentColor.blue() * 3 / 4 }, true);
+}
+
+void StereoFieldRenderer::paintCompact(QPainter * painter, const QRectF & bounds) const
+{
+    constexpr double rowHeight = 18.0;
+    setFontSize(painter, labelFontSize, true);
+    painter->setPen(verdictColor());
+    painter->drawText(QRectF { bounds.left(), bounds.top(), bounds.width(), rowHeight }, Qt::AlignCenter, verdictText());
+
+    const QRectF dialArea { bounds.left(), bounds.top() + rowHeight, bounds.width(), bounds.height() - 2.0 * rowHeight - 4.0 };
+    const double dialSide = std::min(dialArea.width(), dialArea.height());
+    paintGoniometer(painter, QRectF { dialArea.center().x() - dialSide / 2.0, dialArea.top(), dialSide, dialSide });
+
+    paintCorrelationScale(painter, QRectF { bounds.left(), bounds.bottom() - rowHeight, bounds.width(), rowHeight }, tr("Corr"), m_correlation, m_widthClass == 0, false);
 }
 
 } // namespace noteahead

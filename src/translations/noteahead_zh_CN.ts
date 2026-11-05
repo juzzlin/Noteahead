@@ -8782,6 +8782,18 @@
         <translation>新建 RTA</translation>
     </message>
     <message>
+        <source>New LUFS Meter</source>
+        <translation>新建 LUFS Meter</translation>
+    </message>
+    <message>
+        <source>New dBTP Meter</source>
+        <translation>新建 dBTP Meter</translation>
+    </message>
+    <message>
+        <source>New Stereo Field Meter</source>
+        <translation>新建 Stereo Field Meter</translation>
+    </message>
+    <message>
         <source>The master insert rack is full.</source>
         <translation>主插入机架已满。</translation>
     </message>
@@ -9454,7 +9466,7 @@
     </message>
     <message>
         <source>Dynamics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">动态</translation>
     </message>
     <message>
         <source>How much of that system&apos;s own compression and drive is applied</source>

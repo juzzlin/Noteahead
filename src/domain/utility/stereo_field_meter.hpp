@@ -67,8 +67,10 @@ public:
     //! there. Silence is a reading like any other and has to be measured to be shown.
     bool isSettled() const override;
 
-    //! Analysis costs nothing while no dialog is showing it, so it is gated rather than always run.
-    void setAnalysisEnabled(bool enabled);
+    //! Analysis costs nothing while nothing is showing it, so it is gated rather than always run.
+    //! Counted, as its dialog and the performance panel can show the same meter at once.
+    void addAnalysisViewer();
+    void removeAnalysisViewer();
 
     static constexpr size_t NumBands = 3;
 
@@ -127,7 +129,7 @@ private:
     void syncParameters();
     void analyse(double left, double right);
 
-    std::atomic<bool> m_analysisEnabled { false };
+    std::atomic<int> m_analysisViewers { 0 };
 
     AudioScope m_scope;
 

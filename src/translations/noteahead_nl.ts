@@ -8783,6 +8783,18 @@
         <translation>Nieuwe RTA</translation>
     </message>
     <message>
+        <source>New LUFS Meter</source>
+        <translation>Nieuwe LUFS Meter</translation>
+    </message>
+    <message>
+        <source>New dBTP Meter</source>
+        <translation>Nieuwe dBTP Meter</translation>
+    </message>
+    <message>
+        <source>New Stereo Field Meter</source>
+        <translation>Nieuwe Stereo Field Meter</translation>
+    </message>
+    <message>
         <source>The master insert rack is full.</source>
         <translation>Het master-insertrack is vol.</translation>
     </message>
@@ -9455,7 +9467,7 @@
     </message>
     <message>
         <source>Dynamics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dynamiek</translation>
     </message>
     <message>
         <source>How much of that system&apos;s own compression and drive is applied</source>

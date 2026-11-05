@@ -8783,6 +8783,18 @@
         <translation>Neuer RTA</translation>
     </message>
     <message>
+        <source>New LUFS Meter</source>
+        <translation>Neuer LUFS Meter</translation>
+    </message>
+    <message>
+        <source>New dBTP Meter</source>
+        <translation>Neuer dBTP Meter</translation>
+    </message>
+    <message>
+        <source>New Stereo Field Meter</source>
+        <translation>Neuer Stereo Field Meter</translation>
+    </message>
+    <message>
         <source>The master insert rack is full.</source>
         <translation>Das Master-Insert-Rack ist voll.</translation>
     </message>
@@ -9455,7 +9467,7 @@
     </message>
     <message>
         <source>Dynamics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dynamik</translation>
     </message>
     <message>
         <source>How much of that system&apos;s own compression and drive is applied</source>

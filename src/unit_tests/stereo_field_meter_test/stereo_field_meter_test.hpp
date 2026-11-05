@@ -26,6 +26,7 @@ class StereoFieldMeterTest : public QObject
 
 private slots:
     void test_process_meter_shouldPassAudioThrough();
+    void test_removeAnalysisViewer_oneOfTwo_shouldKeepAnalysing();
 
     void test_correlation_monoInput_shouldReadOne();
     void test_correlation_invertedInput_shouldReadMinusOne();

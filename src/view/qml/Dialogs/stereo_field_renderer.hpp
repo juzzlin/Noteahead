@@ -49,6 +49,8 @@ class StereoFieldRenderer : public QQuickPaintedItem
     Q_PROPERTY(qreal balance READ balance WRITE setBalance NOTIFY balanceChanged)
     Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
     Q_PROPERTY(bool showGuides READ showGuides WRITE setShowGuides NOTIFY showGuidesChanged)
+    //! Only the dial, its verdict and the broadband correlation, for the performance panel
+    Q_PROPERTY(bool compact READ compact WRITE setCompact NOTIFY compactChanged)
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
     //! The latched width class as a word, for anything that wants to show it outside the painter.
     Q_PROPERTY(QString verdict READ verdictText NOTIFY correlationChanged)
@@ -80,6 +82,9 @@ public:
     bool showGuides() const;
     void setShowGuides(bool show);
 
+    bool compact() const;
+    void setCompact(bool compact);
+
     QColor accentColor() const;
     void setAccentColor(const QColor & color);
 
@@ -107,12 +112,15 @@ signals:
     void balanceChanged();
     void zoomChanged();
     void showGuidesChanged();
+    void compactChanged();
     void accentColorChanged();
 
 private:
     //! The dial itself: the graticule, then the trace over it.
     void paintGoniometer(QPainter * painter, const QRectF & rect) const;
     void paintGoniometerGuides(QPainter * painter, const QRectF & rect, double radius) const;
+    //! The compact layout: the verdict over the dial, the broadband correlation under it.
+    void paintCompact(QPainter * painter, const QRectF & bounds) const;
 
     //! A scale running from -1 to 1 with its own ticks, used for the broadband reading and once
     //! more, smaller, for each band. The legend under it names what the two ends and the centre
@@ -138,6 +146,7 @@ private:
     qreal m_balance { 0.0 };
     qreal m_zoom { 1.0 };
     bool m_showGuides { true };
+    bool m_compact { false };
     QColor m_accentColor { 0, 180, 255 };
 
     //! Latched so the heading does not chatter; see nextWidthClass(). Starts where a silent meter

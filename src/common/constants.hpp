@@ -313,6 +313,9 @@ QString tremolo();
 namespace PanelElementType {
 QString xyPad();
 QString rta();
+QString lufsMeter();
+QString dbtpMeter();
+QString stereoFieldMeter();
 } // namespace PanelElementType
 
 namespace NahdXml {

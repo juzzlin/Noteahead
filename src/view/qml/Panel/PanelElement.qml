@@ -31,7 +31,7 @@ Rectangle {
 
     signal removeRequested
 
-    readonly property bool isEffect: root.type === performancePanelController.rtaType
+    readonly property bool isEffect: performancePanelController.isEffectType(root.type)
     //! The device's rack slot, read again whenever the rack changes; -1 once it is gone.
     readonly property int slot: !root.isEffect && performancePanelController.revision >= 0 ? performancePanelController.deviceSlot(root.sourceId) : -1
     //! Where the effect sits, read again whenever a rack changes; empty once it is gone.
@@ -45,6 +45,23 @@ Rectangle {
             return root.found ? Targets.targetLabel(root.location) : qsTr("Effect missing");
         }
         return root.found ? qsTr("Slot %1: %2").arg(root.slot + 1).arg(deviceRackController.deviceDisplayName(root.slot)) : qsTr("Device missing");
+    }
+
+    function _body(): Component {
+        switch (root.type) {
+        case performancePanelController.xyPadType:
+            return xyPadBody;
+        case performancePanelController.rtaType:
+            return rtaBody;
+        case performancePanelController.lufsMeterType:
+            return lufsMeterBody;
+        case performancePanelController.dbtpMeterType:
+            return dbtpMeterBody;
+        case performancePanelController.stereoFieldMeterType:
+            return stereoFieldBody;
+        default:
+            return null;
+        }
     }
 
     //! Opens the settings of what the element shows, as its own rack would
@@ -113,7 +130,7 @@ Rectangle {
             id: body
             Layout.fillWidth: true
             Layout.fillHeight: true
-            sourceComponent: !root.found ? null : root.type === performancePanelController.xyPadType ? xyPadBody : root.isEffect ? rtaBody : null
+            sourceComponent: root.found ? root._body() : null
         }
     }
 
@@ -132,6 +149,29 @@ Rectangle {
     Component {
         id: rtaBody
         RtaPanelElement {
+            sourceId: root.sourceId
+        }
+    }
+
+    Component {
+        id: lufsMeterBody
+        LevelMeterPanelElement {
+            sourceId: root.sourceId
+            barCount: 3
+        }
+    }
+
+    Component {
+        id: dbtpMeterBody
+        LevelMeterPanelElement {
+            sourceId: root.sourceId
+            barCount: 2
+        }
+    }
+
+    Component {
+        id: stereoFieldBody
+        StereoFieldPanelElement {
             sourceId: root.sourceId
         }
     }

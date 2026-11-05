@@ -590,6 +590,21 @@ QString rta()
 {
     return "rta";
 }
+
+QString lufsMeter()
+{
+    return "lufsMeter";
+}
+
+QString dbtpMeter()
+{
+    return "dbtpMeter";
+}
+
+QString stereoFieldMeter()
+{
+    return "stereoFieldMeter";
+}
 } // namespace PanelElementType
 
 namespace NahdXml {
