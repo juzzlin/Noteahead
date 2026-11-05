@@ -64,6 +64,7 @@
 #include "../../domain/effects/bit_crusher.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
+#include "../../domain/effects/compressor_2a.hpp"
 #include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
@@ -4847,6 +4848,49 @@ void XmlSerializationTest::test_toXmlFromXml_doublerEffect_shouldLoadCorrectly()
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.66f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.81f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_compressor2AEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    namespace C = Constants::NahdXml;
+    const std::vector<std::pair<QString, float>> values {
+        { C::xmlKeyPeakReduction(), 0.63f },
+        { C::xmlKeyGain(), 0.71f },
+        { C::xmlKeyMode(), 1.0f },
+        { C::xmlKeyMix(), 0.42f },
+        { C::xmlKeySolo(), 1.0f },
+    };
+    auto compressor = std::make_shared<Compressor2A>();
+    for (auto && [key, value] : values) {
+        if (auto p = compressor->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, compressor);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Compressor2A>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Compressor2A::typeIdString());
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY2(p, qPrintable(key));
+        QVERIFY2(std::abs(p->get().value() - value) < 0.001f, qPrintable(key + ": " + QString::number(p->get().value())));
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_crossfeedEffect_shouldLoadCorrectly()

@@ -606,6 +606,10 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    Compressor2ADialog {
+        id: compressor2ADialog
+        anchors.centerIn: parent
+    }
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent

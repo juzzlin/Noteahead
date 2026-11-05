@@ -262,6 +262,7 @@ QString sourceLanguage();
 namespace RackEffectType {
 QString reverb();
 QString compressor();
+QString compressor2A();
 QString multibandCompressor();
 QString delay();
 QString dimension();
@@ -625,6 +626,7 @@ QString xmlKeyRatio();
 QString xmlKeyRange();
 QString xmlKeyKnee();
 QString xmlKeyMakeup();
+QString xmlKeyPeakReduction();
 QString xmlKeyCeiling();
 QString xmlKeyBoost();
 QString xmlKeyFreeze();

@@ -156,6 +156,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
+    ${QML_BASE_DIR}/Dialogs/Compressor2ADialog.qml
     ${QML_BASE_DIR}/Dialogs/CompressorDialog.qml
     ${QML_BASE_DIR}/Dialogs/ConfirmationDialog.qml
     ${QML_BASE_DIR}/Dialogs/CopyAutomationDialog.qml

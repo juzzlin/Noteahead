@@ -1409,6 +1409,49 @@
     </message>
 </context>
 <context>
+    <name>Compressor2ADialog</name>
+    <message>
+        <source>Compressor 2A (Slot %1)</source>
+        <translation>Compressor 2A（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>An optical leveler: a lamp lit by the signal and a light-dependent cell that follows it. It pulls down in about 10 ms and lets go in two stages, half within some 60 ms and the rest over seconds, slower the longer it has been held down.</source>
+        <translation>光学电平器：信号点亮灯泡，光敏元件跟随它。约 10 毫秒内压低，分两段释放：约 60 毫秒内释放一半，其余在数秒内释放，压得越久释放越慢。</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>模式</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
+    </message>
+    <message>
+        <source>How hard the signal lights the cell: both where it starts to pull down and how far</source>
+        <translation>信号点亮光敏元件的强度：既决定从哪里开始压低，也决定压低多少</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>独奏</translation>
+    </message>
+    <message>
+        <source>Pass only what the compressor changes, so it can be heard on its own</source>
+        <translation>只通过压缩器改变的部分，以便单独试听</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>增益衰减</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -8808,6 +8851,10 @@
     <message>
         <source>Y</source>
         <translation>Y</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
     </message>
 </context>
 <context>

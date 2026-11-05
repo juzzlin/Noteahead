@@ -202,6 +202,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - The room a sound is in, without a tail: the first arrivals off the walls, with Size, Diffusion, Damping, Pre-Delay, Width and a Solo for hearing only the reflections.
 - Compressor
   - Feed-forward compressor with soft-knee interpolation, lookahead support, Peak/RMS detection, side-chain source selection, and real-time gain reduction metering.
+- Compressor 2A
+  - Optical leveler after the LA-2A: Peak Reduction, Gain and Compress/Limit, with a program-dependent two-stage release, a valve output stage and gain reduction metering.
 - Multiband Compressor
   - Three bands split by Linkwitz-Riley crossovers that sum back flat, with per-band threshold, ratio, knee, attack, release, makeup, bypass, solo and gain reduction metering. The side chain source is split by the same crossovers.
 - Auto Ducker

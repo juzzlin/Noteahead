@@ -1409,6 +1409,49 @@
     </message>
 </context>
 <context>
+    <name>Compressor2ADialog</name>
+    <message>
+        <source>Compressor 2A (Slot %1)</source>
+        <translation>Compressor 2A (Emplacement %1)</translation>
+    </message>
+    <message>
+        <source>An optical leveler: a lamp lit by the signal and a light-dependent cell that follows it. It pulls down in about 10 ms and lets go in two stages, half within some 60 ms and the rest over seconds, slower the longer it has been held down.</source>
+        <translation>Un niveleur optique : une lampe allumée par le signal et une cellule photosensible qui la suit. Il réduit en environ 10 ms et relâche en deux temps, la moitié en quelque 60 ms et le reste en plusieurs secondes, d’autant plus lentement qu’il a réduit longtemps.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Mode</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
+    </message>
+    <message>
+        <source>How hard the signal lights the cell: both where it starts to pull down and how far</source>
+        <translation>L’intensité avec laquelle le signal éclaire la cellule : à la fois où la réduction commence et jusqu’où</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the compressor changes, so it can be heard on its own</source>
+        <translation>Ne laisser passer que ce que le compresseur modifie, pour l’entendre seul</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>Réduction de gain</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -8809,6 +8852,10 @@
     <message>
         <source>Y</source>
         <translation>Y</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
     </message>
 </context>
 <context>

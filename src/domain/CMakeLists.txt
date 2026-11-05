@@ -82,6 +82,7 @@ set(HEADER_FILES
     dsp/multi_engine.hpp
     dsp/noise_source.hpp
     dsp/one_pole_filter.hpp
+    dsp/opto_compressor_core.hpp
     dsp/ota_ladder_filter.hpp
     dsp/panning.hpp
     dsp/ensemble_phaser.hpp
@@ -112,6 +113,7 @@ set(HEADER_FILES
     effects/bit_crusher.hpp
     effects/clipper.hpp
     effects/compressor.hpp
+    effects/compressor_2a.hpp
     effects/compressor_presets.hpp
     effects/crossfeed.hpp
     effects/crossfeed_presets.hpp
@@ -304,6 +306,7 @@ set(SOURCE_FILES
     dsp/multi_engine.cpp
     dsp/noise_source.cpp
     dsp/one_pole_filter.cpp
+    dsp/opto_compressor_core.cpp
     dsp/ota_ladder_filter.cpp
     dsp/panning.cpp
     dsp/ensemble_phaser.cpp
@@ -336,6 +339,7 @@ set(SOURCE_FILES
     effects/chorus.cpp
     effects/clipper.cpp
     effects/compressor.cpp
+    effects/compressor_2a.cpp
     effects/compressor_presets.cpp
     effects/crossfeed.cpp
     effects/crossfeed_presets.cpp

@@ -359,6 +359,11 @@ QString compressor()
     return "compressor";
 }
 
+QString compressor2A()
+{
+    return "compressor2A";
+}
+
 QString multibandCompressor()
 {
     return "multibandcompressor";
@@ -1915,6 +1920,11 @@ QString xmlKeyKnee()
 QString xmlKeyMakeup()
 {
     return "makeup";
+}
+
+QString xmlKeyPeakReduction()
+{
+    return "peakReduction";
 }
 
 QString xmlKeyCeiling()

@@ -1409,6 +1409,49 @@
     </message>
 </context>
 <context>
+    <name>Compressor2ADialog</name>
+    <message>
+        <source>Compressor 2A (Slot %1)</source>
+        <translation>Compressor 2A (Slot %1)</translation>
+    </message>
+    <message>
+        <source>An optical leveler: a lamp lit by the signal and a light-dependent cell that follows it. It pulls down in about 10 ms and lets go in two stages, half within some 60 ms and the rest over seconds, slower the longer it has been held down.</source>
+        <translation>Optyczny poziomujący kompresor: lampa zapalana sygnałem i światłoczuła komórka, która za nią podąża. Ścisza w około 10 ms i puszcza w dwóch etapach, połowę w około 60 ms, a resztę w ciągu sekund, tym wolniej, im dłużej ściszał.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Tryb</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
+    </message>
+    <message>
+        <source>How hard the signal lights the cell: both where it starts to pull down and how far</source>
+        <translation>Jak mocno sygnał oświetla komórkę: zarówno gdzie zaczyna ściszać, jak i jak mocno</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the compressor changes, so it can be heard on its own</source>
+        <translation>Przepuść tylko to, co zmienia kompresor, aby było słychać to osobno</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>Redukcja wzmocnienia</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -8810,6 +8853,10 @@
     <message>
         <source>Y</source>
         <translation>Y</translation>
+    </message>
+    <message>
+        <source>Peak Reduction</source>
+        <translation>Peak Reduction</translation>
     </message>
 </context>
 <context>

@@ -33,6 +33,7 @@
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
+#include "../../domain/effects/compressor_2a.hpp"
 #include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
@@ -413,6 +414,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Chorus", Chorus::typeIdString(), modulation);
     addEffect("Clipper", Constants::RackEffectType::clipper().toStdString(), dynamics);
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString(), dynamics);
+    addEffect("Compressor 2A", Constants::RackEffectType::compressor2A().toStdString(), dynamics);
     addEffect("dBTP Meter", DbTpMeter::typeIdString(), meters);
     addEffect("Delay", Constants::RackEffectType::delay().toStdString(), space);
     addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString(), stereo);
@@ -963,6 +965,14 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     return QString { "(detune=%1c, amount=%2%)" }
                       .arg(detune->get().shownValue() * 25.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::compressor2A()) {
+                const auto peakReduction { effect->parameter(Constants::NahdXml::xmlKeyPeakReduction().toStdString()) };
+                const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) };
+                if (peakReduction && mode) {
+                    return QString { "(peak=%1, %2)" }
+                      .arg(static_cast<int>(std::round(peakReduction->get().shownValue() * 100.0f)))
+                      .arg(mode->get().xmlValue() == static_cast<int>(Compressor2A::Mode::Limit) ? QString { "Limit" } : QString { "Compress" });
                 }
             } else if (type == Constants::RackEffectType::doubler()) {
                 const auto time { effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()) };
@@ -2310,6 +2320,31 @@ QString EffectRackController::dimensionSoloKey() const
     return Constants::NahdXml::xmlKeySolo();
 }
 
+QString EffectRackController::compressor2APeakReductionKey() const
+{
+    return Constants::NahdXml::xmlKeyPeakReduction();
+}
+
+QString EffectRackController::compressor2AGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::compressor2AModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::compressor2AMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::compressor2ASoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::doublerModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
@@ -2869,6 +2904,11 @@ QString EffectRackController::stereoFieldMeterType() const
 QString EffectRackController::dimensionType() const
 {
     return Constants::RackEffectType::dimension();
+}
+
+QString EffectRackController::compressor2AType() const
+{
+    return Constants::RackEffectType::compressor2A();
 }
 
 QString EffectRackController::doublerType() const
@@ -3466,6 +3506,19 @@ float EffectRackController::limiterReductionDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto limiter = std::dynamic_pointer_cast<Limiter>(effect); limiter) {
                 return limiter->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::compressor2AReductionDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto compressor = std::dynamic_pointer_cast<Compressor2A>(effect); compressor) {
+                return compressor->reductionDb();
             }
         }
     }

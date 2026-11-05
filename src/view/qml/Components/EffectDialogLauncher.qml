@@ -108,6 +108,9 @@ QtObject {
         } else if (effectType === effectRackController.compressorType) {
             compressorDialog.effectIndex = index;
             compressorDialog.open();
+        } else if (effectType === effectRackController.compressor2AType) {
+            compressor2ADialog.effectIndex = index;
+            compressor2ADialog.open();
         } else if (effectType === effectRackController.multibandCompressorType) {
             multibandCompressorDialog.effectIndex = index;
             multibandCompressorDialog.open();

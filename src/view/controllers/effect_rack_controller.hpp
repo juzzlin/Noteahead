@@ -69,6 +69,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString stereoFieldMeterType READ stereoFieldMeterType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString dimensionType READ dimensionType CONSTANT)
+    Q_PROPERTY(QString compressor2AType READ compressor2AType CONSTANT)
     Q_PROPERTY(QString doublerType READ doublerType CONSTANT)
     Q_PROPERTY(QString earlyReflectionsType READ earlyReflectionsType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
@@ -154,6 +155,7 @@ public:
     QString stereoFieldMeterType() const;
     QString delayType() const;
     QString dimensionType() const;
+    QString compressor2AType() const;
     QString doublerType() const;
     QString earlyReflectionsType() const;
     QString chorusType() const;
@@ -355,6 +357,11 @@ public:
     Q_INVOKABLE QString dimensionAmountKey() const;
     Q_INVOKABLE QString dimensionLowCutKey() const;
     Q_INVOKABLE QString dimensionSoloKey() const;
+    Q_INVOKABLE QString compressor2APeakReductionKey() const;
+    Q_INVOKABLE QString compressor2AGainKey() const;
+    Q_INVOKABLE QString compressor2AModeKey() const;
+    Q_INVOKABLE QString compressor2AMixKey() const;
+    Q_INVOKABLE QString compressor2ASoloKey() const;
     Q_INVOKABLE QString doublerModeKey() const;
     Q_INVOKABLE QString doublerTimeKey() const;
     Q_INVOKABLE QString doublerAmountKey() const;
@@ -637,6 +644,7 @@ public:
     Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
+    Q_INVOKABLE float compressor2AReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float analogFuzzSaturationDb(quint32 effectIndex) const;

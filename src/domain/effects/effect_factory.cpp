@@ -32,6 +32,7 @@
 #include "chorus.hpp"
 #include "clipper.hpp"
 #include "compressor.hpp"
+#include "compressor_2a.hpp"
 #include "crossfeed.hpp"
 #include "delay.hpp"
 #include "dimension.hpp"
@@ -126,6 +127,7 @@ void EffectFactory::init()
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Dimension::typeIdString(), []() { return std::make_shared<Dimension>(); });
+    registerEffect(Compressor2A::typeIdString(), []() { return std::make_shared<Compressor2A>(); });
     registerEffect(Doubler::typeIdString(), []() { return std::make_shared<Doubler>(); });
     registerEffect(AnalogFuzz::typeIdString(), []() { return std::make_shared<AnalogFuzz>(); });
     registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
@@ -176,6 +178,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Constants::RackEffectType::dimension().toStdString(), []() { return std::make_shared<Dimension>(); });
+    registerEffect(Constants::RackEffectType::compressor2A().toStdString(), []() { return std::make_shared<Compressor2A>(); });
     registerEffect(Constants::RackEffectType::doubler().toStdString(), []() { return std::make_shared<Doubler>(); });
     registerEffect(Constants::RackEffectType::analogFuzz().toStdString(), []() { return std::make_shared<AnalogFuzz>(); });
     registerEffect(Constants::RackEffectType::bassGrinder().toStdString(), []() { return std::make_shared<BassGrinder>(); });
