@@ -34,6 +34,7 @@ private slots:
 
     void test_lowCut_shouldKeepLowFrequenciesOutOfTheCopy();
     void test_lowCut_default_sawNotes_shouldStayCentred();
+    void test_lowCut_bottom_shouldBeBypassed();
 
     void test_isSettled_afterSilence_shouldSettle();
 };

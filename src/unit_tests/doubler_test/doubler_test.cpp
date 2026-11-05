@@ -177,6 +177,17 @@ void DoublerTest::test_lowCut_shouldKeepLowFrequenciesOutOfTheCopy()
     QVERIFY2(belowCorner < aboveCorner / 20.0, qPrintable(QString { "below %1, above %2" }.arg(belowCorner).arg(aboveCorner)));
 }
 
+void DoublerTest::test_lowCut_bottom_shouldBeBypassed()
+{
+    // The readout says Bypass there, so a tone well under the lowest corner reaches the copy as
+    // fully as one far above it
+    const auto low = makeEffect(monoSafe, 1.0f, 0.0f);
+    const double belowCorner = sideEnergyForTone(*low, 30.0);
+    const auto high = makeEffect(monoSafe, 1.0f, 0.0f);
+    const double aboveCorner = sideEnergyForTone(*high, 2030.0);
+    QVERIFY2(belowCorner > aboveCorner * 0.5, qPrintable(QString { "below %1, above %2" }.arg(belowCorner).arg(aboveCorner)));
+}
+
 void DoublerTest::test_lowCut_default_sawNotes_shouldStayCentred()
 {
     // The copy makes each harmonic louder on one side by where it falls in the comb, which moves

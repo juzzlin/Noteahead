@@ -78,6 +78,7 @@ private:
     //! Applied to what is delayed, so the copy has no bottom in it. Two sections, 24 dB/oct
     SvfFilter m_lowCut;
     SvfFilter m_lowCut2;
+    bool m_lowCutActive { true };
 
     Mode m_mode { Mode::MonoSafe };
     double m_targetDelayFrames { 0.0 };

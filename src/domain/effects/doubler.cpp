@@ -43,6 +43,8 @@ constexpr double defaultLowCutHz = 1000.0;
 //! corner stay out of the copy too
 constexpr double lowCutQ1 = 0.5412;
 constexpr double lowCutQ2 = 1.3066;
+//! The knob's readout calls the bottom of its travel Bypass up to here.
+constexpr float lowCutBypassPosition = 0.0001f;
 
 //! How far either way the delay wanders at full Drift. About what a varispeed tape double moves.
 constexpr double maxDriftMs = 1.5;
@@ -154,7 +156,15 @@ void Doubler::syncParameters()
     m_driftFrames = static_cast<double>(value(Constants::NahdXml::xmlKeyDepth(), 0.0f)) * maxDriftMs * 0.001 * sampleRate;
     m_smoothing = std::exp(-1.0 / (timeSmoothingSeconds * sampleRate));
 
-    const double lowCutHz = ParameterMapper::mapLogFrequency(value(Constants::NahdXml::xmlKeyHpfCutoff(), 0.5f), minLowCutHz, maxLowCutHz);
+    // Fully down the Low Cut is out of the circuit, which is what its readout says there
+    const float lowCut = value(Constants::NahdXml::xmlKeyHpfCutoff(), 0.5f);
+    const bool lowCutActive = lowCut > lowCutBypassPosition;
+    if (lowCutActive && !m_lowCutActive) {
+        m_lowCut.reset();
+        m_lowCut2.reset();
+    }
+    m_lowCutActive = lowCutActive;
+    const double lowCutHz = ParameterMapper::mapLogFrequency(lowCut, minLowCutHz, maxLowCutHz);
     m_lowCut.calculateLowCut(lowCutHz, sampleRate, lowCutQ1);
     m_lowCut2.calculateLowCut(lowCutHz, sampleRate, lowCutQ2);
 }
@@ -175,7 +185,8 @@ void Doubler::processSample(double & left, double & right)
     m_delay.setFractionalDelay(m_delayFrames + drift);
 
     // Read before write, as DelayLine expects, so the copy is the full delay late
-    const double source = m_lowCut2.process(m_lowCut.process(m_mode == Mode::Haas ? right : (left + right) * 0.5));
+    const double input = m_mode == Mode::Haas ? right : (left + right) * 0.5;
+    const double source = m_lowCutActive ? m_lowCut2.process(m_lowCut.process(input)) : input;
     const double copy = m_delay.read();
     m_delay.write(source);
 

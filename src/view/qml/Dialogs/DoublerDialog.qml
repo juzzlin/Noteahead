@@ -112,7 +112,7 @@ EffectDialog {
                 Knob {
                     label: qsTr("Low Cut")
                     suffix: "Hz"
-                    mapping: "logFrequency"
+                    mapping: "logFrequencyHighPass"
                     mapMin: 50
                     mapMax: 5000
                     from: 0
