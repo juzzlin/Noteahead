@@ -112,12 +112,26 @@ AnimatedDialog {
                         root.accept();
                     }
                 }
-                Text {
+                Row {
+                    id: entryRow
+                    readonly property bool highlighted: effectListView.hoveredIndex === index && root.activeFocus
                     anchors.centerIn: parent
-                    text: modelData.name + " (" + modelData.category + ")"
-                    color: "white"
-                    font.pointSize: 12
-                    font.bold: effectListView.hoveredIndex === index && root.activeFocus
+                    spacing: 6
+                    Text {
+                        id: nameText
+                        text: modelData.name
+                        color: "white"
+                        font.pointSize: 12
+                        font.bold: entryRow.highlighted
+                    }
+                    // In the accent and smaller, as a knob's label: the name is what is read first
+                    Text {
+                        text: modelData.category
+                        // The highlighted row is filled with the accent, so the category would vanish
+                        color: entryRow.highlighted ? "white" : themeService.accentColor
+                        font.pixelSize: 11
+                        anchors.baseline: nameText.baseline
+                    }
                 }
             }
         }
