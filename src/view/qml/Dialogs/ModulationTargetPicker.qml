@@ -16,6 +16,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 import Noteahead 1.0
 import "../Components"
 import "ParameterAutomationTargets.js" as Targets
@@ -45,6 +46,11 @@ ColumnLayout {
     spacing: 6
 
     GridLayout {
+        id: grid
+        // Two thirds of the row for the target, sized from the picker rather than left to the layout,
+        // which shares out width by what each box holds: a target's name runs long, a parameter's
+        // does not
+        readonly property real share: (root.width - columnSpacing) / 3
         columns: 2
         columnSpacing: 10
         Layout.fillWidth: true
@@ -55,7 +61,23 @@ ColumnLayout {
             text: qsTr("Parameter")
         }
         ComboBox {
+            id: targetComboBox
             model: [qsTr("None")].concat(root.targets.map(target => Targets.targetLabel(target)))
+            // The labels name the device and the tracks it plays on, so they run long: the list
+            // opens as wide as its longest entry, as far as the window allows, rather than eliding
+            // them all to the box's width
+            popup.width: Math.max(width, Math.min(longestLabelWidth + 2 * edgeMargin + leftPadding + rightPadding, Window.width - 2 * edgeMargin))
+            popup.leftMargin: edgeMargin
+            popup.rightMargin: edgeMargin
+            readonly property int edgeMargin: 10
+            readonly property real longestLabelWidth: model.reduce((widest, label) => Math.max(widest, labelMetrics.advanceWidth(label)), 0)
+            FontMetrics {
+                id: labelMetrics
+                font: targetComboBox.font
+            }
+            ToolTip.visible: hovered && currentIndex > 0 && contentItem.truncated === true
+            ToolTip.text: displayText
+            ToolTip.delay: Constants.toolTipDelay
             // A target that is no longer in the project reads as nothing chosen rather than as
             // something else
             currentIndex: root.targetIndex + 1
@@ -68,7 +90,7 @@ ColumnLayout {
                 }
             }
             Layout.fillWidth: true
-            Layout.preferredWidth: 1
+            Layout.preferredWidth: grid.share * 2
         }
         ComboBox {
             enabled: root.target !== null
@@ -76,7 +98,7 @@ ColumnLayout {
             currentIndex: root.target ? root.target.parameters.findIndex(parameter => parameter.key === root.parameter) : -1
             onActivated: index => root.targetChosen(root.target.owner, root.target.ownerId, root.target.parameters[index].key)
             Layout.fillWidth: true
-            Layout.preferredWidth: 1
+            Layout.preferredWidth: grid.share
         }
     }
 
