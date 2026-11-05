@@ -25,7 +25,8 @@ namespace noteahead {
 namespace {
 
 constexpr double minGainDb { -20.0 };
-constexpr double maxGainDb { 20.0 };
+//! As much make-up as the unit's own output amplifier has: about 40 dB.
+constexpr double maxGainDb { 40.0 };
 //! The second harmonic the valve stage adds: about -52 dB at a device's usual level, -32 dB at
 //! -6 dBFS.
 constexpr double valveEvenOrder { 0.1 };
@@ -42,8 +43,8 @@ Compressor2A::Compressor2A()
     namespace C = Constants::NahdXml;
     using Display = ParameterDisplay;
 
-    // Audible from the start: about 4 dB held down at a device's usual level
-    addParameter(Parameter { key(C::xmlKeyPeakReduction()), 0.4f, 0, 10000, 4000, 100 });
+    // Audible from the start, but light: about 1 dB held down at a device's usual level
+    addParameter(Parameter { key(C::xmlKeyPeakReduction()), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { key(C::xmlKeyGain()), gainPosition(0.0), static_cast<int>(minGainDb * 100.0), static_cast<int>(maxGainDb * 100.0), 0, 100 });
     addParameter(Parameter { key(C::xmlKeyMode()), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addMixParameter(1.0f, MixLaw::Crossfade, 0, 10000, 100);

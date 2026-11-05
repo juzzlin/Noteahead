@@ -151,13 +151,13 @@ EffectDialog {
                     label: qsTr("Gain")
                     suffix: "dB"
                     from: -20
-                    to: 20
+                    to: 40
                     isInteger: false
                     value: {
                         effectRackController.revision;
-                        return -20 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2AGainKey()) * 40;
+                        return -20 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2AGainKey()) * 60;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2AGainKey(), (v + 20) / 40)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2AGainKey(), (v + 20) / 60)
                     Layout.fillWidth: true
                 }
 
