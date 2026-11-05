@@ -996,6 +996,7 @@
             <li><strong>Decay</strong>: Damping decay time of the batter head modal resonators.</li>
             <li><strong>Tension</strong>: Pitch ratio between the bottom resonant head and the top batter head.</li>
             <li><strong>Pitch Depth</strong> &amp; <strong>Pitch Decay</strong>: Envelope downward pitch drop modeling initial transient membrane stretch on impact.</li>
+            <li><strong>Punch</strong>: Extra head level in the first few tens of milliseconds, as a hard hit has before the head settles into its ring. Turn it up, with Tone, for a big rock snare instead of a long ringing note.</li>
         </ul>
     </li>
     <li><strong>Snare Wires</strong>:
@@ -1004,12 +1005,14 @@
             <li><strong>Decay</strong>: Release damping and decay time of the wire chatter.</li>
             <li><strong>Tension</strong>: Snare strainer wire tension. Higher tension tightens contact chatter, shifting response to crisp, high-frequency snap.</li>
             <li><strong>Buzz</strong>: Non-linear contact buzz dynamics, capturing the sustaining rasp of loose or resting snare wires.</li>
+            <li><strong>Wire Width</strong>: Spreads the wires from their tuned band down into the low mids, building up over the first 15 ms, as wires sound under a hard hit. At zero they stay in the band.</li>
         </ul>
     </li>
     <li><strong>Stick Strike &amp; Body</strong>:
         <ul>
             <li><strong>Click</strong>: Level of the initial high-frequency impact transient.</li>
             <li><strong>Hardness</strong>: Stick tip hardness (soft felt to hard nylon tip).</li>
+            <li><strong>Crack</strong>: The stick's broadband impact on the head, 250 Hz to 2.5 kHz, gone in about 60 ms. It fills the mids of a hard hit, which otherwise sounds thin.</li>
             <li><strong>Position</strong>: Radial strike point from center (0 = center hit, strong fundamental) to rim (1 = edge hit, rich in high non-harmonic rim modes).</li>
             <li><strong>Body</strong>: Acoustic shell cavity resonance and weight.</li>
             <li><strong>Drive</strong>: Non-linear soft-clipping saturation. Fully bypassed at zero.</li>
@@ -1020,11 +1023,11 @@
             <li><strong>Pan Spread</strong>: Mid/Side spatial acoustic width. Spreads wire rattle and higher membrane modes across the stereo image while maintaining a solid mono center punch.</li>
             <li><strong>Key Track</strong>: When enabled, the snare pitch tracks the played MIDI note key. When disabled, hits trigger at the fixed base pitch.</li>
             <li><strong>LPF / HPF Cutoff</strong>: 2-pole cascaded state-variable output filters.</li>
-            <li><strong>Presets</strong>: Factory and User preset support.</li>
+            <li><strong>Presets</strong>: Factory and User preset support. The four <strong>Rock</strong> presets (Aluminium, Maple, Rimshot, Sapele) are fitted to recordings of real snares hit hard. For the gated sound of the 80s, follow one with a compressor, a short room and a <strong>Gate</strong> in the device's insert effects.</li>
         </ul>
     </li>
 </ul>
-<p>Every parameter is automatable and fully controllable via MIDI CC (CC 14&ndash;28, with standard CC 74 for LPF and CC 75 for HPF).</p>
+<p>Every parameter is automatable. All but Crack, Punch and Wire Width are also controllable via MIDI CC (CC 14&ndash;28, with standard CC 74 for LPF and CC 75 for HPF).</p>
 
 <h3>String &amp; Voice</h3>
 <p>A vintage string and choir ensemble inspired by the Roland VP-330 and Behringer VC340.</p>

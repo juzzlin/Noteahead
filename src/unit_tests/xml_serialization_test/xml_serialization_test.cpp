@@ -3707,6 +3707,9 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     snare->setBody(0.68f);
     snare->setDrive(0.32f);
     snare->setPanSpread(0.45f);
+    snare->setCrack(0.62f);
+    snare->setPunch(0.37f);
+    snare->setWireWidth(0.83f);
     snare->setChromatic(true);
     snare->setLpfCutoff(0.88f);
     snare->setHpfCutoff(0.15f);
@@ -3748,6 +3751,9 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     QVERIFY(std::abs(restored->body() - 0.68f) < 0.001f);
     QVERIFY(std::abs(restored->drive() - 0.32f) < 0.001f);
     QVERIFY(std::abs(restored->panSpread() - 0.45f) < 0.001f);
+    QVERIFY(std::abs(restored->crack() - 0.62f) < 0.001f);
+    QVERIFY(std::abs(restored->punch() - 0.37f) < 0.001f);
+    QVERIFY(std::abs(restored->wireWidth() - 0.83f) < 0.001f);
     QCOMPARE(restored->chromatic(), true);
     QVERIFY(std::abs(restored->lpfCutoff() - 0.88f) < 0.001f);
     QVERIFY(std::abs(restored->hpfCutoff() - 0.15f) < 0.001f);

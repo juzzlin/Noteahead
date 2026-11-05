@@ -8733,6 +8733,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Crack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Punch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wire Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 2 Fine Tune</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11136,6 +11148,10 @@ Audio files will appear next to the current project file.</source>
         <source>Pitch Decay</source>
         <translation type="unfinished">音高衰减</translation>
     </message>
+    <message>
+        <source>Punch</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SnareSynthDialog_Presets</name>
@@ -11186,6 +11202,10 @@ Audio files will appear next to the current project file.</source>
         <source>Snare Buzz</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Wire Width</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SnareSynthDialog_Strike</name>
@@ -11204,6 +11224,10 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Position</source>
         <translation type="unfinished">位置</translation>
+    </message>
+    <message>
+        <source>Crack</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Body</source>

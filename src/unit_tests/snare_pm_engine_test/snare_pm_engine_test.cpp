@@ -14,13 +14,72 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "snare_pm_engine_test.hpp"
+#include "domain/dsp/cascaded_svf.hpp"
 #include "domain/dsp/drum/snare_pm_engine.hpp"
 
+#include <QString>
 #include <QTest>
 #include <cmath>
 #include <vector>
 
 namespace noteahead {
+
+namespace {
+
+constexpr double TestSampleRate = 44100.0;
+
+std::vector<double> renderMono(SnarePmEngine & engine, int samples)
+{
+    std::vector<double> out(static_cast<size_t>(samples));
+    engine.trigger(1.0f);
+    for (auto & sample : out) {
+        float left = 0.0f;
+        float right = 0.0f;
+        engine.nextSample(left, right);
+        sample = (static_cast<double>(left) + static_cast<double>(right)) * 0.5;
+    }
+    return out;
+}
+
+double seconds(double s)
+{
+    return s * TestSampleRate;
+}
+
+//! Energy from @p fromSeconds to @p toSeconds in the band from @p lowHz to @p highHz, in dB
+double bandEnergyDb(const std::vector<double> & signal, double lowHz, double highHz, double fromSeconds, double toSeconds)
+{
+    CascadedSvf highPass {};
+    highPass.setMode(CascadedSvf::Mode::HighPass);
+    CascadedSvf lowPass {};
+    lowPass.setMode(CascadedSvf::Mode::LowPass);
+    const auto cutoff = [](double hz) { return std::log2(hz / 20.0) / std::log2(20000.0 / 20.0); };
+    for (auto * filter : { &highPass, &lowPass }) {
+        filter->setSampleRate(TestSampleRate);
+        filter->setOrder(4);
+        filter->setResonance(0.29);
+    }
+    highPass.setCutoff(cutoff(lowHz));
+    lowPass.setCutoff(cutoff(highHz));
+    double energy = 1.0e-20;
+    for (size_t i = 0; i < signal.size(); i++) {
+        const double filtered = lowPass.process(highPass.process(signal[i]));
+        if (i >= static_cast<size_t>(seconds(fromSeconds)) && i < static_cast<size_t>(seconds(toSeconds))) {
+            energy += filtered * filtered;
+        }
+    }
+    return 10.0 * std::log10(energy);
+}
+
+SnarePmEngine makeEngine()
+{
+    SnarePmEngine engine {};
+    engine.setSampleRate(TestSampleRate);
+    engine.setPanSpread(0.0f);
+    return engine;
+}
+
+} // namespace
 
 void SnarePmEngineTest::test_trigger_shouldActivateEngine()
 {
@@ -300,6 +359,60 @@ void SnarePmEngineTest::test_sampleRateStability()
             QVERIFY(!std::isinf(right));
         }
     }
+}
+
+void SnarePmEngineTest::test_crack_shouldFillTheMidsOfTheHit()
+{
+    auto plain = makeEngine();
+    plain.setSnappy(0.0f);
+    plain.setClick(0.0f);
+    auto cracked = makeEngine();
+    cracked.setSnappy(0.0f);
+    cracked.setClick(0.0f);
+    cracked.setCrack(1.0f);
+
+    const auto plainHit = renderMono(plain, static_cast<int>(seconds(0.1)));
+    const auto crackedHit = renderMono(cracked, static_cast<int>(seconds(0.1)));
+
+    // The hole above the head's modes and below the wires that made a hard hit sound thin
+    const double crackedMids = bandEnergyDb(crackedHit, 900.0, 2000.0, 0.0, 0.04);
+    const double plainMids = bandEnergyDb(plainHit, 900.0, 2000.0, 0.0, 0.04);
+    QVERIFY2(crackedMids > plainMids + 3.0, qPrintable(QString::number(crackedMids - plainMids)));
+    // And it is gone again by 100 ms: a crack, not a ring
+    QVERIFY(bandEnergyDb(crackedHit, 900.0, 2000.0, 0.08, 0.1) < bandEnergyDb(crackedHit, 900.0, 2000.0, 0.0, 0.02) - 20.0);
+}
+
+void SnarePmEngineTest::test_wireWidth_shouldReachDownIntoTheMids()
+{
+    auto narrow = makeEngine();
+    narrow.setSnappy(1.0f);
+    auto wide = makeEngine();
+    wide.setSnappy(1.0f);
+    wide.setWireWidth(1.0f);
+
+    const auto narrowHit = renderMono(narrow, static_cast<int>(seconds(0.3)));
+    const auto wideHit = renderMono(wide, static_cast<int>(seconds(0.3)));
+
+    QVERIFY(bandEnergyDb(wideHit, 500.0, 1200.0, 0.05, 0.2) > bandEnergyDb(narrowHit, 500.0, 1200.0, 0.05, 0.2) + 6.0);
+}
+
+void SnarePmEngineTest::test_punch_shouldFrontLoadTheHeads()
+{
+    auto plain = makeEngine();
+    plain.setSnappy(0.0f);
+    auto punched = makeEngine();
+    punched.setSnappy(0.0f);
+    punched.setPunch(1.0f);
+
+    const auto plainHit = renderMono(plain, static_cast<int>(seconds(0.3)));
+    const auto punchedHit = renderMono(punched, static_cast<int>(seconds(0.3)));
+
+    const auto drop = [](const std::vector<double> & hit) {
+        return bandEnergyDb(hit, 80.0, 400.0, 0.0, 0.02) - bandEnergyDb(hit, 80.0, 400.0, 0.08, 0.2);
+    };
+    QVERIFY(drop(punchedHit) > drop(plainHit) + 6.0);
+    // The ring after it is the drum's own
+    QVERIFY(std::abs(bandEnergyDb(punchedHit, 80.0, 400.0, 0.15, 0.3) - bandEnergyDb(plainHit, 80.0, 400.0, 0.15, 0.3)) < 1.0);
 }
 
 } // namespace noteahead

@@ -8735,6 +8735,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Crack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Punch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wire Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 2 Fine Tune</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11140,6 +11152,10 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <source>Pitch Decay</source>
         <translation type="unfinished">Opadanie pitch</translation>
     </message>
+    <message>
+        <source>Punch</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SnareSynthDialog_Presets</name>
@@ -11190,6 +11206,10 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <source>Snare Buzz</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Wire Width</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SnareSynthDialog_Strike</name>
@@ -11208,6 +11228,10 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Position</source>
         <translation type="unfinished">Pozycja</translation>
+    </message>
+    <message>
+        <source>Crack</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Body</source>

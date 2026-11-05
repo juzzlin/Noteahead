@@ -3237,6 +3237,21 @@ QString xmlKeyBody()
     return "body";
 }
 
+QString xmlKeyCrack()
+{
+    return "crack";
+}
+
+QString xmlKeyPunch()
+{
+    return "punch";
+}
+
+QString xmlKeyWireWidth()
+{
+    return "wireWidth";
+}
+
 QString xmlKeyTone()
 {
     return "tone";

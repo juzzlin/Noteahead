@@ -68,4 +68,10 @@ ColumnLayout {
         onMoved: v => snareSynthController.pitchDecay = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Punch")
+        value: snareSynthController.punch
+        onMoved: v => snareSynthController.punch = v
+        Layout.fillWidth: true
+    }
 }

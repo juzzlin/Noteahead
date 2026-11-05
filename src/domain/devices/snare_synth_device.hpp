@@ -108,6 +108,12 @@ public:
     void setDrive(float drive);
     float panSpread() const;
     void setPanSpread(float spread);
+    float crack() const;
+    void setCrack(float crack);
+    float punch() const;
+    void setPunch(float punch);
+    float wireWidth() const;
+    void setWireWidth(float width);
 
     // Playback parameters
     bool chromatic() const;
@@ -166,6 +172,9 @@ private:
     float m_body { 0.3f };
     float m_drive { 0.0f };
     float m_panSpread { 0.5f };
+    float m_crack { 0.0f };
+    float m_punch { 0.0f };
+    float m_wireWidth { 0.0f };
 
     bool m_chromatic { false };
     //! The speed of the note that last struck the drum.

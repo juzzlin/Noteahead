@@ -28,6 +28,26 @@ constexpr double RetriggerFadeSeconds = 0.008;
 constexpr double DriveCeiling = 0.7;
 constexpr double OutputGain = 0.35;
 
+//! A Butterworth response from CascadedSvf: k = 2 * (1 - resonance) = sqrt(2)
+constexpr double FlatResonance = 0.2929;
+
+//! The crack holds for about 20 ms and is 8 dB down at 40 ms, as the 300 Hz-1.5 kHz band of a
+//! hard hit on a real 14x8 snare is
+constexpr double CrackTau = 0.042;
+constexpr double CrackLowHz = 250.0;
+constexpr double CrackHighHz = 2500.0;
+constexpr double CrackGain = 1.0;
+
+//! The wide wire band: the wires of a real snare reach down to 300 Hz under a hard hit
+constexpr double WideWireLowHz = 350.0;
+constexpr double WideWireHighHz = 6000.0;
+constexpr double WideWireGain = 1.0;
+constexpr double WideWireBloomSeconds = 0.015;
+
+//! The heads of a real 14x8 snare drop 11 dB from 20 to 40 ms after a hard hit and then ring on
+constexpr double PunchTau = 0.015;
+constexpr double PunchMaxGain = 4.0;
+
 double exponentialDecayPerSample(double tau, double sampleRate)
 {
     return std::exp(-1.0 / (std::max(tau, 1.0e-6) * sampleRate));
@@ -54,6 +74,18 @@ SnarePmEngine::SnarePmEngine()
     m_shellResonator.setMode(CascadedSvf::Mode::BandPass);
     m_shellResonator.setOrder(2);
     m_shellResonator.setResonance(0.55);
+
+    for (auto * filter : { &m_wideHpL, &m_wideHpR, &m_crackHp }) {
+        filter->setMode(CascadedSvf::Mode::HighPass);
+        filter->setOrder(2);
+        filter->setResonance(FlatResonance);
+    }
+    for (auto * filter : { &m_wideLpL, &m_wideLpR, &m_crackLp }) {
+        filter->setMode(CascadedSvf::Mode::LowPass);
+        filter->setOrder(2);
+        filter->setResonance(FlatResonance);
+    }
+    m_crackLp.setOrder(4);
 
     initModes();
     updateRates();
@@ -173,8 +205,29 @@ void SnarePmEngine::updateRates()
     m_shellResonator.setCutoff(hzToNormalizedCutoff(shellHz, sr));
     m_shellResonator.setResonance(shellResonance);
 
+    for (auto * filter : { &m_wideHpL, &m_wideHpR }) {
+        filter->setSampleRate(sr);
+        filter->setCutoff(hzToNormalizedCutoff(WideWireLowHz, sr));
+    }
+    for (auto * filter : { &m_wideLpL, &m_wideLpR }) {
+        filter->setSampleRate(sr);
+        filter->setCutoff(hzToNormalizedCutoff(WideWireHighHz, sr));
+    }
+    m_wideBloomCoefficient = 1.0 - std::exp(-1.0 / (WideWireBloomSeconds * sr));
+    m_punchDecayRate = exponentialDecayPerSample(PunchTau, sr);
+    m_crackHp.setSampleRate(sr);
+    m_crackHp.setCutoff(hzToNormalizedCutoff(CrackLowHz, sr));
+    m_crackLp.setSampleRate(sr);
+    m_crackLp.setCutoff(hzToNormalizedCutoff(CrackHighHz, sr));
+
+    // exp(-(n / (tau * sr))^2): each sample's ratio to the last is exp(-(2n + 1) * a)
+    const double crackA = 1.0 / std::pow(CrackTau * sr, 2.0);
+    m_crackFirstRatio = std::exp(-crackA);
+    m_crackRatioStep = std::exp(-2.0 * crackA);
+
     m_noiseBankL.setOversampleFactor(oversampleFactor());
     m_noiseBankR.setOversampleFactor(oversampleFactor());
+    m_noiseBankCrack.setOversampleFactor(oversampleFactor());
 }
 
 void SnarePmEngine::trigger(float velocity)
@@ -196,6 +249,12 @@ void SnarePmEngine::trigger(float velocity)
     // Click transient reset
     m_clickSample = 1.0;
     m_clickPhase = 0.0;
+
+    m_punchEnv = 1.0;
+
+    // Crack envelope reset
+    m_crackEnv = 1.0;
+    m_crackRatio = m_crackFirstRatio;
 
     // Smooth choke / hand residual to tail phasors on retrigger
     triggerModes(m_velocity);
@@ -286,6 +345,18 @@ void SnarePmEngine::nextSample(float & left, float & right)
     }
     m_clickSample *= m_clickDecayRate;
 
+    // Stick crack: band-limited noise, centred with the head
+    double crack = 0.0;
+    if (m_crack > 0.0f && m_crackEnv > 1.0e-6) {
+        if (m_noiseBankCrack.needsBaseSample()) {
+            m_noiseBankCrack.setBaseSample(m_dist(m_rngCrack));
+        }
+        const double noise = static_cast<double>(m_noiseBankCrack.nextSample());
+        crack = m_crackLp.process(m_crackHp.process(noise)) * m_crackEnv * static_cast<double>(m_crack) * CrackGain * static_cast<double>(m_velocity);
+        m_crackEnv *= m_crackRatio;
+        m_crackRatio *= m_crackRatioStep;
+    }
+
     // Shell cavity resonance
     const double shellInput = batterHead * 0.7 + click * 0.3;
     const double shellBody = m_shellResonator.process(shellInput);
@@ -306,15 +377,30 @@ void SnarePmEngine::nextSample(float & left, float & right)
 
     const double rawNoiseL = static_cast<double>(m_noiseBankL.nextSample());
     const double rawNoiseR = static_cast<double>(m_noiseBankR.nextSample());
-    const double wireL = m_snareFilterL.process(rawNoiseL * wireExcitation);
-    const double wireR = m_snareFilterR.process(rawNoiseR * wireExcitation);
+    double wireL = m_snareFilterL.process(rawNoiseL * wireExcitation);
+    double wireR = m_snareFilterR.process(rawNoiseR * wireExcitation);
+    if (m_wireWidth > 0.0f) {
+        const double width = static_cast<double>(m_wireWidth);
+        m_wideExcitation += (wireExcitation - m_wideExcitation) * m_wideBloomCoefficient;
+        const double wideL = m_wideLpL.process(m_wideHpL.process(rawNoiseL * m_wideExcitation)) * WideWireGain;
+        const double wideR = m_wideLpR.process(m_wideHpR.process(rawNoiseR * m_wideExcitation)) * WideWireGain;
+        wireL += (wideL - wireL) * width;
+        wireR += (wideR - wireR) * width;
+    }
 
     m_pitchEnv *= m_pitchEnvDecayRate;
     m_snareEnv *= m_snareEnvDecayRate;
     m_buzzEnv *= m_buzzEnvDecayRate;
 
     // Head fundamental and body remain centered for mono mix punch
-    const double headSignal = batterHead + bottomHead * 0.35 + shellBody * (static_cast<double>(m_body) * 1.5) + click;
+    if (m_punch > 0.0f) {
+        const double punchGain = 1.0 + m_punchEnv * static_cast<double>(m_punch) * PunchMaxGain;
+        batterHead *= punchGain;
+        bottomHead *= punchGain;
+        m_punchEnv *= m_punchDecayRate;
+    }
+
+    const double headSignal = batterHead + bottomHead * 0.35 + shellBody * (static_cast<double>(m_body) * 1.5) + click + crack;
 
     // Pan Spread: stereo decorrelation of snare wires and rattle
     const double wireMid = (wireL + wireR) * 0.5;
@@ -341,7 +427,7 @@ void SnarePmEngine::nextSample(float & left, float & right)
     right = static_cast<float>(outR);
 
     // Energy tracking for voice active state
-    totalEnergy += m_snareEnv + m_buzzEnv * buzzAmount + m_clickSample;
+    totalEnergy += m_snareEnv + m_buzzEnv * buzzAmount + m_clickSample + (m_crack > 0.0f ? m_crackEnv : 0.0);
     if (totalEnergy < AmplitudeThreshold) {
         m_active = false;
         reset();
@@ -367,15 +453,26 @@ void SnarePmEngine::reset()
     m_buzzEnv = 0.0;
     m_clickSample = 0.0;
     m_clickPhase = 0.0;
+    m_crackEnv = 0.0;
+    m_wideExcitation = 0.0;
+    m_punchEnv = 0.0;
 
     m_snareFilterL.reset();
     m_snareFilterR.reset();
     m_shellResonator.reset();
+    m_wideHpL.reset();
+    m_wideHpR.reset();
+    m_wideLpL.reset();
+    m_wideLpR.reset();
+    m_crackHp.reset();
+    m_crackLp.reset();
     m_noiseBankL.reset();
     m_noiseBankR.reset();
+    m_noiseBankCrack.reset();
 
     m_rngL.seed(RngSeedL);
     m_rngR.seed(RngSeedR);
+    m_rngCrack.seed(RngSeedCrack);
 }
 
 void SnarePmEngine::stop()
@@ -473,6 +570,21 @@ void SnarePmEngine::setDrive(float drive)
 void SnarePmEngine::setPanSpread(float spread)
 {
     m_panSpread = spread;
+}
+
+void SnarePmEngine::setCrack(float crack)
+{
+    m_crack = crack;
+}
+
+void SnarePmEngine::setWireWidth(float width)
+{
+    m_wireWidth = width;
+}
+
+void SnarePmEngine::setPunch(float punch)
+{
+    m_punch = punch;
 }
 
 } // namespace noteahead

@@ -71,6 +71,15 @@ public:
     void setBody(float body);
     void setDrive(float drive);
     void setPanSpread(float spread);
+    //! The stick's broadband impact on the head, 250 Hz to 2.5 kHz: what fills a hard hit's mids.
+    //! 0, the default, leaves it out.
+    void setCrack(float crack);
+    //! Spreads the wires from their tuned band down into the low mids, as wires under a hard hit
+    //! sound. 0, the default, keeps them in the band.
+    void setWireWidth(float width);
+    //! Extra head level that dies away in the first few tens of milliseconds, as a hard hit's
+    //! does before the head settles into its ring. 0, the default, leaves it out.
+    void setPunch(float punch);
 
     void updateRates();
 
@@ -111,6 +120,9 @@ private:
     float m_body { 0.3f };
     float m_drive { 0.0f };
     float m_panSpread { 0.5f };
+    float m_crack { 0.0f };
+    float m_wireWidth { 0.0f };
+    float m_punch { 0.0f };
 
     // State
     bool m_active { false };
@@ -137,17 +149,41 @@ private:
     double m_clickPhaseIncrement { 0.0 };
     double m_clickDecayRate { 1.0 };
 
+    // Wide snare wire band
+    CascadedSvf m_wideHpL {};
+    CascadedSvf m_wideHpR {};
+    CascadedSvf m_wideLpL {};
+    CascadedSvf m_wideLpR {};
+    //! The wide wires build up as the bottom head swings into them, instead of starting at full
+    double m_wideExcitation { 0.0 };
+    double m_wideBloomCoefficient { 0.0 };
+
+    // Crack: band-limited noise under a Gaussian envelope, exp(-(t / tau)^2), run as a recurrence
+    double m_crackEnv { 0.0 };
+    double m_crackRatio { 1.0 };
+    double m_crackRatioStep { 1.0 };
+    double m_crackFirstRatio { 1.0 };
+    CascadedSvf m_crackHp {};
+    CascadedSvf m_crackLp {};
+
+    // Punch envelope on the heads
+    double m_punchEnv { 0.0 };
+    double m_punchDecayRate { 1.0 };
+
     // Tail damping on retrigger
     double m_tailDamping { 0.0 };
 
     // Noise generation for snare wires
     static constexpr uint32_t RngSeedL { 20261 };
     static constexpr uint32_t RngSeedR { 20262 };
+    static constexpr uint32_t RngSeedCrack { 20263 };
     std::mt19937 m_rngL { RngSeedL };
     std::mt19937 m_rngR { RngSeedR };
+    std::mt19937 m_rngCrack { RngSeedCrack };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     BaseRateSource m_noiseBankL {};
     BaseRateSource m_noiseBankR {};
+    BaseRateSource m_noiseBankCrack {};
 
     double m_lastSampleRate { 0.0 };
 };

@@ -48,6 +48,9 @@ class SnareSynthController : public DeviceController
     Q_PROPERTY(int body READ body WRITE setBody NOTIFY bodyChanged)
     Q_PROPERTY(int drive READ drive WRITE setDrive NOTIFY driveChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int crack READ crack WRITE setCrack NOTIFY crackChanged)
+    Q_PROPERTY(int punch READ punch WRITE setPunch NOTIFY punchChanged)
+    Q_PROPERTY(int wireWidth READ wireWidth WRITE setWireWidth NOTIFY wireWidthChanged)
 
     // Playback parameters
     Q_PROPERTY(bool chromatic READ chromatic WRITE setChromatic NOTIFY chromaticChanged)
@@ -105,6 +108,12 @@ public:
     void setDrive(int value);
     int panSpread() const;
     void setPanSpread(int value);
+    int crack() const;
+    void setCrack(int value);
+    int punch() const;
+    void setPunch(int value);
+    int wireWidth() const;
+    void setWireWidth(int value);
 
     // Playback
     bool chromatic() const;
@@ -140,6 +149,9 @@ signals:
     void bodyChanged();
     void driveChanged();
     void panSpreadChanged();
+    void crackChanged();
+    void punchChanged();
+    void wireWidthChanged();
 
     void chromaticChanged();
     void velocitySensitivityChanged();

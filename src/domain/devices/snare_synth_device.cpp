@@ -34,6 +34,9 @@ namespace {
 //! Keeps the engine's sample rate where its filters and decays stay well behaved.
 constexpr double MaxChromaticOctaves = 4.0;
 
+//! Crack's knob at full is 1.5 in the engine: the loudest the fits to real snares asked for
+constexpr float CrackMax = 1.5f;
+
 struct CcParameter
 {
     uint8_t controller {};
@@ -95,6 +98,9 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     addParameter(Parameter(Xml::xmlKeyBody().toStdString(), 0.3f, 0, 10000, 3000, 100));
     addParameter(Parameter(Xml::xmlKeyDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Xml::xmlKeyCrack().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyPunch().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyWireWidth().toStdString(), 0.0f, 0, 10000, 0, 100));
 
     addParameter(Parameter { Xml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter(Xml::xmlKeyVelocitySensitivity().toStdString(), 0.7f, 0, 10000, 7000, 100));
@@ -126,6 +132,9 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyBody(), QT_TRANSLATE_NOOP("ParameterDisplay", "Body"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Drive"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyCrack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Crack"));
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyPunch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Punch"));
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyWireWidth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Wire Width"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
@@ -467,6 +476,18 @@ void SnareSynthDevice::syncParameters()
         m_panSpread = p->get().value();
         m_engine.setPanSpread(m_panSpread);
     }
+    if (const auto p = parameter(Xml::xmlKeyCrack().toStdString()); p) {
+        m_crack = p->get().value();
+        m_engine.setCrack(m_crack * CrackMax);
+    }
+    if (const auto p = parameter(Xml::xmlKeyPunch().toStdString()); p) {
+        m_punch = p->get().value();
+        m_engine.setPunch(m_punch);
+    }
+    if (const auto p = parameter(Xml::xmlKeyWireWidth().toStdString()); p) {
+        m_wireWidth = p->get().value();
+        m_engine.setWireWidth(m_wireWidth);
+    }
     if (const auto p = parameter(Xml::xmlKeyChromaticMode().toStdString()); p) {
         m_chromatic = p->get().value() >= 0.5f;
     }
@@ -609,6 +630,36 @@ float SnareSynthDevice::position() const
 void SnareSynthDevice::setPosition(float position)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyPosition().toStdString(), position);
+}
+
+float SnareSynthDevice::crack() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyCrack(), m_crack);
+}
+
+void SnareSynthDevice::setCrack(float crack)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyCrack().toStdString(), crack);
+}
+
+float SnareSynthDevice::punch() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyPunch(), m_punch);
+}
+
+void SnareSynthDevice::setPunch(float punch)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPunch().toStdString(), punch);
+}
+
+float SnareSynthDevice::wireWidth() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyWireWidth(), m_wireWidth);
+}
+
+void SnareSynthDevice::setWireWidth(float width)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyWireWidth().toStdString(), width);
 }
 
 float SnareSynthDevice::body() const

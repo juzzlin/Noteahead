@@ -259,6 +259,42 @@ void SnareSynthController::setBody(int value)
     }
 }
 
+int SnareSynthController::crack() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->crack() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setCrack(int value)
+{
+    if (m_device) {
+        m_device->setCrack(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::punch() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->punch() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setPunch(int value)
+{
+    if (m_device) {
+        m_device->setPunch(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::wireWidth() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->wireWidth() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setWireWidth(int value)
+{
+    if (m_device) {
+        m_device->setWireWidth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int SnareSynthController::drive() const
 {
     return m_device ? static_cast<int>(std::round(m_device->drive() * Constants::uiInternalScaling())) : 0;
@@ -351,6 +387,9 @@ void SnareSynthController::requestSettings()
     emit bodyChanged();
     emit driveChanged();
     emit panSpreadChanged();
+    emit crackChanged();
+    emit punchChanged();
+    emit wireWidthChanged();
 
     emit chromaticChanged();
     emit velocitySensitivityChanged();

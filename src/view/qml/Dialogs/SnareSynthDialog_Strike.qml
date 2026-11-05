@@ -51,6 +51,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Crack")
+        value: snareSynthController.crack
+        onMoved: v => snareSynthController.crack = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Body")
         value: snareSynthController.body
         onMoved: v => snareSynthController.body = v

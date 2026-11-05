@@ -37,6 +37,9 @@ private slots:
     void test_body_changesFundamentalWeightAndResonance();
     void test_stop_shouldDeactivateAndSilenceEngine();
     void test_sampleRateStability();
+    void test_crack_shouldFillTheMidsOfTheHit();
+    void test_wireWidth_shouldReachDownIntoTheMids();
+    void test_punch_shouldFrontLoadTheHeads();
 };
 
 } // namespace noteahead

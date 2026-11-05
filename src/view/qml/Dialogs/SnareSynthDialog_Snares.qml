@@ -56,4 +56,10 @@ ColumnLayout {
         onMoved: v => snareSynthController.snareBuzz = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Wire Width")
+        value: snareSynthController.wireWidth
+        onMoved: v => snareSynthController.wireWidth = v
+        Layout.fillWidth: true
+    }
 }
