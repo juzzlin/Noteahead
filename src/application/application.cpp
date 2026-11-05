@@ -127,6 +127,7 @@
 #include "service/render_service.hpp"
 #include "service/render_worker.hpp"
 #include "service/selection_service.hpp"
+#include "service/session_timer_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
 #include "service/song_overview_service.hpp"
@@ -212,6 +213,7 @@ Application::Application(int & argc, char ** argv)
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
   , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_xyPadRecordingService { std::make_shared<XyPadRecordingService>(m_deviceService, m_editorService, m_automationService) }
+  , m_sessionTimerService { std::make_shared<SessionTimerService>(m_editorService, m_settingsService) }
   , m_midiExporter { std::make_shared<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_midiImporter { std::make_shared<MidiImporter>() }
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
@@ -369,6 +371,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("performancePanelModel", m_performancePanelModel.get());
     m_engine->rootContext()->setContextProperty("performancePanelController", m_performancePanelController.get());
     m_engine->rootContext()->setContextProperty("xyPadRecordingService", m_xyPadRecordingService.get());
+    m_engine->rootContext()->setContextProperty("sessionTimerService", m_sessionTimerService.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV2Controller", m_pianoSynthV2Controller.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV3Controller", m_pianoSynthV3Controller.get());
@@ -877,6 +880,12 @@ void Application::connectPlayerService()
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, armXyPadRecording);
     connect(m_applicationService.get(), &ApplicationService::editModeChanged, this, armXyPadRecording);
     connect(m_deviceService.get(), &DeviceService::xyPadPressed, m_xyPadRecordingService.get(), &XyPadRecordingService::startTake);
+
+    // The session timer counts while there is input, and while the song plays
+    m_application->installEventFilter(m_sessionTimerService.get());
+    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this] {
+        m_sessionTimerService->setPlaying(m_playerService->isPlaying());
+    });
 
     // A stop asked for: nothing playback wrote may outlive it, so the devices go back to the values
     // the user set. At once, so that a jump in the play order -- a stop and a play back to back --

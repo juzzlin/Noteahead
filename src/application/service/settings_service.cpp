@@ -21,6 +21,8 @@
 #include <QGuiApplication>
 #include <QScreen>
 
+#include <algorithm>
+
 namespace noteahead {
 
 static const auto TAG = "SettingsService";
@@ -52,6 +54,7 @@ SettingsService::SettingsService()
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
   , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
+  , m_idleTimeoutMinutes { std::clamp(Settings::idleTimeoutMinutes(Constants::defaultIdleTimeoutMinutes()), Constants::minIdleTimeoutMinutes(), Constants::maxIdleTimeoutMinutes()) }
   , m_mixerOutputMeterView { Settings::mixerOutputMeterView(Constants::defaultMixerOutputMeterView()) }
   , m_automationDisplayMode { Settings::automationDisplayMode(Constants::defaultAutomationDisplayMode()) }
   , m_automationCurveThicknessTenths { Settings::automationCurveThicknessTenths(Constants::defaultAutomationCurveThicknessTenths()) }
@@ -432,6 +435,21 @@ void SettingsService::setGainStagingTargetDb(int targetDb)
         m_gainStagingTargetDb = targetDb;
         Settings::setGainStagingTargetDb(targetDb);
         emit gainStagingTargetDbChanged();
+    }
+}
+
+int SettingsService::idleTimeoutMinutes() const
+{
+    return m_idleTimeoutMinutes;
+}
+
+void SettingsService::setIdleTimeoutMinutes(int minutes)
+{
+    minutes = std::clamp(minutes, Constants::minIdleTimeoutMinutes(), Constants::maxIdleTimeoutMinutes());
+    if (m_idleTimeoutMinutes != minutes) {
+        m_idleTimeoutMinutes = minutes;
+        Settings::setIdleTimeoutMinutes(minutes);
+        emit idleTimeoutMinutesChanged();
     }
 }
 

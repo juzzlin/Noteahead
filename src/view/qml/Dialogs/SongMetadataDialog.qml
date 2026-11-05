@@ -118,6 +118,29 @@ AnimatedDialog {
                     }
                 }
             }
+            SectionBox {
+                title: qsTr("Time Spent")
+                Layout.fillWidth: true
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: 10
+                    Label {
+                        text: qsTr("%1 h %2 min in all, %3 h %4 min this session").arg(Math.floor(sessionTimerService.totalSeconds / 3600)).arg(Math.floor(sessionTimerService.totalSeconds / 60) % 60).arg(Math.floor(sessionTimerService.sessionSeconds / 3600)).arg(Math.floor(sessionTimerService.sessionSeconds / 60) % 60)
+                        Layout.fillWidth: true
+                    }
+                    AppButton {
+                        text: qsTr("Reset")
+                        implicitWidth: Constants.defaultButtonWidth
+                        enabled: sessionTimerService.totalSeconds > 0
+                        onClicked: resetTimeConfirmationDialog.open()
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Start the song's total over from zero, as for a template")
+                    }
+                }
+            }
             Label {
                 Layout.fillWidth: true
                 wrapMode: Text.WordWrap
@@ -130,5 +153,13 @@ AnimatedDialog {
                 Layout.fillWidth: true
             }
         }
+    }
+    ConfirmationDialog {
+        id: resetTimeConfirmationDialog
+        title: "<strong>" + qsTr("Reset Time Spent") + "</strong>"
+        message: qsTr("Set the time spent on this song back to zero?")
+        acceptButtonText: qsTr("Reset")
+        anchors.centerIn: parent
+        onAccepted: sessionTimerService.resetTotal()
     }
 }

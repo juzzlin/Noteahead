@@ -249,6 +249,11 @@ public:
     const Metadata & metadata() const;
     Metadata & metadata();
 
+    //! Time spent working on the song, in seconds, across every session. Kept by the session
+    //! timer; written only once there is some, and never with a template.
+    size_t timeSpentSeconds() const;
+    void setTimeSpentSeconds(size_t seconds);
+
     //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
     //! The same applies to AutomationSerializationCallback.
@@ -312,6 +317,7 @@ private:
 
     size_t m_beatsPerMinute = 120;
     size_t m_linesPerBeat = 8;
+    size_t m_timeSpentSeconds = 0;
     size_t m_ticksPerLine = 24;
 
     std::map<size_t, PatternS> m_patterns;

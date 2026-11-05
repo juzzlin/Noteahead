@@ -10218,6 +10218,17 @@
     </message>
 </context>
 <context>
+    <name>SessionTimerLabel</name>
+    <message>
+        <source>Paused until the next input.</source>
+        <translation>Gepauzeerd tot de volgende invoer.</translation>
+    </message>
+    <message>
+        <source>Time spent on this song: this session, then in all. Counting stops after %1 min without input or playback.</source>
+        <translation>Tijd besteed aan dit nummer: deze sessie, dan in totaal. Het tellen stopt na %1 min zonder invoer of afspelen.</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <source>Settings</source>
@@ -10462,6 +10473,18 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.</source>
         <translation>Waar de markering staat op de niveaumeters van het apparatenrek, oftewel het niveau dat een goed uitgestuurd apparaat zou moeten aangeven. Gebruikelijke keuzes zijn -18 (EBU R128), -20 (SMPTE), -14 en -12.</translation>
+    </message>
+    <message>
+        <source>Session Timer</source>
+        <translation>Sessietimer</translation>
+    </message>
+    <message>
+        <source>Idle timeout (min):</source>
+        <translation>Time-out bij inactiviteit (min):</translation>
+    </message>
+    <message>
+        <source>Minutes without input or playback after which the session timer stops counting</source>
+        <translation>Minuten zonder invoer of afspelen waarna de sessietimer stopt met tellen</translation>
     </message>
     <message>
         <source>Playback</source>
@@ -11236,8 +11259,32 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Opmerking</translation>
     </message>
     <message>
+        <source>Time Spent</source>
+        <translation>Bestede tijd</translation>
+    </message>
+    <message>
+        <source>%1 h %2 min in all, %3 h %4 min this session</source>
+        <translation>%1 u %2 min in totaal, %3 u %4 min deze sessie</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetten</translation>
+    </message>
+    <message>
+        <source>Start the song&apos;s total over from zero, as for a template</source>
+        <translation>Begin het totaal van het nummer weer bij nul, zoals voor een sjabloon</translation>
+    </message>
+    <message>
         <source>Describes the song itself and is saved in the project. A rendered audio file is tagged with these unless the render dialog says otherwise.</source>
         <translation>Beschrijft de song zelf en wordt in het project opgeslagen. Een gerenderd audiobestand wordt hiermee getagd, tenzij het rendervenster anders aangeeft.</translation>
+    </message>
+    <message>
+        <source>Reset Time Spent</source>
+        <translation>Bestede tijd resetten</translation>
+    </message>
+    <message>
+        <source>Set the time spent on this song back to zero?</source>
+        <translation>De bestede tijd aan dit nummer op nul zetten?</translation>
     </message>
 </context>
 <context>

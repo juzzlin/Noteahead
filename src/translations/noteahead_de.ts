@@ -10218,6 +10218,17 @@
     </message>
 </context>
 <context>
+    <name>SessionTimerLabel</name>
+    <message>
+        <source>Paused until the next input.</source>
+        <translation>Pausiert bis zur nächsten Eingabe.</translation>
+    </message>
+    <message>
+        <source>Time spent on this song: this session, then in all. Counting stops after %1 min without input or playback.</source>
+        <translation>Zeit an diesem Song: diese Sitzung, dann insgesamt. Die Zählung stoppt nach %1 min ohne Eingabe oder Wiedergabe.</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <source>Settings</source>
@@ -10462,6 +10473,18 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
     <message>
         <source>Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.</source>
         <translation>Wo die Markierung auf den Pegelanzeigen des Geräte-Racks sitzt, also der Pegel, den ein sauber ausgesteuertes Gerät zeigen sollte. Übliche Werte sind -18 (EBU R128), -20 (SMPTE), -14 und -12.</translation>
+    </message>
+    <message>
+        <source>Session Timer</source>
+        <translation>Sitzungstimer</translation>
+    </message>
+    <message>
+        <source>Idle timeout (min):</source>
+        <translation>Leerlauf-Timeout (min):</translation>
+    </message>
+    <message>
+        <source>Minutes without input or playback after which the session timer stops counting</source>
+        <translation>Minuten ohne Eingabe oder Wiedergabe, nach denen der Sitzungstimer aufhört zu zählen</translation>
     </message>
     <message>
         <source>Playback</source>
@@ -11236,8 +11259,32 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>Kommentar</translation>
     </message>
     <message>
+        <source>Time Spent</source>
+        <translation>Aufgewendete Zeit</translation>
+    </message>
+    <message>
+        <source>%1 h %2 min in all, %3 h %4 min this session</source>
+        <translation>%1 h %2 min insgesamt, %3 h %4 min in dieser Sitzung</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Start the song&apos;s total over from zero, as for a template</source>
+        <translation>Die Gesamtzeit des Songs wieder bei null beginnen, etwa für eine Vorlage</translation>
+    </message>
+    <message>
         <source>Describes the song itself and is saved in the project. A rendered audio file is tagged with these unless the render dialog says otherwise.</source>
         <translation>Beschreibt den Song selbst und wird im Projekt gespeichert. Eine gerenderte Audiodatei wird damit getaggt, sofern der Render-Dialog nichts anderes sagt.</translation>
+    </message>
+    <message>
+        <source>Reset Time Spent</source>
+        <translation>Aufgewendete Zeit zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Set the time spent on this song back to zero?</source>
+        <translation>Die an diesem Song aufgewendete Zeit auf null zurücksetzen?</translation>
     </message>
 </context>
 <context>

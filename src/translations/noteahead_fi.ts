@@ -10218,6 +10218,17 @@
     </message>
 </context>
 <context>
+    <name>SessionTimerLabel</name>
+    <message>
+        <source>Paused until the next input.</source>
+        <translation>Tauolla seuraavaan syötteeseen asti.</translation>
+    </message>
+    <message>
+        <source>Time spent on this song: this session, then in all. Counting stops after %1 min without input or playback.</source>
+        <translation>Kappaleeseen käytetty aika: tämä istunto, sitten yhteensä. Laskenta pysähtyy %1 min jälkeen ilman syötettä tai toistoa.</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <source>Settings</source>
@@ -10462,6 +10473,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.</source>
         <translation>Missä kohtaa merkki on laiteräkin tasomittareissa, eli taso jonka oikein vahvistetun laitteen tulisi näyttää. Yleisiä valintoja ovat -18 (EBU R128), -20 (SMPTE), -14 ja -12.</translation>
+    </message>
+    <message>
+        <source>Session Timer</source>
+        <translation>Istuntoajastin</translation>
+    </message>
+    <message>
+        <source>Idle timeout (min):</source>
+        <translation>Joutoajan raja (min):</translation>
+    </message>
+    <message>
+        <source>Minutes without input or playback after which the session timer stops counting</source>
+        <translation>Minuutit ilman syötettä tai toistoa, joiden jälkeen istuntoajastin lakkaa laskemasta</translation>
     </message>
     <message>
         <source>Playback</source>
@@ -11236,8 +11259,32 @@ Audio files will appear next to the current project file.</source>
         <translation>Kommentti</translation>
     </message>
     <message>
+        <source>Time Spent</source>
+        <translation>Käytetty aika</translation>
+    </message>
+    <message>
+        <source>%1 h %2 min in all, %3 h %4 min this session</source>
+        <translation>%1 h %2 min yhteensä, %3 h %4 min tässä istunnossa</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nollaa</translation>
+    </message>
+    <message>
+        <source>Start the song&apos;s total over from zero, as for a template</source>
+        <translation>Aloita kappaleen kokonaisaika alusta, esimerkiksi pohjaa varten</translation>
+    </message>
+    <message>
         <source>Describes the song itself and is saved in the project. A rendered audio file is tagged with these unless the render dialog says otherwise.</source>
         <translation>Kuvaa kappaletta itseään ja tallennetaan projektiin. Renderöity äänitiedosto merkitään näillä tiedoilla, ellei renderöinti-ikkunassa toisin määrätä.</translation>
+    </message>
+    <message>
+        <source>Reset Time Spent</source>
+        <translation>Nollaa käytetty aika</translation>
+    </message>
+    <message>
+        <source>Set the time spent on this song back to zero?</source>
+        <translation>Nollataanko tähän kappaleeseen käytetty aika?</translation>
     </message>
 </context>
 <context>

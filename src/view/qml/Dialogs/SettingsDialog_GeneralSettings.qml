@@ -241,6 +241,41 @@ SectionBox {
         }
 
         SectionBox {
+            title: qsTr("Session Timer")
+            Layout.fillWidth: true
+            GridLayout {
+                columns: 9
+                rows: 1
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Label {
+                    text: qsTr("Idle timeout (min):")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    from: 1
+                    to: 60
+                    stepSize: 1
+                    editable: true
+                    value: settingsService.idleTimeoutMinutes
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Minutes without input or playback after which the session timer stops counting")
+                    onValueModified: settingsService.idleTimeoutMinutes = value
+                }
+            }
+        }
+
+        SectionBox {
             title: qsTr("Playback")
             Layout.fillWidth: true
             GridLayout {

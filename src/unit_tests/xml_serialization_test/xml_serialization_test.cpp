@@ -1901,6 +1901,30 @@ void XmlSerializationTest::test_toXmlFromXml_performancePanel_shouldComeBackInOr
     QCOMPARE(panelIn.elements(), panelOut.elements());
 }
 
+void XmlSerializationTest::test_toXmlFromXml_timeSpent_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.song()->setTimeSpentSeconds(43210);
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    QCOMPARE(editorServiceIn.song()->timeSpentSeconds(), size_t { 43210 });
+}
+
+void XmlSerializationTest::test_toXml_timeSpent_zero_shouldWriteNothing()
+{
+    // A project that never ran the timer is saved as before, and one saved before loads at zero
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto xml = editorServiceOut.toXml();
+    QVERIFY(!xml.contains(Constants::NahdXml::xmlKeyTimeSpent()));
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.song()->setTimeSpentSeconds(99);
+    editorServiceIn.fromXml(xml);
+    QCOMPARE(editorServiceIn.song()->timeSpentSeconds(), size_t { 0 });
+}
+
 void XmlSerializationTest::test_toXml_performancePanel_empty_shouldWriteNothing()
 {
     PerformancePanelModel panel;

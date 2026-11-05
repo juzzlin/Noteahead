@@ -57,6 +57,7 @@ set(HEADER_FILES
     service/render_service.hpp
     service/render_worker.hpp
     service/selection_service.hpp
+    service/session_timer_service.hpp
     service/settings_service.hpp
     service/song_overview_service.hpp
     service/side_chain_service.hpp
@@ -125,6 +126,7 @@ set(SOURCE_FILES
     service/render_service.cpp
     service/render_worker.cpp
     service/selection_service.cpp
+    service/session_timer_service.cpp
     service/settings_service.cpp
     service/song_overview_service.cpp
     service/side_chain_service.cpp

@@ -112,6 +112,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Fully scalable UI with a Debian package size of around 1 MB.
 - Themable UI
   - Accent and cursor colors, plus an accent blend that pulls the track and automation palette towards the accent hue. Pattern Peek and the automation drawing style (Tint or Curve) are configurable too.
+- Session Timer
+  - The menu bar shows the time spent on the song, this session and in all. It pauses after an idle timeout and is saved with the project.
 
 ### Internal Instruments (Virtual Device Rack)
 - Virtual Device Rack

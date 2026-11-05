@@ -38,6 +38,7 @@ const auto automationDisplayModeKey = "automationDisplayMode";
 const auto mixerOutputMeterViewKey = "mixerOutputMeterView";
 const auto automationCurveThicknessTenthsKey = "automationCurveThicknessTenths";
 const auto gainStagingTargetDbKey = "gainStagingTargetDb";
+const auto idleTimeoutMinutesKey = "idleTimeoutMinutes";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
@@ -745,6 +746,23 @@ void setGainStagingTargetDb(int gainStagingTargetDb)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(gainStagingTargetDbKey, gainStagingTargetDb);
+    settings.endGroup();
+}
+
+int idleTimeoutMinutes(int defaultIdleTimeoutMinutes)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto minutes = settings.value(idleTimeoutMinutesKey, defaultIdleTimeoutMinutes).toInt();
+    settings.endGroup();
+    return minutes;
+}
+
+void setIdleTimeoutMinutes(int idleTimeoutMinutes)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(idleTimeoutMinutesKey, idleTimeoutMinutes);
     settings.endGroup();
 }
 

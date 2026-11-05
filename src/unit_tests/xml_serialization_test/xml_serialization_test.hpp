@@ -98,6 +98,8 @@ private slots:
     void test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTargets();
     void test_toXmlFromXml_xyPadDevice_shouldComeBackWithItsTargets();
     void test_toXmlFromXml_performancePanel_shouldComeBackInOrder();
+    void test_toXmlFromXml_timeSpent_shouldRoundTrip();
+    void test_toXml_timeSpent_zero_shouldWriteNothing();
     void test_toXml_performancePanel_empty_shouldWriteNothing();
     void test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly();
     void test_toXmlFromXml_samplerDevice_unembedding_shouldNotLoseTheSample();

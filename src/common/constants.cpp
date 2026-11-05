@@ -894,6 +894,11 @@ QString xmlKeyLength()
     return "length";
 }
 
+QString xmlKeyTimeSpent()
+{
+    return "timeSpent";
+}
+
 QString xmlKeyLine()
 {
     return "Line";

@@ -48,6 +48,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
     //! Level the Device Rack's meter marker sits at, in dBFS.
     Q_PROPERTY(int gainStagingTargetDb READ gainStagingTargetDb WRITE setGainStagingTargetDb NOTIFY gainStagingTargetDbChanged)
+    Q_PROPERTY(int idleTimeoutMinutes READ idleTimeoutMinutes WRITE setIdleTimeoutMinutes NOTIFY idleTimeoutMinutesChanged)
     //! Which reading the Mixer's OUT region shows, as a view id from OutputMeter.qml. Mixer-wide
     //! rather than per strip: a column of strips is only comparable when all of them show the same
     //! thing.
@@ -143,6 +144,10 @@ public:
     virtual Q_INVOKABLE int gainStagingTargetDb() const;
     virtual Q_INVOKABLE void setGainStagingTargetDb(int targetDb);
 
+    //! Minutes without input or playback after which the session timer stops counting.
+    virtual Q_INVOKABLE int idleTimeoutMinutes() const;
+    virtual Q_INVOKABLE void setIdleTimeoutMinutes(int minutes);
+
     virtual Q_INVOKABLE QString mixerOutputMeterView() const;
     virtual Q_INVOKABLE void setMixerOutputMeterView(QString view);
 
@@ -177,6 +182,7 @@ signals:
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
     void gainStagingTargetDbChanged();
+    void idleTimeoutMinutesChanged();
     void mixerOutputMeterViewChanged();
     void automationDisplayModeChanged();
     void automationCurveThicknessTenthsChanged();
@@ -217,6 +223,7 @@ private:
 
     int m_playbackOversampleFactor;
     int m_gainStagingTargetDb;
+    int m_idleTimeoutMinutes;
     QString m_mixerOutputMeterView;
     int m_automationDisplayMode;
     int m_automationCurveThicknessTenths;

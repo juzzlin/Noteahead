@@ -10216,6 +10216,17 @@
     </message>
 </context>
 <context>
+    <name>SessionTimerLabel</name>
+    <message>
+        <source>Paused until the next input.</source>
+        <translation>已暂停，等待下一次输入。</translation>
+    </message>
+    <message>
+        <source>Time spent on this song: this session, then in all. Counting stops after %1 min without input or playback.</source>
+        <translation>在这首歌上花费的时间：先是本次会话，然后是总计。无输入或播放 %1 分钟后停止计时。</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <source>Settings</source>
@@ -10460,6 +10471,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.</source>
         <translation>标记在设备架电平表上的位置，即经过增益分级的设备应达到的电平。常用值为 -18（EBU R128）、-20（SMPTE）、-14 和 -12。</translation>
+    </message>
+    <message>
+        <source>Session Timer</source>
+        <translation>会话计时器</translation>
+    </message>
+    <message>
+        <source>Idle timeout (min):</source>
+        <translation>空闲超时（分钟）：</translation>
+    </message>
+    <message>
+        <source>Minutes without input or playback after which the session timer stops counting</source>
+        <translation>无输入或播放多少分钟后会话计时器停止计时</translation>
     </message>
     <message>
         <source>Playback</source>
@@ -11234,8 +11257,32 @@ Audio files will appear next to the current project file.</source>
         <translation>注释</translation>
     </message>
     <message>
+        <source>Time Spent</source>
+        <translation>花费时间</translation>
+    </message>
+    <message>
+        <source>%1 h %2 min in all, %3 h %4 min this session</source>
+        <translation>共 %1 小时 %2 分钟，本次会话 %3 小时 %4 分钟</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
+    </message>
+    <message>
+        <source>Start the song&apos;s total over from zero, as for a template</source>
+        <translation>将这首歌的总计时间从零开始，例如用于模板</translation>
+    </message>
+    <message>
         <source>Describes the song itself and is saved in the project. A rendered audio file is tagged with these unless the render dialog says otherwise.</source>
         <translation>描述乐曲本身并保存在项目中。渲染出的音频文件会以这些信息标记，除非渲染对话框另有设置。</translation>
+    </message>
+    <message>
+        <source>Reset Time Spent</source>
+        <translation>重置花费时间</translation>
+    </message>
+    <message>
+        <source>Set the time spent on this song back to zero?</source>
+        <translation>将这首歌的花费时间重置为零？</translation>
     </message>
 </context>
 <context>

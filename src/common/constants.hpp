@@ -144,6 +144,22 @@ constexpr int defaultGainStagingTargetDb()
     return -18;
 }
 
+//! Minutes without input or playback after which the session timer stops counting.
+constexpr int defaultIdleTimeoutMinutes()
+{
+    return 5;
+}
+
+constexpr int minIdleTimeoutMinutes()
+{
+    return 1;
+}
+
+constexpr int maxIdleTimeoutMinutes()
+{
+    return 60;
+}
+
 //! Which reading the Mixer's OUT region shows on every strip: an id from the view list in
 //! OutputMeter.qml, stored as a string rather than an index so that reordering that list cannot
 //! silently change what an existing installation shows. "level" is the unweighted post-fader level,
@@ -394,6 +410,7 @@ QString xmlKeyPatternAttr();
 QString xmlKeyPosition();
 QString xmlKeySkipped();
 QString xmlKeyLength();
+QString xmlKeyTimeSpent();
 
 QString xmlKeyLine();
 QString xmlKeyLineEvent();

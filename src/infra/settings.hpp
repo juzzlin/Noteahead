@@ -137,6 +137,9 @@ void setPlaybackOversampleFactor(int factor);
 int gainStagingTargetDb(int defaultGainStagingTargetDb);
 void setGainStagingTargetDb(int gainStagingTargetDb);
 
+int idleTimeoutMinutes(int defaultIdleTimeoutMinutes);
+void setIdleTimeoutMinutes(int idleTimeoutMinutes);
+
 QString mixerOutputMeterView(QString defaultMixerOutputMeterView);
 void setMixerOutputMeterView(QString view);
 

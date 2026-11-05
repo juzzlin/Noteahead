@@ -969,6 +969,16 @@ void Song::setLength(size_t length)
     m_playOrder->setLength(length, masterPattern()->index());
 }
 
+size_t Song::timeSpentSeconds() const
+{
+    return m_timeSpentSeconds;
+}
+
+void Song::setTimeSpentSeconds(size_t seconds)
+{
+    m_timeSpentSeconds = seconds;
+}
+
 size_t Song::totalTicks() const
 {
     return positionToTick(length());
@@ -1337,6 +1347,10 @@ void Song::serializeToXml(ProjectWriter & writer, MixerSerializationCallback mix
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+    // Left out until there is some, so a project that never ran the timer is saved as before
+    if (m_timeSpentSeconds > 0) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyTimeSpent(), QString::number(m_timeSpentSeconds));
+    }
 
     m_metadata.serializeToXml(writer);
 
@@ -1409,6 +1423,7 @@ void Song::deserializeFromXml(ProjectReader & reader, MixerDeserializationCallba
     if (const auto length = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLength(), false); length.has_value()) {
         setLength(length.value());
     }
+    m_timeSpentSeconds = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyTimeSpent(), false).value_or(0);
 
     juzzlin::L(TAG).trace() << "Reading Song started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong()))) {

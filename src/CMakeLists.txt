@@ -428,6 +428,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Song.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
+    ${QML_BASE_DIR}/MainMenu/SessionTimerLabel.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/Panel/LevelMeterPanelElement.qml
     ${QML_BASE_DIR}/Panel/PanelElement.qml

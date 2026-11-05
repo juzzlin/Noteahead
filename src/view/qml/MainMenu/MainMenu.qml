@@ -42,4 +42,9 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         z: 1
     }
+    SessionTimerLabel {
+        anchors.right: languageSelector.left
+        anchors.verticalCenter: parent.verticalCenter
+        z: 1
+    }
 }

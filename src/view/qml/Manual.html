@@ -579,6 +579,15 @@
 <h3>Pattern Peek</h3>
 <p>Enabled by default in <code>Settings => General => Editor</code>, Pattern Peek shows a dimmed glimpse of the previous and next patterns in the editor's offset areas above and below the current one, so you can see what you are cutting to and from.</p>
 
+<h3>Session Timer</h3>
+<p>The clock at the right-hand end of the menu bar, left of the language selector, shows the time spent on the song: this session's first, then the song's total across every session, in hours and minutes. The total is saved with the project; a new or opened project starts a new session.</p>
+<ul>
+    <li><strong>What counts</strong>: the timer runs while there is input in the window or the song is playing, since listening back is work too. After the idle timeout with neither it stops and dims, and picks up again on the next key press or mouse move. The minutes it waited before stopping stay counted.</li>
+    <li><strong>Idle timeout</strong>: 5 minutes by default, set in <code>Settings => General => Session Timer</code>.</li>
+    <li><strong>Saving</strong>: time passing is not an edit. It never asks about unsaved changes, and the total is stored with the next save made for some other reason.</li>
+    <li><strong>Reset</strong>: click the clock to open <code>Song => Metadata...</code>, where <strong>Time Spent</strong> shows both figures and <strong>Reset</strong> starts the total over, as for a template.</li>
+</ul>
+
 <h3>Column Settings</h3>
 <p>Accessed by clicking the <strong>wheel icon</strong> in the column header or by <strong>right-clicking</strong> a note column and selecting <strong>Column settings</strong>, this dialog allows you to fine-tune the behavior of individual columns using three tabs:</p>
 <ul>
