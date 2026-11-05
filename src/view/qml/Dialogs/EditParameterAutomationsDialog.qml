@@ -30,7 +30,15 @@ AnimatedDialog {
     function setTitle(text: string): void {
         title = "<strong>" + text + "</strong>";
     }
-    onAboutToShow: targets = propertyService.automationTargets()
+    // Read before the rows are built, not when the dialog opens: a row built with the list of the
+    // last opening, empty on the first, gets another one of a different length under its combo
+    // box, which then drops to its first entry whatever target the automation has
+    Connections {
+        target: parameterAutomationsModel
+        function onModelAboutToBeReset() {
+            rootItem.targets = propertyService.automationTargets();
+        }
+    }
     contentItem: ScrollView {
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
