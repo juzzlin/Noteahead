@@ -36,6 +36,7 @@
 #include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
+#include "../../domain/effects/doubler.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/effects/early_reflections.hpp"
@@ -421,6 +422,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString(), modulation);
     addEffect("Dynamic EQ", DynamicEq::typeIdString(), eqAndFilter);
     addEffect("Dimension", Constants::RackEffectType::dimension().toStdString(), modulation);
+    addEffect("Doubler", Constants::RackEffectType::doubler().toStdString(), stereo);
     addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString(), space);
     addEffect("Drive", Constants::RackEffectType::drive().toStdString(), distortion);
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString(), eqAndFilter);
@@ -960,6 +962,14 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (detune && amount) {
                     return QString { "(detune=%1c, amount=%2%)" }
                       .arg(detune->get().shownValue() * 25.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::doubler()) {
+                const auto time { effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()) };
+                const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+                if (time && amount) {
+                    return QString { "(time=%1ms, amount=%2%)" }
+                      .arg(Doubler::timeMs(time->get().shownValue()), 0, 'f', 1)
                       .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::stereoFieldMeter()) {
@@ -2300,6 +2310,36 @@ QString EffectRackController::dimensionSoloKey() const
     return Constants::NahdXml::xmlKeySolo();
 }
 
+QString EffectRackController::doublerModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::doublerTimeKey() const
+{
+    return Constants::NahdXml::xmlKeyDelayTime();
+}
+
+QString EffectRackController::doublerAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
+QString EffectRackController::doublerLowCutKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
+QString EffectRackController::doublerDriftKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::doublerSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::stereoFieldMeterSpeedKey() const
 {
     return Constants::NahdXml::xmlKeySpeed();
@@ -2829,6 +2869,11 @@ QString EffectRackController::stereoFieldMeterType() const
 QString EffectRackController::dimensionType() const
 {
     return Constants::RackEffectType::dimension();
+}
+
+QString EffectRackController::doublerType() const
+{
+    return Constants::RackEffectType::doubler();
 }
 
 QString EffectRackController::earlyReflectionsType() const

@@ -248,6 +248,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Width set per band, so the bottom can be held in the middle while everything above it opens out.
 - Dimension
   - Builds width out of a mono source rather than widening one that already has it.
+- Doubler
+  - A copy of the part a few milliseconds late, like a second take, for width without detuning. Mono Safe puts the copy in the side signal so the mono sum is untouched; Haas puts it on the right channel. A steep Low Cut keeps every note centred, and Drift lets the delay wander like a tape double.
 - Reference & Crossfeed
   - Reference plays the mix as another system would — Car, Club, Phone, Laptop, Hall, Boombox, Earbuds, TV or Nearfield. Crossfeed puts back the far-ear arrival that headphones do not give you. Neither is ever printed into a render.
 - Monitor

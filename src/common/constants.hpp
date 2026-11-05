@@ -265,6 +265,7 @@ QString compressor();
 QString multibandCompressor();
 QString delay();
 QString dimension();
+QString doubler();
 QString earlyReflections();
 QString chorus();
 QString clipper();

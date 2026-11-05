@@ -2140,6 +2140,57 @@
     </message>
 </context>
 <context>
+    <name>DoublerDialog</name>
+    <message>
+        <source>Doubler (Slot %1)</source>
+        <translation>Doubler (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Doubles the part with a copy of itself a few milliseconds late. Mono Safe puts the copy in the side signal only, so the mono sum is exactly what came in. Haas puts it on the right channel: wider and more obvious, but it combs in mono.</source>
+        <translation>Doppelt die Spur mit einer um einige Millisekunden verzögerten Kopie ihrer selbst. Mono Safe legt die Kopie nur ins Seitensignal, sodass die Monosumme genau dem Eingang entspricht. Haas legt sie auf den rechten Kanal: breiter und auffälliger, aber in Mono entsteht ein Kammfilter.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Mono Safe</source>
+        <translation>Mono-sicher</translation>
+    </message>
+    <message>
+        <source>Haas</source>
+        <translation>Haas</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Zeit</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Menge</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Low Cut</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Drift</translation>
+    </message>
+    <message>
+        <source>Let the delay wander slowly, as a tape double does</source>
+        <translation>Die Verzögerung langsam wandern lassen, wie bei einer Banddopplung</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the copy adds, so it can be heard on its own</source>
+        <translation>Nur durchlassen, was die Kopie hinzufügt, damit es für sich gehört werden kann</translation>
+    </message>
+</context>
+<context>
     <name>DriveDialog</name>
     <message>
         <source>Drive Parameters (Slot %1)</source>

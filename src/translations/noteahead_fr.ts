@@ -2140,6 +2140,57 @@
     </message>
 </context>
 <context>
+    <name>DoublerDialog</name>
+    <message>
+        <source>Doubler (Slot %1)</source>
+        <translation>Doubler (Emplacement %1)</translation>
+    </message>
+    <message>
+        <source>Doubles the part with a copy of itself a few milliseconds late. Mono Safe puts the copy in the side signal only, so the mono sum is exactly what came in. Haas puts it on the right channel: wider and more obvious, but it combs in mono.</source>
+        <translation>Double la partie avec une copie d&apos;elle-même retardée de quelques millisecondes. Mono sûr ne place la copie que dans le signal side, si bien que la somme mono est exactement ce qui est entré. Haas la place sur le canal droit : plus large et plus évident, mais cela crée un filtrage en peigne en mono.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Mode</translation>
+    </message>
+    <message>
+        <source>Mono Safe</source>
+        <translation>Mono sûr</translation>
+    </message>
+    <message>
+        <source>Haas</source>
+        <translation>Haas</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Temps</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Quantité</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Coupe-bas</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Dérive</translation>
+    </message>
+    <message>
+        <source>Let the delay wander slowly, as a tape double does</source>
+        <translation>Laisser le délai dériver lentement, comme un doublage sur bande</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the copy adds, so it can be heard on its own</source>
+        <translation>Ne laisser passer que ce qu&apos;ajoute la copie, pour pouvoir l&apos;écouter seul</translation>
+    </message>
+</context>
+<context>
     <name>DriveDialog</name>
     <message>
         <source>Drive Parameters (Slot %1)</source>

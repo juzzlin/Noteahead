@@ -35,6 +35,7 @@
 #include "crossfeed.hpp"
 #include "delay.hpp"
 #include "dimension.hpp"
+#include "doubler.hpp"
 #include "drive.hpp"
 #include "dynamic_eq.hpp"
 #include "early_reflections.hpp"
@@ -125,6 +126,7 @@ void EffectFactory::init()
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Dimension::typeIdString(), []() { return std::make_shared<Dimension>(); });
+    registerEffect(Doubler::typeIdString(), []() { return std::make_shared<Doubler>(); });
     registerEffect(AnalogFuzz::typeIdString(), []() { return std::make_shared<AnalogFuzz>(); });
     registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Drive::typeIdString(), []() { return std::make_shared<Drive>(); });
@@ -174,6 +176,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Constants::RackEffectType::dimension().toStdString(), []() { return std::make_shared<Dimension>(); });
+    registerEffect(Constants::RackEffectType::doubler().toStdString(), []() { return std::make_shared<Doubler>(); });
     registerEffect(Constants::RackEffectType::analogFuzz().toStdString(), []() { return std::make_shared<AnalogFuzz>(); });
     registerEffect(Constants::RackEffectType::bassGrinder().toStdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });

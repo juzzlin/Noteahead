@@ -720,6 +720,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    DoublerDialog {
+        id: doublerDialog
+        anchors.centerIn: parent
+    }
     StereoWidenerDialog {
         id: stereoWidenerDialog
         anchors.centerIn: parent

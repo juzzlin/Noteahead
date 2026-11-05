@@ -69,6 +69,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString stereoFieldMeterType READ stereoFieldMeterType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString dimensionType READ dimensionType CONSTANT)
+    Q_PROPERTY(QString doublerType READ doublerType CONSTANT)
     Q_PROPERTY(QString earlyReflectionsType READ earlyReflectionsType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
@@ -153,6 +154,7 @@ public:
     QString stereoFieldMeterType() const;
     QString delayType() const;
     QString dimensionType() const;
+    QString doublerType() const;
     QString earlyReflectionsType() const;
     QString chorusType() const;
     QString eq8BandParametricType() const;
@@ -353,6 +355,12 @@ public:
     Q_INVOKABLE QString dimensionAmountKey() const;
     Q_INVOKABLE QString dimensionLowCutKey() const;
     Q_INVOKABLE QString dimensionSoloKey() const;
+    Q_INVOKABLE QString doublerModeKey() const;
+    Q_INVOKABLE QString doublerTimeKey() const;
+    Q_INVOKABLE QString doublerAmountKey() const;
+    Q_INVOKABLE QString doublerLowCutKey() const;
+    Q_INVOKABLE QString doublerDriftKey() const;
+    Q_INVOKABLE QString doublerSoloKey() const;
 
     Q_INVOKABLE QString stereoFieldMeterSpeedKey() const;
     Q_INVOKABLE QString stereoFieldMeterZoomKey() const;

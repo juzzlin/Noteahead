@@ -67,6 +67,7 @@
 #include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
+#include "../../domain/effects/doubler.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/effects/early_reflections.hpp"
@@ -4791,6 +4792,57 @@ void XmlSerializationTest::test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly
         return p ? p->get().value() : -1.0f;
     };
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDetune()) - 0.44f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.66f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.81f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_doublerEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto doubler = std::make_shared<Doubler>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = doubler->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyMode(), 1.0f);
+    set(Constants::NahdXml::xmlKeyDelayTime(), 0.37f);
+    set(Constants::NahdXml::xmlKeyDepth(), 0.52f);
+    set(Constants::NahdXml::xmlKeyAmount(), 0.66f);
+    set(Constants::NahdXml::xmlKeyHpfCutoff(), 0.81f);
+    set(Constants::NahdXml::xmlKeySolo(), 1.0f);
+    deviceServiceOut.sendEffectRack().setEffect(0, doubler);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Doubler>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Doubler::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMode()) - 1.0f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDelayTime()) - 0.37f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDepth()) - 0.52f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.66f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.81f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);

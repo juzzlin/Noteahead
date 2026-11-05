@@ -87,6 +87,9 @@ QtObject {
         } else if (effectType === effectRackController.dimensionType) {
             dimensionDialog.effectIndex = index;
             dimensionDialog.open();
+        } else if (effectType === effectRackController.doublerType) {
+            doublerDialog.effectIndex = index;
+            doublerDialog.open();
         } else if (effectType === effectRackController.stereoWidenerType) {
             stereoWidenerDialog.effectIndex = index;
             stereoWidenerDialog.open();

@@ -434,6 +434,11 @@ QString dimension()
     return "dimension";
 }
 
+QString doubler()
+{
+    return "doubler";
+}
+
 QString earlyReflections()
 {
     return "earlyReflections";

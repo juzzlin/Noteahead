@@ -2139,6 +2139,57 @@
     </message>
 </context>
 <context>
+    <name>DoublerDialog</name>
+    <message>
+        <source>Doubler (Slot %1)</source>
+        <translation>Doubler（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Doubles the part with a copy of itself a few milliseconds late. Mono Safe puts the copy in the side signal only, so the mono sum is exactly what came in. Haas puts it on the right channel: wider and more obvious, but it combs in mono.</source>
+        <translation>用延迟几毫秒的自身副本来加倍声部。单声道安全模式只把副本放入侧向信号，因此单声道总和与输入完全一致。Haas 模式把副本放在右声道：更宽、更明显，但在单声道下会产生梳状滤波。</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>模式</translation>
+    </message>
+    <message>
+        <source>Mono Safe</source>
+        <translation>单声道安全</translation>
+    </message>
+    <message>
+        <source>Haas</source>
+        <translation>Haas</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>时间</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>量</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>低切</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>漂移</translation>
+    </message>
+    <message>
+        <source>Let the delay wander slowly, as a tape double does</source>
+        <translation>让延迟缓慢漂移，就像磁带加倍那样</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>独奏</translation>
+    </message>
+    <message>
+        <source>Pass only what the copy adds, so it can be heard on its own</source>
+        <translation>仅通过副本所增加的部分，以便单独试听</translation>
+    </message>
+</context>
+<context>
     <name>DriveDialog</name>
     <message>
         <source>Drive Parameters (Slot %1)</source>

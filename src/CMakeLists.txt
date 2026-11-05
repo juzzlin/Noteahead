@@ -171,6 +171,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DimensionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DoublerDialog.qml
     ${QML_BASE_DIR}/Dialogs/DriveDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumPadDialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/DrumPadDialog_WaveformView.qml

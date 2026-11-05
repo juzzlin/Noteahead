@@ -2140,6 +2140,57 @@
     </message>
 </context>
 <context>
+    <name>DoublerDialog</name>
+    <message>
+        <source>Doubler (Slot %1)</source>
+        <translation>Doubler (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Doubles the part with a copy of itself a few milliseconds late. Mono Safe puts the copy in the side signal only, so the mono sum is exactly what came in. Haas puts it on the right channel: wider and more obvious, but it combs in mono.</source>
+        <translation>Tuplaa osuuden muutaman millisekunnin myöhässä olevalla kopiolla itsestään. Monoturvallinen laittaa kopion vain sivusignaaliin, joten monosumma on täsmälleen se mikä tuli sisään. Haas laittaa sen oikeaan kanavaan: leveämpi ja selvemmin kuuluva, mutta monona syntyy kampasuodatus.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Tila</translation>
+    </message>
+    <message>
+        <source>Mono Safe</source>
+        <translation>Monoturvallinen</translation>
+    </message>
+    <message>
+        <source>Haas</source>
+        <translation>Haas</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Aika</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Määrä</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Alaleikkuri</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Ajautuma</translation>
+    </message>
+    <message>
+        <source>Let the delay wander slowly, as a tape double does</source>
+        <translation>Anna viiveen vaeltaa hitaasti, kuten nauhatuplauksessa</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Soolo</translation>
+    </message>
+    <message>
+        <source>Pass only what the copy adds, so it can be heard on its own</source>
+        <translation>Päästä läpi vain se mitä kopio lisää, jotta sen voi kuulla erikseen</translation>
+    </message>
+</context>
+<context>
     <name>DriveDialog</name>
     <message>
         <source>Drive Parameters (Slot %1)</source>
