@@ -8869,6 +8869,18 @@
         <translation>Jouez des pads et surveillez des mesures ici pendant la lecture du morceau. Ajoutez-en un avec +.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Déplacer à gauche</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Déplacer à droite</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Retirer du panneau</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Emplacement %1 : %2</translation>
     </message>

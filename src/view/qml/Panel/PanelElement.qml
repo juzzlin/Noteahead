@@ -30,6 +30,13 @@ Rectangle {
     required property string sourceId
 
     signal removeRequested
+    //! The title bar is the element's handle: dragged, it moves the element along the panel, and
+    //! right-clicked it offers the same moves from a menu. The body is left to what it shows, so a
+    //! hand on a pad never moves the element.
+    signal dragStarted(string title)
+    signal dragMoved(point scenePosition)
+    signal dragFinished
+    signal menuRequested
 
     readonly property bool isEffect: performancePanelController.isEffectType(root.type)
     //! The device's rack slot, read again whenever the rack changes; -1 once it is gone.
@@ -96,6 +103,24 @@ Rectangle {
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: titleLabel.implicitHeight
+                HoverHandler {
+                    cursorShape: titleDragHandler.active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                }
+                DragHandler {
+                    id: titleDragHandler
+                    // The panel draws where the element would land; the element stays put meanwhile
+                    target: null
+                    onActiveChanged: active ? root.dragStarted(root._title()) : root.dragFinished()
+                    onCentroidChanged: {
+                        if (active) {
+                            root.dragMoved(centroid.scenePosition);
+                        }
+                    }
+                }
+                TapHandler {
+                    acceptedButtons: Qt.RightButton
+                    onTapped: root.menuRequested()
+                }
                 Label {
                     id: titleLabel
                     text: root._title()

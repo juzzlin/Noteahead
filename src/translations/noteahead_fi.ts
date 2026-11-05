@@ -8869,6 +8869,18 @@
         <translation>Soita padeja ja seuraa mittareita täällä kappaleen soidessa. Lisää +:lla.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Siirrä vasemmalle</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Siirrä oikealle</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Poista paneelista</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Paikka %1: %2</translation>
     </message>

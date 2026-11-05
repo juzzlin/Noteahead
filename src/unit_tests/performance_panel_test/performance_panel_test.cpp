@@ -78,6 +78,49 @@ void PerformancePanelTest::test_removeElement_shouldDropThatOneAndMarkModified()
     QCOMPARE(modifiedSpy.count(), 1);
 }
 
+void PerformancePanelTest::test_moveElement_right_shouldReorderAndMarkModified()
+{
+    PerformancePanelModel model;
+    model.addElement(xyPad, "a");
+    model.addElement(xyPad, "b");
+    model.addElement(xyPad, "c");
+    QSignalSpy modifiedSpy { &model, &PerformancePanelModel::modified };
+    QSignalSpy movedSpy { &model, &QAbstractItemModel::rowsMoved };
+    QVERIFY(model.moveElement(0, 2));
+    QCOMPARE(model.elements(), (PerformancePanelModel::ElementList { { xyPad, "b" }, { xyPad, "c" }, { xyPad, "a" } }));
+    QCOMPARE(modifiedSpy.count(), 1);
+    QCOMPARE(movedSpy.count(), 1);
+}
+
+void PerformancePanelTest::test_moveElement_left_shouldReorderAsOneMove()
+{
+    PerformancePanelModel model;
+    model.addElement(xyPad, "a");
+    model.addElement(xyPad, "b");
+    model.addElement(xyPad, "c");
+    QSignalSpy movedSpy { &model, &QAbstractItemModel::rowsMoved };
+    QSignalSpy removedSpy { &model, &QAbstractItemModel::rowsRemoved };
+    QVERIFY(model.moveElement(2, 0));
+    QCOMPARE(model.elements(), (PerformancePanelModel::ElementList { { xyPad, "c" }, { xyPad, "a" }, { xyPad, "b" } }));
+    QCOMPARE(movedSpy.count(), 1);
+    // The view keeps its delegates only if nothing is removed
+    QCOMPARE(removedSpy.count(), 0);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PerformancePanelModel::Roles::SourceIdRole)).toString(), QString { "c" });
+}
+
+void PerformancePanelTest::test_moveElement_sameOrOutOfRange_shouldDoNothing()
+{
+    PerformancePanelModel model;
+    model.addElement(xyPad, "a");
+    model.addElement(xyPad, "b");
+    QSignalSpy modifiedSpy { &model, &PerformancePanelModel::modified };
+    QVERIFY(!model.moveElement(1, 1));
+    QVERIFY(!model.moveElement(-1, 0));
+    QVERIFY(!model.moveElement(0, 2));
+    QCOMPARE(model.elements(), (PerformancePanelModel::ElementList { { xyPad, "a" }, { xyPad, "b" } }));
+    QCOMPARE(modifiedSpy.count(), 0);
+}
+
 void PerformancePanelTest::test_clear_shouldNotMarkModified()
 {
     PerformancePanelModel model;

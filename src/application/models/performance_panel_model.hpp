@@ -59,6 +59,9 @@ public:
     //! Appends the element unless the panel already shows it. Returns whether it was added.
     Q_INVOKABLE bool addElement(const QString & type, const QString & sourceId);
     Q_INVOKABLE void removeElement(int row);
+    //! Moves the element at @p from so that it ends up at row @p to, the others closing up behind
+    //! it. Returns whether anything moved.
+    Q_INVOKABLE bool moveElement(int from, int to);
     Q_INVOKABLE bool contains(const QString & type, const QString & sourceId) const;
 
     const ElementList & elements() const;

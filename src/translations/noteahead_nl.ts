@@ -8869,6 +8869,18 @@
         <translation>Speel hier pads en bekijk meters terwijl het nummer speelt. Voeg er een toe met +.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Naar links</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Naar rechts</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Uit het paneel verwijderen</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Slot %1: %2</translation>
     </message>

@@ -89,7 +89,15 @@ Rectangle {
                 // shows froze the application: shorter elements have narrower square pads, which
                 // could hide the bar again, and so on forever.
                 height: elementList.height - elementList.scrollBarSpace
+                opacity: root.dragFrom === index ? 0.5 : 1.0
                 onRemoveRequested: performancePanelModel.removeElement(index)
+                onDragStarted: title => root._beginDrag(index, title)
+                onDragMoved: scenePosition => root._moveDrag(scenePosition)
+                onDragFinished: root._endDrag()
+                onMenuRequested: {
+                    elementMenu.row = index;
+                    elementMenu.popup();
+                }
             }
             footer: Item {
                 width: addButton.width + 6
@@ -116,6 +124,76 @@ Rectangle {
                 color: Theme.textMuted
                 font.pixelSize: Theme.bodyPixelSize
             }
+        }
+    }
+
+    //! Where the dragged element would land, between two others
+    Rectangle {
+        id: insertionLine
+        visible: root.dragFrom >= 0 && root.dropGap >= 0 && root.dropGap !== root.dragFrom && root.dropGap !== root.dragFrom + 1
+        width: 3
+        radius: 1
+        color: themeService.accentColor
+        y: root.listOrigin.y
+        height: elementList.height - elementList.scrollBarSpace
+        x: root.listOrigin.x + root._gapX(root.dropGap) - width / 2
+        z: 2
+    }
+
+    //! The dragged element's title, following the pointer
+    Rectangle {
+        id: dragGhost
+        visible: root.dragFrom >= 0
+        width: Math.min(ghostLabel.implicitWidth + 16, 240)
+        height: ghostLabel.implicitHeight + 8
+        color: Theme.surfaceInset
+        border.color: themeService.accentColor
+        radius: 2
+        opacity: 0.85
+        y: root.listOrigin.y
+        z: 3
+        Label {
+            id: ghostLabel
+            anchors.centerIn: parent
+            width: parent.width - 16
+            text: root.dragTitle
+            color: Theme.textSecondary
+            font.pixelSize: Theme.bodyPixelSize
+            elide: Text.ElideRight
+        }
+    }
+
+    // Near either end of a panel wider than its window, the drag scrolls it
+    Timer {
+        interval: 16
+        repeat: true
+        running: root.dragFrom >= 0 && root.scrollStep !== 0
+        onTriggered: {
+            elementList.contentX = Math.max(0, Math.min(elementList.contentWidth - elementList.width, elementList.contentX + root.scrollStep));
+            root._updateGap();
+        }
+    }
+
+    FittedMenu {
+        id: elementMenu
+        property int row: -1
+        Universal.theme: Universal.Dark
+        Universal.accent: themeService.accentColor
+        delegate: MenuItemDelegate {}
+        MenuItem {
+            text: qsTr("Move Left")
+            enabled: elementMenu.row > 0
+            onTriggered: performancePanelModel.moveElement(elementMenu.row, elementMenu.row - 1)
+        }
+        MenuItem {
+            text: qsTr("Move Right")
+            enabled: elementMenu.row >= 0 && elementMenu.row < elementList.count - 1
+            onTriggered: performancePanelModel.moveElement(elementMenu.row, elementMenu.row + 1)
+        }
+        MenuSeparator {}
+        MenuItem {
+            text: qsTr("Remove from the panel")
+            onTriggered: performancePanelModel.removeElement(elementMenu.row)
         }
     }
 
@@ -176,6 +254,83 @@ Rectangle {
         MenuItem {
             text: qsTr("New Stereo Field Meter")
             onTriggered: root._addNewEffect(effectRackController.stereoFieldMeterType)
+        }
+    }
+
+    //! The row of the element being dragged, or -1
+    property int dragFrom: -1
+    property string dragTitle: ""
+    //! The gap the element would be dropped into: 0 before the first element, count after the last
+    property int dropGap: -1
+    //! The pointer, in the list's own coordinates
+    property real dragX: 0
+    //! Where the list sits in the panel, taken when a drag starts
+    property point listOrigin: Qt.point(0, 0)
+    readonly property real scrollMargin: 40
+    readonly property real scrollStep: {
+        if (root.dragFrom < 0 || elementList.contentWidth <= elementList.width) {
+            return 0;
+        }
+        if (root.dragX < root.scrollMargin) {
+            return -8;
+        }
+        return root.dragX > elementList.width - root.scrollMargin ? 8 : 0;
+    }
+
+    function _beginDrag(row: int, title: string): void {
+        const origin = elementList.mapToItem(root, 0, 0);
+        root.listOrigin = Qt.point(origin.x, origin.y);
+        root.dragTitle = title;
+        root.dragFrom = row;
+        root.dropGap = row;
+    }
+
+    function _moveDrag(scenePosition: point): void {
+        const local = elementList.mapFromItem(null, scenePosition.x, scenePosition.y);
+        root.dragX = local.x;
+        dragGhost.x = Math.max(0, Math.min(root.width - dragGhost.width, root.listOrigin.x + local.x - dragGhost.width / 2));
+        root._updateGap();
+    }
+
+    //! The gap whose element midpoints straddle the pointer
+    function _updateGap(): void {
+        const x = root.dragX + elementList.contentX;
+        let gap = elementList.count;
+        for (let row = 0; row < elementList.count; row++) {
+            const item = elementList.itemAtIndex(row);
+            if (item && x < item.x + item.width / 2) {
+                gap = row;
+                break;
+            }
+        }
+        root.dropGap = gap;
+    }
+
+    //! The middle of the space before element @p gap, or after the last, in the list's coordinates
+    function _gapX(gap: int): real {
+        if (gap < 0 || elementList.count === 0) {
+            return 0;
+        }
+        const item = elementList.itemAtIndex(Math.min(gap, elementList.count - 1));
+        if (!item) {
+            return 0;
+        }
+        const x = gap < elementList.count ? item.x - elementList.spacing / 2 : item.x + item.width + elementList.spacing / 2;
+        return x - elementList.contentX;
+    }
+
+    function _endDrag(): void {
+        const from = root.dragFrom;
+        const gap = root.dropGap;
+        root.dragFrom = -1;
+        root.dropGap = -1;
+        if (from < 0 || gap < 0 || from >= elementList.count) {
+            return;
+        }
+        // Closing up behind the element shifts every gap after it one to the left
+        const to = gap > from ? gap - 1 : gap;
+        if (to !== from) {
+            performancePanelModel.moveElement(from, Math.min(to, elementList.count - 1));
         }
     }
 

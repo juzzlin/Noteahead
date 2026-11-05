@@ -8870,6 +8870,18 @@
         <translation>Graj na padach i obserwuj mierniki podczas odtwarzania utworu. Dodaj element przyciskiem +.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Przesuń w lewo</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Przesuń w prawo</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Usuń z panelu</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Slot %1: %2</translation>
     </message>

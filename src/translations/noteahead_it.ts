@@ -8869,6 +8869,18 @@
         <translation>Suona i pad e guarda i misuratori qui mentre il brano suona. Aggiungine uno con +.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Sposta a sinistra</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Sposta a destra</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Rimuovi dal pannello</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Slot %1: %2</translation>
     </message>

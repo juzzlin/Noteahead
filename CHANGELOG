@@ -12,6 +12,7 @@ New features:
   - Moves recorded as automations while playing in edit mode
 
 * Performance Panel: XY pads, RTAs and LUFS, dBTP and Stereo Field meters under the editor, shown with Ctrl+P
+  - Elements reordered by dragging their title bars
 
 * LFOs and XY pads on the same parameter add up
 

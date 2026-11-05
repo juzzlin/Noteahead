@@ -8868,6 +8868,18 @@
         <translation>播放歌曲时在此演奏打击垫并查看仪表。用 + 添加。</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>左移</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>右移</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>从面板移除</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>插槽 %1：%2</translation>
     </message>

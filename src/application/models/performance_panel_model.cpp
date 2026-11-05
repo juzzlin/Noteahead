@@ -82,6 +82,22 @@ void PerformancePanelModel::removeElement(int row)
     emit modified();
 }
 
+bool PerformancePanelModel::moveElement(int from, int to)
+{
+    if (from < 0 || from >= rowCount() || to < 0 || to >= rowCount() || from == to) {
+        return false;
+    }
+    // A move, not a remove and an insert: the view keeps the element it has, and with it a pad's
+    // controller and a meter's running analysis. Qt names the row the element goes in front of.
+    beginMoveRows({}, from, from, {}, to > from ? to + 1 : to);
+    const auto element = m_elements.at(static_cast<size_t>(from));
+    m_elements.erase(m_elements.begin() + from);
+    m_elements.insert(m_elements.begin() + to, element);
+    endMoveRows();
+    emit modified();
+    return true;
+}
+
 bool PerformancePanelModel::contains(const QString & type, const QString & sourceId) const
 {
     return std::ranges::find(m_elements, Element { type, sourceId }) != m_elements.end();

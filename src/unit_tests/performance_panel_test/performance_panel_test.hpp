@@ -28,6 +28,9 @@ private slots:
     void test_addElement_shouldAppendAndMarkModified();
     void test_addElement_twice_shouldBeRefused();
     void test_removeElement_shouldDropThatOneAndMarkModified();
+    void test_moveElement_right_shouldReorderAndMarkModified();
+    void test_moveElement_left_shouldReorderAsOneMove();
+    void test_moveElement_sameOrOutOfRange_shouldDoNothing();
     void test_clear_shouldNotMarkModified();
 
     void test_availableElements_shouldListXyPadDevicesOnly();

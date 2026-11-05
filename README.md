@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-It is also a complete studio. Twenty-one internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 46 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Twenty-one internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 48 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -167,7 +167,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - XY Pad
   - A modulator played by hand: four pads, each axis moving any device's or effect's parameter. The centre of a pad is the knob's own setting, and letting go glides it back over a Return time, or holds it there at 0 ms. When an LFO and a pad move the same parameter, their moves add up, and the target picker says so.
 - Performance Panel
-  - A strip under the editor for playing while the song plays, without a dialog in the way: XY pads and RTAs side by side, saved with the project. Shown with Ctrl+P or from the Devices menu; it never takes the keyboard from the editor.
+  - A strip under the editor for playing while the song plays, without a dialog in the way: XY pads, RTAs and LUFS, dBTP and Stereo Field meters side by side, in an order set by dragging their title bars, saved with the project. Shown with Ctrl+P or from the Devices menu; it never takes the keyboard from the editor.
 - Phase LEDs
   - A red LED on every device LFO glows with its shape, so its rate and waveform can be read at a glance.
 - Dynamic Routing

@@ -8869,6 +8869,18 @@
         <translation>Hier Pads spielen und Messgeräte beobachten, während der Song läuft. Mit + hinzufügen.</translation>
     </message>
     <message>
+        <source>Move Left</source>
+        <translation>Nach links</translation>
+    </message>
+    <message>
+        <source>Move Right</source>
+        <translation>Nach rechts</translation>
+    </message>
+    <message>
+        <source>Remove from the panel</source>
+        <translation>Aus dem Panel entfernen</translation>
+    </message>
+    <message>
         <source>Slot %1: %2</source>
         <translation>Slot %1: %2</translation>
     </message>
