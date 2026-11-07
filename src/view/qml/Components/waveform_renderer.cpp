@@ -56,15 +56,35 @@ void WaveformRenderer::setWaveformData(const QVariantList & data)
 {
     if (m_waveformData != data) {
         m_waveformData = data;
-        std::vector<double> peaks;
-        peaks.reserve(static_cast<size_t>(data.size()));
-        for (auto && value : data) {
-            peaks.push_back(value.toDouble());
-        }
-        m_peaks = normalisedPeaks(peaks);
+        updatePeaks();
         emit waveformDataChanged();
         update();
     }
+}
+
+bool WaveformRenderer::normalized() const
+{
+    return m_normalized;
+}
+
+void WaveformRenderer::setNormalized(bool normalized)
+{
+    if (m_normalized != normalized) {
+        m_normalized = normalized;
+        updatePeaks();
+        emit normalizedChanged();
+        update();
+    }
+}
+
+void WaveformRenderer::updatePeaks()
+{
+    std::vector<double> peaks;
+    peaks.reserve(static_cast<size_t>(m_waveformData.size()));
+    for (auto && value : m_waveformData) {
+        peaks.push_back(value.toDouble());
+    }
+    m_peaks = m_normalized ? normalisedPeaks(peaks) : clampedPeaks(peaks);
 }
 
 double WaveformRenderer::startOffset() const
@@ -269,6 +289,16 @@ std::vector<double> WaveformRenderer::normalisedPeaks(const std::vector<double> 
         scaled.push_back(std::max(peak, 0.0) / loudest);
     }
     return scaled;
+}
+
+std::vector<double> WaveformRenderer::clampedPeaks(const std::vector<double> & peaks)
+{
+    std::vector<double> clamped;
+    clamped.reserve(peaks.size());
+    for (const double peak : peaks) {
+        clamped.push_back(std::clamp(peak, 0.0, 1.0));
+    }
+    return clamped;
 }
 
 void WaveformRenderer::paint(QPainter * painter)

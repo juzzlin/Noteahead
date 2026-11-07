@@ -37,6 +37,11 @@ private slots:
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
     void test_hpfSlope_steep_shouldCutFurther();
     void test_lpfSlope_shallow_shouldRenderAsBefore();
+
+    void test_filteredPeaks_neutralFilters_shouldBeTheFilesOwnPeaks();
+    void test_filteredPeaks_hpf_shouldTakeAwayWhatThePadDoes();
+    void test_filteredPeaks_reversedPad_shouldBeFilteredAsItPlays();
+    void test_filteredPeaks_emptyPad_shouldBeEmpty();
     void initTestCase();
     void cleanupTestCase();
 

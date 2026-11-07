@@ -30,6 +30,8 @@ WaveformView {
     //! polled rather than signalled: it changes continuously and is only shown to a tenth.
     property int recordingTick: 0
     waveformData: currentWaveformData
+    // At the level the pad plays at, so what its filters and its normalising do to it shows
+    normalized: false
     fileName: {
         if (samplerController.selectedPad < 0)
             return "";
@@ -143,13 +145,31 @@ WaveformView {
     //! loop point -- is drawn on top of the picture rather than into it.
     property string waveformSource: ""
 
+    //! Coalesces a drag of a filter knob, which asks for a new picture on every step of it.
+    Timer {
+        id: waveformTimer
+        interval: 50
+        onTriggered: waveform.renderWaveform()
+    }
+
     function updateWaveform() {
+        waveformTimer.restart();
+    }
+
+    function renderWaveform() {
         if (width <= 0) {
             return;
         }
-        // Rebuilding the picture means reading the file again, and the pad emits its dataChanged for
-        // every knob and every dragged marker. Only the things the picture is made of are a reason to.
-        const source = [samplerController.selectedPad, waveform.fileName, samplerController.selectedPadDuration, samplerController.selectedPadReverse, Math.round(width)].join("/");
+        // Rebuilding the picture means running the sample through the pad's filters, and the pad
+        // emits its dataChanged for every knob and every dragged marker. Only the things the picture
+        // is made of are a reason to.
+        const sourceParts = [samplerController.selectedPad, waveform.fileName, samplerController.selectedPadDuration, samplerController.selectedPadReverse, samplerController.selectedPadCutoff, samplerController.selectedPadHpfCutoff, samplerController.lpfSlope, samplerController.hpfSlope, Math.round(width)];
+        // The normalise gain is drawn into the picture, and it is measured over the trimmed range, so
+        // the trims are part of it while normalising is on
+        if (samplerController.selectedPadNormalize) {
+            sourceParts.push("normalize", samplerController.selectedPadStartOffset, samplerController.selectedPadEndOffset);
+        }
+        const source = sourceParts.join("/");
         if (source === waveformSource) {
             return;
         }
@@ -168,6 +188,28 @@ WaveformView {
         }
         // Reversing a pad flips the waveform it is drawn from, so the picture has to be rebuilt.
         function onSelectedPadReverseChanged() {
+            waveform.updateWaveform();
+        }
+        // The picture is drawn through the pad's filters
+        function onSelectedPadCutoffChanged() {
+            waveform.updateWaveform();
+        }
+        function onSelectedPadHpfCutoffChanged() {
+            waveform.updateWaveform();
+        }
+        function onLpfSlopeChanged() {
+            waveform.updateWaveform();
+        }
+        function onHpfSlopeChanged() {
+            waveform.updateWaveform();
+        }
+        function onSelectedPadNormalizeChanged() {
+            waveform.updateWaveform();
+        }
+        function onSelectedPadStartOffsetChanged() {
+            waveform.updateWaveform();
+        }
+        function onSelectedPadEndOffsetChanged() {
             waveform.updateWaveform();
         }
     }

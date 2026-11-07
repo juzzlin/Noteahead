@@ -323,14 +323,18 @@ void SamplerDevice::updateVoiceEffects(Voice & voice)
     const float combinedVolume = static_cast<float>(ParameterMapper::mapFader(voice.sample->volume)) * voice.velocity * voice.sample->normalizeGain;
     voice.volumeEffect->setVolume(combinedVolume);
 
-    const auto lpfCutoff = std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f);
-    const auto hpfCutoff = std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f);
+    const auto [lpfCutoff, hpfCutoff] = filterCutoffs(*voice.sample, voice.cutoff, voice.hpfCutoff);
     voice.lpf->setCutoff(lpfCutoff);
     voice.hpf->setCutoff(hpfCutoff);
     // Parked at the end of its range a filter passes the signal through, so this is what turns a
     // second stage off rather than taking it out of the chain.
     voice.lpfStage2->setCutoff(static_cast<int>(m_lpfSlope) == 1 ? lpfCutoff : 1.0f);
     voice.hpfStage2->setCutoff(static_cast<int>(m_hpfSlope) == 1 ? hpfCutoff : 0.0f);
+}
+
+std::pair<float, float> SamplerDevice::filterCutoffs(const Sample & sample, float globalCutoff, float globalHpfCutoff)
+{
+    return { std::clamp(sample.cutoff + (globalCutoff - 1.0f), 0.0f, 1.0f), std::clamp(sample.hpfCutoff + globalHpfCutoff, 0.0f, 1.0f) };
 }
 
 std::string SamplerDevice::name() const
@@ -1590,6 +1594,88 @@ float SamplerDevice::sampleNormalizeGain(uint8_t note) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     return note < maxSamples && m_samples.at(note) ? m_samples.at(note)->normalizeGain : 1.0f;
+}
+
+std::vector<double> SamplerDevice::sampleFilteredPeaks(uint8_t note, size_t pointCount) const
+{
+    std::shared_ptr<const std::vector<float>> data;
+    int channels = 0;
+    int sampleRate = 0;
+    bool reverse = false;
+    std::pair<float, float> cutoffs;
+    bool steepLpf = false;
+    bool steepHpf = false;
+    {
+        // Only what the picture is made of is read under the lock; the filtering runs outside it, so
+        // a long file does not hold up the audio thread.
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (note >= maxSamples || !m_samples.at(note) || !m_samples.at(note)->data) {
+            return {};
+        }
+        const auto & sample = *m_samples.at(note);
+        data = sample.data;
+        channels = sample.channels;
+        sampleRate = sample.sampleRate;
+        reverse = sample.reverse;
+        cutoffs = filterCutoffs(sample, m_globalCutoff, m_globalHpfCutoff);
+        steepLpf = static_cast<int>(m_lpfSlope) == 1;
+        steepHpf = static_cast<int>(m_hpfSlope) == 1;
+    }
+    if (channels < 1 || sampleRate <= 0 || pointCount == 0) {
+        return {};
+    }
+    const size_t frames = data->size() / static_cast<size_t>(channels);
+    if (frames == 0) {
+        return {};
+    }
+
+    // Shared out the way WaveformGenerator shares out a file, so turning a filter on changes the
+    // heights of the bars and not where they stand.
+    const size_t framesPerPoint = std::max<size_t>(1, frames / pointCount);
+    const size_t points = std::min(pointCount, (frames + framesPerPoint - 1) / framesPerPoint);
+    std::vector<double> peaks(points, 0.0);
+
+    // The voice's chain, the second stages parked where they pass the signal through unless the
+    // slope asks for them
+    const auto [lpfCutoff, hpfCutoff] = cutoffs;
+    LowPassFilter lpf;
+    LowPassFilter lpfStage2;
+    HighPassFilter hpf;
+    HighPassFilter hpfStage2;
+    lpf.setCutoff(lpfCutoff);
+    lpfStage2.setCutoff(steepLpf ? lpfCutoff : 1.0f);
+    hpf.setCutoff(hpfCutoff);
+    hpfStage2.setCutoff(steepHpf ? hpfCutoff : 0.0f);
+    const std::array<Effect *, 4> chain { &lpf, &lpfStage2, &hpf, &hpfStage2 };
+    for (auto && filter : chain) {
+        filter->setSampleRate(static_cast<uint32_t>(sampleRate));
+        filter->reset();
+    }
+
+    constexpr size_t blockFrames = 4096;
+    std::vector<double> block(blockFrames * 2);
+    for (size_t done = 0; done < frames; done += blockFrames) {
+        const size_t count = std::min(blockFrames, frames - done);
+        // The frame of the file that the n-th frame played is: a reversed pad runs its filters
+        // from the end of the file, as it sounds.
+        const auto fileFrame = [&](size_t n) { return reverse ? frames - 1 - (done + n) : done + n; };
+        for (size_t n = 0; n < count; n++) {
+            const size_t frame = fileFrame(n);
+            const double left = static_cast<double>(data->at(frame * static_cast<size_t>(channels)));
+            block.at(n * 2) = left;
+            block.at(n * 2 + 1) = channels > 1 ? static_cast<double>(data->at(frame * static_cast<size_t>(channels) + 1)) : left;
+        }
+        AudioContext context { std::span<double>(block.data(), count * 2), static_cast<uint32_t>(count), static_cast<uint32_t>(sampleRate) };
+        for (auto && filter : chain) {
+            filter->process(context);
+        }
+        for (size_t n = 0; n < count; n++) {
+            if (const size_t point = fileFrame(n) / framesPerPoint; point < points) {
+                peaks.at(point) = std::max({ peaks.at(point), std::abs(block.at(n * 2)), std::abs(block.at(n * 2 + 1)) });
+            }
+        }
+    }
+    return peaks;
 }
 
 void SamplerDevice::setSampleNormalize(uint8_t note, bool normalize)
