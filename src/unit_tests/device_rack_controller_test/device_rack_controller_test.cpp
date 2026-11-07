@@ -469,7 +469,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 24);
+    QCOMPARE(list.size(), 25);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
@@ -484,16 +484,17 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(11).toMap()["name"].toString(), QString("Piano Synth V2"));
     QCOMPARE(list.at(12).toMap()["name"].toString(), QString("Piano Synth V3"));
     QCOMPARE(list.at(13).toMap()["name"].toString(), QString("Kick 808"));
-    QCOMPARE(list.at(14).toMap()["name"].toString(), QString("Snare Synth"));
-    QCOMPARE(list.at(15).toMap()["name"].toString(), QString("String & Voice"));
-    QCOMPARE(list.at(16).toMap()["name"].toString(), QString("String & Voice V2"));
-    QCOMPARE(list.at(17).toMap()["name"].toString(), QString("String & Voice V3"));
-    QCOMPARE(list.at(18).toMap()["name"].toString(), QString("String Ensemble"));
-    QCOMPARE(list.at(19).toMap()["name"].toString(), QString("Speech"));
-    QCOMPARE(list.at(20).toMap()["name"].toString(), QString("Noise FX"));
-    QCOMPARE(list.at(21).toMap()["name"].toString(), QString("Sub Mixer"));
-    QCOMPARE(list.at(22).toMap()["name"].toString(), QString("LFO"));
-    QCOMPARE(list.at(23).toMap()["name"].toString(), QString("XY Pad"));
+    QCOMPARE(list.at(14).toMap()["name"].toString(), QString("Kick Synth"));
+    QCOMPARE(list.at(15).toMap()["name"].toString(), QString("Snare Synth"));
+    QCOMPARE(list.at(16).toMap()["name"].toString(), QString("String & Voice"));
+    QCOMPARE(list.at(17).toMap()["name"].toString(), QString("String & Voice V2"));
+    QCOMPARE(list.at(18).toMap()["name"].toString(), QString("String & Voice V3"));
+    QCOMPARE(list.at(19).toMap()["name"].toString(), QString("String Ensemble"));
+    QCOMPARE(list.at(20).toMap()["name"].toString(), QString("Speech"));
+    QCOMPARE(list.at(21).toMap()["name"].toString(), QString("Noise FX"));
+    QCOMPARE(list.at(22).toMap()["name"].toString(), QString("Sub Mixer"));
+    QCOMPARE(list.at(23).toMap()["name"].toString(), QString("LFO"));
+    QCOMPARE(list.at(24).toMap()["name"].toString(), QString("XY Pad"));
 }
 
 void DeviceRackControllerTest::test_availableDevices_shouldHaveCategories()

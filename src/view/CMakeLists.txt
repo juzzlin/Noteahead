@@ -16,6 +16,7 @@ set(HEADER_FILES
     controllers/ju_synth_08_controller.hpp
     controllers/knob_controller.hpp
     controllers/kick_808_controller.hpp
+    controllers/kick_synth_controller.hpp
     controllers/lfo_controller.hpp
     controllers/lfo_panel_controller.hpp
     controllers/noise_fx_controller.hpp
@@ -69,6 +70,7 @@ set(SOURCE_FILES
     controllers/ju_synth_08_controller.cpp
     controllers/knob_controller.cpp
     controllers/kick_808_controller.cpp
+    controllers/kick_synth_controller.cpp
     controllers/lfo_controller.cpp
     controllers/lfo_panel_controller.cpp
     controllers/noise_fx_controller.cpp

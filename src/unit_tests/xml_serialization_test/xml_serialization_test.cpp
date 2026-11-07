@@ -39,6 +39,7 @@
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/kick_synth_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/noise_fx_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -3681,6 +3682,89 @@ void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_kickSynthDevice_shouldLoadCorrectly()
+{
+    namespace Xml = Constants::NahdXml;
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto kick = std::make_shared<KickSynthDevice>("KickSynth");
+    kick->setKnob(Xml::xmlKeyTune(), 0.11f);
+    kick->setKnob(Xml::xmlKeyDecay(), 0.143f);
+    kick->setKnob(Xml::xmlKeyTone(), 0.176f);
+    kick->setKnob(Xml::xmlKeyPitchDrop(), 0.209f);
+    kick->setKnob(Xml::xmlKeyDamping(), 0.242f);
+    kick->setKnob(Xml::xmlKeyRing(), 0.275f);
+    kick->setKnob(Xml::xmlKeyRingDecay(), 0.308f);
+    kick->setKnob(Xml::xmlKeyHardness(), 0.341f);
+    kick->setKnob(Xml::xmlKeyClick(), 0.374f);
+    kick->setKnob(Xml::xmlKeyPosition(), 0.407f);
+    kick->setKnob(Xml::xmlKeyFrontHead(), 0.44f);
+    kick->setKnob(Xml::xmlKeyFrontTune(), 0.473f);
+    kick->setKnob(Xml::xmlKeyShell(), 0.506f);
+    kick->setKnob(Xml::xmlKeyMicPosition(), 0.539f);
+    kick->setKnob(Xml::xmlKeyDrive(), 0.572f);
+    kick->setKnob(Xml::xmlKeyAmpAttack(), 0.605f);
+    kick->setKnob(Xml::xmlKeyAmpHold(), 0.638f);
+    kick->setKnob(Xml::xmlKeyAmpDecay(), 0.671f);
+    kick->setKnob(Xml::xmlKeyAmpSustain(), 0.704f);
+    kick->setKnob(Xml::xmlKeyAmpRelease(), 0.737f);
+    kick->setKnob(Xml::xmlKeyAmpCurve(), 0.77f);
+    kick->setKnob(Xml::xmlKeyVelocitySensitivity(), 0.803f);
+    kick->setKnob(Xml::xmlKeyLpfCutoff(), 0.836f);
+    kick->setKnob(Xml::xmlKeyHpfCutoff(), 0.869f);
+    kick->setChromatic(true);
+    kick->setVolume(0.77f);
+    kick->setPan(0.40f);
+    deviceServiceOut.setDevice(1, kick);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<KickSynthDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), KickSynthDevice::typeIdString());
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyTune()) - 0.11f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyDecay()) - 0.143f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyTone()) - 0.176f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyPitchDrop()) - 0.209f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyDamping()) - 0.242f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyRing()) - 0.275f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyRingDecay()) - 0.308f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyHardness()) - 0.341f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyClick()) - 0.374f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyPosition()) - 0.407f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyFrontHead()) - 0.44f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyFrontTune()) - 0.473f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyShell()) - 0.506f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyMicPosition()) - 0.539f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyDrive()) - 0.572f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpAttack()) - 0.605f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpHold()) - 0.638f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpDecay()) - 0.671f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpSustain()) - 0.704f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpRelease()) - 0.737f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyAmpCurve()) - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyVelocitySensitivity()) - 0.803f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyLpfCutoff()) - 0.836f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyHpfCutoff()) - 0.869f) < 0.001f);
+    QCOMPARE(restored->chromatic(), true);
+    QCOMPARE(restored->ampEnvelopeEnabled(), true);
+    QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectly()

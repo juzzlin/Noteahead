@@ -5302,6 +5302,251 @@
     </message>
 </context>
 <context>
+    <name>KickSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Beater</name>
+    <message>
+        <source>Beater</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Position</translation>
+    </message>
+    <message>
+        <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation type="unfinished">Amp-Hüllkurve</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attack</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">Hold</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Release</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Kurve</translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Front</name>
+    <message>
+        <source>Front Head &amp; Mic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Front Head</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Front Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The pitch of the front head against the batter head.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The knock of the shell, a few times above the pitch of the head.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">Drive</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocity</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF-Cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF-Cutoff</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation type="unfinished">Chromatisch</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation type="unfinished">Spielt die Trommel wie ein Sampler: eine Oktave höher klingt eine Oktave höher und halb so lang</translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Head</name>
+    <message>
+        <source>Head</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation type="unfinished">Stimmung</translation>
+    </message>
+    <message>
+        <source>The pitch the head settles to after the hit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decay</translation>
+    </message>
+    <message>
+        <source>How long the head rings with no damping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Drop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Damping</source>
+        <translation type="unfinished">Dämpfung</translation>
+    </message>
+    <message>
+        <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation type="unfinished">Ring</translation>
+    </message>
+    <message>
+        <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ring Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long that ring lasts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KickSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Speichern</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acoustic physical modelling bass drum synthesizer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Knob</name>
     <message>
         <source>Double-click to type an exact value</source>
@@ -8718,7 +8963,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Pitch Drop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Damping</source>
+        <translation type="unfinished">Dämpfung</translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation type="unfinished">Ring</translation>
+    </message>
+    <message>
+        <source>Ring Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Beater</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Front Head</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Front Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

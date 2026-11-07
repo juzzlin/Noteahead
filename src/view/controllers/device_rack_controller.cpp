@@ -27,6 +27,7 @@
 #include "../../domain/devices/ju_synth_08_device.hpp"
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/kick_synth_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/noise_fx_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
@@ -199,6 +200,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit pianoSynthV3DialogRequested();
                 } else if (typeId == Kick808Device::typeIdString()) {
                     emit kick808DialogRequested();
+                } else if (typeId == KickSynthDevice::typeIdString()) {
+                    emit kickSynthDialogRequested();
                 } else if (typeId == SnareSynthDevice::typeIdString()) {
                     emit snareSynthDialogRequested();
                 } else if (typeId == StringVoiceDevice::typeIdString()) {
@@ -590,6 +593,7 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()), keys);
     addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()), keys);
     addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()), drums);
+    addDevice("Kick Synth", QString::fromStdString(KickSynthDevice::typeIdString()), drums);
     addDevice("Snare Synth", QString::fromStdString(SnareSynthDevice::typeIdString()), drums);
     addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()), stringsAndVoice);
     addDevice("String & Voice V2", QString::fromStdString(StringVoiceV2Device::typeIdString()), stringsAndVoice);

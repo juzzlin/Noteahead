@@ -236,6 +236,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Kick.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Pitch.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Beater.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Envelope.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Front.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Head.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/KickSynthDialog_Waveform.qml
     ${QML_BASE_DIR}/Dialogs/SnareSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SnareSynthDialog_Envelope.qml
     ${QML_BASE_DIR}/Dialogs/SnareSynthDialog_Global.qml

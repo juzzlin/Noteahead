@@ -644,7 +644,7 @@
 <p>Accessed via <code>Devices => Device rack...</code>, <code>Right-click => Song => Device Rack...</code>, or the <strong>Device Rack...</strong> button in <strong>Track Settings</strong>, the rack is the central hub for all internal instruments in Noteahead. Opening it from Track Settings is the quickest route when you are setting up a track: add the device, then pick its internal port for the track. For a track that has no device yet there is a quicker one still: click the faded device icon in the track header, or right-click the track and choose <strong>Assign a device...</strong>, add the device in the rack, and close it to be offered the new device for that track straight away. A device already in the rack is assigned through Track Settings.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
-    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available devices — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>FM Synth</strong>, <strong>JU Synth</strong>, <strong>JU Synth 08</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Drum Synth V2</strong>, <strong>FM Drums</strong>, <strong>Piano Synth</strong>, <strong>Piano Synth V2</strong>, <strong>Piano Synth V3</strong>, <strong>Kick 808</strong>, <strong>Snare Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String &amp; Voice V2</strong>, <strong>String &amp; Voice V3</strong>, <strong>String Ensemble</strong>, <strong>Speech</strong>, <strong>Noise FX</strong>, <strong>Sub Mixer</strong>, <strong>LFO</strong> and <strong>XY Pad</strong>, each listed with its category — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
+    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available devices — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>FM Synth</strong>, <strong>JU Synth</strong>, <strong>JU Synth 08</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Drum Synth V2</strong>, <strong>FM Drums</strong>, <strong>Piano Synth</strong>, <strong>Piano Synth V2</strong>, <strong>Piano Synth V3</strong>, <strong>Kick 808</strong>, <strong>Kick Synth</strong>, <strong>Snare Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String &amp; Voice V2</strong>, <strong>String &amp; Voice V3</strong>, <strong>String Ensemble</strong>, <strong>Speech</strong>, <strong>Noise FX</strong>, <strong>Sub Mixer</strong>, <strong>LFO</strong> and <strong>XY Pad</strong>, each listed with its category — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
     <li><strong>Per-Slot Buttons</strong>: <strong>Insert FX</strong> opens the device's own effect rack, <strong>Sends</strong> its send levels to the master send effects, <strong>Settings</strong> the Device Settings dialog (see <em>Gain Staging</em> below), and <strong>Manage</strong> exports or imports the device's settings.</li>
     <li><strong>Level Meters</strong>: Each slot has a peak/RMS meter with a <strong>-18 dBFS marker</strong> to gain stage against. It is tapped after Gain and before the insert effects, so it shows the level your inserts actually see. See <a href="#reading-the-level-meters">Reading the Level Meters</a> below.</li>
     <li><strong>DSP Load</strong>: While the dialog is open, each slot shows the share of the audio callback its device consumes, and the footer shows the total, a peak hold and a <strong>dropout</strong> counter. The measurement only runs while the Device Rack is visible, so it costs nothing otherwise.</li>
@@ -985,6 +985,40 @@
 </ul>
 <p>Being monophonic, a new hit takes the voice over rather than piling onto the one before it: the ring that is still sounding fades out from under it over a few milliseconds. That is what keeps every hit weighing the same in a fast pattern, and it means a run of kicks stays even instead of drifting in and out of reinforcement.</p>
 <p><em>Every</em> parameter above is reachable over MIDI CC, so a whole kick can be automated per line from a note column. LPF and HPF sit on the same controller numbers the other devices use for them.</p>
+
+<h3>Kick Synth</h3>
+<p>A physically modelled acoustic bass drum. Where the Kick808 is an electronic circuit, this models the drum itself: the batter head the beater strikes, the front head the air inside drives, the pillow between them, and where the microphone is. Its presets are fitted to recordings of real kicks.</p>
+<ul>
+    <li><strong>Head</strong>:
+        <ul>
+            <li><strong>Tune</strong>: The pitch the batter head settles to, 25 to 400 Hz. A 24" kick sits around 30 Hz, a 20" one around 60, and toms from about 60 Hz for a floor tom up to 200 Hz and more for a small rack tom.</li>
+            <li><strong>Decay</strong>: How long the head rings with nothing damping it.</li>
+            <li><strong>Tone</strong>: How long the higher modes ring against the fundamental: low is dark and round, high is bright.</li>
+            <li><strong>Pitch Drop</strong>: A hit stretches the head, so it starts sharp and settles as it rings down. The drop follows the head itself, so a hard hit starts sharper than a soft one, as on a real drum.</li>
+            <li><strong>Damping</strong>: A pillow against the heads. It shortens the drum faster than it would die on its own, which is the short, deep thump of a damped rock kick.</li>
+            <li><strong>Ring</strong> and <strong>Ring Decay</strong>: The broad ring of the head's upper modes, above the thump, that outlasts the beater.</li>
+        </ul>
+    </li>
+    <li><strong>Beater</strong>:
+        <ul>
+            <li><strong>Beater</strong>: Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</li>
+            <li><strong>Click</strong>: The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</li>
+            <li><strong>Position</strong>: Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</li>
+        </ul>
+    </li>
+    <li><strong>Front Head &amp; Mic</strong>:
+        <ul>
+            <li><strong>Front Head</strong>: Ported or removed at zero, solid at full. A solid front head is the long boom that outlasts the batter, and the beating of two heads against each other.</li>
+            <li><strong>Front Tune</strong>: The front head's pitch against the batter's, 0.8 to 3 times.</li>
+            <li><strong>Shell</strong>: The knock of the shell, a few times above the head's pitch.</li>
+            <li><strong>Mic</strong>: Inside the drum by the beater at zero, outside the front head at full: attack against boom.</li>
+        </ul>
+    </li>
+    <li><strong>Amp Envelope</strong>: One hit is drawn under the presets with the envelope over it, as on the Snare Synth. At its defaults it does nothing; pull Sustain down to cut the drum short.</li>
+    <li><strong>Global</strong>: Gain, Fader, Pan, <strong>Drive</strong>, <strong>Velocity</strong> sensitivity, the LPF and HPF, and <strong>Chromatic</strong>, which plays the drum like a sampler: an octave up is an octave higher and twice as short.</li>
+    <li><strong>Presets</strong>: <strong>Damped 24</strong>, <strong>Open 24</strong>, <strong>Inside 20</strong>, <strong>Outside 20</strong> and <strong>Tuned Up</strong> are fitted to the loudest hits of real kicks from Karoryfer's Big Rusty Drums and Unruly Drums and from Virtuosity Drums, and the rest start from them: kit kicks, the <strong>Techno</strong> kicks, and the <strong>Tom</strong> presets. <strong>Tom Rack 14</strong>, <strong>Tom Mallet 14</strong> and <strong>Tom Floor 18</strong> are fitted to Big Rusty Drums toms.</li>
+    <li><strong>Toms</strong>: The same drum tuned up is a tom. Load a <strong>Tom</strong> preset and turn on <strong>Chromatic</strong> to play a whole set of toms from one device, a note apart or an interval.</li>
+</ul>
 
 <h3>Snare Synth</h3>
 <p>A physically modelled acoustic snare drum synthesizer. Rather than relying on simple filtered noise or static samples, Snare Synth models the acoustic interaction between the struck batter head, the bottom resonant head, the shell body, and the flexible snare wires chattering against the resonant membrane.</p>

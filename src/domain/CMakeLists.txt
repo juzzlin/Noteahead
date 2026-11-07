@@ -19,6 +19,8 @@ set(HEADER_FILES
     devices/ju_synth_08_device.hpp
     devices/ju_synth_08_presets.hpp
     devices/kick_808_device.hpp
+    devices/kick_synth_device.hpp
+    devices/kick_synth_presets.hpp
     devices/lfo_device.hpp
     devices/modulation_source.hpp
     devices/noise_fx_device.hpp
@@ -59,6 +61,7 @@ set(HEADER_FILES
     dsp/drum/hihat_engine.hpp
     dsp/drum/kick_808_engine.hpp
     dsp/drum/kick_engine.hpp
+    dsp/drum/kick_pm_engine.hpp
     dsp/drum/ride_engine.hpp
     dsp/drum/rim_engine.hpp
     dsp/drum/snare_engine.hpp
@@ -242,6 +245,8 @@ set(SOURCE_FILES
     devices/ju_synth_08_device.cpp
     devices/ju_synth_08_presets.cpp
     devices/kick_808_device.cpp
+    devices/kick_synth_device.cpp
+    devices/kick_synth_presets.cpp
     devices/lfo_device.cpp
     devices/modulation_source.cpp
     devices/noise_fx_device.cpp
@@ -282,6 +287,7 @@ set(SOURCE_FILES
     dsp/drum/hihat_engine.cpp
     dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_engine.cpp
+    dsp/drum/kick_pm_engine.cpp
     dsp/drum/ride_engine.cpp
     dsp/drum/rim_engine.cpp
     dsp/drum/snare_engine.cpp

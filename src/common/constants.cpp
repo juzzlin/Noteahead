@@ -239,6 +239,11 @@ QString kick808DeviceName()
     return "Noteahead Kick808";
 }
 
+QString kickSynthDeviceName()
+{
+    return "Noteahead KickSynth";
+}
+
 QString snareSynthDeviceName()
 {
     return "Noteahead SnareSynth";
@@ -3250,6 +3255,41 @@ QString xmlKeyPunch()
 QString xmlKeyWireWidth()
 {
     return "wireWidth";
+}
+
+QString xmlKeyPitchDrop()
+{
+    return "pitchDrop";
+}
+
+QString xmlKeyFrontHead()
+{
+    return "frontHead";
+}
+
+QString xmlKeyFrontTune()
+{
+    return "frontTune";
+}
+
+QString xmlKeyShell()
+{
+    return "shell";
+}
+
+QString xmlKeyMicPosition()
+{
+    return "micPosition";
+}
+
+QString xmlKeyRing()
+{
+    return "ring";
+}
+
+QString xmlKeyRingDecay()
+{
+    return "ringDecay";
 }
 
 QString xmlKeyTone()
