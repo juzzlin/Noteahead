@@ -84,6 +84,23 @@ ColumnLayout {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set MIDI or internal port for this track. Internal ports are managed in the Device Rack.")
+                    // The port name is what the track is saved with, so the list keeps it as is and
+                    // only shows it with the device behind an internal port, as the other lists name it
+                    displayText: portLabel(currentText)
+                    delegate: ItemDelegate {
+                        required property string modelData
+                        required property int index
+                        width: ListView.view ? ListView.view.width : portNameDropdown.width
+                        text: portNameDropdown.portLabel(modelData)
+                        highlighted: portNameDropdown.highlightedIndex === index
+                        Universal.theme: Universal.Dark
+                    }
+                    function portLabel(port) {
+                        deviceRackController.revision;
+                        const slot = deviceRackController.slotOfDevice(port);
+                        const typeName = slot >= 0 ? deviceRackController.deviceTypeName(slot) : "";
+                        return typeName === "" ? port : port + " (" + typeName + ")";
+                    }
                     function setSelected(text) {
                         currentIndex = find(text);
                     }
