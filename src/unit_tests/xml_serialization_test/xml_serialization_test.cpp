@@ -3710,6 +3710,12 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     snare->setCrack(0.62f);
     snare->setPunch(0.37f);
     snare->setWireWidth(0.83f);
+    snare->setAmpAttack(0.12f);
+    snare->setAmpHold(0.23f);
+    snare->setAmpDecay(0.34f);
+    snare->setAmpSustain(0.45f);
+    snare->setAmpRelease(0.56f);
+    snare->setAmpCurve(0.67f);
     snare->setChromatic(true);
     snare->setLpfCutoff(0.88f);
     snare->setHpfCutoff(0.15f);
@@ -3754,6 +3760,13 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     QVERIFY(std::abs(restored->crack() - 0.62f) < 0.001f);
     QVERIFY(std::abs(restored->punch() - 0.37f) < 0.001f);
     QVERIFY(std::abs(restored->wireWidth() - 0.83f) < 0.001f);
+    QVERIFY(std::abs(restored->ampAttack() - 0.12f) < 0.001f);
+    QVERIFY(std::abs(restored->ampHold() - 0.23f) < 0.001f);
+    QVERIFY(std::abs(restored->ampDecay() - 0.34f) < 0.001f);
+    QVERIFY(std::abs(restored->ampSustain() - 0.45f) < 0.001f);
+    QVERIFY(std::abs(restored->ampRelease() - 0.56f) < 0.001f);
+    QVERIFY(std::abs(restored->ampCurve() - 0.67f) < 0.001f);
+    QCOMPARE(restored->ampEnvelopeEnabled(), true);
     QCOMPARE(restored->chromatic(), true);
     QVERIFY(std::abs(restored->lpfCutoff() - 0.88f) < 0.001f);
     QVERIFY(std::abs(restored->hpfCutoff() - 0.15f) < 0.001f);

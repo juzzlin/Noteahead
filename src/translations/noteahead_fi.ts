@@ -8746,6 +8746,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Amp Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 2 Fine Tune</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11075,6 +11079,37 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Amplitudiverhokäyrä</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Hold</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Käyrä</translation>
     </message>
 </context>
 <context>

@@ -44,6 +44,10 @@ private slots:
     void test_serialization_shouldRestoreParameters();
     void test_presetInit_shouldResetParameters();
     void test_presets_hit_shouldBeAudibleAndUnclipped();
+    void test_ampEnvelope_defaults_shouldBeLeftOut();
+    void test_ampEnvelope_sustainZero_shouldCutTheTail();
+    void test_ampEnvelope_release_shouldEndTheHitOnNoteOff();
+    void test_preview_shouldDrawTheHitAndMeasureTheEnvelope();
 };
 
 } // namespace noteahead

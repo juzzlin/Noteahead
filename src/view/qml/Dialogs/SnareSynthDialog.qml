@@ -75,6 +75,12 @@ AnimatedDialog {
             Layout.fillWidth: true
         }
 
+        // Under the presets, as Drum Synth V2 puts its own: what the knobs below are being set
+        // against, so it stays put while they scroll
+        SnareSynthDialog_Waveform {
+            dialogVisible: root.visible
+        }
+
         // Horizontal separator under presets
         Rectangle {
             Layout.fillWidth: true
@@ -161,6 +167,27 @@ AnimatedDialog {
 
                 SnareSynthDialog_Strike {
                     width: strikeScrollView.availableWidth
+                }
+            }
+
+            // Vertical separator
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.fillHeight: true
+                color: Theme.separator
+            }
+
+            // Amp envelope section
+            ScrollView {
+                id: envelopeScrollView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                SnareSynthDialog_Envelope {
+                    width: envelopeScrollView.availableWidth
                 }
             }
         }

@@ -20,6 +20,7 @@
 #include <QtGlobal>
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
@@ -36,6 +37,12 @@ constexpr double MaxChromaticOctaves = 4.0;
 
 //! Crack's knob at full is 1.5 in the engine: the loudest the fits to real snares asked for
 constexpr float CrackMax = 1.5f;
+
+//! The amp envelope's ranges, the drum machines' own
+constexpr double AmpMaxAttackSeconds = 1.0;
+constexpr double AmpMaxHoldSeconds = 8.0;
+constexpr double AmpMinDecaySeconds = 0.005;
+constexpr double AmpMaxDecaySeconds = 8.0;
 
 struct CcParameter
 {
@@ -102,6 +109,13 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     addParameter(Parameter(Xml::xmlKeyPunch().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyWireWidth().toStdString(), 0.0f, 0, 10000, 0, 100));
 
+    addParameter(Parameter(Xml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpHold().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpDecay().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpRelease().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100));
+
     addParameter(Parameter { Xml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter(Xml::xmlKeyVelocitySensitivity().toStdString(), 0.7f, 0, 10000, 7000, 100));
 
@@ -135,6 +149,12 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyCrack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Crack"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyPunch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Punch"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyWireWidth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Wire Width"));
+    setParameterDisplay(Xml::xmlKeyAmpAttack().toStdString(), { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = AmpMaxAttackSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Attack") });
+    setParameterDisplay(Xml::xmlKeyAmpHold().toStdString(), { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = AmpMaxHoldSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Hold") });
+    setParameterDisplay(Xml::xmlKeyAmpDecay().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "s", .min = AmpMinDecaySeconds, .max = AmpMaxDecaySeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Decay") });
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyAmpSustain(), QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Sustain"));
+    setParameterDisplay(Xml::xmlKeyAmpRelease().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "s", .min = AmpMinDecaySeconds, .max = AmpMaxDecaySeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Release") });
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyAmpCurve(), QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Curve"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
@@ -207,11 +227,19 @@ void SnareSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
     m_engine.trigger(vel);
+    if (m_ampEnvelopeEnabled) {
+        m_ampEnvelope.trigger();
+    }
 }
 
 void SnareSynthDevice::processDeviceMidiNoteOff(uint8_t)
 {
-    // One-shot physical model: sound tail is owned by modal decay times.
+    // The drum's own tail is its modal decays; only the amp envelope's release has anything to do
+    // with a note ending, and with none set the drum rings out as before
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (m_ampEnvelopeEnabled) {
+        m_ampEnvelope.release();
+    }
 }
 
 void SnareSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
@@ -272,6 +300,7 @@ void SnareSynthDevice::processAudio(AudioContext & context)
     m_hpfL.setCutoff(static_cast<double>(m_hpfCutoff));
     m_hpfR.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
+    m_ampEnvelope.setSampleRate(static_cast<double>(context.sampleRate));
 
     const double gain = linearGainInternal();
 
@@ -280,8 +309,9 @@ void SnareSynthDevice::processAudio(AudioContext & context)
         float engineR = 0.0f;
         m_engine.nextSample(engineL, engineR);
 
-        double sampleL = static_cast<double>(engineL) * gain;
-        double sampleR = static_cast<double>(engineR) * gain;
+        const double amp = m_ampEnvelopeEnabled ? m_ampEnvelope.nextSample() : 1.0;
+        double sampleL = static_cast<double>(engineL) * gain * amp;
+        double sampleR = static_cast<double>(engineR) * gain * amp;
 
         sampleL = m_hpfL.process(m_lpfL.process(sampleL));
         sampleR = m_hpfR.process(m_lpfR.process(sampleR));
@@ -296,7 +326,8 @@ void SnareSynthDevice::processAudio(AudioContext & context)
 bool SnareSynthDevice::hasActiveAudio() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_engine.isActive();
+    // Once a one-shot envelope has closed there is nothing left to hear, however long the drum rings
+    return m_engine.isActive() && (!m_ampEnvelopeEnabled || m_ampEnvelope.isActive());
 }
 
 void SnareSynthDevice::reset()
@@ -311,6 +342,7 @@ void SnareSynthDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();
+    m_ampEnvelope.reset();
     m_lpfL.reset();
     m_lpfR.reset();
     m_hpfL.reset();
@@ -488,6 +520,25 @@ void SnareSynthDevice::syncParameters()
         m_wireWidth = p->get().value();
         m_engine.setWireWidth(m_wireWidth);
     }
+    if (const auto p = parameter(Xml::xmlKeyAmpAttack().toStdString()); p) {
+        m_ampAttack = p->get().value();
+    }
+    if (const auto p = parameter(Xml::xmlKeyAmpHold().toStdString()); p) {
+        m_ampHold = p->get().value();
+    }
+    if (const auto p = parameter(Xml::xmlKeyAmpDecay().toStdString()); p) {
+        m_ampDecay = p->get().value();
+    }
+    if (const auto p = parameter(Xml::xmlKeyAmpSustain().toStdString()); p) {
+        m_ampSustain = p->get().value();
+    }
+    if (const auto p = parameter(Xml::xmlKeyAmpRelease().toStdString()); p) {
+        m_ampRelease = p->get().value();
+    }
+    if (const auto p = parameter(Xml::xmlKeyAmpCurve().toStdString()); p) {
+        m_ampCurve = p->get().value();
+    }
+    syncAmpEnvelope();
     if (const auto p = parameter(Xml::xmlKeyChromaticMode().toStdString()); p) {
         m_chromatic = p->get().value() >= 0.5f;
     }
@@ -660,6 +711,109 @@ float SnareSynthDevice::wireWidth() const
 void SnareSynthDevice::setWireWidth(float width)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyWireWidth().toStdString(), width);
+}
+
+float SnareSynthDevice::ampAttack() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpAttack(), m_ampAttack);
+}
+
+void SnareSynthDevice::setAmpAttack(float attack)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpAttack().toStdString(), attack);
+}
+
+float SnareSynthDevice::ampHold() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpHold(), m_ampHold);
+}
+
+void SnareSynthDevice::setAmpHold(float hold)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpHold().toStdString(), hold);
+}
+
+float SnareSynthDevice::ampDecay() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpDecay(), m_ampDecay);
+}
+
+void SnareSynthDevice::setAmpDecay(float decay)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpDecay().toStdString(), decay);
+}
+
+float SnareSynthDevice::ampSustain() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
+}
+
+void SnareSynthDevice::setAmpSustain(float sustain)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpSustain().toStdString(), sustain);
+}
+
+float SnareSynthDevice::ampRelease() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
+}
+
+void SnareSynthDevice::setAmpRelease(float release)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpRelease().toStdString(), release);
+}
+
+float SnareSynthDevice::ampCurve() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
+}
+
+void SnareSynthDevice::setAmpCurve(float curve)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);
+}
+
+void SnareSynthDevice::syncAmpEnvelope()
+{
+    m_ampEnvelope.setAttackTime(ampAttackSeconds());
+    m_ampEnvelope.setHoldTime(ampHoldSeconds());
+    m_ampEnvelope.setDecayTime(ampDecaySeconds());
+    m_ampEnvelope.setSustainLevel(static_cast<double>(m_ampSustain));
+    m_ampEnvelope.setReleaseTime(ampReleaseSeconds());
+    m_ampEnvelope.setCurve(static_cast<double>(m_ampCurve));
+
+    const bool enabled = m_ampAttack > 0.0f || m_ampSustain < 1.0f || m_ampRelease > 0.0f;
+    if (enabled && !m_ampEnvelopeEnabled && m_engine.isActive()) {
+        // Turned on under a ringing drum: the envelope picks it up at full rather than cutting it
+        m_ampEnvelope.trigger();
+    }
+    m_ampEnvelopeEnabled = enabled;
+}
+
+bool SnareSynthDevice::ampEnvelopeEnabled() const
+{
+    return m_ampEnvelopeEnabled;
+}
+
+double SnareSynthDevice::ampAttackSeconds() const
+{
+    return ParameterMapper::mapCubic(m_ampAttack, 0.0, AmpMaxAttackSeconds);
+}
+
+double SnareSynthDevice::ampHoldSeconds() const
+{
+    return ParameterMapper::mapCubic(m_ampHold, 0.0, AmpMaxHoldSeconds);
+}
+
+double SnareSynthDevice::ampDecaySeconds() const
+{
+    return ParameterMapper::mapExponential(m_ampDecay, AmpMinDecaySeconds, AmpMaxDecaySeconds);
+}
+
+double SnareSynthDevice::ampReleaseSeconds() const
+{
+    // Zero is no release stage at all, as DrumAmpEnvelope reads it: the drum rings out
+    return m_ampRelease > 0.0f ? ParameterMapper::mapExponential(m_ampRelease, AmpMinDecaySeconds, AmpMaxDecaySeconds) : 0.0;
 }
 
 float SnareSynthDevice::body() const

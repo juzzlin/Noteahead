@@ -17,6 +17,10 @@
 #define SNARE_SYNTH_CONTROLLER_HPP
 
 #include "device_controller.hpp"
+
+#include <QTimer>
+#include <QVariantList>
+
 #include <memory>
 
 namespace noteahead {
@@ -48,6 +52,26 @@ class SnareSynthController : public DeviceController
     Q_PROPERTY(int body READ body WRITE setBody NOTIFY bodyChanged)
     Q_PROPERTY(int drive READ drive WRITE setDrive NOTIFY driveChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+
+    // Amp envelope
+    Q_PROPERTY(int ampAttack READ ampAttack WRITE setAmpAttack NOTIFY ampAttackChanged)
+    Q_PROPERTY(int ampHold READ ampHold WRITE setAmpHold NOTIFY ampHoldChanged)
+    Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampDecayChanged)
+    Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
+    Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
+    Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampCurveChanged)
+
+    // One hit, rendered for the waveform view, with the envelope it was rendered with: the overlay
+    // never runs ahead of the waveform under it
+    Q_PROPERTY(QVariantList waveformData READ waveformData NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
+    Q_PROPERTY(double audibleLength READ audibleLength NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeAttack READ waveformEnvelopeAttack NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeHold READ waveformEnvelopeHold NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeDecay READ waveformEnvelopeDecay NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeSustain READ waveformEnvelopeSustain NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeRelease READ waveformEnvelopeRelease NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeCurve READ waveformEnvelopeCurve NOTIFY waveformChanged)
     Q_PROPERTY(int crack READ crack WRITE setCrack NOTIFY crackChanged)
     Q_PROPERTY(int punch READ punch WRITE setPunch NOTIFY punchChanged)
     Q_PROPERTY(int wireWidth READ wireWidth WRITE setWireWidth NOTIFY wireWidthChanged)
@@ -108,6 +132,33 @@ public:
     void setDrive(int value);
     int panSpread() const;
     void setPanSpread(int value);
+
+    // Amp envelope
+    int ampAttack() const;
+    void setAmpAttack(int value);
+    int ampHold() const;
+    void setAmpHold(int value);
+    int ampDecay() const;
+    void setAmpDecay(int value);
+    int ampSustain() const;
+    void setAmpSustain(int value);
+    int ampRelease() const;
+    void setAmpRelease(int value);
+    int ampCurve() const;
+    void setAmpCurve(int value);
+
+    QVariantList waveformData() const;
+    double waveformDuration() const;
+    double audibleLength() const;
+    double waveformEnvelopeAttack() const;
+    double waveformEnvelopeHold() const;
+    double waveformEnvelopeDecay() const;
+    double waveformEnvelopeSustain() const;
+    double waveformEnvelopeRelease() const;
+    double waveformEnvelopeCurve() const;
+
+    //! What the view has room for, and whether it is showing: nothing is rendered while it is not.
+    Q_INVOKABLE void setWaveformRequest(int peakCount, bool visible);
     int crack() const;
     void setCrack(int value);
     int punch() const;
@@ -149,6 +200,13 @@ signals:
     void bodyChanged();
     void driveChanged();
     void panSpreadChanged();
+    void ampAttackChanged();
+    void ampHoldChanged();
+    void ampDecayChanged();
+    void ampSustainChanged();
+    void ampReleaseChanged();
+    void ampCurveChanged();
+    void waveformChanged();
     void crackChanged();
     void punchChanged();
     void wireWidthChanged();
@@ -161,6 +219,30 @@ signals:
 
 private:
     void connectDeviceSignals();
+    //! Waits for the knobs to settle before rendering: a drag would otherwise render on every step
+    void scheduleWaveform(int delayMs = WaveformDebounceMs);
+    void renderWaveform();
+
+    static constexpr int WaveformDebounceMs { 150 };
+
+    QTimer m_waveformTimer;
+    int m_waveformPeakCount { 0 };
+    bool m_waveformVisible { false };
+    QVariantList m_waveformData;
+    double m_waveformDuration { 0.0 };
+    double m_audibleLength { 0.0 };
+
+    struct WaveformEnvelope
+    {
+        double attack {};
+        double hold {};
+        double decay {};
+        double sustain { 1.0 };
+        double release {};
+        double curve {};
+    };
+
+    WaveformEnvelope m_waveformEnvelope;
 
     std::shared_ptr<SnareSynthDevice> m_device;
 };

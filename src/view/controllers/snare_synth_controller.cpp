@@ -15,6 +15,7 @@
 
 #include "snare_synth_controller.hpp"
 
+#include "../../application/service/snare_synth_preview.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/snare_synth_device.hpp"
 #include "../../domain/devices/snare_synth_presets.hpp"
@@ -27,6 +28,8 @@ SnareSynthController::SnareSynthController(std::shared_ptr<SnareSynthDevice> dev
   : DeviceController { parent }
   , m_device { std::move(device) }
 {
+    m_waveformTimer.setSingleShot(true);
+    connect(&m_waveformTimer, &QTimer::timeout, this, &SnareSynthController::renderWaveform);
     connectDeviceSignals();
 }
 
@@ -295,6 +298,165 @@ void SnareSynthController::setWireWidth(int value)
     }
 }
 
+int SnareSynthController::ampAttack() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampAttack() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpAttack(int value)
+{
+    if (m_device) {
+        m_device->setAmpAttack(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::ampHold() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampHold() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpHold(int value)
+{
+    if (m_device) {
+        m_device->setAmpHold(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::ampDecay() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampDecay() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpDecay(int value)
+{
+    if (m_device) {
+        m_device->setAmpDecay(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::ampSustain() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampSustain() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpSustain(int value)
+{
+    if (m_device) {
+        m_device->setAmpSustain(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::ampRelease() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampRelease() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpRelease(int value)
+{
+    if (m_device) {
+        m_device->setAmpRelease(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SnareSynthController::ampCurve() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->ampCurve() * Constants::uiInternalScaling())) : 0;
+}
+
+void SnareSynthController::setAmpCurve(int value)
+{
+    if (m_device) {
+        m_device->setAmpCurve(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+QVariantList SnareSynthController::waveformData() const
+{
+    return m_waveformData;
+}
+
+double SnareSynthController::waveformDuration() const
+{
+    return m_waveformDuration;
+}
+
+double SnareSynthController::audibleLength() const
+{
+    return m_audibleLength;
+}
+
+double SnareSynthController::waveformEnvelopeAttack() const
+{
+    return m_waveformEnvelope.attack;
+}
+
+double SnareSynthController::waveformEnvelopeHold() const
+{
+    return m_waveformEnvelope.hold;
+}
+
+double SnareSynthController::waveformEnvelopeDecay() const
+{
+    return m_waveformEnvelope.decay;
+}
+
+double SnareSynthController::waveformEnvelopeSustain() const
+{
+    return m_waveformEnvelope.sustain;
+}
+
+double SnareSynthController::waveformEnvelopeRelease() const
+{
+    return m_waveformEnvelope.release;
+}
+
+double SnareSynthController::waveformEnvelopeCurve() const
+{
+    return m_waveformEnvelope.curve;
+}
+
+void SnareSynthController::setWaveformRequest(int peakCount, bool visible)
+{
+    const bool changed = peakCount != m_waveformPeakCount || visible != m_waveformVisible;
+    m_waveformPeakCount = peakCount;
+    m_waveformVisible = visible;
+    if (changed) {
+        scheduleWaveform();
+    }
+}
+
+void SnareSynthController::scheduleWaveform(int delayMs)
+{
+    if (!m_waveformVisible || m_waveformPeakCount <= 0) {
+        m_waveformTimer.stop();
+        return;
+    }
+    m_waveformTimer.setInterval(delayMs);
+    m_waveformTimer.start();
+}
+
+void SnareSynthController::renderWaveform()
+{
+    m_waveformTimer.stop();
+    if (!m_device || !m_waveformVisible || m_waveformPeakCount <= 0) {
+        return;
+    }
+
+    const auto preview = SnareSynthPreview::render(*m_device, m_waveformPeakCount, Constants::defaultSampleRate());
+    m_waveformData = preview.peaks;
+    m_waveformDuration = preview.durationSeconds;
+    m_audibleLength = preview.audibleSeconds;
+    m_waveformEnvelope = {
+        .attack = m_device->ampAttackSeconds(),
+        .hold = m_device->ampHoldSeconds(),
+        .decay = m_device->ampDecaySeconds(),
+        .sustain = static_cast<double>(m_device->ampSustain()),
+        .release = m_device->ampReleaseSeconds(),
+        .curve = static_cast<double>(m_device->ampCurve())
+    };
+    emit waveformChanged();
+}
+
 int SnareSynthController::drive() const
 {
     return m_device ? static_cast<int>(std::round(m_device->drive() * Constants::uiInternalScaling())) : 0;
@@ -369,6 +531,8 @@ void SnareSynthController::setHpfCutoff(int value)
 
 void SnareSynthController::requestSettings()
 {
+    scheduleWaveform();
+
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();
@@ -391,6 +555,12 @@ void SnareSynthController::requestSettings()
     emit bodyChanged();
     emit driveChanged();
     emit panSpreadChanged();
+    emit ampAttackChanged();
+    emit ampHoldChanged();
+    emit ampDecayChanged();
+    emit ampSustainChanged();
+    emit ampReleaseChanged();
+    emit ampCurveChanged();
     emit crackChanged();
     emit punchChanged();
     emit wireWidthChanged();

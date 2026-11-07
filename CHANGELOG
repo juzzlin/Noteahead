@@ -31,6 +31,8 @@ New features:
 * Snare Synth: Crack, Punch and Wire Width for big rock snares
   - Four Rock presets fitted to recordings of real snares
 
+* Snare Synth: waveform preview with an amp envelope over it
+
 Bug fixes:
 
 * Snare Synth: Gain, Fader and Pan knobs no longer spring back after a drag

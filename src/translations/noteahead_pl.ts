@@ -8747,6 +8747,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Amp Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 2 Fine Tune</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11077,6 +11081,37 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Obwiednia amplitudy</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Atak</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Przytrzymanie</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Opadanie</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Zwolnienie</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Krzywa</translation>
     </message>
 </context>
 <context>

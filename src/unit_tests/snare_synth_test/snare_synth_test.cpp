@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "snare_synth_test.hpp"
+#include "application/service/snare_synth_preview.hpp"
 #include "domain/devices/snare_synth_device.hpp"
 #include "domain/devices/snare_synth_presets.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
@@ -425,6 +426,76 @@ void SnareSynthTest::test_presets_hit_shouldBeAudibleAndUnclipped()
         const double db = 20.0 * std::log10(peak);
         QVERIFY2(db > -40.0 && db < -1.0, qPrintable(name + ": " + QString::number(db)));
     }
+}
+
+void SnareSynthTest::test_ampEnvelope_defaults_shouldBeLeftOut()
+{
+    // Sustain at full and no attack or release: the drum plays as it did before there was an
+    // envelope, retriggers included, so the envelope is not run at all
+    SnareSynthDevice device { "Test Snare" };
+    QCOMPARE(device.ampEnvelopeEnabled(), false);
+
+    device.setAmpSustain(0.5f);
+    QCOMPARE(device.ampEnvelopeEnabled(), true);
+
+    device.setAmpSustain(1.0f);
+    QCOMPARE(device.ampEnvelopeEnabled(), false);
+}
+
+void SnareSynthTest::test_ampEnvelope_sustainZero_shouldCutTheTail()
+{
+    SnareSynthDevice open { "Open" };
+    open.setDecay(1.0f);
+    open.processDeviceMidiNoteOn(38, 127);
+    const double openSeconds = decaySeconds(renderDeviceAudio(open, SampleRate * 2));
+
+    SnareSynthDevice cut { "Cut" };
+    cut.setDecay(1.0f);
+    cut.setAmpHold(0.0f);
+    cut.setAmpDecay(0.2f);
+    cut.setAmpSustain(0.0f);
+    cut.processDeviceMidiNoteOn(38, 127);
+    const auto buffer = renderDeviceAudio(cut, SampleRate * 2);
+    const double cutSeconds = decaySeconds(buffer);
+
+    QVERIFY2(cutSeconds < openSeconds * 0.5, qPrintable(QString::number(cutSeconds) + " vs " + QString::number(openSeconds)));
+    // And the device stops rendering once the envelope has closed, however long the drum rings
+    QCOMPARE(cut.hasActiveAudio(), false);
+}
+
+void SnareSynthTest::test_ampEnvelope_release_shouldEndTheHitOnNoteOff()
+{
+    SnareSynthDevice device { "Release" };
+    device.setDecay(1.0f);
+    device.setAmpSustain(0.9f);
+    device.setAmpRelease(0.1f);
+    device.processDeviceMidiNoteOn(38, 127);
+    renderDeviceAudio(device, SampleRate / 20);
+    QVERIFY(device.hasActiveAudio());
+
+    device.processDeviceMidiNoteOff(38);
+    renderDeviceAudio(device, SampleRate / 2);
+    QCOMPARE(device.hasActiveAudio(), false);
+}
+
+void SnareSynthTest::test_preview_shouldDrawTheHitAndMeasureTheEnvelope()
+{
+    SnareSynthDevice device { "Preview" };
+    device.setDecay(1.0f);
+    const auto open = SnareSynthPreview::render(device, 200, SampleRate);
+    QCOMPARE(open.peaks.size(), 200);
+    QVERIFY(open.durationSeconds > 0.1);
+    QVERIFY(std::abs(open.audibleSeconds - open.durationSeconds) < 0.01);
+
+    // The picture is the drum without the envelope, and only the audible length follows it
+    device.setAmpDecay(0.2f);
+    device.setAmpSustain(0.0f);
+    const auto cut = SnareSynthPreview::render(device, 200, SampleRate);
+    QVERIFY(std::abs(cut.durationSeconds - open.durationSeconds) < 0.01);
+    QVERIFY(cut.audibleSeconds < open.audibleSeconds * 0.5);
+
+    // And the device in the rack was not touched by it
+    QCOMPARE(device.hasActiveAudio(), false);
 }
 
 } // namespace noteahead

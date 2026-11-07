@@ -8745,6 +8745,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Amp Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>VCO 2 Fine Tune</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11073,6 +11077,37 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>音量包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>保持</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>曲线</translation>
     </message>
 </context>
 <context>

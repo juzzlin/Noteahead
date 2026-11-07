@@ -59,6 +59,7 @@ set(HEADER_FILES
     service/selection_service.hpp
     service/session_timer_service.hpp
     service/settings_service.hpp
+    service/snare_synth_preview.hpp
     service/song_overview_service.hpp
     service/side_chain_service.hpp
     service/theme_service.hpp
@@ -128,6 +129,7 @@ set(SOURCE_FILES
     service/selection_service.cpp
     service/session_timer_service.cpp
     service/settings_service.cpp
+    service/snare_synth_preview.cpp
     service/song_overview_service.cpp
     service/side_chain_service.cpp
     service/theme_service.cpp

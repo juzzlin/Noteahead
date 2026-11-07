@@ -18,6 +18,7 @@
 
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
+#include "../dsp/drum/drum_amp_envelope.hpp"
 #include "../dsp/drum/snare_pm_engine.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 #include "device.hpp"
@@ -115,6 +116,29 @@ public:
     float wireWidth() const;
     void setWireWidth(float width);
 
+    // Amp envelope, laid over the drum: at its defaults it does nothing at all
+    float ampAttack() const;
+    void setAmpAttack(float attack);
+    float ampHold() const;
+    void setAmpHold(float hold);
+    float ampDecay() const;
+    void setAmpDecay(float decay);
+    float ampSustain() const;
+    void setAmpSustain(float sustain);
+    float ampRelease() const;
+    void setAmpRelease(float release);
+    float ampCurve() const;
+    void setAmpCurve(float curve);
+    //! The envelope's times as the knobs set them, for the waveform overlay
+    double ampAttackSeconds() const;
+    double ampHoldSeconds() const;
+    double ampDecaySeconds() const;
+    double ampReleaseSeconds() const;
+    //! False at the defaults: Sustain at full with no attack or release leaves the drum as it is,
+    //! and the envelope is then left out altogether rather than run as a constant 1, as even that
+    //! would dip a retrigger by its choke.
+    bool ampEnvelopeEnabled() const;
+
     // Playback parameters
     bool chromatic() const;
     void setChromatic(bool chromatic);
@@ -136,6 +160,7 @@ private:
     //! C-3.
     double speedRatio(uint8_t note) const;
     double engineSampleRate(double sampleRate) const;
+    void syncAmpEnvelope();
 
     //! C-3: the note that plays the drum as it is set in Chromatic mode.
     static constexpr int RootNote { 36 };
@@ -149,6 +174,9 @@ private:
     CascadedSvf m_hpfR {};
 
     TrueStereoPanner m_panner {};
+
+    DrumAmpEnvelope m_ampEnvelope {};
+    bool m_ampEnvelopeEnabled { false };
 
     DcBlocker m_dcBlockerL {};
     DcBlocker m_dcBlockerR {};
@@ -175,6 +203,13 @@ private:
     float m_crack { 0.0f };
     float m_punch { 0.0f };
     float m_wireWidth { 0.0f };
+
+    float m_ampAttack { 0.0f };
+    float m_ampHold { 0.0f };
+    float m_ampDecay { 0.0f };
+    float m_ampSustain { 1.0f };
+    float m_ampRelease { 0.0f };
+    float m_ampCurve { 0.0f };
 
     bool m_chromatic { false };
     //! The speed of the note that last struck the drum.
