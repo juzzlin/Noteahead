@@ -26,6 +26,7 @@ class SnareSynthControllerTest : public QObject
 
 private slots:
     void test_requestSettings_shouldNotifyEveryProperty();
+    void test_requestSettings_shouldNotifyGainFaderAndPan();
     void test_properties_shouldReachTheDevice();
     void test_factoryPresetNames_shouldListThePresets();
     void test_setDevice_otherType_shouldRefuse();

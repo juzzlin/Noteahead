@@ -33,6 +33,8 @@ New features:
 
 Bug fixes:
 
+* Snare Synth: Gain, Fader and Pan knobs no longer spring back after a drag
+
 Other:
 
 11.1.0

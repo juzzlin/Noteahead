@@ -53,6 +53,27 @@ void SnareSynthControllerTest::test_requestSettings_shouldNotifyEveryProperty()
     }
 }
 
+void SnareSynthControllerTest::test_requestSettings_shouldNotifyGainFaderAndPan()
+{
+    // The base class's, which the loop above does not reach: without them the dialog's knobs
+    // spring back to where they were after every drag
+    SnareSynthController controller { std::make_shared<SnareSynthDevice>("Snare") };
+    QSignalSpy gainSpy { &controller, &DeviceController::gainChanged };
+    QSignalSpy volumeSpy { &controller, &DeviceController::volumeChanged };
+    QSignalSpy panSpy { &controller, &DeviceController::panChanged };
+
+    controller.setGain(700);
+    controller.setVolume(300);
+    controller.setPan(200);
+
+    QVERIFY(gainSpy.count() > 0);
+    QVERIFY(volumeSpy.count() > 0);
+    QVERIFY(panSpy.count() > 0);
+    QCOMPARE(controller.gain(), 700);
+    QCOMPARE(controller.volume(), 300);
+    QCOMPARE(controller.pan(), 200);
+}
+
 void SnareSynthControllerTest::test_properties_shouldReachTheDevice()
 {
     const auto snare = std::make_shared<SnareSynthDevice>("Snare");

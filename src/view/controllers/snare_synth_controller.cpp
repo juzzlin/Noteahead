@@ -369,6 +369,10 @@ void SnareSynthController::setHpfCutoff(int value)
 
 void SnareSynthController::requestSettings()
 {
+    emit volumeChanged();
+    emit gainChanged();
+    emit panChanged();
+
     emit tuneChanged();
     emit toneChanged();
     emit decayChanged();
