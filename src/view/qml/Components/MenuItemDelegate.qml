@@ -23,8 +23,9 @@ MenuItem {
     id: rootItem
     // A sub-menu's own visible property drives its popup, not this row, so a menu can only hide a
     // whole sub-menu by disabling it. A Menu lays its items out in a ListView, which still reserves
-    // the height of a merely invisible item, hence the collapse.
-    visible: !subMenu || subMenu.enabled
+    // the height of a merely invisible item, hence the collapse. A sub-menu that would rather be seen
+    // greyed out, so that the menu does not change shape, says so with a showWhenDisabled property.
+    visible: !subMenu || subMenu.enabled || subMenu.showWhenDisabled === true
     height: visible ? implicitHeight : 0
     contentItem: Item {
         anchors.centerIn: parent
