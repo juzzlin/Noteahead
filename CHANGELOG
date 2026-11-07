@@ -37,6 +37,8 @@ Bug fixes:
 
 * Snare Synth: Gain, Fader and Pan knobs no longer spring back after a drag
 
+* Sampler: the envelope over the waveform is drawn with the curve the pad plays
+
 Other:
 
 11.1.0

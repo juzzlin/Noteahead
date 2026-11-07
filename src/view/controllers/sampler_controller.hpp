@@ -59,6 +59,8 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadSustain READ selectedPadSustain WRITE setSelectedPadSustain NOTIFY selectedPadSustainChanged)
     Q_PROPERTY(double selectedPadRelease READ selectedPadRelease WRITE setSelectedPadRelease NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(double selectedPadCurve READ selectedPadCurve WRITE setSelectedPadCurve NOTIFY selectedPadCurveChanged)
+    //! How far a full curve bends the pads' envelope, for the waveform view to draw the same shape.
+    Q_PROPERTY(double ampEnvelopeMaxCurvature READ ampEnvelopeMaxCurvature CONSTANT)
     Q_PROPERTY(double selectedPadAttackSeconds READ selectedPadAttackSeconds NOTIFY selectedPadAttackChanged)
     Q_PROPERTY(double selectedPadHoldSeconds READ selectedPadHoldSeconds NOTIFY selectedPadHoldChanged)
     Q_PROPERTY(double selectedPadHold READ selectedPadHold WRITE setSelectedPadHold NOTIFY selectedPadHoldChanged)
@@ -176,6 +178,7 @@ public:
     void setSelectedPadRelease(double release);
 
     double selectedPadCurve() const;
+    double ampEnvelopeMaxCurvature() const;
     void setSelectedPadCurve(double curve);
 
     //! The amp envelope's segment times in seconds, as the voices run them. The waveform view draws

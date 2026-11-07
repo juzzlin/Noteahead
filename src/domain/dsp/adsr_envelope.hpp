@@ -26,6 +26,11 @@ namespace noteahead {
 class AdsrEnvelope : public DspComponent
 {
 public:
+    //! Curvature at the top of the curve knob. Chosen so the middle of its travel already lands on
+    //! the natural pluck shape, about 18 dB down at the halfway point of the decay, and the top
+    //! third is left for the percussive shapes that need to be gone almost at once.
+    static constexpr double MaxCurvature { 8.0 };
+
     enum class State
     {
         Idle,
@@ -83,11 +88,6 @@ public:
 private:
     //! Level below which the envelope is treated as finished, about -120 dBFS.
     static constexpr double SilenceThreshold { 1.0e-6 };
-
-    //! Curvature at the top of the curve knob. Chosen so the middle of its travel already lands on
-    //! the natural pluck shape, about 18 dB down at the halfway point of the decay, and the top
-    //! third is left for the percussive shapes that need to be gone almost at once.
-    static constexpr double MaxCurvature { 8.0 };
 
     State m_state { State::Idle };
 

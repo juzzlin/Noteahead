@@ -38,23 +38,14 @@ Rectangle {
         }
     }
 
-    Connections {
-        target: themeService
-        function onAccentColorChanged() {
-            waveform.requestPaint();
-        }
-    }
-
     function requestWaveform() {
         if (width > 0) {
             const availableWidth = waveform.width - 12;
             if (availableWidth > 0) {
                 const data = audioService.getWaveformData(availableWidth);
                 waveformData = data || [];
-                waveform.requestPaint();
             } else {
                 waveformData = [];
-                waveform.requestPaint();
             }
         }
     }

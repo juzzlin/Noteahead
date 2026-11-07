@@ -127,6 +127,9 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 - Test headers (`.hpp`): include `<QObject>` only — never `QtTest`.
 - Test sources (`.cpp`): use `#include <QTest>` (not `<QtTest>`); add specific headers like `<QSignalSpy>` as needed.
 - Do not manually include `.moc` files; rely on CMake's automatic MOC.
+- Tests must run headlessly: CI has no display. Use `QTEST_GUILESS_MAIN` unless the test needs a
+  `QGuiApplication` (QPainter, fonts, windows); then use `QTEST_MAIN` and force the platform in its
+  `CMakeLists.txt` with `set_tests_properties(${NAME} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")`.
 - Test function naming: `test_<subject>_<variant>_<condition>` (variant goes after subject, not merged into it).
 
 ## QML Dialog Pattern

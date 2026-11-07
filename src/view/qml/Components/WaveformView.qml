@@ -27,13 +27,10 @@ Rectangle {
     border.width: 1
 
     property var waveformData: []
-    onWaveformDataChanged: waveformCanvas.requestPaint()
     property double playbackPosition: 0.0
     property double startOffset: 0.0
-    onStartOffsetChanged: envelopeCanvas.requestPaint()
     //! Where playback stops, as a fraction of the file. One means it runs to the end.
     property double endOffset: 1.0
-    onEndOffsetChanged: envelopeCanvas.requestPaint()
     property bool showPlayhead: false
     property string fileName: ""
     //! Said in the middle of the view while there is no waveform to draw. Empty for a view that would
@@ -44,7 +41,7 @@ Rectangle {
     //! picture spans: an envelope that closes early shortens what is heard without shortening the
     //! material it was drawn from. Zero hides the readout.
     property double audibleLength: 0.0
-    property alias accentColor: waveformCanvas.accentColor
+    property alias accentColor: renderer.accentColor
 
     //! Where a looping range comes back round to, as a fraction of the file. Negative hides the marker.
     property double loopPosition: -1.0
@@ -63,14 +60,8 @@ Rectangle {
     //! Bend of every segment, 0..1, matching AdsrEnvelope::setCurve(). Zero draws the straight lines
     //! this view has always drawn.
     property double envelopeCurve: 0.0
-    onShowEnvelopeChanged: envelopeCanvas.requestPaint()
-    onDurationChanged: envelopeCanvas.requestPaint()
-    onEnvelopeAttackChanged: envelopeCanvas.requestPaint()
-    onEnvelopeHoldChanged: envelopeCanvas.requestPaint()
-    onEnvelopeDecayChanged: envelopeCanvas.requestPaint()
-    onEnvelopeSustainChanged: envelopeCanvas.requestPaint()
-    onEnvelopeReleaseChanged: envelopeCanvas.requestPaint()
-    onEnvelopeCurveChanged: envelopeCanvas.requestPaint()
+    //! How far a full curve bends. Defaults to the drum pads' envelope; the Sampler's bends further.
+    property alias envelopeMaxCurvature: renderer.envelopeMaxCurvature
 
     //! Draws the start, the end and the loop point as handles the mouse can drag. The view reports
     //! where a handle was dragged as a fraction of the file and leaves the writing to its owner.
@@ -81,172 +72,31 @@ Rectangle {
 
     signal seekRequested(double position)
 
-    function requestPaint() {
-        waveformCanvas.requestPaint();
-        envelopeCanvas.requestPaint();
-    }
-
-    //! The amp envelope as [x, level] points across the pad's range: attack and decay run from where
-    //! the range starts, the sustain holds to where it ends and the release falls from there, which is
-    //! where a pad held to the end of its range would be released. A segment that would run past the
-    //! end of the range is cut there, at the level it had reached, so a long attack on a short sample
-    //! shows how little of the envelope the pad ever plays.
-    //! The same bend the envelope itself applies, so the picture is the shape the pad is played
-    //! through rather than an idealisation of it. Matches AdsrEnvelope::shape().
-    function envelopeShape(phase) {
-        const curvature = rootItem.envelopeCurve * 6.0;
-        if (curvature < 1.0e-6) {
-            return phase;
-        }
-        return Math.expm1(-curvature * phase) / Math.expm1(-curvature);
-    }
-
-    function envelopePoints(x0, x1, pixelsPerSecond) {
-        // A bent segment is drawn as a run of points rather than one line. At zero curve the shaping
-        // is the identity and they all fall on the straight line this drew before.
-        const steps = 24;
-        const points = [[x0, 0]];
-        let x = x0;
-        let level = 0;
-        //! Rising segments bend towards their target and falling ones away from their start, which is
-        //! the asymmetry that makes one read as an attack and the other as a decay.
-        const segment = (seconds, target, rising, boundary) => {
-            const start = level;
-            const startX = x;
-            const end = startX + seconds * pixelsPerSecond;
-            const cut = end >= boundary;
-            const lastPhase = cut ? (end > startX ? (boundary - startX) / (end - startX) : 1) : 1;
-            for (let i = 1; i <= steps; i++) {
-                const phase = lastPhase * i / steps;
-                const shaped = rootItem.envelopeShape(phase);
-                level = rising ? start + (target - start) * shaped : target + (start - target) * (1 - shaped);
-                points.push([startX + (end - startX) * phase, level]);
-            }
-            x = cut ? boundary : end;
-            return !cut;
-        };
-        // The hold is flat, so it is a segment whose target is where it already is: the same
-        // clipping and the same boundary handling as the others, without a special case.
-        if (segment(rootItem.envelopeAttack, 1, true, x1) && segment(rootItem.envelopeHold, 1, false, x1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain, false, x1)) {
-            level = rootItem.envelopeSustain;
-            points.push([x1, level]);
-        }
-        x = x1;
-        segment(rootItem.envelopeRelease, 0, false, Infinity);
-        return points;
-    }
-
     Item {
         id: canvasArea
         anchors.fill: parent
         anchors.margins: 6
 
-        Canvas {
-            id: waveformCanvas
+        // The peaks, the shaded trims and the envelope, drawn in C++ in that order
+        WaveformRenderer {
+            id: renderer
             anchors.fill: parent
-            property color accentColor: themeService.accentColor
-            onAccentColorChanged: requestPaint()
-
-            onPaint: {
-                const ctx = getContext("2d");
-                ctx.clearRect(0, 0, width, height);
-
-                if (!rootItem.waveformData || rootItem.waveformData.length === 0)
-                    return;
-
-                let maxPeak = 0;
-                for (let i = 0; i < rootItem.waveformData.length; i++) {
-                    maxPeak = Math.max(maxPeak, rootItem.waveformData[i]);
-                }
-
-                ctx.strokeStyle = accentColor;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-
-                const midY = height / 2;
-                const len = rootItem.waveformData.length;
-                const stepX = width / len;
-
-                for (let i = 0; i < len; i++) {
-                    let val = rootItem.waveformData[i];
-                    if (maxPeak > 0) {
-                        val /= maxPeak;
-                    }
-                    const x = i * stepX;
-                    const h = val * height * 0.9;
-
-                    ctx.moveTo(x, midY - h / 2);
-                    ctx.lineTo(x, midY + h / 2);
-                }
-                ctx.stroke();
-            }
-        }
-
-        // Render start offset overlay
-        Rectangle {
-            id: startTrimOverlay
-            x: 0
-            y: 0
-            width: Math.max(0, Math.min(parent.width, rootItem.startOffset * parent.width))
-            height: parent.height
-            color: waveformCanvas.accentColor
-            opacity: 0.3
-            visible: rootItem.startOffset > 0
-        }
-
-        // Render end offset overlay
-        Rectangle {
-            id: endTrimOverlay
-            x: Math.max(0, Math.min(parent.width, rootItem.endOffset * parent.width))
-            y: 0
-            width: Math.max(0, parent.width - x)
-            height: parent.height
-            color: waveformCanvas.accentColor
-            opacity: 0.3
-            visible: rootItem.endOffset < 1.0
-        }
-
-        Canvas {
-            id: envelopeCanvas
-            anchors.fill: parent
-
-            onPaint: {
-                const ctx = getContext("2d");
-                ctx.clearRect(0, 0, width, height);
-
-                if (!rootItem.showEnvelope || rootItem.duration <= 0)
-                    return;
-
-                const rangeStart = Math.max(0, rootItem.startOffset * width);
-                const rangeEnd = Math.min(width, rootItem.endOffset * width);
-                if (rangeEnd <= rangeStart)
-                    return;
-
-                const midY = height / 2;
-                const points = rootItem.envelopePoints(rangeStart, rangeEnd, width / rootItem.duration);
-                ctx.strokeStyle = "white";
-                ctx.lineWidth = 1;
-                // Held back a little: on a pad with no envelope dialled in the shape is a plain box,
-                // and at full strength it reads as a second border around the waveform.
-                ctx.globalAlpha = 0.6;
-                for (const side of [-1, 1]) {
-                    ctx.beginPath();
-                    for (let i = 0; i < points.length; i++) {
-                        const y = midY + side * points[i][1] * height * 0.45;
-                        if (i === 0) {
-                            ctx.moveTo(points[i][0], y);
-                        } else {
-                            ctx.lineTo(points[i][0], y);
-                        }
-                    }
-                    ctx.stroke();
-                }
-                ctx.globalAlpha = 1.0;
-            }
+            accentColor: themeService.accentColor
+            waveformData: rootItem.waveformData || []
+            startOffset: rootItem.startOffset
+            endOffset: rootItem.endOffset
+            showEnvelope: rootItem.showEnvelope
+            duration: rootItem.duration
+            envelopeAttack: rootItem.envelopeAttack
+            envelopeHold: rootItem.envelopeHold
+            envelopeDecay: rootItem.envelopeDecay
+            envelopeSustain: rootItem.envelopeSustain
+            envelopeRelease: rootItem.envelopeRelease
+            envelopeCurve: rootItem.envelopeCurve
         }
     }
 
-    //! The markers sit on the same strip the canvas paints, so a marker's own fraction of the strip
+    //! The markers sit on the same strip the renderer draws on, so a marker's own fraction of the strip
     //! is the fraction of the file it stands on.
     Item {
         id: markerTrack
