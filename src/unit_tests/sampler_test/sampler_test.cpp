@@ -624,6 +624,59 @@ void SamplerTest::test_lpfSlope_shallow_shouldRenderAsBefore()
     QCOMPARE(render(*explicitlyShallow, 4096), render(*plain, 4096));
 }
 
+void SamplerTest::test_filteredPeaks_neutralFilters_shouldBeTheFilesOwnPeaks()
+{
+    // A ramp of its own frame index: the loudest frame of each share is its last
+    const auto sampler = makeMonoSampler(true);
+    const auto peaks = sampler->sampleFilteredPeaks(60, 100);
+    const size_t framesPerPoint = static_cast<size_t>(Constants::defaultSampleRate()) / 100;
+    QCOMPARE(peaks.size(), size_t { 100 });
+    for (size_t point = 0; point < peaks.size(); point++) {
+        QCOMPARE(peaks.at(point), static_cast<double>((point + 1) * framesPerPoint - 1));
+    }
+}
+
+void SamplerTest::test_filteredPeaks_hpf_shouldTakeAwayWhatThePadDoes()
+{
+    // A constant is all low end: the high pass lets through the first instant of it and nothing after
+    const auto sampler = makeMonoSampler();
+    QCOMPARE(sampler->sampleFilteredPeaks(60, 100).back(), 1.0);
+
+    sampler->setSampleHpfCutoff(60, 0.6f);
+    const auto peaks = sampler->sampleFilteredPeaks(60, 100);
+    QVERIFY(peaks.front() > 0.5);
+    QVERIFY2(peaks.back() < 0.001, qPrintable(QString::number(peaks.back())));
+}
+
+void SamplerTest::test_filteredPeaks_reversedPad_shouldBeFilteredAsItPlays()
+{
+    // Silence then a constant. Played forwards the high pass rings where the constant starts, half way,
+    // and has settled by the end; played backwards the end of the file is where the sound starts.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setStepAt(static_cast<int64_t>(Constants::defaultSampleRate() / 2));
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "test.wav");
+    sampler.setSampleHpfCutoff(60, 0.6f);
+
+    const auto forwards = sampler.sampleFilteredPeaks(60, 100);
+    QVERIFY(forwards.at(50) > 100.0);
+    QVERIFY(forwards.back() < 1.0);
+
+    sampler.setSampleReverse(60, true);
+    const auto backwards = sampler.sampleFilteredPeaks(60, 100);
+    QVERIFY(backwards.back() > 100.0);
+    QVERIFY(backwards.at(60) < 1.0);
+}
+
+void SamplerTest::test_filteredPeaks_emptyPad_shouldBeEmpty()
+{
+    const auto sampler = makeMonoSampler();
+    QVERIFY(sampler->sampleFilteredPeaks(61, 100).empty());
+    QVERIFY(sampler->sampleFilteredPeaks(60, 0).empty());
+}
+
 void SamplerTest::initTestCase()
 {
     EffectFactory::init(); // Cloning a pad's insert rack builds the effects through the factory

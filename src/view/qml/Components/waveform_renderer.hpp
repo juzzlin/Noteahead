@@ -34,8 +34,12 @@ class WaveformRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    //! Peak levels from left to right, any scale: the loudest is drawn at full height.
+    //! Peak levels from left to right. See normalized for the scale.
     Q_PROPERTY(QVariantList waveformData READ waveformData WRITE setWaveformData NOTIFY waveformDataChanged)
+    //! Whether the loudest peak is drawn at full height, which suits a sound whose level is not the
+    //! point. Off, the peaks are drawn on a fixed 0..1 scale, so that what turns a sound down, such
+    //! as a filter, shows as a smaller picture rather than being scaled back up.
+    Q_PROPERTY(bool normalized READ normalized WRITE setNormalized NOTIFY normalizedChanged)
     //! Where playback starts and stops, as fractions of the file. What lies outside is shaded.
     Q_PROPERTY(double startOffset READ startOffset WRITE setStartOffset NOTIFY startOffsetChanged)
     Q_PROPERTY(double endOffset READ endOffset WRITE setEndOffset NOTIFY endOffsetChanged)
@@ -73,6 +77,9 @@ public:
 
     QVariantList waveformData() const;
     void setWaveformData(const QVariantList & data);
+
+    bool normalized() const;
+    void setNormalized(bool normalized);
 
     double startOffset() const;
     void setStartOffset(double offset);
@@ -127,8 +134,12 @@ public:
     //! @p peaks scaled so that the loudest is one. All silent stays all zero.
     static std::vector<double> normalisedPeaks(const std::vector<double> & peaks);
 
+    //! @p peaks as drawn on a fixed scale: anything past full scale is drawn at full height.
+    static std::vector<double> clampedPeaks(const std::vector<double> & peaks);
+
 signals:
     void waveformDataChanged();
+    void normalizedChanged();
     void startOffsetChanged();
     void endOffsetChanged();
     void accentColorChanged();
@@ -136,11 +147,13 @@ signals:
 
 private:
     void setEnvelopeValue(double & member, double value);
+    void updatePeaks();
     void paintPeaks(QPainter & painter) const;
     void paintTrims(QPainter & painter) const;
     void paintEnvelope(QPainter & painter) const;
 
     QVariantList m_waveformData;
+    bool m_normalized = true;
     //! The same peaks as numbers, already scaled, so that a repaint does no conversion.
     std::vector<double> m_peaks;
     double m_startOffset = 0.0;

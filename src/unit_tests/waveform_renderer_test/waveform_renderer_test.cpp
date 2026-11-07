@@ -161,6 +161,11 @@ void WaveformRendererTest::test_normalisedPeaks_silence_shouldStayZero()
     QVERIFY(WaveformRenderer::normalisedPeaks({}).empty());
 }
 
+void WaveformRendererTest::test_clampedPeaks_pastFullScale_shouldBeFullHeight()
+{
+    QCOMPARE(WaveformRenderer::clampedPeaks({ 0.25, 1.5, -0.1 }), (std::vector<double> { 0.25, 1.0, 0.0 }));
+}
+
 void WaveformRendererTest::test_paint_peaks_shouldDrawOneBarPerPeak()
 {
     WaveformRenderer renderer;
@@ -179,6 +184,18 @@ void WaveformRendererTest::test_paint_peaks_shouldDrawOneBarPerPeak()
     QVERIFY(std::abs(quiet - 27) <= 1);
     QVERIFY(qGreen(image.pixel(10, imageHeight / 2)) > 0);
     QVERIFY(qGreen(image.pixel(10, 0)) == 0);
+}
+
+void WaveformRendererTest::test_paint_peaksNotNormalized_shouldDrawAtTheirOwnLevel()
+{
+    WaveformRenderer renderer;
+    renderer.setAccentColor(accent);
+    renderer.setWaveformData(QVariantList(imageWidth, 0.5));
+    QVERIFY(std::abs(litPixelsInColumn(paintToImage(renderer), 10) - 54) <= 1);
+
+    // Half of full scale is half the height, where normalised it was all of it
+    renderer.setNormalized(false);
+    QVERIFY(std::abs(litPixelsInColumn(paintToImage(renderer), 10) - 27) <= 1);
 }
 
 void WaveformRendererTest::test_paint_trims_shouldShadeOutsideTheRange()

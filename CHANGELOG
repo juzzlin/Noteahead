@@ -39,6 +39,8 @@ Bug fixes:
 
 * Sampler: the envelope over the waveform is drawn with the curve the pad plays
 
+* Sampler: the waveform shows the pad's LPF and HPF, at the level the pad plays at
+
 Other:
 
 11.1.0

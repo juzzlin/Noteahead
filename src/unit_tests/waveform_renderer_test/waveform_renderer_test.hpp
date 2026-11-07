@@ -35,8 +35,10 @@ private slots:
 
     void test_normalisedPeaks_loudest_shouldBeOne();
     void test_normalisedPeaks_silence_shouldStayZero();
+    void test_clampedPeaks_pastFullScale_shouldBeFullHeight();
 
     void test_paint_peaks_shouldDrawOneBarPerPeak();
+    void test_paint_peaksNotNormalized_shouldDrawAtTheirOwnLevel();
     void test_paint_trims_shouldShadeOutsideTheRange();
     void test_paint_envelope_shouldDrawOnlyWhenShown();
 };

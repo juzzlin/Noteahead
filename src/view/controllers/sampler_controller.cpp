@@ -5,7 +5,6 @@
 #include "../../application/service/audio_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
-#include "../../common/waveform_generator.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/dsp/adsr_envelope.hpp"
@@ -682,8 +681,15 @@ QVariantList SamplerController::getWaveformData(int numPoints)
         return {};
     }
     const int note = noteForPad(m_selectedPad);
-    const auto filePath = QString::fromStdString(m_sampler->absoluteFilePath(static_cast<uint8_t>(note)));
-    auto data = WaveformGenerator::getWaveformData(filePath, numPoints);
+    if (numPoints <= 0) {
+        return {};
+    }
+    // Drawn from the audio the pad plays rather than read from the file again, so that what its
+    // filters take away is taken away from the picture too
+    QVariantList data;
+    for (const double peak : m_sampler->sampleFilteredPeaks(static_cast<uint8_t>(note), static_cast<size_t>(numPoints))) {
+        data.append(peak);
+    }
     // A reversed pad is drawn back to front, so that the offsets, which are read against the waveform
     // as it sounds, line up with the parts of it they actually trim.
     if (m_sampler->sampleReverse(static_cast<uint8_t>(note))) {

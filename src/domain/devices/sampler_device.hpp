@@ -240,6 +240,11 @@ public:
     float sampleNormalizeGain(uint8_t note) const;
     void setSampleNormalize(uint8_t note, bool normalize);
 
+    //! The pad's sample reduced to @p pointCount peaks, file order, as the pad's filters leave it:
+    //! each point is the loudest frame of its share of the file after the LPF and HPF, run in the
+    //! direction the pad plays. Neither gain nor the envelope is applied. Empty for an empty pad.
+    std::vector<double> sampleFilteredPeaks(uint8_t note, size_t pointCount) const;
+
     //! Moves the pad's trims in past the silence at either end of it.
     //!
     //! Sets the offsets the markers already use rather than touching the audio, so it can be undone
@@ -438,6 +443,8 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
+    //! The LPF and HPF cutoffs a pad plays through, its own knobs offset by the device-wide ones.
+    static std::pair<float, float> filterCutoffs(const Sample & sample, float globalCutoff, float globalHpfCutoff);
 
     //! The pad a per-pad MIDI CC addresses, plus the parameter it drives and the already-mapped value.
     struct PadCcTarget

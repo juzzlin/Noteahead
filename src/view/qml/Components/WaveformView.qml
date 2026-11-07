@@ -27,6 +27,9 @@ Rectangle {
     border.width: 1
 
     property var waveformData: []
+    //! Whether the loudest peak fills the height. Off, peaks are drawn on a fixed 0..1 scale, so a
+    //! quieter sound draws smaller. See WaveformRenderer.
+    property alias normalized: renderer.normalized
     property double playbackPosition: 0.0
     property double startOffset: 0.0
     //! Where playback stops, as a fraction of the file. One means it runs to the end.
