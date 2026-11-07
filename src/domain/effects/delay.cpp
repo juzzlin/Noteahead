@@ -406,4 +406,17 @@ void Delay::updateBuffers(uint32_t sampleRate)
     m_writePos = 0;
 }
 
+std::vector<std::string> Delay::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDelayFeedback().toStdString(),
+        NahdXml::xmlKeyDelayMix().toStdString(),
+        NahdXml::xmlKeyDelayTime().toStdString(),
+        NahdXml::xmlKeyDelayFeedbackLpf().toStdString(),
+        NahdXml::xmlKeyDelayFeedbackHpf().toStdString(),
+        NahdXml::xmlKeyDelayDepth().toStdString()
+    };
+}
+
 } // namespace noteahead

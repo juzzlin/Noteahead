@@ -231,4 +231,16 @@ std::string Compressor::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> Compressor::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyRatio().toStdString(),
+        NahdXml::xmlKeyAttack().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyMakeup().toStdString()
+    };
+}
+
 } // namespace noteahead

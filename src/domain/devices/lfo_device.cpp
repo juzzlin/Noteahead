@@ -451,4 +451,13 @@ void LfoDevice::deserializeFromXml(ProjectReader & reader)
     emit dataChanged();
 }
 
+std::vector<std::string> LfoDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyIntensity().toStdString()
+    };
+}
+
 } // namespace noteahead

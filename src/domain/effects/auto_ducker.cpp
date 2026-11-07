@@ -245,4 +245,14 @@ std::string AutoDucker::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> AutoDucker::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAmount().toStdString(),
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString()
+    };
+}
+
 } // namespace noteahead

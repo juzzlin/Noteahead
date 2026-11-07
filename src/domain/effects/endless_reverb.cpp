@@ -404,4 +404,20 @@ const EffectPresetList & EndlessReverb::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> EndlessReverb::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeySize().toStdString(),
+        NahdXml::xmlKeyDamping().toStdString(),
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyDepth().toStdString(),
+        NahdXml::xmlKeyPreDelay().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -379,4 +379,16 @@ void BassGrinder::syncParameters()
     m_shouldUpdateToneStack = true;
 }
 
+std::vector<std::string> BassGrinder::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDrive().toStdString(),
+        NahdXml::xmlKeyMidFreq().toStdString(),
+        NahdXml::xmlKeyMidGain().toStdString(),
+        NahdXml::xmlKeyBlend().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

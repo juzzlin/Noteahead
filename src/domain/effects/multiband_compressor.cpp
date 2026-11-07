@@ -303,4 +303,16 @@ std::string MultibandCompressor::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> MultibandCompressor::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyBandThreshold(0).toStdString(),
+        NahdXml::xmlKeyBandThreshold(1).toStdString(),
+        NahdXml::xmlKeyBandThreshold(2).toStdString(),
+        NahdXml::xmlKeyCrossoverFreq(0).toStdString(),
+        NahdXml::xmlKeyCrossoverFreq(1).toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -353,4 +353,27 @@ std::string Eq8BandParametric::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> Eq8BandParametric::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyBandFreq(0).toStdString(),
+        NahdXml::xmlKeyBandGain(0).toStdString(),
+        NahdXml::xmlKeyBandFreq(1).toStdString(),
+        NahdXml::xmlKeyBandGain(1).toStdString(),
+        NahdXml::xmlKeyBandFreq(2).toStdString(),
+        NahdXml::xmlKeyBandGain(2).toStdString(),
+        NahdXml::xmlKeyBandFreq(3).toStdString(),
+        NahdXml::xmlKeyBandGain(3).toStdString(),
+        NahdXml::xmlKeyBandFreq(4).toStdString(),
+        NahdXml::xmlKeyBandGain(4).toStdString(),
+        NahdXml::xmlKeyBandFreq(5).toStdString(),
+        NahdXml::xmlKeyBandGain(5).toStdString(),
+        NahdXml::xmlKeyBandFreq(6).toStdString(),
+        NahdXml::xmlKeyBandGain(6).toStdString(),
+        NahdXml::xmlKeyBandFreq(7).toStdString(),
+        NahdXml::xmlKeyBandGain(7).toStdString()
+    };
+}
+
 } // namespace noteahead

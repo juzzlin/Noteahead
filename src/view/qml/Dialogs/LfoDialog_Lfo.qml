@@ -52,6 +52,7 @@ ColumnLayout {
         parameter: root.lfo.targetParameter
         shared: root.lfo.targetShared
         onTargetChosen: (owner, ownerId, parameter) => root.lfo.setTarget(owner, ownerId, parameter)
+        onOwnerChosen: (owner, ownerId, parameters) => root.lfo.chooseTargetOwner(owner, ownerId, parameters)
         onTargetCleared: root.lfo.clearTarget()
     }
 

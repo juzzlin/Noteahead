@@ -134,4 +134,13 @@ void Dimension::sync()
     m_shouldSyncParameters = true;
 }
 
+std::vector<std::string> Dimension::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAmount().toStdString(),
+        NahdXml::xmlKeyDetune().toStdString()
+    };
+}
+
 } // namespace noteahead

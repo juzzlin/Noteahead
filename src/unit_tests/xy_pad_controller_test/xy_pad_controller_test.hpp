@@ -29,6 +29,8 @@ private slots:
     void test_panel_write_shouldReachThatPadOnly();
     void test_panel_target_shouldSetAndClear();
     void test_panel_targetShared_withAnLfo_shouldWarn();
+    void test_panel_chooseTargetOwner_shouldTakeTheNextFreePair();
+    void test_panel_chooseTargetOwner_otherAxisSet_shouldLeaveItAlone();
     void test_press_shouldReachTheDevice();
     void test_deviceChange_shouldNotifyThePanels();
     void test_press_otherController_shouldNotifyThisOne();

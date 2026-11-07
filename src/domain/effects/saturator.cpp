@@ -225,4 +225,14 @@ std::string Saturator::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> Saturator::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDriveDb().toStdString(),
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

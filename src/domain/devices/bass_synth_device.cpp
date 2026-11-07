@@ -733,4 +733,20 @@ void BassSynthDevice::setDistLevel(float level)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyDistLevel().toStdString(), level);
 }
 
+std::vector<std::string> BassSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyEnvMod().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyAccent().toStdString(),
+        NahdXml::xmlKeyDistDrive().toStdString(),
+        NahdXml::xmlKeySlide().toStdString(),
+        NahdXml::xmlKeySubLevel().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

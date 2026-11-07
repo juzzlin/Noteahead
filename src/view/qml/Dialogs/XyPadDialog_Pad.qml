@@ -46,6 +46,7 @@ ColumnLayout {
         parameter: root.pad.xTargetParameter
         shared: root.pad.xTargetShared
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(0, owner, ownerId, parameter)
+        onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(0, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(0)
     }
     ModulationTargetPicker {
@@ -56,6 +57,7 @@ ColumnLayout {
         parameter: root.pad.yTargetParameter
         shared: root.pad.yTargetShared
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(1, owner, ownerId, parameter)
+        onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(1, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(1)
     }
     GridLayout {

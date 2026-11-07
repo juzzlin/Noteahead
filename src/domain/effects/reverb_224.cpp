@@ -685,4 +685,17 @@ const EffectPresetList & Reverb224::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> Reverb224::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyMidDecay().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeyTrebleDecay().toStdString(),
+        NahdXml::xmlKeyBassDecay().toStdString(),
+        NahdXml::xmlKeyPreDelay().toStdString(),
+        NahdXml::xmlKeyDiffusion().toStdString()
+    };
+}
+
 } // namespace noteahead

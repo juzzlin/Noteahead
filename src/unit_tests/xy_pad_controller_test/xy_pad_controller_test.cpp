@@ -122,6 +122,73 @@ void XyPadControllerTest::test_panel_targetShared_withAnLfo_shouldWarn()
     QVERIFY(panel(controller, 3).yTargetShared());
 }
 
+void XyPadControllerTest::test_panel_chooseTargetOwner_shouldTakeTheNextFreePair()
+{
+    const auto deviceService = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    const auto lfo = std::make_shared<LfoDevice>("LFO");
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    deviceService->setDevice(0, pad);
+    deviceService->setDevice(1, lfo);
+    deviceService->setDevice(2, synth);
+    XyPadController controller { deviceService };
+    controller.setDevice(pad);
+    LfoController lfoController { deviceService };
+    lfoController.setDevice(lfo);
+    auto & lfoPanel = *qobject_cast<LfoPanelController *>(lfoController.lfos().at(0).value<QObject *>());
+
+    QStringList parameters;
+    for (auto && automatable : synth->automatableParameters()) {
+        parameters.push_back(QString::fromStdString(automatable.key));
+    }
+    const auto uuid = QString::fromStdString(synth->uuid());
+    const auto priority = synth->modulationPriority();
+
+    panel(controller, 0).chooseTargetOwner(0, "device", uuid, parameters);
+    QCOMPARE(panel(controller, 0).xTargetParameter().toStdString(), priority.at(0));
+    QCOMPARE(panel(controller, 0).yTargetParameter().toStdString(), priority.at(1));
+    QCOMPARE(panel(controller, 0).yTargetOwnerId(), uuid);
+
+    // The next pad takes the next pair rather than the same one again
+    panel(controller, 1).chooseTargetOwner(0, "device", uuid, parameters);
+    QCOMPARE(panel(controller, 1).xTargetParameter().toStdString(), priority.at(2));
+    QCOMPARE(panel(controller, 1).yTargetParameter().toStdString(), priority.at(3));
+
+    // Choosing the same device again keeps what the axis had: it is not taken by itself
+    panel(controller, 0).chooseTargetOwner(0, "device", uuid, parameters);
+    QCOMPARE(panel(controller, 0).xTargetParameter().toStdString(), priority.at(0));
+
+    // An LFO counts the pads' targets as taken too
+    lfoPanel.chooseTargetOwner("device", uuid, parameters);
+    QCOMPARE(lfoPanel.targetParameter().toStdString(), priority.at(4));
+    QVERIFY(!lfoPanel.targetShared());
+}
+
+void XyPadControllerTest::test_panel_chooseTargetOwner_otherAxisSet_shouldLeaveItAlone()
+{
+    const auto deviceService = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    deviceService->setDevice(0, pad);
+    deviceService->setDevice(1, synth);
+    XyPadController controller { deviceService };
+    controller.setDevice(pad);
+    const auto uuid = QString::fromStdString(synth->uuid());
+    const QStringList parameters { "lpfCutoff", "lpfResonance", "hpfCutoff" };
+
+    panel(controller, 0).setTarget(1, "effect", "some-effect", "mix");
+    panel(controller, 0).chooseTargetOwner(0, "device", uuid, parameters);
+    QCOMPARE(panel(controller, 0).xTargetParameter(), QString { "lpfCutoff" });
+    QCOMPARE(panel(controller, 0).yTargetOwnerId(), QString { "some-effect" });
+    QCOMPARE(panel(controller, 0).yTargetParameter(), QString { "mix" });
+
+    // Choosing for Y alone takes the first free one
+    panel(controller, 1).chooseTargetOwner(1, "device", uuid, parameters);
+    QCOMPARE(panel(controller, 1).yTargetParameter(), QString { "lpfResonance" });
+    QCOMPARE(panel(controller, 1).xTargetOwnerId(), uuid);
+    QCOMPARE(panel(controller, 1).xTargetParameter(), QString { "hpfCutoff" });
+}
+
 void XyPadControllerTest::test_press_shouldReachTheDevice()
 {
     XyPadController controller { nullptr };

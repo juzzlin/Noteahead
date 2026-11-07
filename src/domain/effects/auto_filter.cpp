@@ -343,4 +343,17 @@ void AutoFilter::reset()
     m_shouldApplyParameters = true;
 }
 
+std::vector<std::string> AutoFilter::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyResonance().toStdString(),
+        NahdXml::xmlKeyEnvMod().toStdString(),
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyLfoIntensity().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

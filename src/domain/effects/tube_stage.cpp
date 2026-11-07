@@ -256,4 +256,15 @@ void TubeStage::syncParameters()
     m_quiescent = shape(m_biasOffset);
 }
 
+std::vector<std::string> TubeStage::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDriveDb().toStdString(),
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeyBias().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

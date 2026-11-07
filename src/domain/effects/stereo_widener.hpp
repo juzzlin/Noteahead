@@ -53,6 +53,7 @@ public:
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
+    std::vector<std::string> modulationPriority() const override;
 
     void processSample(double & left, double & right) override;
     void reset() override;

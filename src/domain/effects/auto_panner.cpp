@@ -114,4 +114,13 @@ void AutoPanner::updateLfoFrequency()
     m_lfo.setFrequency(frequency / m_rateDivider);
 }
 
+std::vector<std::string> AutoPanner::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyIntensity().toStdString()
+    };
+}
+
 } // namespace noteahead

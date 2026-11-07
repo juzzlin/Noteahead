@@ -287,4 +287,15 @@ void StereoExciter::sync()
     syncParameters();
 }
 
+std::vector<std::string> StereoExciter::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyHarmonics().toStdString(),
+        NahdXml::xmlKeyTune().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeyTimbre().toStdString()
+    };
+}
+
 } // namespace noteahead

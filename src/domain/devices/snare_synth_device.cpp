@@ -886,4 +886,23 @@ void SnareSynthDevice::setHpfCutoff(float cutoff)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
 }
 
+std::vector<std::string> SnareSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeySnappy().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeySnareDecay().toStdString(),
+        NahdXml::xmlKeyCrack().toStdString(),
+        NahdXml::xmlKeyPunch().toStdString(),
+        NahdXml::xmlKeyHeadTension().toStdString(),
+        NahdXml::xmlKeySnareTension().toStdString(),
+        NahdXml::xmlKeyTune().toStdString(),
+        NahdXml::xmlKeyDrive().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

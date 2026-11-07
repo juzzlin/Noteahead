@@ -919,4 +919,20 @@ bool DrumSynthDevice::updateVoiceParameter(int voiceIndex, const std::string & p
     return false;
 }
 
+std::vector<std::string> DrumSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyTune().toStdString(),
+        NahdXml::xmlKeyResonance().toStdString(),
+        NahdXml::xmlKeySnappy().toStdString(),
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeyPitchDepth().toStdString(),
+        NahdXml::xmlKeyPitchDecay().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

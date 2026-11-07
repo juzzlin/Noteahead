@@ -255,4 +255,16 @@ void Phaser::reset()
     m_shouldApplyParameters = true;
 }
 
+std::vector<std::string> Phaser::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyFeedback().toStdString(),
+        NahdXml::xmlKeyFrequency().toStdString(),
+        NahdXml::xmlKeyDepth().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

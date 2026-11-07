@@ -511,4 +511,19 @@ void PianoSynthDevice::setStringDetune(float detune)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyStringDetune().toStdString(), detune);
 }
 
+std::vector<std::string> PianoSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyBrightness().toStdString(),
+        NahdXml::xmlKeyHardness().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString(),
+        NahdXml::xmlKeyStringDetune().toStdString(),
+        NahdXml::xmlKeyPanSpread().toStdString()
+    };
+}
+
 } // namespace noteahead

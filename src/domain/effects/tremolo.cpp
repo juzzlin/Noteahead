@@ -134,4 +134,14 @@ void Tremolo::updateLfoFrequency()
     m_lfoRight.setFrequency(frequency / m_rateDivider);
 }
 
+std::vector<std::string> Tremolo::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyIntensity().toStdString(),
+        NahdXml::xmlKeyStereoPhase().toStdString()
+    };
+}
+
 } // namespace noteahead

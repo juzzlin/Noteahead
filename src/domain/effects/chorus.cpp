@@ -310,4 +310,16 @@ void Chorus::updateFilters()
     m_lpfR.setCutoff(m_lpfCutoff);
 }
 
+std::vector<std::string> Chorus::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyDepth().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeyDelay().toStdString(),
+        NahdXml::xmlKeyWidth().toStdString()
+    };
+}
+
 } // namespace noteahead

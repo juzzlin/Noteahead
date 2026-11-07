@@ -580,4 +580,17 @@ const EffectPresetList & Ambience::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> Ambience::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeySize().toStdString(),
+        NahdXml::xmlKeyDamping().toStdString(),
+        NahdXml::xmlKeyEarlyLate().toStdString(),
+        NahdXml::xmlKeyPreDelay().toStdString()
+    };
+}
+
 } // namespace noteahead

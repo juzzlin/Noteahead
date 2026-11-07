@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include <cstddef>
 
@@ -74,6 +75,9 @@ public:
 
     Q_INVOKABLE void setTarget(int axis, const QString & owner, const QString & ownerId, const QString & parameter);
     Q_INVOKABLE void clearTarget(int axis);
+    //! Aims @p axis at @p owner, at the first of @p parameters no modulation source moves yet, and
+    //! the other axis, when it has no target, at the next. See DeviceService::suggestedModulationParameters().
+    Q_INVOKABLE void chooseTargetOwner(int axis, const QString & owner, const QString & ownerId, const QStringList & parameters);
 
 signals:
     void changed();

@@ -218,6 +218,26 @@ void LfoPanelController::setTarget(const QString & owner, const QString & ownerI
     }
 }
 
+void LfoPanelController::chooseTargetOwner(const QString & owner, const QString & ownerId, const QStringList & parameters)
+{
+    const auto device = m_owner.lfoDevice();
+    if (!device) {
+        return;
+    }
+    const auto ownerType = ParameterAutomation::Target::ownerFromString(owner);
+    std::vector<std::string> candidates;
+    for (auto && parameter : parameters) {
+        candidates.push_back(parameter.toStdString());
+    }
+    std::vector<std::string> keys;
+    if (const auto & deviceService = m_owner.deviceService(); deviceService) {
+        keys = deviceService->suggestedModulationParameters(ownerType, ownerId.toStdString(), candidates, 1, { device->target(m_index) });
+    } else if (!candidates.empty()) {
+        keys = { candidates.front() };
+    }
+    device->setTarget(m_index, { ownerType, ownerId.toStdString(), keys.empty() ? std::string {} : keys.front() });
+}
+
 void LfoPanelController::clearTarget()
 {
     if (const auto device = m_owner.lfoDevice(); device) {

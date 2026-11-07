@@ -294,4 +294,15 @@ std::string StereoWidener::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> StereoWidener::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyBandWidth(1).toStdString(),
+        NahdXml::xmlKeyBandWidth(2).toStdString(),
+        NahdXml::xmlKeyBandWidth(0).toStdString(),
+        NahdXml::xmlKeyMonoFreq().toStdString()
+    };
+}
+
 } // namespace noteahead

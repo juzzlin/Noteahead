@@ -21,6 +21,7 @@
 #include "parameter_modulation.hpp"
 
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -47,6 +48,13 @@ public:
     virtual bool applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth) = 0;
     //! Takes @p sourceId's modulation off the named parameter, leaving any other source's.
     virtual void clearParameterModulation(const std::string & key, ModulationSourceId sourceId) = 0;
+
+    //! The parameters most worth riding live, best first, for a modulation source aimed here to take
+    //! in turn. Neighbours make a pair, as an XY pad's X and Y take them: cutoff, then resonance.
+    //! An entry also names the parameter of that name on every pad or voice of a device that has
+    //! them: "cutoff" is "Kick_cutoff" as well. Parameters not listed follow in the order the
+    //! dialogs list them. None by default.
+    virtual std::vector<std::string> modulationPriority() const;
 };
 
 } // namespace noteahead

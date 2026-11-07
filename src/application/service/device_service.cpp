@@ -293,6 +293,57 @@ size_t DeviceService::modulationSourceCount(const ParameterAutomation::Target & 
     return count;
 }
 
+std::vector<std::string> DeviceService::rankModulationParameters(const std::vector<std::string> & priority, const std::vector<std::string> & candidates, size_t count, const std::function<bool(const std::string &)> & isTaken)
+{
+    // An entry names a parameter by its key, or a pad's or a voice's by what follows the group's
+    // prefix: "cutoff" is every "Kick_cutoff", "Snare_cutoff"
+    const auto matches = [](const std::string & key, const std::string & entry) {
+        return key == entry || (key.size() > entry.size() && key.ends_with(entry) && key.at(key.size() - entry.size() - 1) == '_');
+    };
+    std::vector<std::string> ordered;
+    for (auto && entry : priority) {
+        for (auto && key : candidates) {
+            if (matches(key, entry) && std::ranges::find(ordered, key) == ordered.end()) {
+                ordered.push_back(key);
+            }
+        }
+    }
+    for (auto && key : candidates) {
+        if (std::ranges::find(ordered, key) == ordered.end()) {
+            ordered.push_back(key);
+        }
+    }
+
+    std::vector<std::string> chosen;
+    for (auto && key : ordered) {
+        if (chosen.size() < count && !isTaken(key)) {
+            chosen.push_back(key);
+        }
+    }
+    for (auto && key : ordered) {
+        if (chosen.size() < count && std::ranges::find(chosen, key) == chosen.end()) {
+            chosen.push_back(key);
+        }
+    }
+    return chosen;
+}
+
+std::vector<std::string> DeviceService::suggestedModulationParameters(ParameterAutomation::Target::Owner owner, const std::string & ownerId, const std::vector<std::string> & candidates, size_t count, const std::vector<ParameterAutomation::Target> & ignored) const
+{
+    std::vector<std::string> priority;
+    if (owner == ParameterAutomation::Target::Owner::Device) {
+        if (const auto device = findDevice(ownerId); device) {
+            priority = device->modulationPriority();
+        }
+    } else if (const auto effect = findEffect(ownerId); effect) {
+        priority = effect->modulationPriority();
+    }
+    return rankModulationParameters(priority, candidates, count, [&](const std::string & key) {
+        const ParameterAutomation::Target target { owner, ownerId, key };
+        return modulationSourceCount(target) > static_cast<size_t>(std::ranges::count(ignored, target));
+    });
+}
+
 DeviceService::DeviceS DeviceService::device(size_t slotIndex) const
 {
     std::lock_guard<std::mutex> lock { m_deviceCacheMutex };

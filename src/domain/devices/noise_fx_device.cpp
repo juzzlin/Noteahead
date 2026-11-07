@@ -1173,4 +1173,21 @@ void NoiseFxDevice::setGateParameterValue(const QString & key, float value)
     setKeyedParameterValue(gateKey(key), value);
 }
 
+std::vector<std::string> NoiseFxDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyResonance().toStdString(),
+        NahdXml::xmlKeyPitch().toStdString(),
+        NahdXml::xmlKeyColor().toStdString(),
+        NahdXml::xmlKeySampleHoldRate().toStdString(),
+        NahdXml::xmlKeyRingMod().toStdString(),
+        NahdXml::xmlKeyDrive().toStdString(),
+        NahdXml::xmlKeyCrackle().toStdString(),
+        NahdXml::xmlKeyBlend().toStdString(),
+        NahdXml::xmlKeyWidth().toStdString()
+    };
+}
+
 } // namespace noteahead

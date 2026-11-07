@@ -71,6 +71,15 @@ public:
     //! their offsets add up, which the dialogs warn about.
     size_t modulationSourceCount(const ParameterAutomation::Target & target) const;
 
+    //! Up to @p count of @p candidates, the parameters of @p owner a source can be aimed at, for a
+    //! source to take next: the owner's modulationPriority() first and the rest in the order given,
+    //! leaving out what a modulation source already moves. Short of free ones, what is left is filled
+    //! from the top of that order. @p ignored are targets about to be let go of, which do not count
+    //! as taken: the slot being re-aimed itself, say.
+    std::vector<std::string> suggestedModulationParameters(ParameterAutomation::Target::Owner owner, const std::string & ownerId, const std::vector<std::string> & candidates, size_t count, const std::vector<ParameterAutomation::Target> & ignored = {}) const;
+    //! The ordering and the choice of suggestedModulationParameters(), given what is taken.
+    static std::vector<std::string> rankModulationParameters(const std::vector<std::string> & priority, const std::vector<std::string> & candidates, size_t count, const std::function<bool(const std::string &)> & isTaken);
+
     Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
     //! Device::uuid() of the internal device behind a port, or empty for any other port. What lets
     //! the automation dialog open on the device the track plays.

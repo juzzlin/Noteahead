@@ -1890,4 +1890,22 @@ void WavetableSynthDevice::setPitchBendRange(int range)
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
 }
 
+std::vector<std::string> WavetableSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyOsc1Pos().toStdString(),
+        NahdXml::xmlKeyOsc2Pos().toStdString(),
+        NahdXml::xmlKeyModIntensity().toStdString(),
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyLfoIntensity().toStdString(),
+        NahdXml::xmlKeyOsc1Level().toStdString(),
+        NahdXml::xmlKeyOsc2Level().toStdString(),
+        NahdXml::xmlKeyNoiseLevel().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

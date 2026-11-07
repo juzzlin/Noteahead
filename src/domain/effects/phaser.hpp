@@ -49,6 +49,7 @@ public:
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
+    std::vector<std::string> modulationPriority() const override;
 
     void sync() override;
     void setBpm(float bpm) override;

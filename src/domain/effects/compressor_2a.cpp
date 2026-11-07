@@ -164,4 +164,14 @@ const EffectPresetList & Compressor2A::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> Compressor2A::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyPeakReduction().toStdString(),
+        NahdXml::xmlKeyGain().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

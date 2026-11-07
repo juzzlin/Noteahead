@@ -435,4 +435,19 @@ void Kick808Device::setHpfCutoff(float cutoff)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
 }
 
+std::vector<std::string> Kick808Device::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyPitchDepth().toStdString(),
+        NahdXml::xmlKeyPitchDecay().toStdString(),
+        NahdXml::xmlKeyDrive().toStdString(),
+        NahdXml::xmlKeyTune().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

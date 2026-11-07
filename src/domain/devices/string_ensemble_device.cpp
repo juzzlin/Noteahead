@@ -727,4 +727,17 @@ void StringEnsembleDevice::setHpfCutoff(float cutoff)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
 }
 
+std::vector<std::string> StringEnsembleDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyPhaserColor().toStdString(),
+        NahdXml::xmlKeyPhaserRate().toStdString(),
+        NahdXml::xmlKeyAttack().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead
