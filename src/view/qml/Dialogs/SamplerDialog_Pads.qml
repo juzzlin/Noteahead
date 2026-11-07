@@ -173,6 +173,8 @@ GridView {
                     id: baseNoteMenu
                     title: qsTr("Set base note")
                     enabled: padMenu.padIsLoaded && samplerController.chromaticMode
+                    // Greyed out rather than hidden, so the menu keeps its shape in either mode
+                    property bool showWhenDisabled: true
                     delegate: MenuItemDelegate {}
                     Universal.theme: Universal.Dark
                     Universal.accent: themeService.accentColor
