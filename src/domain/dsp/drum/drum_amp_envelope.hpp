@@ -29,6 +29,9 @@ namespace noteahead {
 class DrumAmpEnvelope : public DspComponent
 {
 public:
+    //! Curvature at the top of the curve knob.
+    static constexpr double MaxCurvature { 6.0 };
+
     enum class State
     {
         Idle,
@@ -101,7 +104,6 @@ private:
     void updatePhaseStep();
     double shape(double phase) const;
 
-    static constexpr double MaxCurvature { 6.0 };
     static constexpr double MinimumSegmentTime { 0.000001 };
 
     //! How long the level takes to reach zero before a retrigger's attack. Long enough that the

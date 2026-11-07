@@ -8,6 +8,7 @@
 #include "../../common/waveform_generator.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/dsp/adsr_envelope.hpp"
 #include "../../infra/settings.hpp"
 #include <QDateTime>
 #include <QDir>
@@ -436,6 +437,11 @@ void SamplerController::setSelectedPadSustain(double sustain)
         m_sampler->setSampleSustain(*note, static_cast<float>(sustain));
         emit selectedPadSustainChanged();
     }
+}
+
+double SamplerController::ampEnvelopeMaxCurvature() const
+{
+    return AdsrEnvelope::MaxCurvature;
 }
 
 double SamplerController::selectedPadCurve() const
