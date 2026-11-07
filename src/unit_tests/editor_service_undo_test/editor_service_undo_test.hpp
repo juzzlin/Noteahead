@@ -43,6 +43,7 @@ private slots:
     void test_undoRedo_cutTrack_shouldUndoAndRedo();
     void test_undoRedo_cutPattern_shouldUndoAndRedo();
     void test_undoRedo_cutSelection_shouldUndoAndRedo();
+    void test_undoRedo_cutSelection_withAutomation_shouldRestoreAutomationWhereItWas();
     void test_undoRedo_canUndoRedoSignals_shouldEmitSignals();
     void test_undoRedo_clearsOnNewSong_shouldClearStack();
     void test_undoRedo_patternChange_shouldNotClearStack();

@@ -470,6 +470,32 @@ void EditorServiceUndoTest::test_undoRedo_cutSelection_shouldUndoAndRedo()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
+void EditorServiceUndoTest::test_undoRedo_cutSelection_withAutomation_shouldRestoreAutomationWhereItWas()
+{
+    auto selectionService = std::make_shared<SelectionService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    EditorService editorService { selectionService, std::make_shared<SettingsService>(), automationService, std::make_shared<DataService>() };
+
+    automationService->addMidiCcAutomation(0, 0, 0, 7, 2, 4, 0, 127, "Test CC", true, 8, 0);
+    selectionService->requestSelectionStart(0, 0, 0, 2);
+    selectionService->requestSelectionEnd(0, 0, 0, 4);
+    // The cursor is wherever the selection was dragged to, not at its start
+    editorService.requestPosition(0, 0, 0, 8, 0);
+
+    editorService.requestSelectionCut();
+    QVERIFY(automationService->automationsByLine(0, 0, 0, 3).empty());
+
+    editorService.undo();
+    const auto restored = automationService->midiCcAutomationsByLine(0, 0, 0, 3);
+    QCOMPARE(restored.size(), size_t { 1 });
+    QCOMPARE(restored.at(0).interpolation().line0, size_t { 2 });
+    QCOMPARE(restored.at(0).interpolation().line1, size_t { 4 });
+    QVERIFY(automationService->automationsByLine(0, 0, 0, 9).empty());
+
+    editorService.redo();
+    QVERIFY(automationService->automationsByLine(0, 0, 0, 3).empty());
+}
+
 void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals_shouldEmitSignals()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

@@ -2477,7 +2477,12 @@ void EditorService::requestSelectionCut()
         updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
     if (m_automationService) {
-        auto deletions = m_state.copyManager.getPasteSelectionAutomationChanges(*m_song->pattern(currentPattern()), position());
+        // The automations as they are on the selected lines. Not the clipboard's copies, which are
+        // already moved to where a paste at the cursor would put them: undo puts back what it deleted
+        AutomationSet deletions;
+        for (auto && selectedPosition : m_selectionService->selectedPositions()) {
+            deletions.merge(m_automationService->automationsByLine(selectedPosition.pattern, selectedPosition.track, selectedPosition.column, selectedPosition.line));
+        }
 
         if (deletions.empty()) {
             m_undoStack->push(std::move(noteEditCommand));
