@@ -3306,4 +3306,25 @@ void SynthDevice::setCrossModDepth(float depth)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyCrossModDepth().toStdString(), depth);
 }
 
+std::vector<std::string> SynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyFilterDrive().toStdString(),
+        NahdXml::xmlKeyModIntensity().toStdString(),
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyLfoIntensity().toStdString(),
+        NahdXml::xmlKeyCrossModDepth().toStdString(),
+        NahdXml::xmlKeyVoiceDepth().toStdString(),
+        NahdXml::xmlKeyDelayMix().toStdString(),
+        NahdXml::xmlKeyDelayFeedback().toStdString(),
+        NahdXml::xmlKeyChorusMix().toStdString(),
+        NahdXml::xmlKeyChorusDepth().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString(),
+        NahdXml::xmlKeyPanSpread().toStdString()
+    };
+}
+
 } // namespace noteahead

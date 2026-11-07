@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include <cstddef>
 
@@ -93,6 +94,9 @@ public:
     bool targetShared() const;
     Q_INVOKABLE void setTarget(const QString & owner, const QString & ownerId, const QString & parameter);
     Q_INVOKABLE void clearTarget();
+    //! Aims the LFO at @p owner, at the first of @p parameters no modulation source moves yet. See
+    //! DeviceService::suggestedModulationParameters().
+    Q_INVOKABLE void chooseTargetOwner(const QString & owner, const QString & ownerId, const QStringList & parameters);
 
 signals:
     void changed();

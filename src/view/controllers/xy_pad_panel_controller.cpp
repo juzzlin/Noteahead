@@ -168,6 +168,37 @@ void XyPadPanelController::setTarget(int axis, const QString & owner, const QStr
     }
 }
 
+void XyPadPanelController::chooseTargetOwner(int axis, const QString & owner, const QString & ownerId, const QStringList & parameters)
+{
+    const auto device = m_owner.xyPadDevice();
+    if (!device) {
+        return;
+    }
+    const auto chosenAxis = toAxis(axis);
+    const auto otherAxis = chosenAxis == XyPadDevice::Axis::X ? XyPadDevice::Axis::Y : XyPadDevice::Axis::X;
+    const bool fillOther = device->target(m_index, otherAxis).ownerId.empty();
+    const auto ownerType = ParameterAutomation::Target::ownerFromString(owner);
+    std::vector<std::string> candidates;
+    for (auto && parameter : parameters) {
+        candidates.push_back(parameter.toStdString());
+    }
+    std::vector<std::string> keys;
+    if (const auto & deviceService = m_owner.deviceService(); deviceService) {
+        // The axis being re-aimed lets go of what it had, so that is free for it to take again
+        keys = deviceService->suggestedModulationParameters(ownerType, ownerId.toStdString(), candidates, fillOther ? 2 : 1, { device->target(m_index, chosenAxis) });
+    } else if (!candidates.empty()) {
+        keys = { candidates.front() };
+    }
+    if (keys.empty()) {
+        device->setTarget(m_index, chosenAxis, { ownerType, ownerId.toStdString(), {} });
+        return;
+    }
+    device->setTarget(m_index, chosenAxis, { ownerType, ownerId.toStdString(), keys.at(0) });
+    if (fillOther && keys.size() > 1) {
+        device->setTarget(m_index, otherAxis, { ownerType, ownerId.toStdString(), keys.at(1) });
+    }
+}
+
 void XyPadPanelController::clearTarget(int axis)
 {
     if (const auto device = m_owner.xyPadDevice(); device) {

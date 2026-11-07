@@ -169,4 +169,13 @@ std::string Clipper::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> Clipper::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyGain().toStdString()
+    };
+}
+
 } // namespace noteahead

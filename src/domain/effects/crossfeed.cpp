@@ -169,4 +169,13 @@ void Crossfeed::reset()
     m_filter.reset();
 }
 
+std::vector<std::string> Crossfeed::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAmount().toStdString(),
+        NahdXml::xmlKeyCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

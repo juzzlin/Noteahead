@@ -419,4 +419,20 @@ void FmDrumsDevice::describeEngineParameters(const std::string & prefix)
     percent(NahdXml::xmlKeyModVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity to FM"));
 }
 
+std::vector<std::string> FmDrumsDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyAmpDecay().toStdString(),
+        NahdXml::xmlKeyFrequency().toStdString(),
+        NahdXml::xmlKeyFeedback().toStdString(),
+        NahdXml::xmlKeyOperatorLevel(1).toStdString(),
+        NahdXml::xmlKeyOperatorLevel(2).toStdString(),
+        NahdXml::xmlKeyNoiseLevel().toStdString(),
+        NahdXml::xmlKeyNoiseCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

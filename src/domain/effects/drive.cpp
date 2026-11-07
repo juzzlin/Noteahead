@@ -177,4 +177,14 @@ std::string Drive::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> Drive::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDriveDb().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeyGain().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -357,4 +357,15 @@ const EffectPresetList & EarlyReflections::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> EarlyReflections::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeySize().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeyDamping().toStdString(),
+        NahdXml::xmlKeyPreDelay().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -613,4 +613,20 @@ void PianoSynthV3Device::setStereoWidth(float stereoWidth)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), stereoWidth);
 }
 
+std::vector<std::string> PianoSynthV3Device::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyBrightness().toStdString(),
+        NahdXml::xmlKeyHardness().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString(),
+        NahdXml::xmlKeyRichness().toStdString(),
+        NahdXml::xmlKeyStringDetune().toStdString(),
+        NahdXml::xmlKeyPanSpread().toStdString()
+    };
+}
+
 } // namespace noteahead

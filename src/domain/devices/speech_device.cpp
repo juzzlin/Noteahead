@@ -1006,4 +1006,19 @@ void SpeechDevice::deserializeFromXml(ProjectReader & reader)
     emit dataChanged();
 }
 
+std::vector<std::string> SpeechDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyFormantShift().toStdString(),
+        NahdXml::xmlKeyIntonation().toStdString(),
+        NahdXml::xmlKeyRate().toStdString(),
+        NahdXml::xmlKeyBreathiness().toStdString(),
+        NahdXml::xmlKeyVibratoDepth().toStdString(),
+        NahdXml::xmlKeyVibratoRate().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -19,4 +19,9 @@ namespace noteahead {
 
 ParameterAutomationTarget::~ParameterAutomationTarget() = default;
 
+std::vector<std::string> ParameterAutomationTarget::modulationPriority() const
+{
+    return {};
+}
+
 } // namespace noteahead

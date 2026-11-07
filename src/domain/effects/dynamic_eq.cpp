@@ -495,4 +495,15 @@ const EffectPresetList & DynamicEq::factoryPresets() const
     return presets;
 }
 
+std::vector<std::string> DynamicEq::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyFrequency().toStdString(),
+        NahdXml::xmlKeyRange().toStdString(),
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyQ().toStdString()
+    };
+}
+
 } // namespace noteahead

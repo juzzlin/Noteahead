@@ -2083,4 +2083,22 @@ void FmSynthDevice::setDelayFeedbackHpf(float cutoff)
     }
 }
 
+std::vector<std::string> FmSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyFeedback().toStdString(),
+        NahdXml::xmlKeyOperatorLevel(1).toStdString(),
+        NahdXml::xmlKeyOperatorLevel(2).toStdString(),
+        NahdXml::xmlKeyOperatorLevel(3).toStdString(),
+        NahdXml::xmlKeyModIntensity().toStdString(),
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyLfoIntensity().toStdString(),
+        NahdXml::xmlKeyDelayMix().toStdString(),
+        NahdXml::xmlKeyDelayFeedback().toStdString()
+    };
+}
+
 } // namespace noteahead

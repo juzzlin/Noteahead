@@ -203,4 +203,14 @@ void WaveDesigner::sync()
     syncParameters();
 }
 
+std::vector<std::string> WaveDesigner::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAttack().toStdString(),
+        NahdXml::xmlKeySustain().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

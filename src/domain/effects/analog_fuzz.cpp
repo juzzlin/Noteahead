@@ -301,4 +301,17 @@ void AnalogFuzz::syncParameters()
     m_quiescent = shape(m_biasOffset);
 }
 
+std::vector<std::string> AnalogFuzz::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyResonance().toStdString(),
+        NahdXml::xmlKeyFuzz().toStdString(),
+        NahdXml::xmlKeyDrive().toStdString(),
+        NahdXml::xmlKeyBias().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

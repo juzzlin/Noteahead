@@ -37,6 +37,9 @@ ColumnLayout {
     property string label: qsTr("Target")
 
     signal targetChosen(string owner, string ownerId, string parameter)
+    //! A device or effect was chosen, with its parameters in the order they are listed: which of
+    //! them to take is for the source's controller to decide, from what is already taken.
+    signal ownerChosen(string owner, string ownerId, var parameters)
     signal targetCleared
 
     readonly property int targetIndex: root.ownerId === "" ? -1 : Targets.findTargetIndex(root.targets, root.owner, root.ownerId, root.parameter)
@@ -86,7 +89,7 @@ ColumnLayout {
                     root.targetCleared();
                 } else {
                     const target = root.targets[index - 1];
-                    root.targetChosen(target.owner, target.ownerId, target.parameters.length ? target.parameters[0].key : "");
+                    root.ownerChosen(target.owner, target.ownerId, target.parameters.map(parameter => parameter.key));
                 }
             }
             Layout.fillWidth: true

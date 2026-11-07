@@ -16,6 +16,9 @@ New features:
 
 * LFOs and XY pads on the same parameter add up
 
+* Choosing a device or effect for an LFO or an XY pad picks the next free parameter
+  - An XY pad's empty Y axis takes the next one: cutoff, then resonance on a synth
+
 * Delete an automation by right-clicking its curve
 
 * Device and effect galleries show each entry's category

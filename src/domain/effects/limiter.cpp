@@ -257,4 +257,14 @@ void Limiter::maxIndicesPushBack(uint32_t value)
     m_maxCount++;
 }
 
+std::vector<std::string> Limiter::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyCeiling().toStdString()
+    };
+}
+
 } // namespace noteahead

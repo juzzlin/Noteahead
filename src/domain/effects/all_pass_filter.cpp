@@ -158,4 +158,13 @@ void AllPassFilter::reset()
     Effect::reset();
 }
 
+std::vector<std::string> AllPassFilter::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyFrequency().toStdString(),
+        NahdXml::xmlKeyQ().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -332,4 +332,17 @@ std::string AirBandEq::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> AirBandEq::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAirGain().toStdString(),
+        NahdXml::xmlKeyBandGain(0).toStdString(),
+        NahdXml::xmlKeyBandGain(1).toStdString(),
+        NahdXml::xmlKeyBandGain(2).toStdString(),
+        NahdXml::xmlKeyBandGain(3).toStdString(),
+        NahdXml::xmlKeyBandGain(4).toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -195,4 +195,16 @@ void Flanger::updateSampleRateDependents()
     m_delayRight.setMaxDelay(maxSamples);
 }
 
+std::vector<std::string> Flanger::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyFeedback().toStdString(),
+        NahdXml::xmlKeyDepth().toStdString(),
+        NahdXml::xmlKeyDelay().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

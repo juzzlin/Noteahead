@@ -229,4 +229,14 @@ bool Doubler::isSettled() const
     return m_silentFrames >= m_delay.capacity();
 }
 
+std::vector<std::string> Doubler::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyAmount().toStdString(),
+        NahdXml::xmlKeyDelayTime().toStdString(),
+        NahdXml::xmlKeyDepth().toStdString()
+    };
+}
+
 } // namespace noteahead

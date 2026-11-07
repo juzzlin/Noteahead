@@ -487,4 +487,18 @@ void Reverb::applyWetFilters(double & wetL, double & wetR)
     }
 }
 
+std::vector<std::string> Reverb::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyMix().toStdString(),
+        NahdXml::xmlKeySize().toStdString(),
+        NahdXml::xmlKeyDamping().toStdString(),
+        NahdXml::xmlKeyPreDelay().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

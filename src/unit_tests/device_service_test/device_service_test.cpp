@@ -1331,6 +1331,61 @@ void DeviceServiceTest::test_processMidiNoteOn_whileEngineIsProcessing_shouldNot
     engineThread.join();
 }
 
+void DeviceServiceTest::test_rankModulationParameters_priority_shouldComeFirstAndTheRestFollow()
+{
+    const auto none = [](const std::string &) { return false; };
+    // A priority entry the owner does not have is passed over
+    const auto ranked = DeviceService::rankModulationParameters({ "cutoff", "missing", "resonance" }, { "attack", "resonance", "cutoff", "decay" }, 4, none);
+    QCOMPARE(ranked, (std::vector<std::string> { "cutoff", "resonance", "attack", "decay" }));
+    QCOMPARE(DeviceService::rankModulationParameters({}, { "attack", "decay" }, 1, none), std::vector<std::string> { "attack" });
+}
+
+void DeviceServiceTest::test_rankModulationParameters_taken_shouldBeSkipped()
+{
+    const auto ranked = DeviceService::rankModulationParameters({ "cutoff", "resonance", "drive", "decay" }, { "cutoff", "decay", "drive", "resonance" }, 2, [](const std::string & key) {
+        return key == "cutoff" || key == "resonance";
+    });
+    QCOMPARE(ranked, (std::vector<std::string> { "drive", "decay" }));
+}
+
+void DeviceServiceTest::test_rankModulationParameters_allTaken_shouldFallBackToTheTop()
+{
+    const auto all = [](const std::string &) { return true; };
+    QCOMPARE(DeviceService::rankModulationParameters({ "cutoff", "resonance" }, { "resonance", "cutoff" }, 2, all), (std::vector<std::string> { "cutoff", "resonance" }));
+    // One free: that one first, then the top of the list
+    const auto ranked = DeviceService::rankModulationParameters({ "cutoff", "resonance", "drive" }, { "cutoff", "drive", "resonance" }, 2, [](const std::string & key) {
+        return key != "drive";
+    });
+    QCOMPARE(ranked, (std::vector<std::string> { "drive", "cutoff" }));
+    QVERIFY(DeviceService::rankModulationParameters({ "cutoff" }, {}, 2, all).empty());
+}
+
+void DeviceServiceTest::test_rankModulationParameters_groupedKeys_shouldMatchByWhatFollowsThePrefix()
+{
+    const auto none = [](const std::string &) { return false; };
+    const auto ranked = DeviceService::rankModulationParameters({ "cutoff", "decay" }, { "Kick_decay", "Kick_hpfCutoff", "Kick_cutoff" }, 3, none);
+    // "hpfCutoff" is not "cutoff": the prefix ends at an underscore
+    QCOMPARE(ranked, (std::vector<std::string> { "Kick_cutoff", "Kick_decay", "Kick_hpfCutoff" }));
+}
+
+void DeviceServiceTest::test_modulationPriority_everyDevice_shouldNameItsOwnParameters()
+{
+    DeviceFactory::init();
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "Device");
+        std::vector<std::string> keys;
+        for (auto && automatable : device->automatableParameters()) {
+            keys.push_back(automatable.key);
+        }
+        // An entry that reaches nothing is a parameter renamed or moved, or a slip of the list
+        for (auto && entry : device->modulationPriority()) {
+            const auto ranked = DeviceService::rankModulationParameters({ entry }, keys, 1, [](const std::string &) { return false; });
+            const bool reached = !ranked.empty() && (ranked.front() == entry || ranked.front().ends_with("_" + entry));
+            QVERIFY2(reached, (device->typeName() + " has no " + entry).c_str());
+        }
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceServiceTest)

@@ -1528,4 +1528,24 @@ void JuSynth08Device::setVoiceTolerance(float tolerance)
     setContinuousParameterValue(C::xmlKeyVoiceTolerance().toStdString(), tolerance);
 }
 
+std::vector<std::string> JuSynth08Device::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyEnvMod().toStdString(),
+        NahdXml::xmlKeyFilterLfoDepth().toStdString(),
+        NahdXml::xmlKeyLfoRate().toStdString(),
+        NahdXml::xmlKeyPulseWidth().toStdString(),
+        NahdXml::xmlKeyCrossMod().toStdString(),
+        NahdXml::xmlKeyPitchEnvDepth().toStdString(),
+        NahdXml::xmlKeyDelayLevel().toStdString(),
+        NahdXml::xmlKeyDelayFeedback().toStdString(),
+        NahdXml::xmlKeyUnisonDetune().toStdString(),
+        NahdXml::xmlKeyNoiseLevel().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
 } // namespace noteahead

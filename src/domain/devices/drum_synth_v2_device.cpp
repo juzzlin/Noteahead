@@ -356,4 +356,21 @@ void DrumSynthV2Device::syncCymbalParameters(int index, const std::string & pref
     }
 }
 
+std::vector<std::string> DrumSynthV2Device::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyCutoff().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyTune().toStdString(),
+        NahdXml::xmlKeyResonance().toStdString(),
+        NahdXml::xmlKeySnappy().toStdString(),
+        NahdXml::xmlKeyTone().toStdString(),
+        NahdXml::xmlKeyPitchDepth().toStdString(),
+        NahdXml::xmlKeyPitchDecay().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString(),
+        NahdXml::xmlKeyAmpDecay().toStdString()
+    };
+}
+
 } // namespace noteahead

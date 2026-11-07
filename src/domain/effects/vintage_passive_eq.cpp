@@ -241,4 +241,16 @@ std::string VintagePassiveEq::typeId() const
     return typeIdString();
 }
 
+std::vector<std::string> VintagePassiveEq::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLowBoost().toStdString(),
+        NahdXml::xmlKeyHighBoost().toStdString(),
+        NahdXml::xmlKeyLowAtten().toStdString(),
+        NahdXml::xmlKeyHighAtten().toStdString(),
+        NahdXml::xmlKeyBandwidth().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -156,6 +156,7 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
+    std::vector<std::string> modulationPriority() const override;
 
     std::vector<MidiCcController> deviceMidiCcControllers() const override;
 

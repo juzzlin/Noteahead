@@ -74,6 +74,11 @@ private slots:
     void test_deserialize_unknownDevice_loadedAgain_shouldNotAccumulate();
     void test_serialize_unknownDevice_shouldWriteItBackUnchanged();
     void test_serialize_unknownDevice_slotTakenByARealDevice_shouldBeForgotten();
+    void test_rankModulationParameters_priority_shouldComeFirstAndTheRestFollow();
+    void test_rankModulationParameters_taken_shouldBeSkipped();
+    void test_rankModulationParameters_allTaken_shouldFallBackToTheTop();
+    void test_rankModulationParameters_groupedKeys_shouldMatchByWhatFollowsThePrefix();
+    void test_modulationPriority_everyDevice_shouldNameItsOwnParameters();
 };
 
 } // namespace noteahead

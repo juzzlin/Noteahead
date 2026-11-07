@@ -204,4 +204,13 @@ void StereoEnhancer::sync()
     syncParameters();
 }
 
+std::vector<std::string> StereoEnhancer::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeySpread().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

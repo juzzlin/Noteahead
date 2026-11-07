@@ -127,4 +127,13 @@ void BitCrusher::reset()
     m_heldRight = 0.0;
 }
 
+std::vector<std::string> BitCrusher::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeySampleRate().toStdString(),
+        NahdXml::xmlKeyMix().toStdString()
+    };
+}
+
 } // namespace noteahead

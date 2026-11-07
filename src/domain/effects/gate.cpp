@@ -186,4 +186,15 @@ void Gate::updateCoefficients()
     m_detectorCoefficient = coefficientFor(DetectorReleaseMs, m_sampleRate);
 }
 
+std::vector<std::string> Gate::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyRange().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyAttack().toStdString()
+    };
+}
+
 } // namespace noteahead

@@ -1094,4 +1094,21 @@ void StringVoiceV3Device::syncParameters()
     m_ensemble.setMode(m_ensembleMode);
 }
 
+std::vector<std::string> StringVoiceV3Device::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyVoiceBalance().toStdString(),
+        NahdXml::xmlKeyVibratoDepth().toStdString(),
+        NahdXml::xmlKeyVibratoRate().toStdString(),
+        NahdXml::xmlKeyStringsTone().toStdString(),
+        NahdXml::xmlKeyStringsBalance().toStdString(),
+        NahdXml::xmlKeyStringsAttack().toStdString(),
+        NahdXml::xmlKeyStringsRelease().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString(),
+        NahdXml::xmlKeyPanSpread().toStdString()
+    };
+}
+
 } // namespace noteahead

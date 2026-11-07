@@ -56,4 +56,13 @@ void Panner::sync()
     }
 }
 
+std::vector<std::string> Panner::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyPan().toStdString(),
+        NahdXml::xmlKeyWidth().toStdString()
+    };
+}
+
 } // namespace noteahead
