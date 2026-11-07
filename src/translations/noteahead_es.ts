@@ -5305,245 +5305,245 @@
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Aceptar</translation>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Beater</name>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation>Maza</translation>
     </message>
     <message>
         <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
-        <translation type="unfinished"></translation>
+        <translation>De fieltro a plástico duro o madera. Una maza dura alcanza los modos altos y hace un clic más agudo y corto.</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic</translation>
     </message>
     <message>
         <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
-        <translation type="unfinished"></translation>
+        <translation>El clic de la maza. Crece más rápido que el golpe, así que un bombo suave es casi todo golpe sordo.</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Posición</translation>
+        <translation>Posición</translation>
     </message>
     <message>
         <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dónde golpea la maza: el centro da la fundamental, fuera del centro más armónicos.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Envelope</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">Envolvente de amplitud</translation>
+        <translation>Envolvente de amplitud</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Ataque</translation>
+        <translation>Ataque</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Retención</translation>
+        <translation>Retención</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Caída</translation>
+        <translation>Caída</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Sostenido</translation>
+        <translation>Sostenido</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Liberación</translation>
+        <translation>Liberación</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Curva</translation>
+        <translation>Curva</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Front</name>
     <message>
         <source>Front Head &amp; Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Parche frontal y micrófono</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Parche frontal</translation>
     </message>
     <message>
         <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Con agujero o quitado abajo, cerrado arriba: el retumbo largo y el batido de dos parches.</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>Afinación frontal</translation>
     </message>
     <message>
         <source>The pitch of the front head against the batter head.</source>
-        <translation type="unfinished"></translation>
+        <translation>El tono del parche frontal respecto al parche de golpe.</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Casco</translation>
     </message>
     <message>
         <source>The knock of the shell, a few times above the pitch of the head.</source>
-        <translation type="unfinished"></translation>
+        <translation>El golpe del casco, unas veces por encima del tono del parche.</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Micrófono</translation>
     </message>
     <message>
         <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dentro del tambor junto a la maza abajo, fuera del parche frontal arriba: ataque frente a retumbo.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Ganancia</translation>
+        <translation>Ganancia</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Fader</translation>
+        <translation>Fader</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Paneo</translation>
+        <translation>Paneo</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Drive</translation>
+        <translation>Drive</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocidad</translation>
+        <translation>Velocidad</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuánto más suaves suenan las notas suaves. Un golpe suave también empieza menos agudo y hace menos clic, como un bombo real.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Corte del LPF</translation>
+        <translation>Corte del LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Corte del HPF</translation>
+        <translation>Corte del HPF</translation>
     </message>
     <message>
         <source>Chromatic</source>
-        <translation type="unfinished">Cromático</translation>
+        <translation>Cromático</translation>
     </message>
     <message>
         <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
-        <translation type="unfinished">Toca el tambor como un sampler: una octava arriba suena una octava más aguda y la mitad de larga</translation>
+        <translation>Toca el tambor como un sampler: una octava arriba suena una octava más aguda y la mitad de larga</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Head</name>
     <message>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Parche</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">Afinación</translation>
+        <translation>Afinación</translation>
     </message>
     <message>
         <source>The pitch the head settles to after the hit.</source>
-        <translation type="unfinished"></translation>
+        <translation>El tono en el que se asienta el parche tras el golpe.</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Caída</translation>
+        <translation>Caída</translation>
     </message>
     <message>
         <source>How long the head rings with no damping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuánto suena el parche sin amortiguación.</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">Tono</translation>
+        <translation>Tono</translation>
     </message>
     <message>
         <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuánto suenan los modos altos frente a la fundamental: bajo es oscuro y redondo, alto es brillante.</translation>
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>Caída de tono</translation>
     </message>
     <message>
         <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuánto más agudo empieza un golpe fuerte antes de que el parche se asiente. Sigue al golpe: uno suave empieza menos agudo.</translation>
     </message>
     <message>
         <source>Damping</source>
-        <translation type="unfinished">Amortiguación</translation>
+        <translation>Amortiguación</translation>
     </message>
     <message>
         <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un cojín contra los parches: acorta el tambor como en uno real, más rápido de lo que se apagaría solo.</translation>
     </message>
     <message>
         <source>Ring</source>
-        <translation type="unfinished">Ring</translation>
+        <translation>Resonancia</translation>
     </message>
     <message>
         <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
-        <translation type="unfinished"></translation>
+        <translation>Los modos altos del parche: la resonancia amplia sobre el golpe sordo que dura más que la maza.</translation>
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Caída de resonancia</translation>
     </message>
     <message>
         <source>How long that ring lasts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuánto dura esa resonancia.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preajuste:</translation>
+        <translation>Preajuste:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Guardar</translation>
+        <translation>Guardar</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Eliminar</translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>Acoustic physical modelling bass drum synthesizer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sintetizador acústico de bombo por modelado físico</translation>
     </message>
 </context>
 <context>

@@ -5305,245 +5305,245 @@
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Peruuta</translation>
+        <translation>Peruuta</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Beater</name>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapula</translation>
     </message>
     <message>
         <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Huovasta kovaan muoviin tai puuhun. Kova kapula yltää korkeampiin moodeihin ja napsahtaa korkeammalta ja lyhyemmin.</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Napsahdus</translation>
     </message>
     <message>
         <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapulan napsahdus. Se kasvaa lyöntiä nopeammin, joten hiljainen bassorumpu on lähes pelkkää tömähdystä.</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Sijainti</translation>
+        <translation>Sijainti</translation>
     </message>
     <message>
         <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mihin kapula osuu: keskikohta antaa perustaajuuden, sivummalla enemmän yläsävelmiä.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Envelope</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">Amplitudiverhokäyrä</translation>
+        <translation>Amplitudiverhokäyrä</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Attack</translation>
+        <translation>Attack</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Hold</translation>
+        <translation>Hold</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decay</translation>
+        <translation>Decay</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Sustain</translation>
+        <translation>Sustain</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Käyrä</translation>
+        <translation>Käyrä</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Front</name>
     <message>
         <source>Front Head &amp; Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Etukalvo ja mikrofoni</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Etukalvo</translation>
     </message>
     <message>
         <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alhaalla reiällinen tai poistettu, ylhäällä umpinainen: pitkä jylinä ja kahden kalvon huojunta.</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>Etukalvon viritys</translation>
     </message>
     <message>
         <source>The pitch of the front head against the batter head.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etukalvon sävelkorkeus lyöntikalvoon nähden.</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Runko</translation>
     </message>
     <message>
         <source>The knock of the shell, a few times above the pitch of the head.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rungon kopahdus, muutaman kerran kalvon sävelkorkeuden yläpuolella.</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Mikrofoni</translation>
     </message>
     <message>
         <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alhaalla rummun sisällä kapulan vieressä, ylhäällä etukalvon edessä: isku vastaan jylinä.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Yleiset</translation>
+        <translation>Yleiset</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Vahvistus</translation>
+        <translation>Vahvistus</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Liuku</translation>
+        <translation>Liuku</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorointi</translation>
+        <translation>Panorointi</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Drive</translation>
+        <translation>Drive</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Voimakkuus</translation>
+        <translation>Voimakkuus</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka paljon hiljaisemmin hiljaiset nuotit soivat. Hiljainen lyönti myös alkaa vähemmän korkealta ja napsahtaa vähemmän, kuten oikeassa bassorummussa.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">LPF cutoff</translation>
+        <translation>LPF cutoff</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">HPF cutoff</translation>
+        <translation>HPF cutoff</translation>
     </message>
     <message>
         <source>Chromatic</source>
-        <translation type="unfinished">Kromaattinen</translation>
+        <translation>Kromaattinen</translation>
     </message>
     <message>
         <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
-        <translation type="unfinished">Soittaa rumpua kuin sampleri: oktaavia ylempänä oktaavin korkeammalta ja puolet lyhyemmin</translation>
+        <translation>Soittaa rumpua kuin sampleri: oktaavia ylempänä oktaavin korkeammalta ja puolet lyhyemmin</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Head</name>
     <message>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalvo</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">Viritys</translation>
+        <translation>Viritys</translation>
     </message>
     <message>
         <source>The pitch the head settles to after the hit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sävelkorkeus, johon kalvo asettuu lyönnin jälkeen.</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decay</translation>
+        <translation>Decay</translation>
     </message>
     <message>
         <source>How long the head rings with no damping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka kauan kalvo soi vaimentamatta.</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation>Sävy</translation>
     </message>
     <message>
         <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka kauan ylemmät moodit soivat perustaajuuteen nähden: matala on tumma ja pyöreä, korkea kirkas.</translation>
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>Sävelkorkeuden lasku</translation>
     </message>
     <message>
         <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka korkealta kova lyönti alkaa ennen kuin kalvo asettuu. Seuraa lyöntiä: hiljainen alkaa vähemmän korkealta.</translation>
     </message>
     <message>
         <source>Damping</source>
-        <translation type="unfinished">Vaimennus</translation>
+        <translation>Vaimennus</translation>
     </message>
     <message>
         <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tyyny kalvoja vasten: lyhentää rumpua kuten oikeassa, nopeammin kuin se vaimenisi itsestään.</translation>
     </message>
     <message>
         <source>Ring</source>
-        <translation type="unfinished">Ring</translation>
+        <translation>Soiminen</translation>
     </message>
     <message>
         <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalvon ylemmät moodit: laaja soiminen tömähdyksen yllä, joka kestää kapulaa pidempään.</translation>
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Soimisen decay</translation>
     </message>
     <message>
         <source>How long that ring lasts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka kauan tuo soiminen kestää.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Esiasetus:</translation>
+        <translation>Esiasetus:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Tallenna</translation>
+        <translation>Tallenna</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Poista</translation>
+        <translation>Poista</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>Acoustic physical modelling bass drum synthesizer</source>
-        <translation type="unfinished"></translation>
+        <translation>Akustinen fysikaalisesti mallinnettu bassorumpusyntetisaattori</translation>
     </message>
 </context>
 <context>

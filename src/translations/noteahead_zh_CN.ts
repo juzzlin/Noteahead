@@ -5304,245 +5304,245 @@
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Beater</name>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓槌</translation>
     </message>
     <message>
         <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
-        <translation type="unfinished"></translation>
+        <translation>从毛毡到硬塑料或木头。硬鼓槌能激发更高的模态，敲击声更高更短。</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>敲击声</translation>
     </message>
     <message>
         <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓槌的敲击声。它比击打增长得更快，所以轻击的底鼓几乎只有闷响。</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓槌击打的位置：中心给出基音，偏离中心则泛音更多。</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Envelope</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">音量包络</translation>
+        <translation>音量包络</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保持</translation>
+        <translation>保持</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">延持</translation>
+        <translation>延持</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">释音</translation>
+        <translation>释音</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Front</name>
     <message>
         <source>Front Head &amp; Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>前鼓皮与话筒</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation>前鼓皮</translation>
     </message>
     <message>
         <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低时开孔或拆除，最高时完整：长长的轰鸣和两张鼓皮的拍频。</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>前鼓皮调音</translation>
     </message>
     <message>
         <source>The pitch of the front head against the batter head.</source>
-        <translation type="unfinished"></translation>
+        <translation>前鼓皮相对击打鼓皮的音高。</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓身</translation>
     </message>
     <message>
         <source>The knock of the shell, a few times above the pitch of the head.</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓身的敲击声，位于鼓皮音高之上数倍。</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>话筒</translation>
     </message>
     <message>
         <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低时在鼓内靠近鼓槌，最高时在前鼓皮外：起音与轰鸣之间。</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">全局</translation>
+        <translation>全局</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">增益</translation>
+        <translation>增益</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">推子</translation>
+        <translation>推子</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">驱动</translation>
+        <translation>驱动</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">力度</translation>
+        <translation>力度</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
-        <translation type="unfinished"></translation>
+        <translation>弱音符弱多少。轻击起音的音高也较低、敲击声较小，和真实底鼓一样。</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>Chromatic</source>
-        <translation type="unfinished">半音</translation>
+        <translation>半音模式</translation>
     </message>
     <message>
         <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
-        <translation type="unfinished">像采样器一样演奏鼓：高一个八度即音高升高一个八度、时长减半</translation>
+        <translation>像采样器一样演奏鼓：高一个八度即音高升高一个八度、时长减半</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Head</name>
     <message>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓皮</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">调音</translation>
+        <translation>调音</translation>
     </message>
     <message>
         <source>The pitch the head settles to after the hit.</source>
-        <translation type="unfinished"></translation>
+        <translation>击打后鼓皮稳定下来的音高。</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>How long the head rings with no damping.</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓皮在无阻尼时鸣响的时间。</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation>音色</translation>
     </message>
     <message>
         <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
-        <translation type="unfinished"></translation>
+        <translation>高阶模态相对基音的鸣响时间：低则暗而圆润，高则明亮。</translation>
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>音高下滑</translation>
     </message>
     <message>
         <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
-        <translation type="unfinished"></translation>
+        <translation>重击在鼓皮稳定前起音偏高多少。随击打而变：轻击偏高较少。</translation>
     </message>
     <message>
         <source>Damping</source>
-        <translation type="unfinished">阻尼</translation>
+        <translation>阻尼</translation>
     </message>
     <message>
         <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
-        <translation type="unfinished"></translation>
+        <translation>贴在鼓皮上的枕头：像真鼓一样缩短鼓声，比自然衰减更快。</translation>
     </message>
     <message>
         <source>Ring</source>
-        <translation type="unfinished">环形</translation>
+        <translation>余振</translation>
     </message>
     <message>
         <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
-        <translation type="unfinished"></translation>
+        <translation>鼓皮的高阶模态：闷响之上、比鼓槌持续更久的宽广余振。</translation>
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>余振衰减</translation>
     </message>
     <message>
         <source>How long that ring lasts.</source>
-        <translation type="unfinished"></translation>
+        <translation>余振持续的时间。</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">预设：</translation>
+        <translation>预设：</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的自定义预设</translation>
     </message>
     <message>
         <source>Acoustic physical modelling bass drum synthesizer</source>
-        <translation type="unfinished"></translation>
+        <translation>原声物理建模底鼓合成器</translation>
     </message>
 </context>
 <context>

@@ -5306,245 +5306,245 @@
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Beater</name>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation>Bijak</translation>
     </message>
     <message>
         <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Od filcu po twardy plastik lub drewno. Twardy bijak sięga wyższych modów i klika wyżej i krócej.</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Klik</translation>
     </message>
     <message>
         <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klik bijaka. Rośnie szybciej niż cios, więc cicha stopa to prawie samo uderzenie.</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Pozycja</translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie trafia bijak: środek daje ton podstawowy, poza środkiem więcej alikwotów.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Envelope</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">Obwiednia amplitudy</translation>
+        <translation>Obwiednia amplitudy</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Przytrzymanie</translation>
+        <translation>Przytrzymanie</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Podtrzymanie</translation>
+        <translation>Podtrzymanie</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Zwolnienie</translation>
+        <translation>Zwolnienie</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Krzywa</translation>
+        <translation>Krzywa</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Front</name>
     <message>
         <source>Front Head &amp; Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Naciąg rezonansowy i mikrofon</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Naciąg rezonansowy</translation>
     </message>
     <message>
         <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Na dole z otworem lub zdjęty, na górze pełny: długie dudnienie i dudnienia dwóch naciągów.</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>Strojenie naciągu rezonansowego</translation>
     </message>
     <message>
         <source>The pitch of the front head against the batter head.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wysokość naciągu rezonansowego względem naciągu uderzanego.</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Korpus</translation>
     </message>
     <message>
         <source>The knock of the shell, a few times above the pitch of the head.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stuk korpusu, kilka razy powyżej wysokości naciągu.</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Mikrofon</translation>
     </message>
     <message>
         <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
-        <translation type="unfinished"></translation>
+        <translation>Na dole w bębnie przy bijaku, na górze przed naciągiem rezonansowym: atak kontra dudnienie.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Wzmocnienie</translation>
+        <translation>Wzmocnienie</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Suwak</translation>
+        <translation>Suwak</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Drive</translation>
+        <translation>Drive</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocity</translation>
+        <translation>Velocity</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
-        <translation type="unfinished"></translation>
+        <translation>O ile ciszej grają cichsze nuty. Cichy cios zaczyna się też mniej wysoko i klika mniej, jak w prawdziwej stopie.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>Chromatic</source>
-        <translation type="unfinished">Chromatyczny</translation>
+        <translation>Chromatycznie</translation>
     </message>
     <message>
         <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
-        <translation type="unfinished">Gra bęben jak sampler: oktawę wyżej brzmi oktawę wyżej i dwa razy krócej</translation>
+        <translation>Gra bęben jak sampler: oktawę wyżej brzmi oktawę wyżej i dwa razy krócej</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Head</name>
     <message>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Naciąg</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">Strojenie</translation>
+        <translation>Strojenie</translation>
     </message>
     <message>
         <source>The pitch the head settles to after the hit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wysokość, na której naciąg ustala się po ciosie.</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>How long the head rings with no damping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jak długo naciąg brzmi bez tłumienia.</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jak długo wyższe mody brzmią względem podstawowego: nisko jest ciemno i okrągło, wysoko jasno.</translation>
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>Spadek wysokości</translation>
     </message>
     <message>
         <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jak wysoko zaczyna się mocny cios, zanim naciąg się ustali. Podąża za ciosem: cichy zaczyna się mniej wysoko.</translation>
     </message>
     <message>
         <source>Damping</source>
-        <translation type="unfinished">Tłumienie</translation>
+        <translation>Tłumienie</translation>
     </message>
     <message>
         <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
-        <translation type="unfinished"></translation>
+        <translation>Poduszka przy naciągach: skraca bęben jak w prawdziwym, szybciej niż wygasłby sam.</translation>
     </message>
     <message>
         <source>Ring</source>
-        <translation type="unfinished">Ring</translation>
+        <translation>Wybrzmiewanie</translation>
     </message>
     <message>
         <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyższe mody naciągu: szerokie wybrzmiewanie nad uderzeniem, które trwa dłużej niż bijak.</translation>
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Zanik wybrzmiewania</translation>
     </message>
     <message>
         <source>How long that ring lasts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jak długo trwa to wybrzmiewanie.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preset:</translation>
+        <translation>Preset:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz bieżące ustawienia jako własny preset</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wybrany własny preset</translation>
     </message>
     <message>
         <source>Acoustic physical modelling bass drum synthesizer</source>
-        <translation type="unfinished"></translation>
+        <translation>Akustyczny syntezator stopy z modelowaniem fizycznym</translation>
     </message>
 </context>
 <context>

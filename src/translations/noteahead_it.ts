@@ -5305,245 +5305,245 @@
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Beater</name>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation>Battente</translation>
     </message>
     <message>
         <source>Felt to hard plastic or wood. A hard beater reaches the higher modes and clicks higher and shorter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dal feltro alla plastica dura o al legno. Un battente duro raggiunge i modi più alti e fa un clic più acuto e breve.</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic</translation>
     </message>
     <message>
         <source>The click of the beater. It grows faster than the hit, so a soft kick is nearly all thump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il clic del battente. Cresce più in fretta del colpo, quindi una grancassa suonata piano è quasi solo tonfo.</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Posizione</translation>
+        <translation>Posizione</translation>
     </message>
     <message>
         <source>Where the beater lands: the centre gives the fundamental, off centre more of the overtones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dove colpisce il battente: il centro dà la fondamentale, fuori centro più armonici.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Envelope</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">Inviluppo di ampiezza</translation>
+        <translation>Inviluppo di ampiezza</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Attacco</translation>
+        <translation>Attacco</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Tenuta</translation>
+        <translation>Tenuta</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decadimento</translation>
+        <translation>Decadimento</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Sostegno</translation>
+        <translation>Sostegno</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Rilascio</translation>
+        <translation>Rilascio</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Curva</translation>
+        <translation>Curva</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Front</name>
     <message>
         <source>Front Head &amp; Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Pelle risonante e microfono</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Pelle risonante</translation>
     </message>
     <message>
         <source>Ported or removed at the bottom, solid at the top: the long boom and the beating of two heads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Forata o tolta in basso, piena in alto: il lungo rimbombo e il battimento di due pelli.</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>Accordatura pelle risonante</translation>
     </message>
     <message>
         <source>The pitch of the front head against the batter head.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;intonazione della pelle risonante rispetto alla pelle battente.</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Fusto</translation>
     </message>
     <message>
         <source>The knock of the shell, a few times above the pitch of the head.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il colpo del fusto, alcune volte sopra l&apos;intonazione della pelle.</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Microfono</translation>
     </message>
     <message>
         <source>Inside the drum by the beater at the bottom, outside the front head at the top: attack against boom.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dentro il tamburo vicino al battente in basso, fuori dalla pelle risonante in alto: attacco contro rimbombo.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globale</translation>
+        <translation>Globale</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Guadagno</translation>
+        <translation>Guadagno</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Fader</translation>
+        <translation>Fader</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panning</translation>
+        <translation>Panning</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Drive</translation>
+        <translation>Drive</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocity</translation>
+        <translation>Velocity</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quanto più piano suonano le note piano. Un colpo piano parte anche meno acuto e fa meno clic, come una vera grancassa.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Taglio LPF</translation>
+        <translation>Taglio LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Taglio HPF</translation>
+        <translation>Taglio HPF</translation>
     </message>
     <message>
         <source>Chromatic</source>
-        <translation type="unfinished">Cromatico</translation>
+        <translation>Cromatico</translation>
     </message>
     <message>
         <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
-        <translation type="unfinished">Suona il tamburo come un campionatore: un&apos;ottava sopra suona un&apos;ottava più acuto e lungo la metà</translation>
+        <translation>Suona il tamburo come un campionatore: un&apos;ottava sopra suona un&apos;ottava più acuto e lungo la metà</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Head</name>
     <message>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Pelle</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">Accordatura</translation>
+        <translation>Accordatura</translation>
     </message>
     <message>
         <source>The pitch the head settles to after the hit.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;intonazione su cui la pelle si assesta dopo il colpo.</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decadimento</translation>
+        <translation>Decadimento</translation>
     </message>
     <message>
         <source>How long the head rings with no damping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quanto suona la pelle senza smorzamento.</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">Tono</translation>
+        <translation>Tono</translation>
     </message>
     <message>
         <source>How long the higher modes ring against the fundamental: low is dark and round, high is bright.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quanto suonano i modi alti rispetto alla fondamentale: basso è scuro e rotondo, alto è brillante.</translation>
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation>Calo di intonazione</translation>
     </message>
     <message>
         <source>How sharp a hard hit starts before the head settles. Follows the hit: a soft one starts less sharp.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quanto acuto parte un colpo forte prima che la pelle si assesti. Segue il colpo: uno piano parte meno acuto.</translation>
     </message>
     <message>
         <source>Damping</source>
-        <translation type="unfinished">Smorzamento</translation>
+        <translation>Smorzamento</translation>
     </message>
     <message>
         <source>A pillow against the heads: shortens the drum the way a real one does, faster than it would die on its own.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un cuscino contro le pelli: accorcia il tamburo come in uno vero, più rapidamente di quanto si spegnerebbe da solo.</translation>
     </message>
     <message>
         <source>Ring</source>
-        <translation type="unfinished">Ring</translation>
+        <translation>Risonanza</translation>
     </message>
     <message>
         <source>The upper modes of the head: the broad ring above the thump that outlasts the beater.</source>
-        <translation type="unfinished"></translation>
+        <translation>I modi alti della pelle: l&apos;ampia risonanza sopra il tonfo che dura più del battente.</translation>
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Decadimento risonanza</translation>
     </message>
     <message>
         <source>How long that ring lasts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quanto dura quella risonanza.</translation>
     </message>
 </context>
 <context>
     <name>KickSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preset:</translation>
+        <translation>Preset:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva le impostazioni attuali come preset personale</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Elimina</translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina il preset personale selezionato</translation>
     </message>
     <message>
         <source>Acoustic physical modelling bass drum synthesizer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sintetizzatore acustico di grancassa a modellazione fisica</translation>
     </message>
 </context>
 <context>
