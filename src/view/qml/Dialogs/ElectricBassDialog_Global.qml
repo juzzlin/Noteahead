@@ -57,7 +57,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Velocity")
+        label: qsTr("Velocity Sensitivity")
         value: electricBassController.velocitySensitivity
         onMoved: v => electricBassController.velocitySensitivity = v
         Layout.fillWidth: true
@@ -73,6 +73,21 @@ ColumnLayout {
         suffix: ""
         value: electricBassController.pitchBendRange
         onMoved: v => electricBassController.pitchBendRange = Math.round(v)
+        Layout.fillWidth: true
+    }
+    FilterKnob {
+        label: qsTr("LPF Cutoff")
+        controller: electricBassController
+        value: electricBassController.lpfCutoff
+        onMoved: v => electricBassController.lpfCutoff = v
+        Layout.fillWidth: true
+    }
+    FilterKnob {
+        label: qsTr("HPF Cutoff")
+        controller: electricBassController
+        isHpf: true
+        value: electricBassController.hpfCutoff
+        onMoved: v => electricBassController.hpfCutoff = v
         Layout.fillWidth: true
     }
     OctaveKnob {

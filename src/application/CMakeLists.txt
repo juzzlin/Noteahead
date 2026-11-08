@@ -38,6 +38,7 @@ set(HEADER_FILES
     service/copy_manager.hpp
     service/device_service.hpp
     service/editor_service.hpp
+    service/electric_bass_preview.hpp
     service/jack_service.hpp
     service/keyboard_service.hpp
     service/kick_synth_preview.hpp
@@ -109,6 +110,7 @@ set(SOURCE_FILES
     service/copy_manager.cpp
     service/device_service.cpp
     service/editor_service.cpp
+    service/electric_bass_preview.cpp
     service/jack_service.cpp
     service/keyboard_service.cpp
     service/kick_synth_preview.cpp

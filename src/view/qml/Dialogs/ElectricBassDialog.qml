@@ -75,6 +75,12 @@ AnimatedDialog {
             Layout.fillWidth: true
         }
 
+        // Under the presets, as the Kick Synth puts its own: what the knobs below are being set
+        // against, so it stays put while they scroll
+        ElectricBassDialog_Waveform {
+            dialogVisible: root.visible
+        }
+
         // Horizontal separator under presets
         Rectangle {
             Layout.fillWidth: true

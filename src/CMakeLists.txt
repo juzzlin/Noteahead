@@ -156,6 +156,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Pluck.qml
     ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_String.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Waveform.qml
     ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
     ${QML_BASE_DIR}/Dialogs/ClipperDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml

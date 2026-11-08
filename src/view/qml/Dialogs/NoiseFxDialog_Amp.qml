@@ -67,7 +67,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Velocity")
+        label: qsTr("Velocity Sensitivity")
         value: noiseFxController.velocitySensitivity
         onMoved: v => noiseFxController.velocitySensitivity = v
         Layout.fillWidth: true

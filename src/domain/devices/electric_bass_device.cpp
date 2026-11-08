@@ -76,11 +76,13 @@ const std::vector<CcParameter> & ccParameters()
         { .controller = static_cast<uint8_t>(Controller::SoundController2), .label = "Tone", .key = Xml::xmlKeyTone().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::SoundController3), .label = "Release", .key = Xml::xmlKeyRelease().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::SoundController4), .label = "Finger", .key = Xml::xmlKeyHardness().toStdString() },
-        { .controller = static_cast<uint8_t>(Controller::SoundController5), .label = "Brightness", .key = Xml::xmlKeyBrightness().toStdString() },
+        { .controller = static_cast<uint8_t>(Controller::SoundController9), .label = "Brightness", .key = Xml::xmlKeyBrightness().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::SoundController6), .label = "Sustain", .key = Xml::xmlKeySustain().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::SoundController7), .label = "Neck", .key = Xml::xmlKeyNeckPickup().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::SoundController8), .label = "Bridge", .key = Xml::xmlKeyBridgePickup().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::EffectControl1MSB), .label = "Velocity Sensitivity", .key = Xml::xmlKeyVelocitySensitivity().toStdString() },
+        { .controller = static_cast<uint8_t>(Controller::SoundController5), .label = "LPF", .key = Xml::xmlKeyLpfCutoff().toStdString() },
+        { .controller = static_cast<uint8_t>(Controller::GeneralPurpose6), .label = "HPF", .key = Xml::xmlKeyHpfCutoff().toStdString() },
     };
     return parameters;
 }
@@ -114,10 +116,16 @@ ElectricBassDevice::ElectricBassDevice(std::string name)
     addKnob(Xml::xmlKeyBridgePickup(), 1.0f);
     addKnob(Xml::xmlKeyTone(), 0.9f);
     addKnob(Xml::xmlKeyVelocitySensitivity(), 0.7f);
+    addKnob(Xml::xmlKeyLpfCutoff(), 1.0f);
+    addKnob(Xml::xmlKeyHpfCutoff(), 0.0f);
     addParameter(Parameter(Xml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete));
+
+    m_lpf.setMode(CascadedSvf::Mode::LowPass);
+    m_hpf.setMode(CascadedSvf::Mode::HighPass);
 
     ElectricBassDevice::syncParameters();
 
+    DeviceParameterDisplay::filters(*this);
     setParameterDisplay(Xml::xmlKeyPosition().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "mm", .min = MinPluckMm, .max = MaxPluckMm, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Position") });
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyHardness(), QT_TRANSLATE_NOOP("ParameterDisplay", "Finger"));
     setParameterDisplay(Xml::xmlKeySustain().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "s", .min = MinSustainSeconds, .max = MaxSustainSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Sustain") });
@@ -370,6 +378,10 @@ void ElectricBassDevice::processAudio(AudioContext & context)
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
     updateTone(sampleRate);
+    m_lpf.setSampleRate(context.sampleRate);
+    m_hpf.setSampleRate(context.sampleRate);
+    m_lpf.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_hpf.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
 
     const double gain = linearGainInternal() * OutputGain;
@@ -390,7 +402,7 @@ void ElectricBassDevice::processAudio(AudioContext & context)
         for (auto && voice : m_voices) {
             mono += voice.string.nextSample();
         }
-        mono = m_tone.process(mono) * gain;
+        mono = m_hpf.process(m_lpf.process(m_tone.process(mono))) * gain;
 
         double left = 0.0;
         double right = 0.0;
@@ -434,6 +446,8 @@ void ElectricBassDevice::resetDeviceAudio()
         voice.note.reset();
     }
     m_tone.reset();
+    m_lpf.reset();
+    m_hpf.reset();
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
     m_bend = m_bendTarget = 1.0;
@@ -575,6 +589,8 @@ void ElectricBassDevice::syncParameters()
         voice.string.setSettings(m_stringSettings);
     }
     m_velocitySensitivity = value(Xml::xmlKeyVelocitySensitivity());
+    m_lpfCutoff = value(Xml::xmlKeyLpfCutoff());
+    m_hpfCutoff = value(Xml::xmlKeyHpfCutoff());
     if (const auto p = parameter(Xml::xmlKeyPitchBendRange().toStdString()); p) {
         m_pitchBendRange = static_cast<int>(p->get().xmlValue());
     }
@@ -590,7 +606,9 @@ std::vector<std::string> ElectricBassDevice::modulationPriority() const
         Xml::xmlKeyRelease().toStdString(),
         Xml::xmlKeyHardness().toStdString(),
         Xml::xmlKeyBrightness().toStdString(),
-        Xml::xmlKeySustain().toStdString()
+        Xml::xmlKeySustain().toStdString(),
+        Xml::xmlKeyLpfCutoff().toStdString(),
+        Xml::xmlKeyHpfCutoff().toStdString()
     };
 }
 

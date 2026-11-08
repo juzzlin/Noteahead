@@ -79,6 +79,8 @@ const std::vector<SynthPreset> & ElectricBassPresets::presets()
         { .name = "Init", .parameters = {} },
         // A 5-string on its neck pickup with the tone rolled back, plucked between the pickups
         { .name = "Dark Neck", .parameters = parameters({ .pluckMm = 141.0, .neck = 1.0f, .bridge = 0.08f, .tone = 0.26f, .gainDb = 3.5 }) },
+        // Neck pickup, tone off, plucked far up the neck with the flesh of the finger: all low end
+        { .name = "Dub", .parameters = parameters({ .pluckMm = 250.0, .fingerMm = 22.0, .sustainSeconds = 15.0, .lossPerHz = 0.005, .bridge = 0.0f, .tone = 0.1f, .gainDb = 6.0 }) },
         // Old flatwounds, plucked over the neck with the flesh of the finger: the thump of the sixties
         { .name = "Flatwound", .parameters = parameters({ .pluckMm = 220.0, .fingerMm = 20.0, .sustainSeconds = 8.0, .lossPerHz = 0.007, .releaseSeconds = 0.06, .bridge = 0.0f, .tone = 0.4f, .gainDb = 5.2 }) },
         // The bridge pickup up, plucked hard right by it: the growl of a fretless-era solo
@@ -89,8 +91,16 @@ const std::vector<SynthPreset> & ElectricBassPresets::presets()
         { .name = "Jazz Open", .parameters = parameters({ .pluckMm = 91.0, .neck = 0.75f, .tone = 1.0f, .gainDb = 1.3 }) },
         // The edge of the hand on the strings by the bridge: short and dull, for staccato lines
         { .name = "Muted", .parameters = parameters({ .pluckMm = 100.0, .fingerMm = 15.0, .sustainSeconds = 2.0, .lossPerHz = 0.008, .releaseSeconds = 0.04, .tone = 0.6f, .gainDb = 1.8 }) },
+        // A P-Bass: one split pickup between the Jazz's two, its resonance lower, plucked over it
+        { .name = "P-Bass", .parameters = parameters({ .pluckMm = 125.0, .neck = 1.0f, .bridge = 0.15f, .tone = 0.75f, .gainDb = 2.4 }) },
+        // A P-Bass with old flatwounds and the tone half down: the round, short note of soul records
+        { .name = "P-Bass Flats", .parameters = parameters({ .pluckMm = 130.0, .fingerMm = 14.0, .sustainSeconds = 10.0, .lossPerHz = 0.006, .releaseSeconds = 0.08, .neck = 1.0f, .bridge = 0.15f, .tone = 0.55f, .gainDb = 3.9 }) },
+        // A P-Bass played hard near the bridge, the hardest finger standing in for a pick
+        { .name = "P-Bass Pick", .parameters = parameters({ .pluckMm = 90.0, .fingerMm = 3.0, .lossPerHz = 0.0018, .releaseSeconds = 0.08, .neck = 1.0f, .bridge = 0.15f, .tone = 0.85f, .gainDb = -2.7 }) },
         // New roundwounds, a hard fingertip and the tone open: bright and long
         { .name = "Roundwound", .parameters = parameters({ .pluckMm = 100.0, .fingerMm = 5.0, .sustainSeconds = 30.0, .lossPerHz = 0.0012, .tone = 1.0f, .gainDb = -4.3 }) },
+        // The thumb over the end of the neck: soft and deep, with both pickups
+        { .name = "Thumb", .parameters = parameters({ .pluckMm = 200.0, .fingerMm = 25.0, .neck = 1.0f, .bridge = 0.5f, .tone = 0.7f, .gainDb = 4.8 }) },
     };
     return presets;
 }

@@ -170,7 +170,7 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         Knob {
-            label: qsTr("Velocity")
+            label: qsTr("Velocity Sensitivity")
             value: root.lfo.velocitySensitivity
             onMoved: value => root.lfo.velocitySensitivity = value
             ToolTip.visible: hovered

@@ -16,6 +16,7 @@
 #ifndef ELECTRIC_BASS_DEVICE_HPP
 #define ELECTRIC_BASS_DEVICE_HPP
 
+#include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/modal_bass_string.hpp"
 #include "../dsp/svf_filter.hpp"
@@ -126,6 +127,8 @@ private:
     std::array<Voice, StringCount> m_voices {};
 
     SvfFilter m_tone {};
+    CascadedSvf m_lpf {};
+    CascadedSvf m_hpf {};
     TrueStereoPanner m_panner {};
     DcBlocker m_dcBlockerL {};
     DcBlocker m_dcBlockerR {};
@@ -135,6 +138,8 @@ private:
     double m_toneQ { 0.0 };
     double m_toneSampleRate { 0.0 };
     float m_velocitySensitivity { 0.7f };
+    float m_lpfCutoff { 1.0f };
+    float m_hpfCutoff { 0.0f };
     int m_pitchBendRange { 2 };
     double m_bendTarget { 1.0 };
     double m_bend { 1.0 };

@@ -15,6 +15,7 @@
 
 #include "electric_bass_controller.hpp"
 
+#include "../../application/service/electric_bass_preview.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/electric_bass_device.hpp"
 #include "../../domain/devices/electric_bass_presets.hpp"
@@ -31,6 +32,8 @@ ElectricBassController::ElectricBassController(std::shared_ptr<ElectricBassDevic
   : DeviceController { parent }
   , m_device { std::move(device) }
 {
+    m_waveformTimer.setSingleShot(true);
+    connect(&m_waveformTimer, &QTimer::timeout, this, &ElectricBassController::renderWaveform);
     connectDeviceSignals();
 }
 
@@ -61,19 +64,6 @@ void ElectricBassController::setDevice(std::shared_ptr<ElectricBassDevice> devic
         emit deviceChanged();
         requestSettings();
     }
-}
-
-void ElectricBassController::connectDeviceSignals()
-{
-    if (!m_device) {
-        return;
-    }
-    connect(m_device.get(), &Device::parametersChanged, this, [this]() {
-        requestSettings();
-    });
-    connect(m_device.get(), &Device::dataChanged, this, [this]() {
-        requestSettings();
-    });
 }
 
 QStringList ElectricBassController::factoryPresetNames() const
@@ -207,8 +197,72 @@ void ElectricBassController::setPitchBendRange(int value)
     }
 }
 
+int ElectricBassController::lpfCutoff() const
+{
+    return knob(Xml::xmlKeyLpfCutoff());
+}
+
+void ElectricBassController::setLpfCutoff(int value)
+{
+    setKnob(Xml::xmlKeyLpfCutoff(), value);
+}
+
+int ElectricBassController::hpfCutoff() const
+{
+    return knob(Xml::xmlKeyHpfCutoff());
+}
+
+void ElectricBassController::setHpfCutoff(int value)
+{
+    setKnob(Xml::xmlKeyHpfCutoff(), value);
+}
+
+QVariantList ElectricBassController::waveformData() const
+{
+    return m_waveformData;
+}
+
+double ElectricBassController::waveformDuration() const
+{
+    return m_waveformDuration;
+}
+
+void ElectricBassController::setWaveformRequest(int peakCount, bool visible)
+{
+    const bool changed = peakCount != m_waveformPeakCount || visible != m_waveformVisible;
+    m_waveformPeakCount = peakCount;
+    m_waveformVisible = visible;
+    if (changed) {
+        scheduleWaveform();
+    }
+}
+
+void ElectricBassController::scheduleWaveform(int delayMs)
+{
+    if (!m_waveformVisible || m_waveformPeakCount <= 0) {
+        m_waveformTimer.stop();
+        return;
+    }
+    m_waveformTimer.setInterval(delayMs);
+    m_waveformTimer.start();
+}
+
+void ElectricBassController::renderWaveform()
+{
+    m_waveformTimer.stop();
+    if (!m_device || !m_waveformVisible || m_waveformPeakCount <= 0) {
+        return;
+    }
+
+    const auto preview = ElectricBassPreview::render(*m_device, m_waveformPeakCount, Constants::defaultSampleRate());
+    m_waveformData = preview.peaks;
+    m_waveformDuration = preview.durationSeconds;
+    emit waveformChanged();
+}
+
 void ElectricBassController::requestSettings()
 {
+    scheduleWaveform();
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();

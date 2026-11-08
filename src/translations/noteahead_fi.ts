@@ -3441,8 +3441,16 @@
         <translation>Panorointi</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Voimakkuus</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
@@ -4125,8 +4133,8 @@
         <translation type="unfinished">P.decay</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">Voimakkuus</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
     </message>
     <message>
         <source>How much quieter a soft hit is than a hard one.</source>
@@ -5586,8 +5594,8 @@
         <translation>Drive</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Voimakkuus</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
@@ -5792,8 +5800,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">Voimakkuus</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
     </message>
     <message>
         <source>How much a softer note on this device&apos;s track lessens the depth.</source>
@@ -7728,8 +7736,8 @@
         <translation type="unfinished">Release</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">Voimakkuus</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
     </message>
     <message>
         <source>Play to End</source>
@@ -8650,7 +8658,7 @@
     </message>
     <message>
         <source>Finger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sormi</translation>
     </message>
     <message>
         <source>Sustain</source>
@@ -8662,11 +8670,11 @@
     </message>
     <message>
         <source>Neck</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kaula</translation>
     </message>
     <message>
         <source>Bridge</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Talla</translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>

@@ -62,21 +62,6 @@ void SnareSynthController::setDevice(std::shared_ptr<SnareSynthDevice> device)
     }
 }
 
-void SnareSynthController::connectDeviceSignals()
-{
-    if (!m_device) {
-        return;
-    }
-
-    connect(m_device.get(), &Device::parametersChanged, this, [this]() {
-        requestSettings();
-    });
-
-    connect(m_device.get(), &Device::dataChanged, this, [this]() {
-        requestSettings();
-    });
-}
-
 QStringList SnareSynthController::factoryPresetNames() const
 {
     QStringList names;

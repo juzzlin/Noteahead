@@ -218,7 +218,6 @@ signals:
     void hpfCutoffChanged();
 
 private:
-    void connectDeviceSignals();
     //! Waits for the knobs to settle before rendering: a drag would otherwise render on every step
     void scheduleWaveform(int delayMs = WaveformDebounceMs);
     void renderWaveform();

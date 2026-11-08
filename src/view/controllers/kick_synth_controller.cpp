@@ -66,19 +66,6 @@ void KickSynthController::setDevice(std::shared_ptr<KickSynthDevice> device)
     }
 }
 
-void KickSynthController::connectDeviceSignals()
-{
-    if (!m_device) {
-        return;
-    }
-    connect(m_device.get(), &Device::parametersChanged, this, [this]() {
-        requestSettings();
-    });
-    connect(m_device.get(), &Device::dataChanged, this, [this]() {
-        requestSettings();
-    });
-}
-
 QStringList KickSynthController::factoryPresetNames() const
 {
     QStringList names;

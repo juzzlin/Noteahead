@@ -155,7 +155,6 @@ signals:
     void waveformChanged();
 
 private:
-    void connectDeviceSignals();
     int knob(const QString & key) const;
     void setKnob(const QString & key, int value);
     //! Waits for the knobs to settle before rendering: a drag would otherwise render on every step

@@ -18,6 +18,9 @@
 
 #include "device_controller.hpp"
 
+#include <QTimer>
+#include <QVariantList>
+
 #include <memory>
 
 namespace noteahead {
@@ -25,7 +28,7 @@ namespace noteahead {
 class ElectricBassDevice;
 
 //! The Electric Bass as its dialog sees it: one property per knob, scaled by
-//! Constants::uiInternalScaling().
+//! Constants::uiInternalScaling(), and one note rendered for the waveform view.
 class ElectricBassController : public DeviceController
 {
     Q_OBJECT
@@ -41,6 +44,12 @@ class ElectricBassController : public DeviceController
     Q_PROPERTY(int tone READ tone WRITE setTone NOTIFY knobsChanged)
     Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY knobsChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY knobsChanged)
+    Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY knobsChanged)
+    Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY knobsChanged)
+
+    // One note, rendered for the waveform view
+    Q_PROPERTY(QVariantList waveformData READ waveformData NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
 
 public:
     explicit ElectricBassController(std::shared_ptr<ElectricBassDevice> device, QObject * parent = nullptr);
@@ -73,17 +82,38 @@ public:
     void setVelocitySensitivity(int value);
     int pitchBendRange() const;
     void setPitchBendRange(int value);
+    int lpfCutoff() const;
+    void setLpfCutoff(int value);
+    int hpfCutoff() const;
+    void setHpfCutoff(int value);
+
+    QVariantList waveformData() const;
+    double waveformDuration() const;
+    //! How many points the waveform view has room for, and whether it is on screen: the note is only
+    //! rendered while someone can see it.
+    Q_INVOKABLE void setWaveformRequest(int peakCount, bool visible);
 
     Q_INVOKABLE void requestSettings() override;
 
 signals:
     void deviceChanged();
     void knobsChanged();
+    void waveformChanged();
 
 private:
-    void connectDeviceSignals();
     int knob(const QString & key) const;
     void setKnob(const QString & key, int value);
+    //! Waits for a drag to settle before rendering: a note is seconds of audio
+    void scheduleWaveform(int delayMs = WaveformDebounceMs);
+    void renderWaveform();
+
+    static constexpr int WaveformDebounceMs { 150 };
+
+    QTimer m_waveformTimer;
+    int m_waveformPeakCount { 0 };
+    bool m_waveformVisible { false };
+    QVariantList m_waveformData;
+    double m_waveformDuration { 0.0 };
 
     std::shared_ptr<ElectricBassDevice> m_device;
 };

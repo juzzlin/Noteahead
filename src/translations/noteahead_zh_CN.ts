@@ -3440,8 +3440,16 @@
         <translation>声像</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
@@ -4124,8 +4132,8 @@
         <translation type="unfinished">音高衰减</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>How much quieter a soft hit is than a hard one.</source>
@@ -5585,8 +5593,8 @@
         <translation>驱动</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>How much softer notes play softer. A soft hit also starts less sharp and clicks less, as a real kick does.</source>
@@ -5791,8 +5799,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>How much a softer note on this device&apos;s track lessens the depth.</source>
@@ -7727,8 +7735,8 @@
         <translation type="unfinished">释音</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation type="unfinished">力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>Play to End</source>
@@ -8649,7 +8657,7 @@
     </message>
     <message>
         <source>Finger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">手指</translation>
     </message>
     <message>
         <source>Sustain</source>
@@ -8661,11 +8669,11 @@
     </message>
     <message>
         <source>Neck</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">琴颈</translation>
     </message>
     <message>
         <source>Bridge</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">琴桥</translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>

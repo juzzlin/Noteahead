@@ -15,6 +15,7 @@
 
 #include "electric_bass_test.hpp"
 
+#include "../../application/service/electric_bass_preview.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/electric_bass_device.hpp"
 #include "../../domain/devices/electric_bass_presets.hpp"
@@ -221,6 +222,29 @@ void ElectricBassTest::test_device_pitchBend_shouldRaiseThePitch()
     QVERIFY(std::abs(pitchHz(x, 0.3, 1.0, noteHz(42)) - noteHz(40) * std::exp2(2.0 * 8191.0 / 8192.0 / 12.0)) < 1.0);
 }
 
+void ElectricBassTest::test_device_octave_up_shouldPlayAnOctaveHigher()
+{
+    ElectricBassDevice device { "Bass" };
+    device.setOctave(1);
+    device.processMidiNoteOn(40, 100);
+    std::vector<double> x;
+    renderDevice(device, 1.0, x);
+    QVERIFY(std::abs(pitchHz(x, 0.3, 1.0, noteHz(52)) - noteHz(52)) < 1.0);
+}
+
+void ElectricBassTest::test_device_lpfCutoff_closed_shouldQuietenTheNote()
+{
+    const auto level = [](float lpf) {
+        ElectricBassDevice device { "Bass" };
+        device.setKnob(Xml::xmlKeyLpfCutoff(), lpf);
+        device.processMidiNoteOn(40, 127);
+        std::vector<double> x;
+        renderDevice(device, 0.5, x);
+        return 20.0 * std::log10(peak(x));
+    };
+    QVERIFY(level(0.0f) < level(1.0f) - 10.0);
+}
+
 void ElectricBassTest::test_presets_every_shouldPeakNearInit()
 {
     double initPeak = 0.0;
@@ -238,6 +262,16 @@ void ElectricBassTest::test_presets_every_shouldPeakNearInit()
         }
         QVERIFY2(std::abs(level - initPeak) < 1.5, ElectricBassPresets::presets().at(i).name.c_str());
     }
+}
+
+void ElectricBassTest::test_preview_render_shouldSpanTheHoldAndTheRelease()
+{
+    const ElectricBassDevice device { "Bass" };
+    const auto preview = ElectricBassPreview::render(device, 200, SampleRate);
+    QCOMPARE(preview.peaks.size(), 200);
+    // Two seconds held, then the release, which at the default dies well inside its limit
+    QVERIFY(preview.durationSeconds > 2.0);
+    QVERIFY(preview.durationSeconds < 3.0);
 }
 
 } // namespace noteahead

@@ -62,7 +62,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Velocity")
+        label: qsTr("Velocity Sensitivity")
         value: kickSynthController.velocitySensitivity
         onMoved: v => kickSynthController.velocitySensitivity = v
         Layout.fillWidth: true

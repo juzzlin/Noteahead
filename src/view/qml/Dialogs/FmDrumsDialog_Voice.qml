@@ -112,7 +112,7 @@ ColumnLayout {
             onMoved: val => fmDrumsController.pitchDecay = val
         }
         Knob {
-            label: qsTr("Velocity")
+            label: qsTr("Velocity Sensitivity")
             value: fmDrumsController.velocitySensitivity
             onMoved: val => fmDrumsController.velocitySensitivity = val
             ToolTip.visible: hovered
