@@ -8864,8 +8864,16 @@
         <translation type="unfinished">亮度</translation>
     </message>
     <message>
+        <source>Knock</source>
+        <translation type="unfinished">敲击声</translation>
+    </message>
+    <message>
         <source>Inharmonicity</source>
         <translation type="unfinished">非谐性</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation type="unfinished">伸展</translation>
     </message>
     <message>
         <source>Hammer Hardness</source>
@@ -9177,7 +9185,7 @@
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">硬度</translation>
     </message>
     <message>
         <source>Position</source>
@@ -9599,6 +9607,180 @@
     <message>
         <source>The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.</source>
         <translation>当 Mix 为 50 % 时陷波最深，此时干声与扫频信号等量相遇。反馈会锐化它们之间的峰值，其两种极性在不同频率上产生抵消。</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Dampers</name>
+    <message>
+        <source>Dampers</source>
+        <translation>制音器</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>How long the damper takes to stop the strings when the key is let go. The top keys have no dampers.</source>
+        <translation>松开琴键后制音器止住琴弦所需的时间。最高音区的琴键没有制音器。</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>共振</translation>
+    </message>
+    <message>
+        <source>How loudly the other strings ring in sympathy while the sustain pedal (CC 64) lifts their dampers. The soft pedal is CC 67.</source>
+        <translation>延音踏板（CC 64）抬起制音器时，其他琴弦共鸣的响度。弱音踏板为 CC 67。</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>声像扩散</translation>
+    </message>
+    <message>
+        <source>How far the keyboard is spread across the stereo field: the bass to the left, the treble to the right, as the player hears it.</source>
+        <translation>键盘在立体声场中展开的宽度：低音在左，高音在右，如同演奏者听到的那样。</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Hammer</name>
+    <message>
+        <source>Hammer</source>
+        <translation>琴槌</translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation>硬度</translation>
+    </message>
+    <message>
+        <source>How hard the felt of the hammers is: soft and round, or hard and ringing. Playing harder hardens it too.</source>
+        <translation>琴槌毛毡的硬度：柔软圆润，或坚硬明亮。弹得越重，毛毡也越硬。</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft note is darker whatever this is set to, as the hammer felt is less compressed.</source>
+        <translation>弱音符弱多少。无论此项如何设置，弱音符都更暗，因为琴槌毛毡被压缩得更少。</translation>
+    </message>
+    <message>
+        <source>Knock</source>
+        <translation>敲击声</translation>
+    </message>
+    <message>
+        <source>How much of the hammer is heard knocking the soundboard and the rim, the thump under every note.</source>
+        <translation>琴槌敲击音板和琴身的声音有多大：每个音符下的闷响。</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+    <message>
+        <source>Physically modelled concert grand piano</source>
+        <translation>物理建模音乐会三角钢琴</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>琴弦</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>How long the strings ring while the key is held.</source>
+        <translation>按住琴键时琴弦鸣响的时间。</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>How long the upper partials ring against the lower ones.</source>
+        <translation>高次分音相对低次分音的鸣响时间。</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation>非谐性</translation>
+    </message>
+    <message>
+        <source>How stiff the strings are: stiffer strings stretch their upper partials sharp, which is much of what makes a piano sound like one.</source>
+        <translation>琴弦有多硬：更硬的琴弦会使高次分音偏高，这在很大程度上构成了钢琴的声音。</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation>齐奏失谐</translation>
+    </message>
+    <message>
+        <source>How far apart the two or three strings of a key are tuned: a concert grand at the bottom, a bar-room upright at the top.</source>
+        <translation>一个琴键的两根或三根琴弦之间调得有多开：最低是音乐会三角钢琴，最高是酒吧立式钢琴。</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>伸展</translation>
+    </message>
+    <message>
+        <source>How much of the octave stretch a piano tuner gives a grand: flat bass and sharp treble. At zero the piano plays in equal temperament.</source>
+        <translation>采用调律师给三角钢琴的八度伸展的多少：低音偏低，高音偏高。为零时钢琴按十二平均律演奏。</translation>
     </message>
 </context>
 <context>
@@ -11709,7 +11891,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">硬度</translation>
     </message>
     <message>
         <source>Position</source>

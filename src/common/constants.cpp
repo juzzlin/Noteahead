@@ -249,6 +249,11 @@ QString electricBassDeviceName()
     return "Noteahead ElectricBass";
 }
 
+QString pianoSynthAcousticDeviceName()
+{
+    return "Noteahead PianoSynthAcoustic";
+}
+
 QString snareSynthDeviceName()
 {
     return "Noteahead SnareSynth";

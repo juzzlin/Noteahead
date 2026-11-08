@@ -271,6 +271,12 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Route.qml
     ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Sweep.qml
     ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Tone.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog_Dampers.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog_Hammer.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthAcousticDialog_String.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml

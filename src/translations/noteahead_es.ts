@@ -8865,8 +8865,16 @@
         <translation type="unfinished">Brillo</translation>
     </message>
     <message>
+        <source>Knock</source>
+        <translation type="unfinished">Golpe</translation>
+    </message>
+    <message>
         <source>Inharmonicity</source>
         <translation type="unfinished">Inarmonicidad</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation type="unfinished">Estiramiento</translation>
     </message>
     <message>
         <source>Hammer Hardness</source>
@@ -9178,7 +9186,7 @@
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dureza</translation>
     </message>
     <message>
         <source>Position</source>
@@ -9600,6 +9608,180 @@
     <message>
         <source>The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.</source>
         <translation>Los filtros de muesca son más profundos al 50 % de Mix, donde la señal seca y la barrida se encuentran en igual proporción. La realimentación afila los picos entre ellos, y sus dos polaridades cancelan en frecuencias distintas.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>Aceptar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Dampers</name>
+    <message>
+        <source>Dampers</source>
+        <translation>Apagadores</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Liberación</translation>
+    </message>
+    <message>
+        <source>How long the damper takes to stop the strings when the key is let go. The top keys have no dampers.</source>
+        <translation>Cuánto tarda el apagador en detener las cuerdas al soltar la tecla. Las teclas más agudas no tienen apagadores.</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>Resonancia</translation>
+    </message>
+    <message>
+        <source>How loudly the other strings ring in sympathy while the sustain pedal (CC 64) lifts their dampers. The soft pedal is CC 67.</source>
+        <translation>Con qué fuerza resuenan por simpatía las demás cuerdas mientras el pedal de resonancia (CC 64) levanta sus apagadores. El pedal celeste es CC 67.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Paneo</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Dispersión del paneo</translation>
+    </message>
+    <message>
+        <source>How far the keyboard is spread across the stereo field: the bass to the left, the treble to the right, as the player hears it.</source>
+        <translation>Cuánto se extiende el teclado por el campo estéreo: los graves a la izquierda, los agudos a la derecha, como lo oye quien toca.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte del HPF</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Hammer</name>
+    <message>
+        <source>Hammer</source>
+        <translation>Martillo</translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation>Dureza</translation>
+    </message>
+    <message>
+        <source>How hard the felt of the hammers is: soft and round, or hard and ringing. Playing harder hardens it too.</source>
+        <translation>Qué tan duro es el fieltro de los martillos: suave y redondo, o duro y brillante. Tocar más fuerte también lo endurece.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Sensibilidad a la velocidad</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft note is darker whatever this is set to, as the hammer felt is less compressed.</source>
+        <translation>Cuánto más suaves suenan las notas suaves. Una nota suave es más oscura sea cual sea este ajuste, porque el fieltro del martillo se comprime menos.</translation>
+    </message>
+    <message>
+        <source>Knock</source>
+        <translation>Golpe</translation>
+    </message>
+    <message>
+        <source>How much of the hammer is heard knocking the soundboard and the rim, the thump under every note.</source>
+        <translation>Cuánto se oye el martillo golpeando la tabla armónica y el arpa: el golpe sordo bajo cada nota.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preajuste:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Guardar los ajustes actuales como preajuste propio</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Eliminar el preajuste propio seleccionado</translation>
+    </message>
+    <message>
+        <source>Physically modelled concert grand piano</source>
+        <translation>Piano de cola de concierto por modelado físico</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Cuerda</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Caída</translation>
+    </message>
+    <message>
+        <source>How long the strings ring while the key is held.</source>
+        <translation>Cuánto suenan las cuerdas mientras se mantiene la tecla.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Brillo</translation>
+    </message>
+    <message>
+        <source>How long the upper partials ring against the lower ones.</source>
+        <translation>Cuánto suenan los parciales agudos frente a los graves.</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation>Inarmonicidad</translation>
+    </message>
+    <message>
+        <source>How stiff the strings are: stiffer strings stretch their upper partials sharp, which is much of what makes a piano sound like one.</source>
+        <translation>Qué tan rígidas son las cuerdas: las más rígidas desafinan hacia arriba sus parciales agudos, que es buena parte del sonido de un piano.</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation>Desafinación del unísono</translation>
+    </message>
+    <message>
+        <source>How far apart the two or three strings of a key are tuned: a concert grand at the bottom, a bar-room upright at the top.</source>
+        <translation>Qué tan separadas están afinadas las dos o tres cuerdas de una tecla: un piano de cola de concierto abajo, un piano de bar arriba.</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Estiramiento</translation>
+    </message>
+    <message>
+        <source>How much of the octave stretch a piano tuner gives a grand: flat bass and sharp treble. At zero the piano plays in equal temperament.</source>
+        <translation>Cuánto del estiramiento de octavas que un afinador da a un piano de cola: graves bajos y agudos altos. En cero el piano toca en temperamento igual.</translation>
     </message>
 </context>
 <context>
@@ -11711,7 +11893,7 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dureza</translation>
     </message>
     <message>
         <source>Position</source>

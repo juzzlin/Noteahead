@@ -8865,8 +8865,16 @@
         <translation type="unfinished">Helderheid</translation>
     </message>
     <message>
+        <source>Knock</source>
+        <translation type="unfinished">Klop</translation>
+    </message>
+    <message>
         <source>Inharmonicity</source>
         <translation type="unfinished">Inharmoniciteit</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation type="unfinished">Rekking</translation>
     </message>
     <message>
         <source>Hammer Hardness</source>
@@ -9178,7 +9186,7 @@
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hardheid</translation>
     </message>
     <message>
         <source>Position</source>
@@ -9600,6 +9608,180 @@
     <message>
         <source>The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.</source>
         <translation>De notches zijn het diepst bij 50 % Mix, waar het droge en het geswepte signaal in gelijke mate samenkomen. Feedback verscherpt de pieken ertussen, en zijn twee polariteiten doven op verschillende frequenties uit.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Dampers</name>
+    <message>
+        <source>Dampers</source>
+        <translation>Dempers</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>How long the damper takes to stop the strings when the key is let go. The top keys have no dampers.</source>
+        <translation>Hoe lang de demper nodig heeft om de snaren te stoppen als de toets wordt losgelaten. De hoogste toetsen hebben geen dempers.</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>Resonantie</translation>
+    </message>
+    <message>
+        <source>How loudly the other strings ring in sympathy while the sustain pedal (CC 64) lifts their dampers. The soft pedal is CC 67.</source>
+        <translation>Hoe luid de andere snaren meeklinken terwijl het sustainpedaal (CC 64) hun dempers optilt. Het zachte pedaal is CC 67.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globaal</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Panning-spreiding</translation>
+    </message>
+    <message>
+        <source>How far the keyboard is spread across the stereo field: the bass to the left, the treble to the right, as the player hears it.</source>
+        <translation>Hoe breed het klavier over het stereobeeld is verdeeld: de bas links, de discant rechts, zoals de speler het hoort.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF-cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF-cutoff</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Hammer</name>
+    <message>
+        <source>Hammer</source>
+        <translation>Hamer</translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation>Hardheid</translation>
+    </message>
+    <message>
+        <source>How hard the felt of the hammers is: soft and round, or hard and ringing. Playing harder hardens it too.</source>
+        <translation>Hoe hard het vilt van de hamers is: zacht en rond, of hard en klinkend. Harder spelen maakt het ook harder.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Velocity-gevoeligheid</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft note is darker whatever this is set to, as the hammer felt is less compressed.</source>
+        <translation>Hoeveel zachter zachte noten spelen. Een zachte noot is donkerder ongeacht deze instelling, omdat het hamervilt minder wordt samengedrukt.</translation>
+    </message>
+    <message>
+        <source>Knock</source>
+        <translation>Klop</translation>
+    </message>
+    <message>
+        <source>How much of the hammer is heard knocking the soundboard and the rim, the thump under every note.</source>
+        <translation>Hoeveel van de hamer te horen is die de zangbodem en de kast raakt: de doffe klap onder elke noot.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>De huidige instellingen opslaan als eigen preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Het geselecteerde eigen preset verwijderen</translation>
+    </message>
+    <message>
+        <source>Physically modelled concert grand piano</source>
+        <translation>Fysiek gemodelleerde concertvleugel</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Snaar</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>How long the strings ring while the key is held.</source>
+        <translation>Hoe lang de snaren klinken zolang de toets wordt vastgehouden.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Helderheid</translation>
+    </message>
+    <message>
+        <source>How long the upper partials ring against the lower ones.</source>
+        <translation>Hoe lang de hogere deeltonen klinken ten opzichte van de lagere.</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation>Inharmoniciteit</translation>
+    </message>
+    <message>
+        <source>How stiff the strings are: stiffer strings stretch their upper partials sharp, which is much of what makes a piano sound like one.</source>
+        <translation>Hoe stijf de snaren zijn: stijvere snaren trekken hun hogere deeltonen omhoog, wat veel van de klank van een piano uitmaakt.</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation>Unisono-ontstemming</translation>
+    </message>
+    <message>
+        <source>How far apart the two or three strings of a key are tuned: a concert grand at the bottom, a bar-room upright at the top.</source>
+        <translation>Hoe ver de twee of drie snaren van een toets uit elkaar zijn gestemd: onderaan een concertvleugel, bovenaan een kroegpiano.</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Rekking</translation>
+    </message>
+    <message>
+        <source>How much of the octave stretch a piano tuner gives a grand: flat bass and sharp treble. At zero the piano plays in equal temperament.</source>
+        <translation>Hoeveel van de octaafrekking die een pianostemmer een vleugel geeft: lage bas en hoge discant. Op nul speelt de piano gelijkzwevend.</translation>
     </message>
 </context>
 <context>
@@ -11711,7 +11893,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hardheid</translation>
     </message>
     <message>
         <source>Position</source>

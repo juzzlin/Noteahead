@@ -8866,8 +8866,16 @@
         <translation type="unfinished">Jasność</translation>
     </message>
     <message>
+        <source>Knock</source>
+        <translation type="unfinished">Stuk</translation>
+    </message>
+    <message>
         <source>Inharmonicity</source>
         <translation type="unfinished">Nieharmoniczność</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation type="unfinished">Rozciągnięcie</translation>
     </message>
     <message>
         <source>Hammer Hardness</source>
@@ -9179,7 +9187,7 @@
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Twardość</translation>
     </message>
     <message>
         <source>Position</source>
@@ -9601,6 +9609,180 @@
     <message>
         <source>The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.</source>
         <translation>Wcięcia są najgłębsze przy 50 % Mix, gdzie sygnał suchy i zamiatany spotykają się w równych proporcjach. Sprzężenie wyostrza szczyty między nimi, a jego dwie polaryzacje wygaszają przy różnych częstotliwościach.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Dampers</name>
+    <message>
+        <source>Dampers</source>
+        <translation>Tłumiki</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Zwolnienie</translation>
+    </message>
+    <message>
+        <source>How long the damper takes to stop the strings when the key is let go. The top keys have no dampers.</source>
+        <translation>Jak długo tłumik zatrzymuje struny po puszczeniu klawisza. Najwyższe klawisze nie mają tłumików.</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>Rezonans</translation>
+    </message>
+    <message>
+        <source>How loudly the other strings ring in sympathy while the sustain pedal (CC 64) lifts their dampers. The soft pedal is CC 67.</source>
+        <translation>Jak głośno pozostałe struny rezonują, gdy prawy pedał (CC 64) podnosi ich tłumiki. Lewy pedał to CC 67.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Suwak</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Rozpiętość panoramy</translation>
+    </message>
+    <message>
+        <source>How far the keyboard is spread across the stereo field: the bass to the left, the treble to the right, as the player hears it.</source>
+        <translation>Jak szeroko klawiatura rozkłada się w panoramie stereo: bas po lewej, wiolinowe po prawej, tak jak słyszy to grający.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Odcięcie HPF</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Hammer</name>
+    <message>
+        <source>Hammer</source>
+        <translation>Młotek</translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation>Twardość</translation>
+    </message>
+    <message>
+        <source>How hard the felt of the hammers is: soft and round, or hard and ringing. Playing harder hardens it too.</source>
+        <translation>Jak twardy jest filc młotków: miękki i okrągły albo twardy i dźwięczny. Mocniejsza gra również go utwardza.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Czułość velocity</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft note is darker whatever this is set to, as the hammer felt is less compressed.</source>
+        <translation>O ile ciszej grają cichsze nuty. Cicha nuta jest ciemniejsza niezależnie od tego ustawienia, bo filc młotka jest mniej ściśnięty.</translation>
+    </message>
+    <message>
+        <source>Knock</source>
+        <translation>Stuk</translation>
+    </message>
+    <message>
+        <source>How much of the hammer is heard knocking the soundboard and the rim, the thump under every note.</source>
+        <translation>Ile słychać młotka uderzającego w płytę rezonansową i obudowę: głuche uderzenie pod każdą nutą.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Zapisz bieżące ustawienia jako własny preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Usuń wybrany własny preset</translation>
+    </message>
+    <message>
+        <source>Physically modelled concert grand piano</source>
+        <translation>Fizycznie modelowany fortepian koncertowy</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Struna</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Opadanie</translation>
+    </message>
+    <message>
+        <source>How long the strings ring while the key is held.</source>
+        <translation>Jak długo struny brzmią, dopóki klawisz jest wciśnięty.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Jasność</translation>
+    </message>
+    <message>
+        <source>How long the upper partials ring against the lower ones.</source>
+        <translation>Jak długo wyższe składowe brzmią względem niższych.</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation>Nieharmoniczność</translation>
+    </message>
+    <message>
+        <source>How stiff the strings are: stiffer strings stretch their upper partials sharp, which is much of what makes a piano sound like one.</source>
+        <translation>Jak sztywne są struny: sztywniejsze struny podwyższają swoje wyższe składowe, co w dużej mierze tworzy brzmienie fortepianu.</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation>Rozstrojenie unisono</translation>
+    </message>
+    <message>
+        <source>How far apart the two or three strings of a key are tuned: a concert grand at the bottom, a bar-room upright at the top.</source>
+        <translation>Jak daleko od siebie są nastrojone dwie lub trzy struny klawisza: na dole fortepian koncertowy, na górze pianino z baru.</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Rozciągnięcie</translation>
+    </message>
+    <message>
+        <source>How much of the octave stretch a piano tuner gives a grand: flat bass and sharp treble. At zero the piano plays in equal temperament.</source>
+        <translation>Ile z rozciągnięcia oktaw, jakie stroiciel nadaje fortepianowi: niski bas i wysoki dyskant. Przy zerze fortepian gra w stroju równomiernie temperowanym.</translation>
     </message>
 </context>
 <context>
@@ -11713,7 +11895,7 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Twardość</translation>
     </message>
     <message>
         <source>Position</source>

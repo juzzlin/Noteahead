@@ -23,6 +23,7 @@ set(HEADER_FILES
     controllers/noise_fx_controller.hpp
     controllers/noise_fx_sweep_controller.hpp
     controllers/performance_panel_controller.hpp
+    controllers/piano_synth_acoustic_controller.hpp
     controllers/piano_synth_controller.hpp
     controllers/piano_synth_v2_controller.hpp
     controllers/piano_synth_v3_controller.hpp
@@ -78,6 +79,7 @@ set(SOURCE_FILES
     controllers/noise_fx_controller.cpp
     controllers/noise_fx_sweep_controller.cpp
     controllers/performance_panel_controller.cpp
+    controllers/piano_synth_acoustic_controller.cpp
     controllers/piano_synth_controller.cpp
     controllers/piano_synth_v2_controller.cpp
     controllers/piano_synth_v3_controller.cpp

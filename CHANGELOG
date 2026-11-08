@@ -8,6 +8,9 @@ New features:
 * Electric Bass: a physically modelled, finger-played 5-string bass
   - Overlapping notes become hammer-ons and pull-offs
 
+* Piano Synth Acoustic: a physically modelled concert grand
+  - Sustain pedal with sympathetic resonance, soft pedal, and a Stretch knob for equal temperament
+
 * Kick Synth: a physically modelled acoustic bass drum
   - Presets fitted to real kicks: damped and open 24", a 20" from inside and outside, and more
   - Techno kicks and toms among its presets

@@ -43,6 +43,7 @@
 #include "../../domain/devices/kick_synth_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/noise_fx_device.hpp"
+#include "../../domain/devices/piano_synth_acoustic_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
@@ -3816,6 +3817,45 @@ void XmlSerializationTest::test_toXmlFromXml_electricBassDevice_shouldLoadCorrec
     QVERIFY(std::abs(restored->knob(Xml::xmlKeyTone()) - 0.691f) < 0.001f);
     QVERIFY(std::abs(restored->knob(Xml::xmlKeyVelocitySensitivity()) - 0.774f) < 0.001f);
     QCOMPARE(restored->pitchBendRange(), 7);
+    QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_pianoSynthAcousticDevice_shouldLoadCorrectly()
+{
+    namespace Xml = Constants::NahdXml;
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    const std::vector<QString> keys { Xml::xmlKeyHardness(), Xml::xmlKeyBody(), Xml::xmlKeyDecay(), Xml::xmlKeyBrightness(), Xml::xmlKeyInharmonicity(), Xml::xmlKeyStringDetune(), Xml::xmlKeyReleaseTime(), Xml::xmlKeyResonance(), Xml::xmlKeyPanSpread(), Xml::xmlKeyStretch(), Xml::xmlKeyVelocitySensitivity(), Xml::xmlKeyLpfCutoff(), Xml::xmlKeyHpfCutoff() };
+    auto piano = std::make_shared<PianoSynthAcousticDevice>("PianoSynthAcoustic");
+    for (size_t i = 0; i < keys.size(); i++) {
+        piano->setKnob(keys.at(i), 0.05f + 0.07f * static_cast<float>(i));
+    }
+    piano->setVolume(0.77f);
+    piano->setPan(0.40f);
+    deviceServiceOut.setDevice(1, piano);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<PianoSynthAcousticDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), PianoSynthAcousticDevice::typeIdString());
+    for (size_t i = 0; i < keys.size(); i++) {
+        QVERIFY2(std::abs(restored->knob(keys.at(i)) - (0.05f + 0.07f * static_cast<float>(i))) < 0.001f, keys.at(i).toStdString().c_str());
+    }
     QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
 }

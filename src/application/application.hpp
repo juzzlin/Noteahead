@@ -65,6 +65,7 @@ class PianoSynthV2Controller;
 class SongOverviewController;
 class SongOverviewService;
 class PianoSynthV3Controller;
+class PianoSynthAcousticController;
 class NoiseFxController;
 class SpeechController;
 class StringEnsembleController;
@@ -211,6 +212,7 @@ private:
     std::shared_ptr<PianoSynthController> m_pianoSynthController;
     std::shared_ptr<PianoSynthV2Controller> m_pianoSynthV2Controller;
     std::shared_ptr<PianoSynthV3Controller> m_pianoSynthV3Controller;
+    std::shared_ptr<PianoSynthAcousticController> m_pianoSynthAcousticController;
     std::shared_ptr<Kick808Controller> m_kick808Controller;
     std::shared_ptr<KickSynthController> m_kickSynthController;
     std::shared_ptr<SnareSynthController> m_snareSynthController;

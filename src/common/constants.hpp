@@ -98,6 +98,7 @@ QString pianoSynthV3DeviceName();
 QString kick808DeviceName();
 QString kickSynthDeviceName();
 QString electricBassDeviceName();
+QString pianoSynthAcousticDeviceName();
 QString snareSynthDeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();

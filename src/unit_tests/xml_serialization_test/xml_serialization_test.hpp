@@ -135,6 +135,7 @@ private slots:
     void test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_kickSynthDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_electricBassDevice_shouldLoadCorrectly();
+    void test_toXmlFromXml_pianoSynthAcousticDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_tubeStage_shouldLoadCorrectly();
     void test_toXmlFromXml_bassGrinder_shouldLoadCorrectly();

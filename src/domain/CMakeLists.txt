@@ -31,6 +31,8 @@ set(HEADER_FILES
     devices/snare_synth_presets.hpp
     devices/piano_synth_device.hpp
     devices/piano_synth_v2_device.hpp
+    devices/piano_synth_acoustic_device.hpp
+    devices/piano_synth_acoustic_presets.hpp
     devices/piano_synth_v3_device.hpp
     devices/sampler_device.hpp
     devices/string_ensemble_device.hpp
@@ -83,6 +85,7 @@ set(HEADER_FILES
     dsp/linkwitz_riley_crossover.hpp
     dsp/low_pass_filter.hpp
     dsp/modal_bass_string.hpp
+    dsp/modal_grand_string.hpp
     dsp/modal_piano_string.hpp
     dsp/modal_piano_string_v3.hpp
     dsp/multi_engine.hpp
@@ -92,6 +95,7 @@ set(HEADER_FILES
     dsp/ota_ladder_filter.hpp
     dsp/panning.hpp
     dsp/ensemble_phaser.hpp
+    dsp/piano_soundboard.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/saturating_svf.hpp
     dsp/speech/formant_voice.hpp
@@ -260,6 +264,8 @@ set(SOURCE_FILES
     devices/snare_synth_presets.cpp
     devices/piano_synth_device.cpp
     devices/piano_synth_v2_device.cpp
+    devices/piano_synth_acoustic_device.cpp
+    devices/piano_synth_acoustic_presets.cpp
     devices/piano_synth_v3_device.cpp
     devices/sampler_device.cpp
     devices/string_ensemble_device.cpp
@@ -313,6 +319,7 @@ set(SOURCE_FILES
     dsp/linkwitz_riley_crossover.cpp
     dsp/low_pass_filter.cpp
     dsp/modal_bass_string.cpp
+    dsp/modal_grand_string.cpp
     dsp/modal_piano_string.cpp
     dsp/modal_piano_string_v3.cpp
     dsp/multi_engine.cpp
@@ -322,6 +329,7 @@ set(SOURCE_FILES
     dsp/ota_ladder_filter.cpp
     dsp/panning.cpp
     dsp/ensemble_phaser.cpp
+    dsp/piano_soundboard.cpp
     dsp/poly_blep_oscillator.cpp
     dsp/saturating_svf.cpp
     dsp/speech/formant_voice.cpp

@@ -8865,8 +8865,16 @@
         <translation type="unfinished">Kirkkaus</translation>
     </message>
     <message>
+        <source>Knock</source>
+        <translation type="unfinished">Kopahdus</translation>
+    </message>
+    <message>
         <source>Inharmonicity</source>
         <translation type="unfinished">Inharmonisuus</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation type="unfinished">Venytys</translation>
     </message>
     <message>
         <source>Hammer Hardness</source>
@@ -9178,7 +9186,7 @@
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kovuus</translation>
     </message>
     <message>
         <source>Position</source>
@@ -9600,6 +9608,180 @@
     <message>
         <source>The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.</source>
         <translation>Lovet ovat syvimmillään 50 %:n Mixillä, jossa kuiva ja pyyhkäisty signaali kohtaavat yhtä suurina. Takaisinkytkentä terävöittää niiden välisiä huippuja, ja sen kaksi napaisuutta kumoavat eri taajuuksilla.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Dampers</name>
+    <message>
+        <source>Dampers</source>
+        <translation>Vaimentimet</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>How long the damper takes to stop the strings when the key is let go. The top keys have no dampers.</source>
+        <translation>Kuinka kauan vaimennin vie kielten pysäyttämiseen, kun kosketin päästetään. Ylimmissä koskettimissa ei ole vaimentimia.</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>Resonanssi</translation>
+    </message>
+    <message>
+        <source>How loudly the other strings ring in sympathy while the sustain pedal (CC 64) lifts their dampers. The soft pedal is CC 67.</source>
+        <translation>Kuinka voimakkaasti muut kielet soivat myötäväreinä, kun oikea pedaali (CC 64) nostaa niiden vaimentimet. Vasen pedaali on CC 67.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Yleiset</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorointi</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Panoroinnin levitys</translation>
+    </message>
+    <message>
+        <source>How far the keyboard is spread across the stereo field: the bass to the left, the treble to the right, as the player hears it.</source>
+        <translation>Kuinka leveälle koskettimisto levittyy stereokuvaan: basso vasemmalla, diskantti oikealla, kuten soittaja sen kuulee.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Hammer</name>
+    <message>
+        <source>Hammer</source>
+        <translation>Vasara</translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation>Kovuus</translation>
+    </message>
+    <message>
+        <source>How hard the felt of the hammers is: soft and round, or hard and ringing. Playing harder hardens it too.</source>
+        <translation>Kuinka kovaa vasaroiden huopa on: pehmeä ja pyöreä tai kova ja soiva. Kovempi soitto kovettaa sitä myös.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft note is darker whatever this is set to, as the hammer felt is less compressed.</source>
+        <translation>Kuinka paljon hiljaisemmin hiljaiset nuotit soivat. Hiljainen nuotti on tummempi asetuksesta riippumatta, koska vasaran huopa puristuu vähemmän.</translation>
+    </message>
+    <message>
+        <source>Knock</source>
+        <translation>Kopahdus</translation>
+    </message>
+    <message>
+        <source>How much of the hammer is heard knocking the soundboard and the rim, the thump under every note.</source>
+        <translation>Kuinka paljon kuuluu vasaran kopahdus kaikupohjaan ja runkoon: tömähdys jokaisen nuotin alla.</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Esiasetus:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Tallenna</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Poista valittu oma esiasetus</translation>
+    </message>
+    <message>
+        <source>Physically modelled concert grand piano</source>
+        <translation>Fysikaalisesti mallinnettu konserttiflyygeli</translation>
+    </message>
+</context>
+<context>
+    <name>PianoSynthAcousticDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Kieli</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>How long the strings ring while the key is held.</source>
+        <translation>Kuinka kauan kielet soivat, kun kosketinta pidetään pohjassa.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Kirkkaus</translation>
+    </message>
+    <message>
+        <source>How long the upper partials ring against the lower ones.</source>
+        <translation>Kuinka kauan ylemmät osasävelet soivat alempiin nähden.</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation>Inharmonisuus</translation>
+    </message>
+    <message>
+        <source>How stiff the strings are: stiffer strings stretch their upper partials sharp, which is much of what makes a piano sound like one.</source>
+        <translation>Kuinka jäykkiä kielet ovat: jäykemmät kielet venyttävät ylempiä osasäveliään ylöspäin, mikä tekee paljon pianon soinnista.</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation>Unisonon viritysero</translation>
+    </message>
+    <message>
+        <source>How far apart the two or three strings of a key are tuned: a concert grand at the bottom, a bar-room upright at the top.</source>
+        <translation>Kuinka kauas toisistaan koskettimen kaksi tai kolme kieltä on viritetty: alhaalla konserttiflyygeli, ylhäällä baaripiano.</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Venytys</translation>
+    </message>
+    <message>
+        <source>How much of the octave stretch a piano tuner gives a grand: flat bass and sharp treble. At zero the piano plays in equal temperament.</source>
+        <translation>Kuinka paljon pianonvirittäjän flyygelille antamasta oktaavivenytyksestä käytetään: matala basso ja korkea diskantti. Nollassa piano soi tasavireisesti.</translation>
     </message>
 </context>
 <context>
@@ -11711,7 +11893,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Hardness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kovuus</translation>
     </message>
     <message>
         <source>Position</source>
