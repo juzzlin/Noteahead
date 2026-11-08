@@ -85,11 +85,10 @@ A short synth demo:
 Full songs with Noteahead's built-in synths and drums only:
 
 - [Arctic Music Project - Halla (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-2026)
-- [Arctic Music Project - Massive (Spotify)](https://open.spotify.com/track/2whivQNa9qIfSSLSuYgUFf)
 
 Albums:
 
-- Arctic Music Project - Hypothermia ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/hypothermia), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/hypothermia))
+- Arctic Music Project - Hypothermia ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/hypothermia), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/hypothermia), [Spotify](https://open.spotify.com/album/272ogN0MW1bwOkdaue2OkH))
 - Arctic Music Project - Frozenland ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/frozenland), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/frozenland))
 
 All **Arctic Music Project** songs (sequenced or completely produced with Noteahead):
