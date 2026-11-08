@@ -944,9 +944,10 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     const auto p = effect->parameter(key.toStdString());
                     return p ? p->get().value() : 0.0f;
                 };
-                return QString { "(mid=%1s, bass=%2s, mix=%3%)" }
+                return QString { "(mid=%1s, bass=%2s, pre=%3ms, mix=%4%)" }
                   .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyMidDecay())), 0, 'f', 1)
                   .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyBassDecay())), 0, 'f', 1)
+                  .arg(static_cast<int>(std::round(Reverb224::preDelayMs(valueOf(C::xmlKeyPreDelay())))))
                   .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
             } else if (type == Constants::RackEffectType::earlyReflections()) {
                 const auto size { effect->parameter(Constants::NahdXml::xmlKeySize().toStdString()) };

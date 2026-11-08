@@ -1616,7 +1616,7 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()
     controller.setIsInsertRack(true);
     controller.setEffect(0, controller.reverb224Type());
     QCOMPARE(controller.effectType(0), controller.reverb224Type());
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, mix=30%)" });
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, pre=20ms, mix=30%)" });
     // Depth has nothing to balance on the plates
     QVERIFY(controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::LargeHall)));
     QVERIFY(!controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::VocalPlate)));
