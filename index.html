@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Noteahead - A MIDI tracker, sequencer and music production environment written in C++/Qt/QML</title>
-        <meta name="description" content="Noteahead is a free, open source tracker and music studio for Linux: keyboard-driven editing, 21 internal instruments, 46 effects, a mixer, automation and precise MIDI sequencing.">
+        <meta name="description" content="Noteahead is a free, open source tracker and music studio for Linux: keyboard-driven editing, 21 internal instruments, 48 effects, a mixer, automation and precise MIDI sequencing.">
         <meta name="theme-color" content="#0e0f10">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Noteahead - a MIDI tracker and complete music studio for Linux">
@@ -36,7 +36,7 @@
                         <h1>A MIDI tracker and a complete music studio.</h1>
                         <p class="lead">Fast, keyboard-driven tracker editing with the whole song in front of you &mdash; and a complete studio behind it. Point it outwards instead and it drives a room full of MIDI hardware with the same precision.</p>
                         <div class="actions">
-                            <a class="button primary" href="https://github.com/juzzlin/Noteahead/releases/latest">Download 11.0.0</a>
+                            <a class="button primary" href="https://github.com/juzzlin/Noteahead/releases/latest">Download</a>
                             <a class="button" href="https://github.com/juzzlin/Noteahead">View on GitHub</a>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
             <section class="stats" aria-label="At a glance">
                 <div class="wrap stats-inner">
                     <div><strong>21</strong><span>internal instruments</span></div>
-                    <div><strong>46</strong><span>effects &amp; analyzers</span></div>
+                    <div><strong>48</strong><span>effects &amp; analyzers</span></div>
                     <div><strong>10</strong><span>languages</span></div>
                     <div><strong>100%</strong><span>free, forever</span></div>
                 </div>
@@ -117,7 +117,7 @@
                             <h3>Instruments</h3>
                             <ul>
                                 <li>21 internal instruments in a Virtual Device Rack</li>
-                                <li>Virtual analog, wavetable, four-operator FM and acid bass synths</li>
+                                <li>Virtual analog with a VPM engine, wavetable, four-operator FM and acid bass synths</li>
                                 <li>JU Synth and JU Synth 08, after the Juno-60 and the Jupiter-8</li>
                                 <li>Three drum machines, a physically modelled snare and an 808 kick</li>
                                 <li>Three physically modelled pianos, voiced against a real CP-80</li>
@@ -134,13 +134,29 @@
                         <div>
                             <h3>Mixing &amp; effects</h3>
                             <ul>
-                                <li>46 rack effects and analyzers, on the master, inserts and sends</li>
+                                <li>48 rack effects and analyzers, on the master, inserts and sends</li>
                                 <li>Mixer view with channel strips, IN/OUT meters and clip LEDs</li>
                                 <li>Parametric, 32-band graphical, dynamic and vintage EQs</li>
                                 <li>Reverb 224 after the Lexicon 224, plus reverbs, ambience and early reflections</li>
-                                <li>Compression, gate, limiter, transient shaping, saturation and fuzz</li>
+                                <li>Compression, an LA-2A-style optical leveler, gate, limiter, transient shaping, saturation and fuzz</li>
                                 <li>LUFS, true-peak, RTA and phase scope metering, reference monitoring</li>
                                 <li>Offline renderer to WAV or FLAC, master mix or per-track stems</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <figure class="window">
+                            <img src="img/PerformancePanel-960.webp" width="960" height="593" loading="lazy" alt="The Performance Panel under the tracker editor, with XY pads and meters">
+                        </figure>
+                        <div>
+                            <h3>Modulation &amp; performance</h3>
+                            <ul>
+                                <li>XY Pad device: four hand-played pads, each axis moving any device or effect parameter</li>
+                                <li>LFO device: four LFOs on any parameter, free, tempo-synced or one-shot</li>
+                                <li>LFOs and pads on the same parameter add up</li>
+                                <li>Performance Panel under the editor: XY pads, RTAs, LUFS, dBTP and stereo field meters</li>
+                                <li>Pad moves recorded while playing land in the song as automation curves</li>
                             </ul>
                         </div>
                     </div>
@@ -151,7 +167,7 @@
                             <li>Sample-accurate, drift-free internal timing</li>
                             <li>Keyboard-driven tracker editing in decimal values (0-127)</li>
                             <li>Automate any device or effect parameter, or draw the curve node by node</li>
-                            <li>LFO device, arpeggiator, chords, step recording and live play</li>
+                            <li>Arpeggiator, chords, step recording and live play</li>
                             <li>MIDI hot-plug, per-track port and channel, SMF Type 1 export</li>
                             <li>ALSA, PulseAudio and JACK with optional transport sync</li>
                             <li>Translated into ten languages; saves to an open XML-based .nahd format</li>
@@ -166,6 +182,8 @@
                     <h2>Screenshots</h2>
                     <div class="gallery">
                         <button type="button" data-full="img/Noteahead.webp"><img src="img/Noteahead-960.webp" width="960" height="657" loading="lazy" alt=""><span>Tracker</span></button>
+                        <button type="button" data-full="img/PerformancePanel.webp"><img src="img/PerformancePanel-960.webp" width="960" height="593" loading="lazy" alt=""><span>Performance Panel</span></button>
+                        <button type="button" data-full="img/XYPad.webp"><img src="img/XYPad-960.webp" width="960" height="589" loading="lazy" alt=""><span>XY Pad</span></button>
                         <button type="button" data-full="img/Mixer.webp"><img src="img/Mixer-960.webp" width="960" height="587" loading="lazy" alt=""><span>Mixer</span></button>
                         <button type="button" data-full="img/DeviceRack.webp"><img src="img/DeviceRack-960.webp" width="960" height="561" loading="lazy" alt=""><span>Device Rack</span></button>
                         <button type="button" data-full="img/Sampler.webp"><img src="img/Sampler-960.webp" width="960" height="657" loading="lazy" alt=""><span>Sampler</span></button>
@@ -173,6 +191,7 @@
                         <button type="button" data-full="img/JuSynth.webp"><img src="img/JuSynth-960.webp" width="960" height="616" loading="lazy" alt=""><span>JU Synth</span></button>
                         <button type="button" data-full="img/FmSynth.webp"><img src="img/FmSynth-960.webp" width="960" height="570" loading="lazy" alt=""><span>FM Synth</span></button>
                         <button type="button" data-full="img/DynamicEQ.webp"><img src="img/DynamicEQ-960.webp" width="960" height="575" loading="lazy" alt=""><span>Dynamic EQ</span></button>
+                        <button type="button" data-full="img/RecordedAutomationCurves.webp"><img src="img/RecordedAutomationCurves-960.webp" width="960" height="983" loading="lazy" alt=""><span>Automation Curves</span></button>
                         <button type="button" data-full="img/RTA.webp"><img src="img/RTA-960.webp" width="960" height="582" loading="lazy" alt=""><span>RTA</span></button>
                     </div>
                 </div>
