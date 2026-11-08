@@ -17,6 +17,7 @@
 #include "device_factory.hpp"
 #include "drum_synth_device.hpp"
 #include "drum_synth_v2_device.hpp"
+#include "electric_bass_device.hpp"
 #include "fm_drums_device.hpp"
 #include "fm_synth_device.hpp"
 #include "ju_synth_08_device.hpp"
@@ -56,6 +57,9 @@ void DeviceFactory::init()
     });
     registerDevice(FmDrumsDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<FmDrumsDevice>(name);
+    });
+    registerDevice(ElectricBassDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<ElectricBassDevice>(name);
     });
     registerDevice(FmSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<FmSynthDevice>(name);

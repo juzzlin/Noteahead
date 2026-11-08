@@ -49,6 +49,7 @@ class DeviceRackController;
 class DeviceService;
 class PresetService;
 class BassSynthController;
+class ElectricBassController;
 class DrumSynthController;
 class DrumSynthV2Controller;
 class FmDrumsController;
@@ -201,6 +202,7 @@ private:
     std::shared_ptr<JuSynthController> m_juSynthController;
     std::shared_ptr<JuSynth08Controller> m_juSynth08Controller;
     std::shared_ptr<BassSynthController> m_bassSynthController;
+    std::shared_ptr<ElectricBassController> m_electricBassController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<DrumSynthV2Controller> m_drumSynthV2Controller;
     std::shared_ptr<FmDrumsController> m_fmDrumsController;

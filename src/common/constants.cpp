@@ -244,6 +244,11 @@ QString kickSynthDeviceName()
     return "Noteahead KickSynth";
 }
 
+QString electricBassDeviceName()
+{
+    return "Noteahead ElectricBass";
+}
+
 QString snareSynthDeviceName()
 {
     return "Noteahead SnareSynth";
@@ -3290,6 +3295,16 @@ QString xmlKeyRing()
 QString xmlKeyRingDecay()
 {
     return "ringDecay";
+}
+
+QString xmlKeyNeckPickup()
+{
+    return "neckPickup";
+}
+
+QString xmlKeyBridgePickup()
+{
+    return "bridgePickup";
 }
 
 QString xmlKeyTone()

@@ -10,6 +10,8 @@ set(HEADER_FILES
     devices/drum_synth_v2_constants.hpp
     devices/drum_synth_v2_device.hpp
     devices/drum_voice_parameter_display.hpp
+    devices/electric_bass_device.hpp
+    devices/electric_bass_presets.hpp
     devices/fm_drums_device.hpp
     devices/fm_drums_presets.hpp
     devices/fm_synth_device.hpp
@@ -80,6 +82,7 @@ set(HEADER_FILES
     dsp/micro_pitch_shifter.hpp
     dsp/linkwitz_riley_crossover.hpp
     dsp/low_pass_filter.hpp
+    dsp/modal_bass_string.hpp
     dsp/modal_piano_string.hpp
     dsp/modal_piano_string_v3.hpp
     dsp/multi_engine.hpp
@@ -236,6 +239,8 @@ set(SOURCE_FILES
     devices/drum_synth_v2_constants.cpp
     devices/drum_synth_v2_device.cpp
     devices/drum_voice_parameter_display.cpp
+    devices/electric_bass_device.cpp
+    devices/electric_bass_presets.cpp
     devices/fm_drums_device.cpp
     devices/fm_drums_presets.cpp
     devices/fm_synth_device.cpp
@@ -307,6 +312,7 @@ set(SOURCE_FILES
     dsp/micro_pitch_shifter.cpp
     dsp/linkwitz_riley_crossover.cpp
     dsp/low_pass_filter.cpp
+    dsp/modal_bass_string.cpp
     dsp/modal_piano_string.cpp
     dsp/modal_piano_string_v3.cpp
     dsp/multi_engine.cpp

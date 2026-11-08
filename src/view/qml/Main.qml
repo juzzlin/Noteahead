@@ -408,6 +408,10 @@ ApplicationWindow {
         id: bassSynthDialog
         anchors.centerIn: parent
     }
+    ElectricBassDialog {
+        id: electricBassDialog
+        anchors.centerIn: parent
+    }
     JuSynthDialog {
         id: juSynthDialog
         anchors.centerIn: parent
@@ -1215,6 +1219,7 @@ ApplicationWindow {
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
         deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
+        deviceRackController.electricBassDialogRequested.connect(electricBassDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.drumSynthV2DialogRequested.connect(drumSynthV2Dialog.open);
         deviceRackController.fmDrumsDialogRequested.connect(fmDrumsDialog.open);

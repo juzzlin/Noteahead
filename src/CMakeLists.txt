@@ -150,6 +150,12 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Oscillator.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Pickups.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Pluck.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/ElectricBassDialog_String.qml
     ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
     ${QML_BASE_DIR}/Dialogs/ClipperDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml

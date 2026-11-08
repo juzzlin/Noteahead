@@ -35,6 +35,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/electric_bass_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/ju_synth_device.hpp"
@@ -3763,6 +3764,58 @@ void XmlSerializationTest::test_toXmlFromXml_kickSynthDevice_shouldLoadCorrectly
     QVERIFY(std::abs(restored->knob(Xml::xmlKeyHpfCutoff()) - 0.869f) < 0.001f);
     QCOMPARE(restored->chromatic(), true);
     QCOMPARE(restored->ampEnvelopeEnabled(), true);
+    QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_electricBassDevice_shouldLoadCorrectly()
+{
+    namespace Xml = Constants::NahdXml;
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto bass = std::make_shared<ElectricBassDevice>("ElectricBass");
+    bass->setKnob(Xml::xmlKeyPosition(), 0.11f);
+    bass->setKnob(Xml::xmlKeyHardness(), 0.193f);
+    bass->setKnob(Xml::xmlKeySustain(), 0.276f);
+    bass->setKnob(Xml::xmlKeyBrightness(), 0.359f);
+    bass->setKnob(Xml::xmlKeyRelease(), 0.442f);
+    bass->setKnob(Xml::xmlKeyNeckPickup(), 0.525f);
+    bass->setKnob(Xml::xmlKeyBridgePickup(), 0.608f);
+    bass->setKnob(Xml::xmlKeyTone(), 0.691f);
+    bass->setKnob(Xml::xmlKeyVelocitySensitivity(), 0.774f);
+    bass->setPitchBendRange(7);
+    bass->setVolume(0.77f);
+    bass->setPan(0.40f);
+    deviceServiceOut.setDevice(1, bass);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<ElectricBassDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), ElectricBassDevice::typeIdString());
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyPosition()) - 0.11f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyHardness()) - 0.193f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeySustain()) - 0.276f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyBrightness()) - 0.359f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyRelease()) - 0.442f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyNeckPickup()) - 0.525f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyBridgePickup()) - 0.608f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyTone()) - 0.691f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Xml::xmlKeyVelocitySensitivity()) - 0.774f) < 0.001f);
+    QCOMPARE(restored->pitchBendRange(), 7);
     QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
 }

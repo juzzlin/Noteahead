@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>A monophonic bass synthesizer with accent and slide</source>
@@ -2529,7 +2529,7 @@
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klik</translation>
     </message>
     <message>
         <source>Snappy</source>
@@ -2556,7 +2556,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2564,7 +2564,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
 </context>
 <context>
@@ -3412,6 +3412,160 @@
     </message>
 </context>
 <context>
+    <name>ElectricBassDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globaal</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Velocity</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
+        <translation>Hoeveel zachter zachte noten spelen. Een zachte aanslag is ook donkerder, omdat hij langzamer van de vinger rolt.</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Pitch bend-bereik</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pickups</name>
+    <message>
+        <source>Pickups</source>
+        <translation>Elementen</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation>Hals</translation>
+    </message>
+    <message>
+        <source>The volume of the neck pickup: the round, deep one.</source>
+        <translation>Het volume van het halselement: het ronde, diepe.</translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation>Brug</translation>
+    </message>
+    <message>
+        <source>The volume of the bridge pickup: the tight, nasal one.</source>
+        <translation>Het volume van het brugelement: het strakke, nasale.</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Toon</translation>
+    </message>
+    <message>
+        <source>The passive tone control: rolled off, it takes the top off and softens the resonance of the pickups.</source>
+        <translation>De passieve toonregeling: dichtgedraaid haalt hij de hoogte weg en verzacht hij de resonantie van de elementen.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pluck</name>
+    <message>
+        <source>Pluck</source>
+        <translation>Aanslag</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Positie</translation>
+    </message>
+    <message>
+        <source>Where the finger plucks, from the bridge: close to it is tight and bright, towards the neck round and hollow.</source>
+        <translation>Waar de vinger tokkelt, vanaf de brug: dichtbij strak en helder, naar de hals toe rond en hol.</translation>
+    </message>
+    <message>
+        <source>Finger</source>
+        <translation>Vinger</translation>
+    </message>
+    <message>
+        <source>The finger plucking: soft flesh rounds off the top, a hard fingertip brings it out.</source>
+        <translation>De tokkelende vinger: zacht vlees rondt de hoogte af, een harde vingertop haalt die naar voren.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>De huidige instellingen opslaan als eigen preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Het geselecteerde eigen preset verwijderen</translation>
+    </message>
+    <message>
+        <source>Physically modelled electric bass, played with the fingers</source>
+        <translation>Fysiek gemodelleerde elektrische bas, met de vingers bespeeld</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Snaar</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>How long the lowest partials ring while the note is held.</source>
+        <translation>Hoe lang de laagste deeltonen klinken zolang de noot wordt vastgehouden.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Helderheid</translation>
+    </message>
+    <message>
+        <source>How long the higher partials ring against the low ones: new roundwounds are bright, old strings dull.</source>
+        <translation>Hoe lang de hogere deeltonen klinken ten opzichte van de lage: nieuwe roundwounds zijn helder, oude snaren dof.</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>How fast the string dies when the fretting finger lifts.</source>
+        <translation>Hoe snel de snaar uitsterft als de grijpende vinger loslaat.</translation>
+    </message>
+</context>
+<context>
     <name>EndlessReverbDialog</name>
     <message>
         <source>Endless Reverb (Slot %1)</source>
@@ -3925,7 +4079,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -3933,7 +4087,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
 </context>
 <context>
@@ -4345,7 +4499,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4353,7 +4507,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>Four operators, eight algorithms</source>
@@ -4762,7 +4916,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4770,7 +4924,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>An eight-voice polysynth after the Jupiter-8</source>
@@ -5144,7 +5298,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5152,7 +5306,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>A six-voice polysynth after the Juno-60, with its chorus</source>
@@ -8495,12 +8649,24 @@
         <translation type="unfinished">Hold</translation>
     </message>
     <message>
+        <source>Finger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sustain</source>
         <translation type="unfinished">Sustain</translation>
     </message>
     <message>
         <source>Release</source>
         <translation type="unfinished">Release</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>
@@ -8964,7 +9130,7 @@
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Toonhoogtedaling</translation>
     </message>
     <message>
         <source>Damping</source>
@@ -8976,31 +9142,31 @@
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Naklank-decay</translation>
     </message>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klopper</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klik</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resonantievel</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Stemming resonantievel</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ketel</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Microfoon</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -9798,7 +9964,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9806,7 +9972,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
 </context>
 <context>
@@ -11483,7 +11649,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -11491,7 +11657,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>Acoustic physical modelling snare drum synthesizer</source>
@@ -11533,7 +11699,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klik</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -13543,7 +13709,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -13551,7 +13717,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
@@ -14700,7 +14866,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De huidige instellingen opslaan als eigen preset</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -14708,7 +14874,7 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Het geselecteerde eigen preset verwijderen</translation>
     </message>
     <message>
         <source>Eight voices, six wavetables</source>

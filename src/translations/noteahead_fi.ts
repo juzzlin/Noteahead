@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>A monophonic bass synthesizer with accent and slide</source>
@@ -2529,7 +2529,7 @@
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Napsahdus</translation>
     </message>
     <message>
         <source>Snappy</source>
@@ -2556,7 +2556,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2564,7 +2564,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
 </context>
 <context>
@@ -3412,6 +3412,160 @@
     </message>
 </context>
 <context>
+    <name>ElectricBassDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Yleiset</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorointi</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Voimakkuus</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
+        <translation>Kuinka paljon hiljaisemmin hiljaiset nuotit soivat. Hiljainen näppäys on myös tummempi, koska se rullaa sormesta hitaammin.</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Pitch bend -alue</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pickups</name>
+    <message>
+        <source>Pickups</source>
+        <translation>Mikrofonit</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation>Kaula</translation>
+    </message>
+    <message>
+        <source>The volume of the neck pickup: the round, deep one.</source>
+        <translation>Kaulamikrofonin voimakkuus: pyöreä ja syvä.</translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation>Talla</translation>
+    </message>
+    <message>
+        <source>The volume of the bridge pickup: the tight, nasal one.</source>
+        <translation>Tallamikrofonin voimakkuus: kireä ja nasaali.</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Sävy</translation>
+    </message>
+    <message>
+        <source>The passive tone control: rolled off, it takes the top off and softens the resonance of the pickups.</source>
+        <translation>Passiivinen sävynsäädin: alas käännettynä se vie diskantin ja pehmentää mikrofonien resonanssia.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pluck</name>
+    <message>
+        <source>Pluck</source>
+        <translation>Näppäys</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Sijainti</translation>
+    </message>
+    <message>
+        <source>Where the finger plucks, from the bridge: close to it is tight and bright, towards the neck round and hollow.</source>
+        <translation>Missä sormi näppää, tallasta mitattuna: lähellä sitä kireä ja kirkas, kaulaa kohti pyöreä ja ontto.</translation>
+    </message>
+    <message>
+        <source>Finger</source>
+        <translation>Sormi</translation>
+    </message>
+    <message>
+        <source>The finger plucking: soft flesh rounds off the top, a hard fingertip brings it out.</source>
+        <translation>Näppäävä sormi: pehmeä sormenpää pyöristää diskantin, kova sormenkärki tuo sen esiin.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Esiasetus:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Tallenna</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Poista valittu oma esiasetus</translation>
+    </message>
+    <message>
+        <source>Physically modelled electric bass, played with the fingers</source>
+        <translation>Fysikaalisesti mallinnettu sähköbasso, soitettuna sormilla</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Kieli</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>How long the lowest partials ring while the note is held.</source>
+        <translation>Kuinka kauan alimmat osasävelet soivat, kun nuottia pidetään.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Kirkkaus</translation>
+    </message>
+    <message>
+        <source>How long the higher partials ring against the low ones: new roundwounds are bright, old strings dull.</source>
+        <translation>Kuinka kauan ylemmät osasävelet soivat alempiin nähden: uudet pyöröpunotut ovat kirkkaita, vanhat kielet tunkkaisia.</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>How fast the string dies when the fretting finger lifts.</source>
+        <translation>Kuinka nopeasti kieli vaimenee, kun painava sormi nousee.</translation>
+    </message>
+</context>
+<context>
     <name>EndlessReverbDialog</name>
     <message>
         <source>Endless Reverb (Slot %1)</source>
@@ -3925,7 +4079,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -3933,7 +4087,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
 </context>
 <context>
@@ -4345,7 +4499,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4353,7 +4507,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>Four operators, eight algorithms</source>
@@ -4762,7 +4916,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4770,7 +4924,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>An eight-voice polysynth after the Jupiter-8</source>
@@ -5144,7 +5298,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5152,7 +5306,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>A six-voice polysynth after the Juno-60, with its chorus</source>
@@ -8495,12 +8649,24 @@
         <translation type="unfinished">Hold</translation>
     </message>
     <message>
+        <source>Finger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sustain</source>
         <translation type="unfinished">Sustain</translation>
     </message>
     <message>
         <source>Release</source>
         <translation type="unfinished">Release</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>
@@ -8964,7 +9130,7 @@
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sävelkorkeuden lasku</translation>
     </message>
     <message>
         <source>Damping</source>
@@ -8976,31 +9142,31 @@
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Soimisen decay</translation>
     </message>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kapula</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Napsahdus</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Etukalvo</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Etukalvon viritys</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Runko</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mikrofoni</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -9798,7 +9964,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9806,7 +9972,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
 </context>
 <context>
@@ -11483,7 +11649,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -11491,7 +11657,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>Acoustic physical modelling snare drum synthesizer</source>
@@ -11533,7 +11699,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Napsahdus</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -13543,7 +13709,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -13551,7 +13717,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
@@ -14700,7 +14866,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -14708,7 +14874,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista valittu oma esiasetus</translation>
     </message>
     <message>
         <source>Eight voices, six wavetables</source>

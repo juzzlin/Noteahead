@@ -22,6 +22,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/electric_bass_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/ju_synth_08_device.hpp"
@@ -178,6 +179,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit fmSynthDialogRequested();
                 } else if (typeId == BassSynthDevice::typeIdString()) {
                     emit bassSynthDialogRequested();
+                } else if (typeId == ElectricBassDevice::typeIdString()) {
+                    emit electricBassDialogRequested();
                 } else if (typeId == DrumSynthDevice::typeIdString()) {
                     emit drumSynthDialogRequested();
                 } else if (typeId == DrumSynthV2Device::typeIdString()) {
@@ -586,6 +589,7 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("JU Synth", QString::fromStdString(JuSynthDevice::typeIdString()), synths);
     addDevice("JU Synth 08", QString::fromStdString(JuSynth08Device::typeIdString()), synths);
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()), synths);
+    addDevice("Electric Bass", QString::fromStdString(ElectricBassDevice::typeIdString()), synths);
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()), drums);
     addDevice("Drum Synth V2", QString::fromStdString(DrumSynthV2Device::typeIdString()), drums);
     addDevice("FM Drums", QString::fromStdString(FmDrumsDevice::typeIdString()), drums);

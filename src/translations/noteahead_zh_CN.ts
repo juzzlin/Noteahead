@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>A monophonic bass synthesizer with accent and slide</source>
@@ -2528,7 +2528,7 @@
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">敲击声</translation>
     </message>
     <message>
         <source>Snappy</source>
@@ -2555,7 +2555,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2563,7 +2563,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
 </context>
 <context>
@@ -3411,6 +3411,160 @@
     </message>
 </context>
 <context>
+    <name>ElectricBassDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>力度</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
+        <translation>弱音符弱多少。轻拨也更暗，因为它从手指上滚落得更慢。</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>弯音范围</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pickups</name>
+    <message>
+        <source>Pickups</source>
+        <translation>拾音器</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation>琴颈</translation>
+    </message>
+    <message>
+        <source>The volume of the neck pickup: the round, deep one.</source>
+        <translation>琴颈拾音器的音量：圆润、深沉的那个。</translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation>琴桥</translation>
+    </message>
+    <message>
+        <source>The volume of the bridge pickup: the tight, nasal one.</source>
+        <translation>琴桥拾音器的音量：紧实、带鼻音的那个。</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>音色</translation>
+    </message>
+    <message>
+        <source>The passive tone control: rolled off, it takes the top off and softens the resonance of the pickups.</source>
+        <translation>无源音色控制：调低时削去高频并柔化拾音器的共振。</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pluck</name>
+    <message>
+        <source>Pluck</source>
+        <translation>拨弦</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>位置</translation>
+    </message>
+    <message>
+        <source>Where the finger plucks, from the bridge: close to it is tight and bright, towards the neck round and hollow.</source>
+        <translation>手指拨弦的位置，从琴桥算起：靠近琴桥紧实明亮，靠近琴颈圆润空洞。</translation>
+    </message>
+    <message>
+        <source>Finger</source>
+        <translation>手指</translation>
+    </message>
+    <message>
+        <source>The finger plucking: soft flesh rounds off the top, a hard fingertip brings it out.</source>
+        <translation>拨弦的手指：柔软的指肚圆润高频，坚硬的指尖突出高频。</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+    <message>
+        <source>Physically modelled electric bass, played with the fingers</source>
+        <translation>物理建模电贝斯，用手指演奏</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>琴弦</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>延持</translation>
+    </message>
+    <message>
+        <source>How long the lowest partials ring while the note is held.</source>
+        <translation>按住音符时最低分音的鸣响时间。</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>How long the higher partials ring against the low ones: new roundwounds are bright, old strings dull.</source>
+        <translation>高次分音相对低次分音的鸣响时间：新的圆缠弦明亮，旧弦沉闷。</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>How fast the string dies when the fretting finger lifts.</source>
+        <translation>按弦手指抬起时琴弦消失的速度。</translation>
+    </message>
+</context>
+<context>
     <name>EndlessReverbDialog</name>
     <message>
         <source>Endless Reverb (Slot %1)</source>
@@ -3924,7 +4078,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -3932,7 +4086,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
 </context>
 <context>
@@ -4344,7 +4498,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4352,7 +4506,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>Four operators, eight algorithms</source>
@@ -4761,7 +4915,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4769,7 +4923,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>An eight-voice polysynth after the Jupiter-8</source>
@@ -5143,7 +5297,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5151,7 +5305,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>A six-voice polysynth after the Juno-60, with its chorus</source>
@@ -8494,12 +8648,24 @@
         <translation type="unfinished">保持</translation>
     </message>
     <message>
+        <source>Finger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sustain</source>
         <translation type="unfinished">延持</translation>
     </message>
     <message>
         <source>Release</source>
         <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>
@@ -8963,7 +9129,7 @@
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">音高下滑</translation>
     </message>
     <message>
         <source>Damping</source>
@@ -8975,31 +9141,31 @@
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">余振衰减</translation>
     </message>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">鼓槌</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">敲击声</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">前鼓皮</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">前鼓皮调音</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">鼓身</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">话筒</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -9797,7 +9963,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9805,7 +9971,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
 </context>
 <context>
@@ -11481,7 +11647,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -11489,7 +11655,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>Acoustic physical modelling snare drum synthesizer</source>
@@ -11531,7 +11697,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">敲击声</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -13541,7 +13707,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -13549,7 +13715,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
@@ -14698,7 +14864,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -14706,7 +14872,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所选的自定义预设</translation>
     </message>
     <message>
         <source>Eight voices, six wavetables</source>

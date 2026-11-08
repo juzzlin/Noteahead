@@ -190,6 +190,7 @@ signals:
     void wavetableSynthDialogRequested();
     void fmSynthDialogRequested();
     void bassSynthDialogRequested();
+    void electricBassDialogRequested();
     void drumSynthDialogRequested();
     void drumSynthV2DialogRequested();
     void fmDrumsDialogRequested();

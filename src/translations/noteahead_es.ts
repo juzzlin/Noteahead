@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>A monophonic bass synthesizer with accent and slide</source>
@@ -2529,7 +2529,7 @@
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clic</translation>
     </message>
     <message>
         <source>Snappy</source>
@@ -2556,7 +2556,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2564,7 +2564,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
 </context>
 <context>
@@ -3412,6 +3412,160 @@
     </message>
 </context>
 <context>
+    <name>ElectricBassDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>Aceptar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Paneo</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer. A soft pluck is also darker, as it rolls off the finger more slowly.</source>
+        <translation>Cuánto más suaves suenan las notas suaves. Una pulsación suave también es más oscura, porque rueda más despacio del dedo.</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Rango de pitch bend</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pickups</name>
+    <message>
+        <source>Pickups</source>
+        <translation>Pastillas</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation>Mástil</translation>
+    </message>
+    <message>
+        <source>The volume of the neck pickup: the round, deep one.</source>
+        <translation>El volumen de la pastilla del mástil: la redonda y profunda.</translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation>Puente</translation>
+    </message>
+    <message>
+        <source>The volume of the bridge pickup: the tight, nasal one.</source>
+        <translation>El volumen de la pastilla del puente: la tensa y nasal.</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Tono</translation>
+    </message>
+    <message>
+        <source>The passive tone control: rolled off, it takes the top off and softens the resonance of the pickups.</source>
+        <translation>El control de tono pasivo: al bajarlo quita los agudos y suaviza la resonancia de las pastillas.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Pluck</name>
+    <message>
+        <source>Pluck</source>
+        <translation>Pulsación</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Posición</translation>
+    </message>
+    <message>
+        <source>Where the finger plucks, from the bridge: close to it is tight and bright, towards the neck round and hollow.</source>
+        <translation>Dónde pulsa el dedo, desde el puente: cerca es tenso y brillante, hacia el mástil redondo y hueco.</translation>
+    </message>
+    <message>
+        <source>Finger</source>
+        <translation>Dedo</translation>
+    </message>
+    <message>
+        <source>The finger plucking: soft flesh rounds off the top, a hard fingertip brings it out.</source>
+        <translation>El dedo que pulsa: la yema blanda redondea los agudos, una punta dura los resalta.</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preajuste:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Guardar los ajustes actuales como preajuste propio</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Eliminar el preajuste propio seleccionado</translation>
+    </message>
+    <message>
+        <source>Physically modelled electric bass, played with the fingers</source>
+        <translation>Bajo eléctrico por modelado físico, tocado con los dedos</translation>
+    </message>
+</context>
+<context>
+    <name>ElectricBassDialog_String</name>
+    <message>
+        <source>String</source>
+        <translation>Cuerda</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sostenido</translation>
+    </message>
+    <message>
+        <source>How long the lowest partials ring while the note is held.</source>
+        <translation>Cuánto suenan los parciales más graves mientras se mantiene la nota.</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Brillo</translation>
+    </message>
+    <message>
+        <source>How long the higher partials ring against the low ones: new roundwounds are bright, old strings dull.</source>
+        <translation>Cuánto suenan los parciales altos frente a los bajos: las entorchadas redondas nuevas son brillantes, las cuerdas viejas apagadas.</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Liberación</translation>
+    </message>
+    <message>
+        <source>How fast the string dies when the fretting finger lifts.</source>
+        <translation>Qué tan rápido se apaga la cuerda cuando el dedo que pisa se levanta.</translation>
+    </message>
+</context>
+<context>
     <name>EndlessReverbDialog</name>
     <message>
         <source>Endless Reverb (Slot %1)</source>
@@ -3925,7 +4079,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -3933,7 +4087,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
 </context>
 <context>
@@ -4345,7 +4499,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4353,7 +4507,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>Four operators, eight algorithms</source>
@@ -4762,7 +4916,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4770,7 +4924,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>An eight-voice polysynth after the Jupiter-8</source>
@@ -5144,7 +5298,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5152,7 +5306,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>A six-voice polysynth after the Juno-60, with its chorus</source>
@@ -8495,12 +8649,24 @@
         <translation type="unfinished">Retención</translation>
     </message>
     <message>
+        <source>Finger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sustain</source>
         <translation type="unfinished">Sostenido</translation>
     </message>
     <message>
         <source>Release</source>
         <translation type="unfinished">Liberación</translation>
+    </message>
+    <message>
+        <source>Neck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bridge</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mod EG Intensity</source>
@@ -8964,7 +9130,7 @@
     </message>
     <message>
         <source>Pitch Drop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Caída de tono</translation>
     </message>
     <message>
         <source>Damping</source>
@@ -8976,31 +9142,31 @@
     </message>
     <message>
         <source>Ring Decay</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Caída de resonancia</translation>
     </message>
     <message>
         <source>Beater</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Maza</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clic</translation>
     </message>
     <message>
         <source>Front Head</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parche frontal</translation>
     </message>
     <message>
         <source>Front Tune</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afinación frontal</translation>
     </message>
     <message>
         <source>Shell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Casco</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Micrófono</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -9798,7 +9964,7 @@
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -9806,7 +9972,7 @@
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
 </context>
 <context>
@@ -11483,7 +11649,7 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -11491,7 +11657,7 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>Acoustic physical modelling snare drum synthesizer</source>
@@ -11533,7 +11699,7 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clic</translation>
     </message>
     <message>
         <source>Hardness</source>
@@ -13543,7 +13709,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -13551,7 +13717,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
@@ -14700,7 +14866,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar los ajustes actuales como preajuste propio</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -14708,7 +14874,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar el preajuste propio seleccionado</translation>
     </message>
     <message>
         <source>Eight voices, six wavetables</source>
