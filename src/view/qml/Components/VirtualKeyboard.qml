@@ -201,6 +201,19 @@ Item {
                         opacity: 0.3
                         visible: rootItem.activeNotes.includes(parent.note)
                     }
+
+                    // The octave on every C, named as the note column names it, faint enough to read
+                    // as printed on the key rather than as a label over it
+                    Text {
+                        visible: wkey.note % 12 === 0
+                        text: "C-" + Math.floor(wkey.note / 12)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: Math.max(2, rootItem.keyRadius + 1)
+                        font.pixelSize: Math.max(7, Math.min(11, rootItem.whiteKeyWidth * 0.42))
+                        color: "#000000"
+                        opacity: 0.38
+                    }
                 }
             }
         }
