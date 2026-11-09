@@ -7987,6 +7987,14 @@
         <translation type="unfinished">Panning</translation>
     </message>
     <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF-cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF-cutoff</translation>
+    </message>
+    <message>
         <source>Chromatic</source>
         <translation>Chromatisch</translation>
     </message>

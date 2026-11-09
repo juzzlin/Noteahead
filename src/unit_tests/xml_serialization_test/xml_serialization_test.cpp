@@ -3547,6 +3547,8 @@ void XmlSerializationTest::test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly()
     noise->setResonance(0.72f);
     noise->setDrive(0.35f);
     noise->setKeyTrack(0.5f);
+    noise->setLpfCutoff(0.81f);
+    noise->setHpfCutoff(0.13f);
     noise->setAmpAttack(0.12f);
     noise->setAmpDecay(0.34f);
     noise->setAmpSustain(0.56f);
@@ -3602,6 +3604,8 @@ void XmlSerializationTest::test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly()
     QVERIFY(std::abs(restored->resonance() - 0.72f) < 0.001f);
     QVERIFY(std::abs(restored->drive() - 0.35f) < 0.001f);
     QVERIFY(std::abs(restored->keyTrack() - 0.5f) < 0.001f);
+    QVERIFY(std::abs(restored->lpfCutoff() - 0.81f) < 0.001f);
+    QVERIFY(std::abs(restored->hpfCutoff() - 0.13f) < 0.001f);
     QVERIFY(std::abs(restored->ampAttack() - 0.12f) < 0.001f);
     QVERIFY(std::abs(restored->ampDecay() - 0.34f) < 0.001f);
     QVERIFY(std::abs(restored->ampSustain() - 0.56f) < 0.001f);

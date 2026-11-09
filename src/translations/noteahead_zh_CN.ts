@@ -7986,6 +7986,14 @@
         <translation type="unfinished">声像</translation>
     </message>
     <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
+    </message>
+    <message>
         <source>Chromatic</source>
         <translation>半音</translation>
     </message>

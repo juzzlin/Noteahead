@@ -55,6 +55,8 @@ private slots:
     void test_noiseFx_sweepParameters_shouldRoundTrip();
     void test_noiseFx_presets_shouldAllLoadAndBeNamedOnce();
     void test_noiseFx_programChange_shouldLoadThePreset();
+    void test_noiseFx_outputFilter_shouldCutTheLevel_data();
+    void test_noiseFx_outputFilter_shouldCutTheLevel();
 };
 
 } // namespace noteahead

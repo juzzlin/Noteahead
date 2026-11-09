@@ -53,6 +53,21 @@ ColumnLayout {
         onMoved: v => noiseFxController.pan = v
         Layout.fillWidth: true
     }
+    FilterKnob {
+        label: qsTr("LPF Cutoff")
+        controller: noiseFxController
+        value: noiseFxController.lpfCutoff
+        onMoved: v => noiseFxController.lpfCutoff = v
+        Layout.fillWidth: true
+    }
+    FilterKnob {
+        label: qsTr("HPF Cutoff")
+        controller: noiseFxController
+        isHpf: true
+        value: noiseFxController.hpfCutoff
+        onMoved: v => noiseFxController.hpfCutoff = v
+        Layout.fillWidth: true
+    }
     OctaveKnob {
         controller: noiseFxController
     }

@@ -7987,6 +7987,14 @@
         <translation type="unfinished">Panorointi</translation>
     </message>
     <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
+    </message>
+    <message>
         <source>Chromatic</source>
         <translation>Kromaattinen</translation>
     </message>

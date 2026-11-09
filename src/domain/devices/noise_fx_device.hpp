@@ -17,6 +17,7 @@
 #define NOISE_FX_DEVICE_HPP
 
 #include "../dsp/adsr_envelope.hpp"
+#include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/noise_source.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
@@ -164,6 +165,12 @@ public:
     void setDrive(float drive);
     float keyTrack() const;
     void setKeyTrack(float keyTrack);
+
+    // Output filters, after the voices are summed
+    float lpfCutoff() const;
+    void setLpfCutoff(float cutoff);
+    float hpfCutoff() const;
+    void setHpfCutoff(float cutoff);
 
     // Amp
     float ampAttack() const;
@@ -342,6 +349,10 @@ private:
     size_t m_nextVoiceToSteal { 0 };
     TrueStereoPanner m_voicePanner;
     TrueStereoPanner m_panner;
+    CascadedSvf m_lpfL {};
+    CascadedSvf m_lpfR {};
+    CascadedSvf m_hpfL {};
+    CascadedSvf m_hpfR {};
     double m_gateSmoothingCoefficient { 0.0 };
 
     float m_colour { 2.0f / 3.0f };
@@ -358,6 +369,8 @@ private:
     float m_resonance { 0.3f };
     float m_drive { 0.0f };
     float m_keyTrack { 0.0f };
+    float m_lpfCutoff { 1.0f };
+    float m_hpfCutoff { 0.0f };
     float m_ampAttack { 0.0f };
     float m_ampDecay { 0.5f };
     float m_ampSustain { 1.0f };

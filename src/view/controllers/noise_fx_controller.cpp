@@ -286,6 +286,30 @@ void NoiseFxController::setKeyTrack(int value)
     }
 }
 
+int NoiseFxController::lpfCutoff() const
+{
+    return m_device ? toKnob(m_device->lpfCutoff()) : 0;
+}
+
+void NoiseFxController::setLpfCutoff(int value)
+{
+    if (m_device) {
+        m_device->setLpfCutoff(fromKnob(value));
+    }
+}
+
+int NoiseFxController::hpfCutoff() const
+{
+    return m_device ? toKnob(m_device->hpfCutoff()) : 0;
+}
+
+void NoiseFxController::setHpfCutoff(int value)
+{
+    if (m_device) {
+        m_device->setHpfCutoff(fromKnob(value));
+    }
+}
+
 int NoiseFxController::ampAttack() const
 {
     return m_device ? toKnob(m_device->ampAttack()) : 0;
@@ -560,6 +584,8 @@ void NoiseFxController::requestSettings()
     emit resonanceChanged();
     emit driveChanged();
     emit keyTrackChanged();
+    emit lpfCutoffChanged();
+    emit hpfCutoffChanged();
     emit ampAttackChanged();
     emit ampDecayChanged();
     emit ampSustainChanged();

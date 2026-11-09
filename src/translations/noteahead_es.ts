@@ -7987,6 +7987,14 @@
         <translation type="unfinished">Paneo</translation>
     </message>
     <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte del HPF</translation>
+    </message>
+    <message>
         <source>Chromatic</source>
         <translation>Cromático</translation>
     </message>

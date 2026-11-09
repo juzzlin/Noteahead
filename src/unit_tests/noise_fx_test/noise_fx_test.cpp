@@ -20,11 +20,13 @@
 #include "../../domain/devices/noise_fx_presets.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/lfo.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QTest>
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <set>
 #include <vector>
 
@@ -611,6 +613,41 @@ void NoiseFxTest::test_noiseFx_programChange_shouldLoadThePreset()
     QCOMPARE(device.lfoTarget(0), NoiseFxDevice::Destination::Pitch);
     QCOMPARE(device.sweepTarget(0, 0), NoiseFxDevice::Destination::None);
     QVERIFY(!device.playToEnd());
+}
+
+void NoiseFxTest::test_noiseFx_outputFilter_shouldCutTheLevel_data()
+{
+    QTest::addColumn<bool>("highPass");
+    QTest::addColumn<bool>("viaMidiCc");
+    QTest::newRow("LPF") << false << false;
+    QTest::newRow("HPF") << true << false;
+    QTest::newRow("LPF via CC") << false << true;
+    QTest::newRow("HPF via CC") << true << true;
+}
+
+void NoiseFxTest::test_noiseFx_outputFilter_shouldCutTheLevel()
+{
+    QFETCH(bool, highPass);
+    QFETCH(bool, viaMidiCc);
+
+    NoiseFxDevice open { "Noise FX" };
+    open.processDeviceMidiNoteOn(60, 100);
+    const double openRms = rms(render(open, SampleRate / 2), 0, SampleRate / 2);
+
+    NoiseFxDevice filtered { "Noise FX" };
+    if (viaMidiCc) {
+        using namespace MidiCcMapping;
+        const auto controller = highPass ? Controller::GeneralPurpose6 : Controller::SoundController5;
+        filtered.processDeviceMidiCc(static_cast<uint8_t>(controller), highPass ? 110 : 6, 0);
+    } else if (highPass) {
+        filtered.setHpfCutoff(0.85f);
+    } else {
+        filtered.setLpfCutoff(0.05f);
+    }
+    filtered.processDeviceMidiNoteOn(60, 100);
+    const double filteredRms = rms(render(filtered, SampleRate / 2), 0, SampleRate / 2);
+
+    QVERIFY2(20.0 * std::log10(filteredRms / openRms) < -6.0, std::format("{} dB", 20.0 * std::log10(filteredRms / openRms)).c_str());
 }
 
 } // namespace noteahead

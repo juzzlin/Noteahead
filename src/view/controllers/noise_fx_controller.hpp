@@ -49,6 +49,8 @@ class NoiseFxController : public DeviceController
     Q_PROPERTY(int resonance READ resonance WRITE setResonance NOTIFY resonanceChanged)
     Q_PROPERTY(int drive READ drive WRITE setDrive NOTIFY driveChanged)
     Q_PROPERTY(int keyTrack READ keyTrack WRITE setKeyTrack NOTIFY keyTrackChanged)
+    Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
+    Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
     Q_PROPERTY(int ampAttack READ ampAttack WRITE setAmpAttack NOTIFY ampAttackChanged)
     Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampDecayChanged)
     Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
@@ -119,6 +121,10 @@ public:
     void setDrive(int value);
     int keyTrack() const;
     void setKeyTrack(int value);
+    int lpfCutoff() const;
+    void setLpfCutoff(int value);
+    int hpfCutoff() const;
+    void setHpfCutoff(int value);
     int ampAttack() const;
     void setAmpAttack(int value);
     int ampDecay() const;
@@ -181,6 +187,8 @@ signals:
     void resonanceChanged();
     void driveChanged();
     void keyTrackChanged();
+    void lpfCutoffChanged();
+    void hpfCutoffChanged();
     void ampAttackChanged();
     void ampDecayChanged();
     void ampSustainChanged();

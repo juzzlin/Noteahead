@@ -7987,6 +7987,14 @@
         <translation type="unfinished">Panorama</translation>
     </message>
     <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte do LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte do HPF</translation>
+    </message>
+    <message>
         <source>Chromatic</source>
         <translation>Cromático</translation>
     </message>

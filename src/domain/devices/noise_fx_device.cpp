@@ -168,6 +168,10 @@ NoiseFxDevice::NoiseFxDevice(std::string name)
     for (uint32_t i = 0; i < VoiceCount; i++) {
         m_voices.emplace_back(NoiseSeedBase + i, SideNoiseSeedBase + i, CrackleSeedBase + i);
     }
+    m_lpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_lpfR.setMode(CascadedSvf::Mode::LowPass);
+    m_hpfL.setMode(CascadedSvf::Mode::HighPass);
+    m_hpfR.setMode(CascadedSvf::Mode::HighPass);
 
     const auto continuous = [this](const QString & key, float value) {
         addParameter(Parameter { key.toStdString(), value, 0, 10000, static_cast<int>(std::lround(value * 10000.0f)), 100 });
@@ -186,6 +190,8 @@ NoiseFxDevice::NoiseFxDevice(std::string name)
     continuous(NahdXml::xmlKeyResonance(), m_resonance);
     continuous(NahdXml::xmlKeyDrive(), m_drive);
     continuous(NahdXml::xmlKeyKeyTrack(), m_keyTrack);
+    continuous(NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
+    continuous(NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
     continuous(NahdXml::xmlKeyAmpAttack(), m_ampAttack);
     continuous(NahdXml::xmlKeyAmpDecay(), m_ampDecay);
     continuous(NahdXml::xmlKeyAmpSustain(), m_ampSustain);
@@ -202,6 +208,7 @@ NoiseFxDevice::NoiseFxDevice(std::string name)
 
     NoiseFxDevice::syncParameters();
 
+    DeviceParameterDisplay::filters(*this);
     DeviceParameterDisplay::percent(*this, NahdXml::xmlKeyColor(), QT_TRANSLATE_NOOP("ParameterDisplay", "Colour"));
     DeviceParameterDisplay::percent(*this, NahdXml::xmlKeySampleHoldRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "S&H Rate"));
     DeviceParameterDisplay::percent(*this, NahdXml::xmlKeyCrackle(), QT_TRANSLATE_NOOP("ParameterDisplay", "Crackle"));
@@ -320,7 +327,9 @@ std::vector<MidiCcController> NoiseFxDevice::deviceMidiCcControllers() const
     using namespace MidiCcMapping;
     return {
         faderMidiCcController(),
-        { static_cast<uint8_t>(Controller::PanMSB), "Pan" }
+        { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
+        { static_cast<uint8_t>(Controller::SoundController5), "LPF" },
+        { static_cast<uint8_t>(Controller::GeneralPurpose6), "HPF" }
     };
 }
 
@@ -375,6 +384,13 @@ void NoiseFxDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8
             changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
         } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
             changed |= updatePanParameter(static_cast<float>(value) / 127.0f, false);
+        } else if (controller == static_cast<uint8_t>(Controller::SoundController5) || controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) {
+            const auto key = controller == static_cast<uint8_t>(Controller::SoundController5) ? NahdXml::xmlKeyLpfCutoff() : NahdXml::xmlKeyHpfCutoff();
+            if (const auto p = parameter(key.toStdString()); p) {
+                p->get().setAutomationValue(static_cast<float>(value) / 127.0f);
+                syncParameters();
+                changed = true;
+            }
         }
     }
     if (changed) {
@@ -700,6 +716,14 @@ void NoiseFxDevice::processAudio(AudioContext & context)
     }
     m_panner.setPan(static_cast<double>(panInternal()));
     const double gain = linearGainInternal();
+    for (auto * filter : { &m_lpfL, &m_lpfR }) {
+        filter->setSampleRate(sampleRate);
+        filter->setCutoff(static_cast<double>(m_lpfCutoff));
+    }
+    for (auto * filter : { &m_hpfL, &m_hpfR }) {
+        filter->setSampleRate(sampleRate);
+        filter->setCutoff(static_cast<double>(m_hpfCutoff));
+    }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         double outL = 0.0;
@@ -714,6 +738,8 @@ void NoiseFxDevice::processAudio(AudioContext & context)
             outL += voiceL;
             outR += voiceR;
         }
+        outL = m_hpfL.process(m_lpfL.process(outL));
+        outR = m_hpfR.process(m_lpfR.process(outR));
         m_panner.process(outL, outR);
         context.buffer[i * 2] += outL * gain;
         context.buffer[i * 2 + 1] += outR * gain;
@@ -739,6 +765,9 @@ void NoiseFxDevice::resetDeviceAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
         voice.reset();
+    }
+    for (auto * filter : { &m_lpfL, &m_lpfR, &m_hpfL, &m_hpfR }) {
+        filter->reset();
     }
     m_nextVoiceToSteal = 0;
 }
@@ -835,6 +864,8 @@ void NoiseFxDevice::syncParameters()
     readParameter(*this, NahdXml::xmlKeyResonance().toStdString(), m_resonance);
     readParameter(*this, NahdXml::xmlKeyDrive().toStdString(), m_drive);
     readParameter(*this, NahdXml::xmlKeyKeyTrack().toStdString(), m_keyTrack);
+    readParameter(*this, NahdXml::xmlKeyLpfCutoff().toStdString(), m_lpfCutoff);
+    readParameter(*this, NahdXml::xmlKeyHpfCutoff().toStdString(), m_hpfCutoff);
     readParameter(*this, NahdXml::xmlKeyAmpAttack().toStdString(), m_ampAttack);
     readParameter(*this, NahdXml::xmlKeyAmpDecay().toStdString(), m_ampDecay);
     readParameter(*this, NahdXml::xmlKeyAmpSustain().toStdString(), m_ampSustain);
@@ -1029,6 +1060,26 @@ void NoiseFxDevice::setKeyTrack(float keyTrack)
     setContinuousParameterValue(NahdXml::xmlKeyKeyTrack().toStdString(), keyTrack);
 }
 
+float NoiseFxDevice::lpfCutoff() const
+{
+    return shownParameterValue(NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
+}
+
+void NoiseFxDevice::setLpfCutoff(float cutoff)
+{
+    setContinuousParameterValue(NahdXml::xmlKeyLpfCutoff().toStdString(), cutoff);
+}
+
+float NoiseFxDevice::hpfCutoff() const
+{
+    return shownParameterValue(NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
+}
+
+void NoiseFxDevice::setHpfCutoff(float cutoff)
+{
+    setContinuousParameterValue(NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
+}
+
 float NoiseFxDevice::ampAttack() const
 {
     return shownParameterValue(NahdXml::xmlKeyAmpAttack(), m_ampAttack);
@@ -1186,7 +1237,9 @@ std::vector<std::string> NoiseFxDevice::modulationPriority() const
         NahdXml::xmlKeyDrive().toStdString(),
         NahdXml::xmlKeyCrackle().toStdString(),
         NahdXml::xmlKeyBlend().toStdString(),
-        NahdXml::xmlKeyWidth().toStdString()
+        NahdXml::xmlKeyWidth().toStdString(),
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
     };
 }
 
