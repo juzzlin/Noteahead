@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Electric Bass: a physically modelled, finger-played 5-string bass
   - Overlapping notes become hammer-ons and pull-offs
 
@@ -30,6 +33,9 @@ Release date:
 Sat, 07 Nov 2026 20:36:30 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Synth: VPM Multi engine after the Minilogue XD's
   - 16 phase modulation types, with Ratio, Octave and the XD's six VPM parameters
@@ -85,6 +91,9 @@ Mon, 02 Nov 2026 23:42:40 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Synth: Ring switch on VCO2, ring modulating it with VCO1 like the Minilogue XD's
 
 * Synth: each VCO's waveform is previewed next to its title, with Sync, Ring and Cross Mod applied
@@ -103,6 +112,9 @@ Release date:
 Sat, 31 Oct 2026 23:11:25 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * JU Synth 08: an eight-voice polysynth after the Jupiter-8
   - Dual VCOs with cross-modulation, hard sync, pulse-width modulation and noise
@@ -201,6 +213,9 @@ Sat, 17 Oct 2026 12:28:15 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * JU Synth: a six-voice polysynth after the Juno-60
   - Self-oscillating ladder filter, Chorus I, II and I+II, and twelve presets
 
@@ -258,6 +273,9 @@ Release date:
 Thu, 01 Oct 2026 23:21:48 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Sampler
   - Record straight onto a pad, with a metronome that counts in at the song's
@@ -346,6 +364,9 @@ Release date:
 Sun, 13 Sep 2026 08:37:52 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * A filter section per oscillator in the Synth
   - Each VCO gets its own low pass with resonance and slope, and a high pass
@@ -467,6 +488,9 @@ Thu, 10 Sep 2026 19:16:22 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Reach a device's rack actions from inside its own dialog
   - A Device menu in the button row opens Settings, Insert FX and Sends,
     and imports or exports the device's settings
@@ -543,6 +567,9 @@ Release date:
 Fri, 04 Sep 2026 18:36:50 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add per-pad tuning to the Sampler
   - Coarse in whole semitones, two octaves either way, plus fine tuning in cents
@@ -625,6 +652,9 @@ Wed, 02 Sep 2026 19:01:10 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add Change File to the Sampler's pad menu
   - Replaces the sample on a loaded pad, which until now meant clearing it first
   - The pad keeps its insert effects and its settings
@@ -684,6 +714,9 @@ Sun, 30 Aug 2026 23:38:39 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add presets to the Compressor
   - Glue, Drum Bus, Punchy Drums, Piano, Vocal, Bass, Pump and Brickwall
   - Calibrated against Noteahead's own signal levels
@@ -716,6 +749,9 @@ Release date:
 Sat, 29 Aug 2026 13:16:15 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add the Speech device
   - Formant speech synthesizer that says a typed phrase, pitched to the notes
@@ -882,6 +918,9 @@ Sat, 22 Aug 2026 22:02:37 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add song metadata: title, composer, artist, date, genre and comment, editable
   from Song > Metadata
   - The date can be picked from a calendar
@@ -961,6 +1000,9 @@ Release date:
 Wed, 19 Aug 2026 21:27:02 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add the Mixer view
 
@@ -1177,6 +1219,9 @@ Release date:
 Sun, 02 Aug 2026 20:54:17 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Store the render settings with the song
 
@@ -1398,6 +1443,9 @@ Mon, 13 Jul 2026 21:34:26 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add audio normalization, trimming, and loudness/true peak analysis options to render/export
 
 * Add a pan column to the tracker
@@ -1452,6 +1500,9 @@ Thu, 18 Jun 2026 18:51:02 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add Move Up/Down to insert effect Manage menu
   - Reorders effects within the insert rack via context menu
 
@@ -1494,6 +1545,9 @@ Release date:
 Fri, 12 Jun 2026 20:55:10 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Implement Delay as a generic rack effect
 
@@ -1544,6 +1598,9 @@ Wed, 03 Jun 2026 22:20:40 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Implement Clipper effect
   - Dual modes: Hard and Soft (tanh saturation)
   - Configurable Threshold and Output Gain
@@ -1577,6 +1634,9 @@ Release date:
 Fri, 29 May 2026 21:24:08 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Implement BassSynth
   - Internal monophonic acid-style synthesizer
@@ -1644,6 +1704,9 @@ Thu, 07 May 2026 22:04:50 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Fix GitHub Issue #45: Implement a simple built-in sampler
   - Internal sampler instrument with 16 assignable pads
   - Supports loading WAV samples
@@ -1681,6 +1744,9 @@ Release date:
 Tue, 21 Apr 2026 22:26:01 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add menu actions to add Note OFFs on column, track, pattern
 
@@ -1731,6 +1797,9 @@ Sun, 12 Apr 2026 23:12:09 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Implement the concept of a 'drum track'
   - Drum tracks are not transposed by pattern => transpose
 
@@ -1768,6 +1837,9 @@ Wed, 25 Mar 2026 21:59:27 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Apply track cut/copy/paste also for MIDI CC and PB automations
 
 * Implement Random modulation for MIDI CC automations
@@ -1788,6 +1860,9 @@ Release date:
 Tue, 03 Mar 2026 21:00:57 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Implement a user manual dialog
 
@@ -1836,6 +1911,9 @@ Sun, 08 Feb 2026 19:40:04 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add tooltips to Song View pattern buttons
 
 * Allow jumping to a new song position during playback by clicking on the Song View 
@@ -1854,6 +1932,9 @@ Release date:
 Tue, 03 Feb 2026 21:06:28 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add a dedicated delay column
   - Now a note delay can be directly entered on the delay column (0-24 ticks)
@@ -1876,6 +1957,9 @@ Release date:
 Fri, 23 Jan 2026 22:08:32 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add option to disable UI updates during playback
 
@@ -1905,6 +1989,9 @@ Mon, 19 Jan 2026 21:12:26 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Fix GitHub Issue #27: Implement undo/redo for note data
 
 * Implement velocity key track
@@ -1933,6 +2020,9 @@ Release date:
 Wed, 31 Dec 2025 15:32:42 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Implement asynchronous loading and show a progress bar
 
@@ -1989,6 +2079,9 @@ Fri, 19 Dec 2025 19:57:49 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Implement Chord Automation
   - Adds Column Settings with Chord Automation section
 
@@ -2013,6 +2106,9 @@ Wed, 03 Dec 2025 20:16:17 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Fix GitHub Issue #33: Implement sine modulation for MIDI CC automation
 
 * Fix GitHub Issue #32: Implement virtual MIDI outs
@@ -2032,6 +2128,9 @@ Sat, 22 Nov 2025 13:50:42 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Fix GitHub Issue #13: Implement MIDI file export
   - Exports tempo track, note on/off, velocity
 
@@ -2045,6 +2144,9 @@ Release date:
 Tue, 11 Nov 2025 19:07:20 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Fix GitHub Issue #29: Implement a pattern play order view
   - Play order is now displayed below the main tool bar
@@ -2073,6 +2175,9 @@ Sat, 18 Oct 2025 21:14:00 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 Bug fixes:
 
 * Fix incorrect check for pattern validity
@@ -2085,6 +2190,9 @@ Release date:
 Fri, 17 Oct 2025 20:11:55 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add a virtual keyboard to the instrument settings
 
@@ -2120,6 +2228,9 @@ Mon, 06 Oct 2025 21:25:24 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Implement random velocity jitter in instrument settings
 
 * Show track index in the track settings dialog
@@ -2153,6 +2264,9 @@ Wed, 10 Sep 2025 21:27:00 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Experimental audio recoder
   - Just enable recording in `Settings => Audio` and Noteahead will record from the default
     audio source when the song starts and name the file according to active tracks
@@ -2181,6 +2295,9 @@ Fri, 29 Aug 2025 21:17:38 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Allow transposing by +2/-2 semitones
 
 * Fix GitHub Issue #24: Implement velocity interpolation on track-level
@@ -2199,6 +2316,9 @@ Release date:
 Mon, 21 Jul 2025 20:31:52 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Fix GitHub Issue #10: Implement support for a MIDI controller keyboard
   - Edit => Settings => MIDI => Controller
@@ -2238,6 +2358,9 @@ Tue, 10 Jun 2025 22:14:09 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Render lines in a ListView instead of manually managed objects
   - This is a big and fundamental refactoring effort and makes scrolling
     way smoother also on older Qt version. Also the update logic is now less
@@ -2269,6 +2392,9 @@ Thu, 29 May 2025 21:04:33 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Add menu action to stop all notes
 
 Bug fixes:
@@ -2291,6 +2417,9 @@ Release date:
 Sat, 24 May 2025 22:17:33 +0300
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add an example project file
 
@@ -2346,6 +2475,9 @@ Thu, 10 Apr 2025 21:05:49 +0300
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Jump to the start of the current pattern on Home key pressed
 
 * Scroll by linesPerBeat on Page Up / Page Down pressed
@@ -2392,6 +2524,9 @@ Fri, 21 Mar 2025 21:04:32 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Make it possible to loop patterns
 
 * Implement velocity interpolation on a column
@@ -2422,6 +2557,9 @@ Release date:
 Wed, 12 Mar 2025 22:55:47 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Music video generator (**Experimental**)
   - Generates note visualization with particle effects
@@ -2457,6 +2595,9 @@ Sat, 08 Mar 2025 11:45:19 +0200
 
 New features:
 
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
+
 * Implement inverted mute states of columns/tracks by right-clicking
 
 Bug fixes:
@@ -2478,6 +2619,9 @@ Release date:
 Wed, 05 Mar 2025 23:33:50 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Add Edit menu entry to reset instruments
 
@@ -2526,6 +2670,9 @@ Release date:
 Wed, 26 Feb 2025 08:15:31 +0200
 
 New features:
+
+* Kick 909: the TR-909 bass drum, modelled on recordings of one
+  - The RD-9's Pitch and Pitch Depth, Drive, an amp envelope and presets
 
 * Accurate internal timing
 

@@ -40,6 +40,7 @@
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/kick_909_device.hpp"
 #include "../../domain/devices/kick_synth_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/noise_fx_device.hpp"
@@ -3859,6 +3860,43 @@ void XmlSerializationTest::test_toXmlFromXml_pianoSynthAcousticDevice_shouldLoad
     }
     QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_kick909Device_shouldLoadCorrectly()
+{
+    namespace Xml = Constants::NahdXml;
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    const std::vector<QString> knobs { Xml::xmlKeyTune(), Xml::xmlKeyAttack(), Xml::xmlKeyDecay(), Xml::xmlKeyPitch(), Xml::xmlKeyPitchDepth(), Xml::xmlKeyDrive(), Xml::xmlKeyAmpDecay(), Xml::xmlKeyVelocitySensitivity() };
+    auto kick = std::make_shared<Kick909Device>("Kick909");
+    for (size_t i = 0; i < knobs.size(); i++) {
+        kick->setKnob(knobs.at(i), 0.05f + 0.1f * static_cast<float>(i));
+    }
+    kick->setChromatic(true);
+    deviceServiceOut.setDevice(1, kick);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Kick909Device>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Kick909Device::typeIdString());
+    for (size_t i = 0; i < knobs.size(); i++) {
+        QVERIFY2(std::abs(restored->knob(knobs.at(i)) - (0.05f + 0.1f * static_cast<float>(i))) < 0.001f, knobs.at(i).toStdString().c_str());
+    }
+    QVERIFY(restored->chromatic());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_synthDDevice_shouldLoadCorrectly()

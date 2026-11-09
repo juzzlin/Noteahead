@@ -5464,6 +5464,176 @@
     </message>
 </context>
 <context>
+    <name>Kick909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Amp-envelop</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Hold</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Curve</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globaal</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>Overdrives the drum towards a square wave, for the hard techno and gabber kick. The level is held about the same.</source>
+        <translation>Stuurt de bassdrum over richting een blokgolf, voor de harde techno- en gabberkick. Het niveau blijft ongeveer gelijk.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Velocity-gevoeligheid</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer</source>
+        <translation>Hoeveel zachter zachtere noten klinken</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF-cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF-cutoff</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Chromatisch</translation>
+    </message>
+    <message>
+        <source>The note moves Pitch, C-3 playing the drum as it is set. The decays stay as they are.</source>
+        <translation>De noot verschuift Pitch; C-3 speelt de drum zoals ingesteld. De decays blijven zoals ze zijn.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Kick</name>
+    <message>
+        <source>Bass Drum</source>
+        <translation>Bassdrum</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Stemming</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to fall: a snap at 0, a slow sweep at 10. The drum settles at the same pitch whatever the setting.</source>
+        <translation>Hoe lang de toonhoogte erover doet om te zakken: een klap op 0, een trage sweep op 10. De drum komt op dezelfde toonhoogte uit, welke instelling ook.</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
+        <translation>De klik aan het begin van de drum en de ruis erover. De onderste helft is die van de 909 zelf; de bovenste gaat verder, tot een harde klik.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
+        <translation>Hoe lang de drum klinkt: ongeveer een tiende seconde op 0, een halve seconde op 10. Gebruik de amp-envelop voor langer.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Pitch</name>
+    <message>
+        <source>Pitch</source>
+        <translation>Toonhoogte</translation>
+    </message>
+    <message>
+        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
+        <translation>De toonhoogte waarop de drum uitkomt. De sweep beweegt mee. Die van de 909 is 49,5 Hz.</translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation>Pitch-diepte</translation>
+    </message>
+    <message>
+        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
+        <translation>Hoe ver boven zijn toonhoogte de drum begint: 100 % is de sweep van de 909, 0 % helemaal geen.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>De huidige instellingen opslaan als eigen preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Het geselecteerde eigen preset verwijderen</translation>
+    </message>
+    <message>
+        <source>The TR-909 bass drum, modelled on recordings of one</source>
+        <translation>De bassdrum van de TR-909, gemodelleerd naar opnames ervan</translation>
+    </message>
+</context>
+<context>
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>

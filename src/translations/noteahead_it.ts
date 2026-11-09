@@ -5464,6 +5464,176 @@
     </message>
 </context>
 <context>
+    <name>Kick909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Inviluppo di ampiezza</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attacco</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Tenuta</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decadimento</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sostegno</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Rilascio</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Curva</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globale</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Guadagno</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>Overdrives the drum towards a square wave, for the hard techno and gabber kick. The level is held about the same.</source>
+        <translation>Satura la cassa verso un&apos;onda quadra, per la cassa techno dura e gabber. Il livello resta più o meno lo stesso.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Sensibilità alla velocity</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer</source>
+        <translation>Quanto più piano suonano le note più deboli</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Taglio LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Taglio HPF</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Cromatico</translation>
+    </message>
+    <message>
+        <source>The note moves Pitch, C-3 playing the drum as it is set. The decays stay as they are.</source>
+        <translation>La nota sposta Pitch; C-3 suona la cassa così come è impostata. I decadimenti restano come sono.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Kick</name>
+    <message>
+        <source>Bass Drum</source>
+        <translation>Cassa</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Accordatura</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to fall: a snap at 0, a slow sweep at 10. The drum settles at the same pitch whatever the setting.</source>
+        <translation>Quanto ci mette l&apos;intonazione a scendere: uno schiocco a 0, uno sweep lento a 10. La cassa si assesta sulla stessa intonazione qualunque sia l&apos;impostazione.</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attacco</translation>
+    </message>
+    <message>
+        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
+        <translation>Il clic all&apos;inizio della cassa e il rumore sopra di esso. La metà inferiore è quella della 909; la metà superiore va oltre, fino a un clic duro.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decadimento</translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
+        <translation>Quanto suona la cassa: circa un decimo di secondo a 0, mezzo secondo a 10. Usa l&apos;inviluppo d&apos;ampiezza per suoni più lunghi.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Pitch</name>
+    <message>
+        <source>Pitch</source>
+        <translation>Intonazione</translation>
+    </message>
+    <message>
+        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
+        <translation>L&apos;intonazione su cui si assesta la cassa. Lo sweep si sposta con essa. Quella della 909 è 49,5 Hz.</translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation>Profondità del pitch</translation>
+    </message>
+    <message>
+        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
+        <translation>Quanto sopra la sua intonazione parte la cassa: 100 % è lo sweep della 909, 0 % nessuno.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Salva le impostazioni attuali come preset personale</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Elimina</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Elimina il preset personale selezionato</translation>
+    </message>
+    <message>
+        <source>The TR-909 bass drum, modelled on recordings of one</source>
+        <translation>La cassa della TR-909, modellata su registrazioni di una</translation>
+    </message>
+</context>
+<context>
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>

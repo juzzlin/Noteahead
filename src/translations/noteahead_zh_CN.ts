@@ -5463,6 +5463,176 @@
     </message>
 </context>
 <context>
+    <name>Kick909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>音量包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>保持</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>曲线</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>驱动</translation>
+    </message>
+    <message>
+        <source>Overdrives the drum towards a square wave, for the hard techno and gabber kick. The level is held about the same.</source>
+        <translation>将底鼓过载推向方波，用于硬核 Techno 和 Gabber 底鼓。电平大致保持不变。</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer</source>
+        <translation>较弱的音符弱多少</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>半音模式</translation>
+    </message>
+    <message>
+        <source>The note moves Pitch, C-3 playing the drum as it is set. The decays stay as they are.</source>
+        <translation>音符移动 Pitch，C-3 按设置演奏底鼓。衰减保持不变。</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Kick</name>
+    <message>
+        <source>Bass Drum</source>
+        <translation>底鼓</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>调音</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to fall: a snap at 0, a slow sweep at 10. The drum settles at the same pitch whatever the setting.</source>
+        <translation>音高下降需要多长时间：0 时一闪而过，10 时缓慢扫频。无论如何设置，底鼓都落在同一音高。</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
+        <translation>底鼓开头的咔嗒声及其上的噪声。下半段是 909 本身的；上半段超出它，直到清脆有力的咔嗒声。</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
+        <translation>底鼓发声多长时间：0 时约十分之一秒，10 时半秒。更长请使用振幅包络。</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Pitch</name>
+    <message>
+        <source>Pitch</source>
+        <translation>音高</translation>
+    </message>
+    <message>
+        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
+        <translation>底鼓最终落定的音高。扫频随之移动。909 本身为 49.5 Hz。</translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation>音高深度</translation>
+    </message>
+    <message>
+        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
+        <translation>底鼓从高于其音高多少处开始：100 % 为 909 本身的扫频，0 % 则完全没有。</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+    <message>
+        <source>The TR-909 bass drum, modelled on recordings of one</source>
+        <translation>TR-909 底鼓，根据其录音建模</translation>
+    </message>
+</context>
+<context>
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>

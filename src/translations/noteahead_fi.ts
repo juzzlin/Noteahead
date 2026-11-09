@@ -5464,6 +5464,176 @@
     </message>
 </context>
 <context>
+    <name>Kick909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Amplitudiverhokäyrä</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Hold</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Käyrä</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Yleiset</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorointi</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>Overdrives the drum towards a square wave, for the hard techno and gabber kick. The level is held about the same.</source>
+        <translation>Ylikuormittaa rumpua kohti kanttiaaltoa kovaa teknoa ja gabber-bassorumpua varten. Taso pysyy suunnilleen samana.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer</source>
+        <translation>Kuinka paljon hiljaisemmat nuotit soivat hiljempaa</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Kromaattinen</translation>
+    </message>
+    <message>
+        <source>The note moves Pitch, C-3 playing the drum as it is set. The decays stay as they are.</source>
+        <translation>Nuotti siirtää Pitchiä, C-3 soittaa rummun asetusten mukaisena. Vaimenemiset pysyvät ennallaan.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Kick</name>
+    <message>
+        <source>Bass Drum</source>
+        <translation>Bassorumpu</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Viritys</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to fall: a snap at 0, a slow sweep at 10. The drum settles at the same pitch whatever the setting.</source>
+        <translation>Kuinka kauan sävelkorkeus laskee: napsaus asennossa 0, hidas pyyhkäisy asennossa 10. Rumpu asettuu samaan sävelkorkeuteen asetuksesta riippumatta.</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
+        <translation>Napsahdus rummun alussa ja sen päällä oleva kohina. Alempi puolisko on 909:n oma, ylempi menee sen yli kovaan napsahdukseen asti.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
+        <translation>Kuinka kauan rumpu soi: noin kymmenesosasekunnin asennossa 0, puoli sekuntia asennossa 10. Pidempään soittoon käytä amp-verhokäyrää.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Pitch</name>
+    <message>
+        <source>Pitch</source>
+        <translation>Sävelkorkeus</translation>
+    </message>
+    <message>
+        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
+        <translation>Sävelkorkeus, johon rumpu asettuu. Pyyhkäisy siirtyy sen mukana. 909:n oma on 49,5 Hz.</translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation>Sävelkorkeuden syvyys</translation>
+    </message>
+    <message>
+        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
+        <translation>Kuinka paljon sävelkorkeutensa yläpuolelta rumpu alkaa: 100 % on 909:n oma pyyhkäisy, 0 % ei pyyhkäisyä lainkaan.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Esiasetus:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Tallenna</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Poista valittu oma esiasetus</translation>
+    </message>
+    <message>
+        <source>The TR-909 bass drum, modelled on recordings of one</source>
+        <translation>TR-909:n bassorumpu, mallinnettu sen äänityksistä</translation>
+    </message>
+</context>
+<context>
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>

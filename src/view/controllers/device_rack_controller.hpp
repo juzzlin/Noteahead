@@ -204,6 +204,7 @@ signals:
     void pianoSynthAcousticDialogRequested();
     void synthDDialogRequested();
     void kick808DialogRequested();
+    void kick909DialogRequested();
     void kickSynthDialogRequested();
     void snareSynthDialogRequested();
     void stringVoiceDialogRequested();

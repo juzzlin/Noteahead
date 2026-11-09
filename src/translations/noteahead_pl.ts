@@ -5465,6 +5465,176 @@
     </message>
 </context>
 <context>
+    <name>Kick909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Obwiednia amplitudy</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Atak</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Przytrzymanie</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Opadanie</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Zwolnienie</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Krzywa</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Suwak</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>Overdrives the drum towards a square wave, for the hard techno and gabber kick. The level is held about the same.</source>
+        <translation>Przesterowuje bęben w stronę fali prostokątnej, dla twardego techno i gabbera. Poziom pozostaje mniej więcej ten sam.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Czułość velocity</translation>
+    </message>
+    <message>
+        <source>How much softer notes play softer</source>
+        <translation>Jak bardzo cichsze nuty grają ciszej</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Chromatycznie</translation>
+    </message>
+    <message>
+        <source>The note moves Pitch, C-3 playing the drum as it is set. The decays stay as they are.</source>
+        <translation>Nuta przesuwa Pitch; C-3 gra bęben tak, jak jest ustawiony. Wybrzmienia pozostają bez zmian.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Kick</name>
+    <message>
+        <source>Bass Drum</source>
+        <translation>Stopa</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Strojenie</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to fall: a snap at 0, a slow sweep at 10. The drum settles at the same pitch whatever the setting.</source>
+        <translation>Jak długo opada wysokość: trzask przy 0, powolne przejście przy 10. Bęben ustala się na tej samej wysokości niezależnie od ustawienia.</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Atak</translation>
+    </message>
+    <message>
+        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
+        <translation>Kliknięcie na początku bębna i szum nad nim. Dolna połowa to brzmienie samej 909; górna wykracza poza nie, aż do twardego kliknięcia.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Opadanie</translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
+        <translation>Jak długo brzmi bęben: około jednej dziesiątej sekundy przy 0, pół sekundy przy 10. Dłużej – użyj obwiedni amplitudy.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Pitch</name>
+    <message>
+        <source>Pitch</source>
+        <translation>Wysokość</translation>
+    </message>
+    <message>
+        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
+        <translation>Wysokość, na której ustala się bęben. Przejście przesuwa się razem z nią. W 909 to 49,5 Hz.</translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation>Głębokość pitch</translation>
+    </message>
+    <message>
+        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
+        <translation>Jak wysoko ponad swoją wysokością zaczyna bęben: 100 % to przejście 909, 0 % żadnego.</translation>
+    </message>
+</context>
+<context>
+    <name>Kick909Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Zapisz bieżące ustawienia jako własny preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Usuń wybrany własny preset</translation>
+    </message>
+    <message>
+        <source>The TR-909 bass drum, modelled on recordings of one</source>
+        <translation>Stopa TR-909, zamodelowana na podstawie jej nagrań</translation>
+    </message>
+</context>
+<context>
     <name>KickSynthDialog</name>
     <message>
         <source>Ok</source>

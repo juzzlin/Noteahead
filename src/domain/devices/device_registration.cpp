@@ -23,6 +23,7 @@
 #include "ju_synth_08_device.hpp"
 #include "ju_synth_device.hpp"
 #include "kick_808_device.hpp"
+#include "kick_909_device.hpp"
 #include "kick_synth_device.hpp"
 #include "lfo_device.hpp"
 #include "noise_fx_device.hpp"
@@ -71,6 +72,9 @@ void DeviceFactory::init()
     });
     registerDevice(Kick808Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<Kick808Device>(name);
+    });
+    registerDevice(Kick909Device::typeIdString(), [](const std::string & name) {
+        return std::make_shared<Kick909Device>(name);
     });
     registerDevice(KickSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<KickSynthDevice>(name);

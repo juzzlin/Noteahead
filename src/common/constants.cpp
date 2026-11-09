@@ -244,6 +244,11 @@ QString kickSynthDeviceName()
     return "Noteahead KickSynth";
 }
 
+QString kick909DeviceName()
+{
+    return "Noteahead Kick909";
+}
+
 QString electricBassDeviceName()
 {
     return "Noteahead ElectricBass";
