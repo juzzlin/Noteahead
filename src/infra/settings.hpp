@@ -95,6 +95,12 @@ void setJackBpmSyncEnabled(bool enabled);
 bool midiSyncEnabled();
 void setMidiSyncEnabled(bool enabled);
 
+bool stepRecordingPlayedVelocity();
+void setStepRecordingPlayedVelocity(bool enabled);
+
+bool liveRecordingPlayedVelocity();
+void setLiveRecordingPlayedVelocity(bool enabled);
+
 bool waveViewEnabled();
 void setMetronomeEnabled(bool enabled);
 bool metronomeEnabled();

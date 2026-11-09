@@ -11425,6 +11425,22 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation>Données MIDI reçues</translation>
     </message>
     <message>
+        <source>Override velocity when step recording</source>
+        <translation>Remplacer la vélocité en enregistrement pas à pas</translation>
+    </message>
+    <message>
+        <source>Override velocity when live recording</source>
+        <translation>Remplacer la vélocité en enregistrement en direct</translation>
+    </message>
+    <message>
+        <source>With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Morceau arrêté, les notes du contrôleur sont écrites avec la vélocité jouée au lieu de la valeur VEL</translation>
+    </message>
+    <message>
+        <source>While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Pendant la lecture du morceau, les notes du contrôleur sont écrites avec la vélocité jouée au lieu de la valeur VEL</translation>
+    </message>
+    <message>
         <source>Synchronization</source>
         <translation>Synchronisation</translation>
     </message>

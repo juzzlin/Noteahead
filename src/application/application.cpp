@@ -813,7 +813,8 @@ void Application::connectMidiService()
     connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, const auto & data) {
         if (m_applicationService->editMode() && m_editorService->isAtNoteColumn()) {
             const auto [key, octave] = NoteConverter::midiToKeyAndOctave(data.note());
-            if (m_editorService->requestNoteOnAtCurrentPosition(key, octave, m_settingsService->velocity())) {
+            const auto velocity = m_settingsService->recordingVelocity(m_playerService->isPlaying(), data.velocity());
+            if (m_editorService->requestNoteOnAtCurrentPosition(key, octave, velocity)) {
                 if (!m_playerService->isPlaying()) {
                     m_editorService->requestScroll(m_settingsService->step());
                 }

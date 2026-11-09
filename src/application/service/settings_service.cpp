@@ -45,6 +45,8 @@ SettingsService::SettingsService()
   , m_jackSyncEnabled { Settings::jackSyncEnabled() }
   , m_jackBpmSyncEnabled { Settings::jackBpmSyncEnabled() }
   , m_midiSyncEnabled { Settings::midiSyncEnabled() }
+  , m_stepRecordingPlayedVelocity { Settings::stepRecordingPlayedVelocity() }
+  , m_liveRecordingPlayedVelocity { Settings::liveRecordingPlayedVelocity() }
   , m_waveViewEnabled { Settings::waveViewEnabled() }
   , m_performancePanelEnabled { Settings::performancePanelEnabled() }
   , m_performancePanelHeight { Settings::performancePanelHeight(Constants::defaultPerformancePanelHeight()) }
@@ -271,6 +273,40 @@ void SettingsService::setMidiSyncEnabled(bool enabled)
         Settings::setMidiSyncEnabled(enabled);
         emit midiSyncEnabledChanged();
     }
+}
+
+bool SettingsService::stepRecordingPlayedVelocity() const
+{
+    return m_stepRecordingPlayedVelocity;
+}
+
+void SettingsService::setStepRecordingPlayedVelocity(bool enabled)
+{
+    if (m_stepRecordingPlayedVelocity != enabled) {
+        m_stepRecordingPlayedVelocity = enabled;
+        Settings::setStepRecordingPlayedVelocity(enabled);
+        emit stepRecordingPlayedVelocityChanged();
+    }
+}
+
+bool SettingsService::liveRecordingPlayedVelocity() const
+{
+    return m_liveRecordingPlayedVelocity;
+}
+
+void SettingsService::setLiveRecordingPlayedVelocity(bool enabled)
+{
+    if (m_liveRecordingPlayedVelocity != enabled) {
+        m_liveRecordingPlayedVelocity = enabled;
+        Settings::setLiveRecordingPlayedVelocity(enabled);
+        emit liveRecordingPlayedVelocityChanged();
+    }
+}
+
+quint8 SettingsService::recordingVelocity(bool live, quint8 playedVelocity) const
+{
+    const bool played = live ? m_liveRecordingPlayedVelocity : m_stepRecordingPlayedVelocity;
+    return played ? playedVelocity : static_cast<quint8>(velocity());
 }
 
 bool SettingsService::waveViewEnabled() const

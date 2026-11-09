@@ -11425,6 +11425,22 @@ Audio files will appear next to the current project file.</source>
         <translation>Vastaanotettu MIDI-data</translation>
     </message>
     <message>
+        <source>Override velocity when step recording</source>
+        <translation>Ohita velocity askeltallennuksessa</translation>
+    </message>
+    <message>
+        <source>Override velocity when live recording</source>
+        <translation>Ohita velocity livetallennuksessa</translation>
+    </message>
+    <message>
+        <source>With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Kun kappale on pysäytetty, ohjaimen nuotit kirjoitetaan soitetulla velocityllä VEL-arvon sijaan</translation>
+    </message>
+    <message>
+        <source>While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Kappaleen soidessa ohjaimen nuotit kirjoitetaan soitetulla velocityllä VEL-arvon sijaan</translation>
+    </message>
+    <message>
         <source>Synchronization</source>
         <translation>Synkronointi</translation>
     </message>

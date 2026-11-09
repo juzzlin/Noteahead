@@ -91,6 +91,32 @@ SectionBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Received MIDI data")
                 }
+                // Side by side where they fit, one under the other where they do not
+                Flow {
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                    spacing: 20
+                    CheckBox {
+                        text: qsTr("Override velocity when step recording")
+                        checked: settingsService.stepRecordingPlayedVelocity
+                        onToggled: settingsService.stepRecordingPlayedVelocity = checked
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value")
+                    }
+                    CheckBox {
+                        text: qsTr("Override velocity when live recording")
+                        checked: settingsService.liveRecordingPlayedVelocity
+                        onToggled: settingsService.liveRecordingPlayedVelocity = checked
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value")
+                    }
+                }
             }
         }
         SectionBox {

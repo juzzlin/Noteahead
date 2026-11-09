@@ -11423,6 +11423,22 @@ Audio files will appear next to the current project file.</source>
         <translation>已接收的 MIDI 数据</translation>
     </message>
     <message>
+        <source>Override velocity when step recording</source>
+        <translation>步进录制时覆盖力度</translation>
+    </message>
+    <message>
+        <source>Override velocity when live recording</source>
+        <translation>实时录制时覆盖力度</translation>
+    </message>
+    <message>
+        <source>With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>歌曲停止时，控制器的音符以演奏时的力度写入，而不是 VEL 值</translation>
+    </message>
+    <message>
+        <source>While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>歌曲播放时，控制器的音符以演奏时的力度写入，而不是 VEL 值</translation>
+    </message>
+    <message>
         <source>Synchronization</source>
         <translation>同步</translation>
     </message>

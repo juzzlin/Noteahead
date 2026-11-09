@@ -38,6 +38,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool jackSyncEnabled READ jackSyncEnabled WRITE setJackSyncEnabled NOTIFY jackSyncEnabledChanged)
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
+    Q_PROPERTY(bool stepRecordingPlayedVelocity READ stepRecordingPlayedVelocity WRITE setStepRecordingPlayedVelocity NOTIFY stepRecordingPlayedVelocityChanged)
+    Q_PROPERTY(bool liveRecordingPlayedVelocity READ liveRecordingPlayedVelocity WRITE setLiveRecordingPlayedVelocity NOTIFY liveRecordingPlayedVelocityChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
     Q_PROPERTY(bool performancePanelEnabled READ performancePanelEnabled WRITE setPerformancePanelEnabled NOTIFY performancePanelEnabledChanged)
     Q_PROPERTY(int performancePanelHeight READ performancePanelHeight WRITE setPerformancePanelHeight NOTIFY performancePanelHeightChanged)
@@ -109,6 +111,15 @@ public:
     virtual Q_INVOKABLE bool midiSyncEnabled() const;
     virtual Q_INVOKABLE void setMidiSyncEnabled(bool enabled);
 
+    //! Whether a note recorded from a MIDI controller keeps the velocity it was played with rather
+    //! than taking VEL: step recording is with the song stopped, live recording while it plays.
+    bool stepRecordingPlayedVelocity() const;
+    void setStepRecordingPlayedVelocity(bool enabled);
+    bool liveRecordingPlayedVelocity() const;
+    void setLiveRecordingPlayedVelocity(bool enabled);
+    //! The velocity to record a note played at @p playedVelocity with, live or step by step.
+    quint8 recordingVelocity(bool live, quint8 playedVelocity) const;
+
     virtual Q_INVOKABLE bool waveViewEnabled() const;
     virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
 
@@ -173,6 +184,8 @@ signals:
     void jackSyncEnabledChanged();
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();
+    void stepRecordingPlayedVelocityChanged();
+    void liveRecordingPlayedVelocityChanged();
     void waveViewEnabledChanged();
     void performancePanelEnabledChanged();
     void performancePanelHeightChanged();
@@ -212,6 +225,8 @@ private:
     bool m_jackSyncEnabled;
     bool m_jackBpmSyncEnabled;
     bool m_midiSyncEnabled;
+    bool m_stepRecordingPlayedVelocity;
+    bool m_liveRecordingPlayedVelocity;
     bool m_waveViewEnabled;
     bool m_performancePanelEnabled;
     int m_performancePanelHeight;

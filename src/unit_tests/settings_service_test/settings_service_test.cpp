@@ -137,6 +137,34 @@ void SettingsServiceTest::test_getters_shouldBeServedFromMembers()
     QCOMPARE(settingsService.visibleLines(), 24);
 }
 
+void SettingsServiceTest::test_recordingVelocity_playedVelocity_shouldPickVelocity_data()
+{
+    QTest::addColumn<bool>("playedStep");
+    QTest::addColumn<bool>("playedLive");
+    QTest::addColumn<bool>("live");
+    QTest::addColumn<int>("expected");
+    // VEL is 90 and the note was played at 40
+    QTest::newRow("step, VEL") << false << true << false << 90;
+    QTest::newRow("step, as played") << true << false << false << 40;
+    QTest::newRow("live, VEL") << true << false << true << 90;
+    QTest::newRow("live, as played") << false << true << true << 40;
+}
+
+void SettingsServiceTest::test_recordingVelocity_playedVelocity_shouldPickVelocity()
+{
+    QFETCH(bool, playedStep);
+    QFETCH(bool, playedLive);
+    QFETCH(bool, live);
+    QFETCH(int, expected);
+
+    SettingsService settingsService;
+    settingsService.setVelocity(90);
+    settingsService.setStepRecordingPlayedVelocity(playedStep);
+    settingsService.setLiveRecordingPlayedVelocity(playedLive);
+
+    QCOMPARE(static_cast<int>(settingsService.recordingVelocity(live, 40)), expected);
+}
+
 void SettingsServiceTest::test_step_unset_shouldReturnDefault()
 {
     SettingsService settingsService;

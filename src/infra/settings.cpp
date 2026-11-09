@@ -44,6 +44,8 @@ const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
+const auto stepRecordingPlayedVelocityKey = "stepRecordingPlayedVelocity";
+const auto liveRecordingPlayedVelocityKey = "liveRecordingPlayedVelocity";
 const auto waveViewEnabledKey = "waveViewEnabled";
 const auto performancePanelEnabledKey = "performancePanelEnabled";
 const auto performancePanelHeightKey = "performancePanelHeight";
@@ -472,6 +474,40 @@ void setMidiSyncEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(midiSyncEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool stepRecordingPlayedVelocity()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto enabled = settings.value(stepRecordingPlayedVelocityKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setStepRecordingPlayedVelocity(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(stepRecordingPlayedVelocityKey, enabled);
+    settings.endGroup();
+}
+
+bool liveRecordingPlayedVelocity()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto enabled = settings.value(liveRecordingPlayedVelocityKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setLiveRecordingPlayedVelocity(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(liveRecordingPlayedVelocityKey, enabled);
     settings.endGroup();
 }
 

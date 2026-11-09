@@ -11425,6 +11425,22 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>Empfangene MIDI-Daten</translation>
     </message>
     <message>
+        <source>Override velocity when step recording</source>
+        <translation>Velocity bei Step-Aufnahme überschreiben</translation>
+    </message>
+    <message>
+        <source>Override velocity when live recording</source>
+        <translation>Velocity bei Live-Aufnahme überschreiben</translation>
+    </message>
+    <message>
+        <source>With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Bei gestopptem Song werden Noten vom Controller mit der gespielten Velocity statt mit dem VEL-Wert geschrieben</translation>
+    </message>
+    <message>
+        <source>While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Während der Song läuft, werden Noten vom Controller mit der gespielten Velocity statt mit dem VEL-Wert geschrieben</translation>
+    </message>
+    <message>
         <source>Synchronization</source>
         <translation>Synchronisation</translation>
     </message>

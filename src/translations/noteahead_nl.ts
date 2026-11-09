@@ -11425,6 +11425,22 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Ontvangen MIDI-gegevens</translation>
     </message>
     <message>
+        <source>Override velocity when step recording</source>
+        <translation>Velocity overschrijven bij stapsgewijs opnemen</translation>
+    </message>
+    <message>
+        <source>Override velocity when live recording</source>
+        <translation>Velocity overschrijven bij live opnemen</translation>
+    </message>
+    <message>
+        <source>With the song stopped, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Als het nummer stilstaat, worden noten van de controller geschreven met de gespeelde velocity in plaats van de VEL-waarde</translation>
+    </message>
+    <message>
+        <source>While the song plays, notes from the controller are written with the velocity they were played with instead of the VEL value</source>
+        <translation>Terwijl het nummer speelt, worden noten van de controller geschreven met de gespeelde velocity in plaats van de VEL-waarde</translation>
+    </message>
+    <message>
         <source>Synchronization</source>
         <translation>Synchronisatie</translation>
     </message>

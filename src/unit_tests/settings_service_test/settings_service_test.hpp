@@ -25,6 +25,8 @@ class SettingsServiceTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_recordingVelocity_playedVelocity_shouldPickVelocity_data();
+    void test_recordingVelocity_playedVelocity_shouldPickVelocity();
     void initTestCase();
     void cleanupTestCase();
 
