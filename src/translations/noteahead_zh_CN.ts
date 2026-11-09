@@ -5593,16 +5593,16 @@
         <translation>音高</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>底鼓最终落定的音高。扫频随之移动。909 本身为 49.5 Hz。</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>将整个底鼓上移或下移，扫频及其终点同样移动：0 时约为四分之一，10 时为两倍半。</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>扫频结束的位置，扫频本身大致不变：0 时一直降到 0 Hz，10 时是 5 时的两倍高。</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>音高深度</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>底鼓从高于其音高多少处开始：100 % 为 909 本身的扫频，0 % 则完全没有。</translation>
     </message>
 </context>
 <context>

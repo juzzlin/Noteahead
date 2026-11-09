@@ -114,27 +114,31 @@ std::vector<double> renderDevice(Kick909Device & device, double seconds, uint8_t
 
 } // namespace
 
-void Kick909Test::test_engine_init_shouldSettleAtThe909Pitch()
+void Kick909Test::test_engine_init_shouldSettleAtTheRd9Pitch()
 {
+    // An RD-9 with every knob at noon is still 2 Hz above it at 300 ms, its sweep is that long
     Kick909Engine engine;
-    const auto hit = render(engine, 0.5);
-    QVERIFY(std::abs(pitchHz(hit, 0.15, 0.4) - Kick909Engine::DefaultPitchHz) < 1.5);
+    engine.setAttack(0.0f);
+    engine.setDecay(1.0f);
+    const auto hit = render(engine, 0.8);
+    QVERIFY2(std::abs(pitchHz(hit, 0.35, 0.7) - Kick909Engine::DefaultPitchHz) < 2.0, qPrintable(QString::number(pitchHz(hit, 0.35, 0.7))));
 }
 
-void Kick909Test::test_engine_sweep_shouldStartNearTwoHundredHertz()
+void Kick909Test::test_engine_sweep_shouldStartAsTheRd9Does()
 {
     // Without Attack's noise, which crosses zero as well
     Kick909Engine engine;
     engine.setAttack(0.0f);
     const auto hit = render(engine, 0.1);
-    // The fitted model, which matches the recordings, has 170 Hz over the first 12 ms at Tune 5
+    // The RD-9 at noon: 270 Hz over its first 6 ms, 284 Hz to 12 ms
     const double start = pitchHz(hit, 0.0, 0.012);
-    QVERIFY2(start > 155.0 && start < 185.0, qPrintable(QString::number(start)));
+    QVERIFY2(start > 250.0 && start < 300.0, qPrintable(QString::number(start)));
 }
 
 void Kick909Test::test_engine_tune_shouldLengthenTheSweep()
 {
-    // The recordings at 20 to 30 ms: about 70 Hz at Tune 0, 150 Hz at Tune 10
+    // The 909 recordings at 20 to 30 ms: about 70 Hz at Tune 0, 150 Hz at Tune 10, around noon
+    // scaled to the RD-9's own
     Kick909Engine low;
     low.setTune(0.0f);
     low.setAttack(0.0f);
@@ -143,8 +147,7 @@ void Kick909Test::test_engine_tune_shouldLengthenTheSweep()
     high.setAttack(0.0f);
     const double lowHz = pitchHz(render(low, 0.1), 0.015, 0.035);
     const double highHz = pitchHz(render(high, 0.1), 0.015, 0.035);
-    QVERIFY2(lowHz < 85.0, qPrintable(QString::number(lowHz)));
-    QVERIFY2(highHz > 120.0, qPrintable(QString::number(highHz)));
+    QVERIFY2(highHz / lowHz > 1.5, qPrintable(QString::number(lowHz) + " " + QString::number(highHz)));
 }
 
 void Kick909Test::test_engine_decay_shouldMatchTheRecordings()
@@ -183,20 +186,40 @@ void Kick909Test::test_engine_attack_full_shouldRaiseTheClick()
     QVERIFY2(10.0 * std::log10(sharpClick / dullClick) > 8.0, qPrintable(QString::number(10.0 * std::log10(sharpClick / dullClick))));
 }
 
-void Kick909Test::test_engine_pitch_shouldMoveWhereTheSweepEnds()
+void Kick909Test::test_engine_pitch_shouldMoveTheWholeSweep()
 {
-    Kick909Engine engine;
-    engine.setPitch(80.0);
-    QVERIFY(std::abs(pitchHz(render(engine, 0.5), 0.15, 0.4) - 80.0) < 2.0);
+    // The RD-9 at Pitch 8: 1.79 times noon, the sweep and its end alike
+    Kick909Engine noon;
+    noon.setAttack(0.0f);
+    Kick909Engine high;
+    high.setAttack(0.0f);
+    high.setPitch(0.8f);
+    const auto noonHit = render(noon, 0.5);
+    const auto highHit = render(high, 0.5);
+    QVERIFY(std::abs(pitchHz(highHit, 0.15, 0.4) / pitchHz(noonHit, 0.15, 0.4) - 1.79) < 0.05);
+    QVERIFY(std::abs(pitchHz(highHit, 0.015, 0.035) / pitchHz(noonHit, 0.015, 0.035) - 1.79) < 0.15);
 }
 
-void Kick909Test::test_engine_pitchDepth_zero_shouldNotSweep()
+void Kick909Test::test_engine_pitchDepth_zero_shouldFallToZeroHertz()
 {
+    // As on the RD-9: the sweep runs on down past the drum, to a standstill
     Kick909Engine engine;
-    engine.setPitchDepth(0.0);
     engine.setAttack(0.0f);
-    const auto hit = render(engine, 0.3);
-    QVERIFY(std::abs(pitchHz(hit, 0.002, 0.06) - Kick909Engine::DefaultPitchHz) < 2.0);
+    engine.setPitchDepth(0.0f);
+    const auto hit = render(engine, 0.5);
+    // The RD-9 at Pitch Depth 0: about 100 Hz at 6 to 12 ms, 80 Hz to 25 ms, 60 Hz to 50 ms
+    const double early = pitchHz(hit, 0.006, 0.05);
+    QVERIFY2(early > 45.0 && early < 110.0, qPrintable(QString::number(early)));
+    QVERIFY2(pitchHz(hit, 0.2, 0.5) < 10.0, qPrintable(QString::number(pitchHz(hit, 0.2, 0.5))));
+}
+
+void Kick909Test::test_engine_pitchDepth_full_shouldRaiseTheEnd()
+{
+    // The RD-9 at Pitch Depth 10 ends 2.11 times as high as at noon
+    Kick909Engine engine;
+    engine.setAttack(0.0f);
+    engine.setPitchDepth(1.0f);
+    QVERIFY(std::abs(pitchHz(render(engine, 0.5), 0.2, 0.45) - 2.114 * Kick909Engine::DefaultPitchHz) < 4.0);
 }
 
 void Kick909Test::test_engine_drive_full_shouldKeepThePeak()
@@ -241,9 +264,10 @@ void Kick909Test::test_device_chromatic_shouldMovePitchWithTheNote()
 {
     Kick909Device device { "Kick" };
     device.setChromatic(true);
-    QVERIFY(std::abs(pitchHz(renderDevice(device, 0.5, 48), 0.15, 0.4) - 2.0 * Kick909Engine::DefaultPitchHz) < 3.0);
+    device.setKnob(Xml::xmlKeyDecay(), 1.0f);
+    QVERIFY(std::abs(pitchHz(renderDevice(device, 0.8, 48), 0.35, 0.7) - 2.0 * Kick909Engine::DefaultPitchHz) < 4.0);
     device.setChromatic(false);
-    QVERIFY(std::abs(pitchHz(renderDevice(device, 0.5, 48), 0.15, 0.4) - Kick909Engine::DefaultPitchHz) < 1.5);
+    QVERIFY(std::abs(pitchHz(renderDevice(device, 0.8, 48), 0.35, 0.7) - Kick909Engine::DefaultPitchHz) < 2.0);
 }
 
 void Kick909Test::test_device_ampEnvelope_shouldShortenTheHit()

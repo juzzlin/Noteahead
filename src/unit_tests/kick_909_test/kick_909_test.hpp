@@ -25,14 +25,15 @@ class Kick909Test : public QObject
     Q_OBJECT
 
 private slots:
-    void test_engine_init_shouldSettleAtThe909Pitch();
-    void test_engine_sweep_shouldStartNearTwoHundredHertz();
+    void test_engine_init_shouldSettleAtTheRd9Pitch();
+    void test_engine_sweep_shouldStartAsTheRd9Does();
     void test_engine_tune_shouldLengthenTheSweep();
     void test_engine_decay_shouldMatchTheRecordings();
     void test_engine_attack_shouldAddNoiseAboveOneKilohertz();
     void test_engine_attack_full_shouldRaiseTheClick();
-    void test_engine_pitch_shouldMoveWhereTheSweepEnds();
-    void test_engine_pitchDepth_zero_shouldNotSweep();
+    void test_engine_pitch_shouldMoveTheWholeSweep();
+    void test_engine_pitchDepth_zero_shouldFallToZeroHertz();
+    void test_engine_pitchDepth_full_shouldRaiseTheEnd();
     void test_engine_drive_full_shouldKeepThePeak();
     void test_engine_trigger_shouldFallSilent();
     void test_presets_every_shouldPeakNearInit();

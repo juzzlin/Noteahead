@@ -5594,16 +5594,16 @@
         <translation>Altura</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>A afinação em que o bumbo se assenta. A varredura acompanha. A da 909 é 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Move o bumbo inteiro para cima ou para baixo, a varredura e onde termina por igual: cerca de um quarto de altura em 0, duas vezes e meia em 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Onde a varredura termina, a varredura em si ficando mais ou menos igual: até 0 Hz em 0, em 10 o dobro da altura de 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Profundidade do pitch</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Quão acima de sua afinação o bumbo começa: 100 % é a varredura da 909, 0 % nenhuma.</translation>
     </message>
 </context>
 <context>

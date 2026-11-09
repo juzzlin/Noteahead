@@ -5594,16 +5594,16 @@
         <translation>Tono</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>La afinación en la que se asienta el bombo. El barrido se mueve con ella. La de la 909 es 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Mueve todo el bombo arriba o abajo, el barrido y su final por igual: alrededor de una cuarta parte de alto en 0, dos veces y media en 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Dónde termina el barrido, que se mantiene casi igual: hasta 0 Hz en 0, en 10 el doble de alto que en 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Profundidad del pitch</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Cuánto por encima de su afinación empieza el bombo: 100 % es el barrido de la 909, 0 % ninguno.</translation>
     </message>
 </context>
 <context>

@@ -25,16 +25,15 @@ namespace noteahead {
 
 namespace {
 
-//! A kick in panel units: the 909's knobs 0..10, Pitch in Hz, Pitch Depth as a multiple of the
-//! 909's own sweep. Every field starts at the device's default, so a preset names only what it
-//! changes.
+//! A kick in panel units, the knobs 0..10 as on the RD-9. Every field starts at the device's
+//! default, so a preset names only what it changes.
 struct Kick
 {
     double tune { 5.0 };
     double attack { 5.0 };
     double decay { 5.0 };
-    double pitchHz { Kick909Engine::DefaultPitchHz };
-    double pitchDepth { 1.0 };
+    double pitch { 5.0 };
+    double pitchDepth { 5.0 };
     double drive { 0.0 };
     double lpfHz { 20000.0 };
     double hpfHz { 20.0 };
@@ -66,8 +65,8 @@ std::map<std::string, float> parameters(const Kick & kick)
         { Xml::xmlKeyTune().toStdString(), panel(kick.tune) },
         { Xml::xmlKeyAttack().toStdString(), panel(kick.attack) },
         { Xml::xmlKeyDecay().toStdString(), panel(kick.decay) },
-        { Xml::xmlKeyPitch().toStdString(), Kick909Device::pitchKnob(kick.pitchHz) },
-        { Xml::xmlKeyPitchDepth().toStdString(), Kick909Device::pitchDepthKnob(kick.pitchDepth) },
+        { Xml::xmlKeyPitch().toStdString(), panel(kick.pitch) },
+        { Xml::xmlKeyPitchDepth().toStdString(), panel(kick.pitchDepth) },
         { Xml::xmlKeyDrive().toStdString(), panel(kick.drive) },
         { Xml::xmlKeyLpfCutoff().toStdString(), cutoff(kick.lpfHz) },
         { Xml::xmlKeyHpfCutoff().toStdString(), cutoff(kick.hpfHz) },
@@ -80,26 +79,26 @@ std::map<std::string, float> parameters(const Kick & kick)
 
 const std::vector<SynthPreset> & Kick909Presets::presets()
 {
-    // Init first, as the way back; the rest alphabetical. The ones named for a knob setting are the
-    // recordings the drum was fitted to
+    // Init first, as the way back, with every knob at noon as an RD-9; the rest alphabetical. The two
+    // named for the 909 sit at its own pitch, a little under the RD-9's
     static const std::vector<SynthPreset> presets {
         { .name = "Init", .parameters = {} },
         // Short and clicky, the sweep over in a flash: the tightest the 909 goes
-        { .name = "Bare 909", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0 }) },
+        { .name = "Bare 909", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0, .pitch = 3.5 }) },
         // The long one: Decay up, Tune a little, Attack most of the way
-        { .name = "Classic Long", .parameters = parameters({ .tune = 3.0, .attack = 7.0, .decay = 10.0 }) },
+        { .name = "Classic Long", .parameters = parameters({ .tune = 3.0, .attack = 7.0, .decay = 10.0, .pitch = 3.5 }) },
         // Everything but the click taken away: a tick for layering over another kick
-        { .name = "Click Layer", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0, .pitchDepth = 0.5, .hpfHz = 150.0, .gainDb = 2.3 }) },
+        { .name = "Click Layer", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0, .hpfHz = 150.0, .gainDb = 3.3 }) },
         // Low, round and long under a low-pass: the house kick
-        { .name = "Deep House", .parameters = parameters({ .tune = 2.0, .attack = 3.0, .decay = 8.0, .pitchHz = 45.0, .lpfHz = 3000.0, .gainDb = 0.5 }) },
-        // A long slow sweep from high up, driven flat: the zap of the electro kick
-        { .name = "Electro Zap", .parameters = parameters({ .tune = 10.0, .attack = 5.0, .decay = 4.0, .pitchHz = 55.0, .pitchDepth = 2.0, .drive = 3.0, .gainDb = 1.2 }) },
+        { .name = "Deep House", .parameters = parameters({ .tune = 2.0, .attack = 3.0, .decay = 8.0, .pitch = 3.4, .lpfHz = 3000.0, .gainDb = 0.5 }) },
+        // A long sweep from high up to far below the drum, driven flat: the zap of the electro kick
+        { .name = "Electro Zap", .parameters = parameters({ .tune = 10.0, .attack = 5.0, .decay = 4.0, .pitch = 6.0, .pitchDepth = 3.0, .drive = 3.0, .gainDb = 1.2 }) },
         // Tuned up, swept hard and clipped into a square: the gabber kick
-        { .name = "Gabber", .parameters = parameters({ .tune = 10.0, .attack = 10.0, .decay = 8.0, .pitchHz = 62.0, .pitchDepth = 1.4, .drive = 10.0, .hpfHz = 35.0, .gainDb = -3.3 }) },
+        { .name = "Gabber", .parameters = parameters({ .tune = 10.0, .attack = 10.0, .decay = 8.0, .pitch = 6.5, .pitchDepth = 6.0, .drive = 10.0, .hpfHz = 35.0, .gainDb = -3.3 }) },
         // Driven, the sweep longer, the sub cut a little: the four-to-the-floor techno kick
-        { .name = "Hard Techno", .parameters = parameters({ .tune = 6.0, .attack = 10.0, .decay = 6.0, .drive = 7.0, .hpfHz = 30.0, .gainDb = -2.8 }) },
-        // Low and long with little sweep: plays the bass line in Chromatic mode
-        { .name = "Tuned Sub", .parameters = parameters({ .tune = 2.0, .attack = 2.0, .decay = 10.0, .pitchDepth = 0.5, .chromatic = true, .gainDb = 0.5 }) },
+        { .name = "Hard Techno", .parameters = parameters({ .tune = 6.0, .attack = 10.0, .decay = 6.0, .pitch = 4.0, .drive = 7.0, .hpfHz = 30.0, .gainDb = -2.8 }) },
+        // Low and long, its end raised close to its start: plays the bass line in Chromatic mode
+        { .name = "Tuned Sub", .parameters = parameters({ .tune = 2.0, .attack = 2.0, .decay = 10.0, .pitch = 1.0, .pitchDepth = 10.0, .chromatic = true, .gainDb = 0.5 }) },
     };
     return presets;
 }

@@ -156,7 +156,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Kick808
   - TR-808-style bass drum built on a pulse-excited resonator, sweeping from a short click to a long sub boom. Pitched and monophonic, so Key Track and Glide let it play bass lines as well as drums, with Tuning, Tone, Decay, Drive and a pitch envelope.
 - Kick 909
-  - TR-909-style bass drum, fitted to recordings of a 909 at every combination of Tune, Attack and Decay at 0, 3, 7 and 10: the pitch sweep Tune lengthens, the click and the noise Attack adds, and Decay's changing shape. Adds the RD-9's Pitch and Pitch Depth, Drive, an amp envelope, Chromatic mode for tuned kicks, factory presets and presets of your own.
+  - TR-909-style bass drum, fitted to recordings of a 909 at every combination of Tune, Attack and Decay at 0, 3, 7 and 10: the pitch sweep Tune lengthens, the click and the noise Attack adds, and Decay's changing shape. Adds the RD-9's Pitch and Pitch Depth, measured on one along with its sweep at noon, Drive, an amp envelope, Chromatic mode for tuned kicks, factory presets and presets of your own.
 - Kick Synth
   - Physically modelled acoustic bass drum: a batter head whose pitch drops as the tension of the hit lets go, more on a harder hit, a front head that is ported or solid and tuned against it, a pillow, felt to hard beaters, shell knock, and a mic from inside the drum to outside the front head. Its presets are fitted to recordings of real kicks: a damped and an open 24", a 20" from inside and outside, and a kick tuned high. Tuned up it plays toms, and its presets include techno kicks and toms.
 - Snare Synth

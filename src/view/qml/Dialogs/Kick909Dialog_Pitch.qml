@@ -35,28 +35,28 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Pitch")
-        mapping: "exponential"
-        mapMin: 30
-        mapMax: 120
-        suffix: "Hz"
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick909Controller.pitch
         onMoved: v => kick909Controller.pitch = v
         Layout.fillWidth: true
         ToolTip.visible: hovered
         ToolTip.delay: Constants.toolTipDelay
-        ToolTip.text: qsTr("The pitch the drum settles to. The sweep moves with it. The 909's own is 49.5 Hz.")
+        ToolTip.text: qsTr("Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.")
     }
     Knob {
         label: qsTr("Pitch Depth")
         mapping: "value"
         mapMin: 0
-        mapMax: 200
-        suffix: "%"
+        mapMax: 10
+        suffix: ""
         value: kick909Controller.pitchDepth
         onMoved: v => kick909Controller.pitchDepth = v
         Layout.fillWidth: true
         ToolTip.visible: hovered
         ToolTip.delay: Constants.toolTipDelay
-        ToolTip.text: qsTr("How far above its pitch the drum starts: 100 % is the 909's own sweep, 0 % none at all.")
+        ToolTip.text: qsTr("Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.")
     }
 }

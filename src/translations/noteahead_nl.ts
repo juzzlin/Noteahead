@@ -5594,16 +5594,16 @@
         <translation>Toonhoogte</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>De toonhoogte waarop de drum uitkomt. De sweep beweegt mee. Die van de 909 is 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Verschuift de hele drum omhoog of omlaag, de sweep en waar die eindigt gelijk: ongeveer een kwart zo hoog op 0, tweeënhalf keer op 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Waar de sweep eindigt, terwijl de sweep zelf ongeveer gelijk blijft: helemaal tot 0 Hz op 0, op 10 twee keer zo hoog als op 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Pitch-diepte</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Hoe ver boven zijn toonhoogte de drum begint: 100 % is de sweep van de 909, 0 % helemaal geen.</translation>
     </message>
 </context>
 <context>

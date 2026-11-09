@@ -36,8 +36,9 @@ namespace noteahead {
 //! - The waveform is the same in every recording once settled: lopsided, flatter-topped than a
 //!   triangle. The oscillator plays it from a table of its first twelve harmonics.
 //!
-//! The knobs are the RD-9's, 0..1 for its 0..10, with its two extra ones: Pitch, where the sweep
-//! ends, and Pitch Depth, how far it starts above that.
+//! The knobs are the RD-9's, 0..1 for its 0..10, with its two extra ones as recordings of an RD-9
+//! show them: Pitch multiplies the whole sweep, and Pitch Depth is where the sweep ends, down to
+//! 0 Hz.
 class Kick909Engine : public DrumEngine
 {
 public:
@@ -53,14 +54,17 @@ public:
     void setTune(float tune);
     void setAttack(float attack);
     void setDecay(float decay);
-    //! Where the sweep ends, in Hz. The start moves with it.
-    void setPitch(double hz);
-    //! How far the sweep starts above its end: 1 is the 909's own.
-    void setPitchDepth(double depth);
+    //! The RD-9's Pitch: the whole sweep, start and end, from 0.22 times at 0 to 2.45 at 10
+    void setPitch(float pitch);
+    //! The RD-9's Pitch Depth: where the sweep ends, from 0 Hz at 0 to twice noon's at 10, the
+    //! sweep itself staying about the same size
+    void setPitchDepth(float depth);
+    //! Moves the whole sweep by a factor on top of Pitch, for a note to play the drum at
+    void setNoteRatio(double ratio);
     void setDrive(float drive);
 
-    //! The 909's own pitch, where every Tune setting settles
-    static constexpr double DefaultPitchHz { 49.5 };
+    //! Where every Tune setting settles with Pitch and Pitch Depth at noon, as on an RD-9
+    static constexpr double DefaultPitchHz { 83.0 };
 
     //! The amplitude contour on its own, for the waveform preview: 1 at the start of the body.
     double bodyEnvelope(double seconds) const;
@@ -90,8 +94,12 @@ private:
     float m_tune { 0.5f };
     float m_attack { 0.5f };
     float m_decay { 0.5f };
-    double m_pitchHz { DefaultPitchHz };
-    double m_pitchDepth { 1.0 };
+    float m_pitch { 0.5f };
+    float m_pitchDepth { 0.5f };
+    double m_noteRatio { 1.0 };
+    double m_pitchScale { 1.0 };
+    double m_endRatio { 1.0 };
+    double m_sweepRatio { 1.0 };
     float m_drive { 0.0f };
 
     // What the knobs stand for, worked out when one is turned

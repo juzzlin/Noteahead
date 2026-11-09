@@ -5594,16 +5594,16 @@
         <translation>Hauteur</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>La hauteur sur laquelle se pose la grosse caisse. Le balayage la suit. Celle de la 909 est de 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Déplace toute la grosse caisse vers le haut ou le bas, le balayage et sa fin de même : environ un quart aussi haut à 0, deux fois et demie à 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Où le balayage se termine, le balayage lui-même restant à peu près le même : jusqu&apos;à 0 Hz à 0, à 10 deux fois plus haut qu&apos;à 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Profondeur du pitch</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>À quelle distance au-dessus de sa hauteur la grosse caisse commence : 100 % est le balayage de la 909, 0 % aucun.</translation>
     </message>
 </context>
 <context>

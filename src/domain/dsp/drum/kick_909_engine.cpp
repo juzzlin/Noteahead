@@ -27,11 +27,14 @@ namespace {
 //! The knob positions the recordings were made at: 0, 3, 7 and 10
 constexpr std::array<double, 4> KnobPoints { 0.0, 0.3, 0.7, 1.0 };
 
-//! The sweep, f = end + (start - end) exp(-(t / tau)^curve), per Tune setting: fitted to the zero
-//! crossings of all six recordings at each, then refined against their first 60 ms
-constexpr std::array<double, 4> SweepStartHz { 210.3, 226.5, 244.7, 256.8 };
-constexpr std::array<double, 4> SweepSeconds { 0.01006, 0.01258, 0.01901, 0.02842 };
-constexpr std::array<double, 4> SweepCurve { 1.294, 1.209, 1.078, 0.975 };
+//! The sweep, f = end + (start - end) exp(-(t / tau)^curve), per Tune setting. At noon it is an
+//! RD-9's with every knob there: from 343 Hz to 83 Hz, tau 36 ms, curve 0.84, fitted within a hertz
+//! to its zero crossings. That is longer and higher than the 909 recordings, whose own sweep was
+//! 235 Hz to 49.5 Hz, tau 15 ms, curve 1.14; how Tune changes it around noon is still theirs,
+//! scaled to the RD-9 there.
+constexpr std::array<double, 4> SweepStartHz { 306.2, 329.8, 356.3, 373.9 };
+constexpr std::array<double, 4> SweepSeconds { 0.02362, 0.02954, 0.04464, 0.06673 };
+constexpr std::array<double, 4> SweepCurve { 0.951, 0.888, 0.792, 0.716 };
 
 //! The amplitude, exp(-(t / tau)^curve), per Decay setting, within 0.5 to 1.9 dB. Given as the
 //! time to -40 dB, which is what Decay is heard as, and interpolated geometrically. The short
@@ -85,26 +88,40 @@ constexpr double OutputLevel = 0.888;
 //! Drive at full: the gain into the saturator
 constexpr double MaxDriveGain = 8.0;
 
+//! The RD-9's Pitch and Pitch Depth, measured on one at 0, 2, 5, 8 and 10 with the rest at noon.
+//! Its sweep keeps the same shape at every setting, so they are ratios against its noon, which is
+//! the sweep above.
+constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
+//! Pitch multiplies the whole sweep, start and end alike, within a few per cent at every moment
+constexpr std::array<double, 5> PitchScale { 0.22, 0.345, 1.0, 1.79, 2.45 };
+//! Pitch Depth moves where the sweep ends, all the way to 0 Hz, and the sweep's size only a little
+constexpr std::array<double, 5> PitchDepthEnd { 0.0, 0.186, 1.0, 1.975, 2.114 };
+constexpr std::array<double, 5> PitchDepthSweep { 0.453, 1.12, 1.0, 0.891, 0.876 };
+
 constexpr double SilenceDb = -80.0;
 
 constexpr uint32_t NoiseSeed = 0x9E3779B9u;
 
-double interpolate(const std::array<double, 4> & table, double knob)
+//! @p table at @p knob, straight between the knob positions it was measured at
+template<size_t Size>
+double interpolate(const std::array<double, Size> & points, const std::array<double, Size> & table, double knob)
 {
     const double x = std::clamp(knob, 0.0, 1.0);
     size_t i = 0;
-    while (i + 2 < KnobPoints.size() && x > KnobPoints[i + 1]) {
+    while (i + 2 < Size && x > points[i + 1]) {
         i++;
     }
-    const double fraction = (x - KnobPoints[i]) / (KnobPoints[i + 1] - KnobPoints[i]);
+    const double fraction = (x - points[i]) / (points[i + 1] - points[i]);
     return table[i] + fraction * (table[i + 1] - table[i]);
 }
 
-double interpolateGeometric(const std::array<double, 4> & table, double knob)
+//! The same, geometrically: for times and frequency ratios, which the ear hears that way
+template<size_t Size>
+double interpolateGeometric(const std::array<double, Size> & points, const std::array<double, Size> & table, double knob)
 {
-    std::array<double, 4> logs {};
+    std::array<double, Size> logs {};
     std::ranges::transform(table, logs.begin(), [](double value) { return std::log(value); });
-    return std::exp(interpolate(logs, knob));
+    return std::exp(interpolate(points, logs, knob));
 }
 
 //! One cycle of the 909's waveform, its peak at 1, with the first point repeated at the end
@@ -150,14 +167,18 @@ Kick909Engine::Kick909Engine()
 void Kick909Engine::updateShape()
 {
     const double tune = static_cast<double>(m_tune);
-    m_startHz = interpolate(SweepStartHz, tune);
-    m_sweepSeconds = interpolateGeometric(SweepSeconds, tune);
-    m_sweepCurve = interpolate(SweepCurve, tune);
+    m_startHz = interpolate(KnobPoints, SweepStartHz, tune);
+    m_sweepSeconds = interpolateGeometric(KnobPoints, SweepSeconds, tune);
+    m_sweepCurve = interpolate(KnobPoints, SweepCurve, tune);
 
     const double decay = static_cast<double>(m_decay);
-    m_decayCurve = interpolate(DecayCurve, decay);
+    m_decayCurve = interpolate(KnobPoints, DecayCurve, decay);
     // exp(-(t / tau)^q) is -40 dB where (t / tau)^q = 40 / 8.686
-    m_decaySeconds = interpolateGeometric(DecayTo40DbSeconds, decay) / std::pow(40.0 / 8.685889638, 1.0 / m_decayCurve);
+    m_decaySeconds = interpolateGeometric(KnobPoints, DecayTo40DbSeconds, decay) / std::pow(40.0 / 8.685889638, 1.0 / m_decayCurve);
+
+    m_pitchScale = interpolateGeometric(RdKnobPoints, PitchScale, static_cast<double>(m_pitch)) * m_noteRatio;
+    m_endRatio = interpolate(RdKnobPoints, PitchDepthEnd, static_cast<double>(m_pitchDepth));
+    m_sweepRatio = interpolate(RdKnobPoints, PitchDepthSweep, static_cast<double>(m_pitchDepth));
 
     const double drive = static_cast<double>(m_drive);
     m_driveGain = 1.0 + (MaxDriveGain - 1.0) * drive * drive;
@@ -181,14 +202,22 @@ void Kick909Engine::setDecay(float decay)
     updateShape();
 }
 
-void Kick909Engine::setPitch(double hz)
+void Kick909Engine::setPitch(float pitch)
 {
-    m_pitchHz = std::max(hz, 1.0);
+    m_pitch = std::clamp(pitch, 0.0f, 1.0f);
+    updateShape();
 }
 
-void Kick909Engine::setPitchDepth(double depth)
+void Kick909Engine::setPitchDepth(float depth)
 {
-    m_pitchDepth = std::max(depth, 0.0);
+    m_pitchDepth = std::clamp(depth, 0.0f, 1.0f);
+    updateShape();
+}
+
+void Kick909Engine::setNoteRatio(double ratio)
+{
+    m_noteRatio = std::max(ratio, 0.0);
+    updateShape();
 }
 
 void Kick909Engine::setDrive(float drive)
@@ -271,8 +300,9 @@ float Kick909Engine::nextSample()
         y = ClickLevel * (1.0 - std::exp(-t / ClickRiseSeconds));
     } else {
         const double bodyTime = t - ClickDelaySeconds;
-        const double startHz = m_startHz * m_pitchHz / DefaultPitchHz;
-        const double hz = m_pitchHz + m_pitchDepth * (startHz - m_pitchHz) * std::exp(-std::pow(bodyTime / m_sweepSeconds, m_sweepCurve));
+        const double endHz = DefaultPitchHz * m_endRatio;
+        const double sweepHz = (m_startHz - DefaultPitchHz) * m_sweepRatio;
+        const double hz = m_pitchScale * (endHz + sweepHz * std::exp(-std::pow(bodyTime / m_sweepSeconds, m_sweepCurve)));
         m_phase += std::min(hz / rate, 0.5);
         m_phase -= std::floor(m_phase);
         y = oscillator(m_phase) * bodyEnvelope(bodyTime);

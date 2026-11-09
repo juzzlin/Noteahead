@@ -5594,16 +5594,16 @@
         <translation>Tonhöhe</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>Die Tonhöhe, auf der die Trommel landet. Der Sweep wandert mit. Die der 909 liegt bei 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Verschiebt die ganze Trommel nach oben oder unten, den Sweep und sein Ende gleichermaßen: etwa ein Viertel so hoch bei 0, zweieinhalbmal bei 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Wo der Sweep endet, während der Sweep selbst etwa gleich bleibt: bis hinunter auf 0 Hz bei 0, bei 10 doppelt so hoch wie bei 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Pitch-Tiefe</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Wie weit über ihrer Tonhöhe die Trommel beginnt: 100 % ist der Sweep der 909, 0 % gar keiner.</translation>
     </message>
 </context>
 <context>

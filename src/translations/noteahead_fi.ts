@@ -5594,16 +5594,16 @@
         <translation>Sävelkorkeus</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>Sävelkorkeus, johon rumpu asettuu. Pyyhkäisy siirtyy sen mukana. 909:n oma on 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Siirtää koko rumpua ylös tai alas, pyyhkäisyä ja sen loppua yhtä lailla: noin neljännes asennossa 0, kaksi ja puoli kertaa asennossa 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Mihin pyyhkäisy päättyy pyyhkäisyn itsensä pysyessä suunnilleen samana: aina 0 Hz:iin asti asennossa 0, asennossa 10 kaksi kertaa niin korkealle kuin asennossa 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Sävelkorkeuden syvyys</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Kuinka paljon sävelkorkeutensa yläpuolelta rumpu alkaa: 100 % on 909:n oma pyyhkäisy, 0 % ei pyyhkäisyä lainkaan.</translation>
     </message>
 </context>
 <context>

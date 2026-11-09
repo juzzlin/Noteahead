@@ -85,8 +85,8 @@ Kick909Device::Kick909Device(std::string name)
     addKnob(Xml::xmlKeyTune(), 0.5f);
     addKnob(Xml::xmlKeyAttack(), 0.5f);
     addKnob(Xml::xmlKeyDecay(), 0.5f);
-    addKnob(Xml::xmlKeyPitch(), pitchKnob(Kick909Engine::DefaultPitchHz));
-    addKnob(Xml::xmlKeyPitchDepth(), pitchDepthKnob(1.0));
+    addKnob(Xml::xmlKeyPitch(), 0.5f);
+    addKnob(Xml::xmlKeyPitchDepth(), 0.5f);
     addKnob(Xml::xmlKeyDrive(), 0.0f);
 
     addKnob(Xml::xmlKeyAmpAttack(), 0.0f);
@@ -112,7 +112,7 @@ Kick909Device::Kick909Device(std::string name)
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyTune(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tune"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Attack"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Decay"));
-    setParameterDisplay(Xml::xmlKeyPitch().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "Hz", .min = MinPitchHz, .max = MaxPitchHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch") });
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyPitch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyPitchDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch Depth"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Drive"));
     setParameterDisplay(Xml::xmlKeyAmpAttack().toStdString(), { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = AmpMaxAttackSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Attack") });
@@ -160,46 +160,25 @@ std::vector<MidiCcController> Kick909Device::deviceMidiCcControllers() const
     return controllers;
 }
 
-double Kick909Device::pitchHz(float knob)
-{
-    return ParameterMapper::mapExponential(knob, MinPitchHz, MaxPitchHz);
-}
-
-float Kick909Device::pitchKnob(double hz)
-{
-    return static_cast<float>(std::clamp(ParameterMapper::unmapExponential(hz, MinPitchHz, MaxPitchHz), 0.0, 1.0));
-}
-
-double Kick909Device::pitchDepth(float knob)
-{
-    return MaxPitchDepth * static_cast<double>(knob);
-}
-
-float Kick909Device::pitchDepthKnob(double depth)
-{
-    return static_cast<float>(std::clamp(depth / MaxPitchDepth, 0.0, 1.0));
-}
-
 bool Kick909Device::supportsOctave() const
 {
     return false;
 }
 
-double Kick909Device::notePitchHz(uint8_t note) const
+double Kick909Device::noteRatio(uint8_t note) const
 {
-    const double hz = pitchHz(value(Xml::xmlKeyPitch()));
     if (!m_chromatic) {
-        return hz;
+        return 1.0;
     }
     const double octaves = static_cast<double>(static_cast<int>(note) - RootNote) / 12.0;
-    return hz * std::exp2(std::clamp(octaves, -MaxChromaticOctaves, MaxChromaticOctaves));
+    return std::exp2(std::clamp(octaves, -MaxChromaticOctaves, MaxChromaticOctaves));
 }
 
 void Kick909Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_note = note;
-    m_engine.setPitch(notePitchHz(note));
+    m_engine.setNoteRatio(noteRatio(note));
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
     m_engine.trigger(vel);
@@ -445,8 +424,9 @@ void Kick909Device::syncEngine()
     m_engine.setTune(value(Xml::xmlKeyTune()));
     m_engine.setAttack(value(Xml::xmlKeyAttack()));
     m_engine.setDecay(value(Xml::xmlKeyDecay()));
-    m_engine.setPitch(notePitchHz(m_note));
-    m_engine.setPitchDepth(pitchDepth(value(Xml::xmlKeyPitchDepth())));
+    m_engine.setPitch(value(Xml::xmlKeyPitch()));
+    m_engine.setPitchDepth(value(Xml::xmlKeyPitchDepth()));
+    m_engine.setNoteRatio(noteRatio(m_note));
     m_engine.setDrive(value(Xml::xmlKeyDrive()));
 }
 

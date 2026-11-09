@@ -29,9 +29,9 @@ namespace noteahead {
 
 //! The TR-909 bass drum with the RD-9's Pitch and Pitch Depth, plus Drive: see Kick909Engine.
 //!
-//! Every note plays the drum as it is set, unless Chromatic is on: then the note moves Pitch, C-3
-//! playing it as set. The sweep moves with it and the decays stay where they are, so it plays as a
-//! tuned 909 rather than as a sample played faster.
+//! Every note plays the drum as it is set, unless Chromatic is on: then the note moves the sweep as
+//! Pitch does, C-3 playing it as set. The decays stay where they are, so it plays as a tuned 909
+//! rather than as a sample played faster.
 class Kick909Device : public Device
 {
 public:
@@ -72,15 +72,6 @@ public:
     float knob(const QString & key) const;
     void setKnob(const QString & key, float value);
 
-    // What the knobs stand for, for the presets and the dialog's read-outs
-    static double pitchHz(float knob);
-    static double pitchDepth(float knob);
-    static float pitchKnob(double hz);
-    static float pitchDepthKnob(double depth);
-    static constexpr double MinPitchHz { 30.0 };
-    static constexpr double MaxPitchHz { 120.0 };
-    static constexpr double MaxPitchDepth { 2.0 };
-
     //! The envelope's times as the knobs set them, for the waveform overlay
     double ampAttackSeconds() const;
     double ampHoldSeconds() const;
@@ -96,7 +87,7 @@ protected:
     void syncParameters() override;
 
 private:
-    double notePitchHz(uint8_t note) const;
+    double noteRatio(uint8_t note) const;
     void syncEngine();
     void syncAmpEnvelope();
     float value(const QString & key) const;

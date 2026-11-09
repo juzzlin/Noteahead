@@ -5595,16 +5595,16 @@
         <translation>Wysokość</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>Wysokość, na której ustala się bęben. Przejście przesuwa się razem z nią. W 909 to 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Przesuwa cały bęben w górę lub w dół, przejście i jego koniec jednakowo: około jednej czwartej przy 0, dwa i pół raza przy 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Gdzie kończy się przejście, samo przejście pozostaje mniej więcej takie samo: aż do 0 Hz przy 0, przy 10 dwa razy wyżej niż przy 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Głębokość pitch</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Jak wysoko ponad swoją wysokością zaczyna bęben: 100 % to przejście 909, 0 % żadnego.</translation>
     </message>
 </context>
 <context>

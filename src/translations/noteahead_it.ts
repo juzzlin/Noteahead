@@ -5594,16 +5594,16 @@
         <translation>Intonazione</translation>
     </message>
     <message>
-        <source>The pitch the drum settles to. The sweep moves with it. The 909&apos;s own is 49.5 Hz.</source>
-        <translation>L&apos;intonazione su cui si assesta la cassa. Lo sweep si sposta con essa. Quella della 909 è 49,5 Hz.</translation>
+        <source>Moves the whole drum up or down, the sweep and where it ends alike: about a quarter as high at 0, two and a half times at 10.</source>
+        <translation>Sposta l&apos;intera cassa in alto o in basso, lo sweep e la sua fine allo stesso modo: circa un quarto a 0, due volte e mezza a 10.</translation>
+    </message>
+    <message>
+        <source>Where the sweep ends, the sweep itself staying about the same: all the way down to 0 Hz at 0, twice as high as at 5 at 10.</source>
+        <translation>Dove finisce lo sweep, che resta più o meno lo stesso: fino a 0 Hz a 0, a 10 il doppio che a 5.</translation>
     </message>
     <message>
         <source>Pitch Depth</source>
         <translation>Profondità del pitch</translation>
-    </message>
-    <message>
-        <source>How far above its pitch the drum starts: 100 % is the 909&apos;s own sweep, 0 % none at all.</source>
-        <translation>Quanto sopra la sua intonazione parte la cassa: 100 % è lo sweep della 909, 0 % nessuno.</translation>
     </message>
 </context>
 <context>
