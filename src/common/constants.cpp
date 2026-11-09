@@ -136,7 +136,7 @@ quint64 minTrackCount()
 
 size_t deviceRackSize()
 {
-    return 16;
+    return 32;
 }
 
 int defaultPerformancePanelHeight()
