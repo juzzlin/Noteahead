@@ -253,6 +253,9 @@ void MidiService::sendCcDataAt(InstrumentW instrument, MidiCcDataCR data, std::c
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService->isInternalDevice(portName)) {
             if (const auto frame = m_deviceService->frameForTime(when); frame) {
+                if (m_deviceService->scheduleSideChainCc(portName, data, frame)) {
+                    return;
+                }
                 m_deviceService->scheduleMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel(), *frame);
                 return;
             }
@@ -348,7 +351,9 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
     if (const auto instr = instrument.lock()) {
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
-            m_deviceService->processMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel());
+            if (!m_deviceService->scheduleSideChainCc(portName, data, std::nullopt)) {
+                m_deviceService->processMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel());
+            }
         } else {
             // Last line of defence for the wire: an internal device may accept values past the MIDI
             // 1.0 range, but those are not legal data bytes once they leave the application.

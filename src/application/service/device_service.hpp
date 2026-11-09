@@ -41,6 +41,7 @@ class AudioEngine;
 class AudioFileReader;
 class DataService;
 class Instrument;
+class MidiCcData;
 class ParameterData;
 class ProjectReader;
 class ProjectWriter;
@@ -259,6 +260,10 @@ public:
     //! Hands a parameter automation step to the audio thread, to take effect at @p frame or, with
     //! no frame, at the start of the next block. See AudioEngine::scheduleParameterChange().
     void scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame);
+    //! Takes a side-chain's CC 7 to an internal device as a relative automation of its Fader, so
+    //! that the duck scales the Fader instead of overwriting it, and the knob stays where it was
+    //! set. False when @p data is anything else, which is then sent as the CC it is.
+    bool scheduleSideChainCc(const QString & portName, const MidiCcData & data, std::optional<uint64_t> frame);
     //! Tells whatever shows the target that an automation will move it @p delay from now. Only for
     //! live playback: the audio thread that applies the change must not signal anything, and a
     //! render moves values far faster than anything could be shown.

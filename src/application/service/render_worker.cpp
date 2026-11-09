@@ -420,7 +420,9 @@ void RenderWorker::handleEvent(const Event & event)
         } else if constexpr (std::is_same_v<T, MidiCcData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 if (const auto portName = instrument->midiAddress().portName(); m_deviceService->isInternalDevice(portName)) {
-                    m_deviceService->processMidiCc(portName, data.controller(), data.value(), instrument->midiAddress().channel());
+                    if (!m_deviceService->scheduleSideChainCc(portName, data, std::nullopt)) {
+                        m_deviceService->processMidiCc(portName, data.controller(), data.value(), instrument->midiAddress().channel());
+                    }
                 }
             }
         } else if constexpr (std::is_same_v<T, PitchBendData>) {

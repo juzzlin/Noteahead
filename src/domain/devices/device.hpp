@@ -456,6 +456,9 @@ public:
     //! the top of the throw, so CC 7 keeps meaning what it always did, and the values above it
     //! reach into the boost range.
     static float faderPositionFromMidiCc(uint8_t value);
+    //! Share of the Fader's gain a side-chain CC 7 value leaves, as Expression scales it: 127 leaves
+    //! all of it, and a lower value what the Fader at unity would lose going down to that value.
+    static double faderGainScaleFromMidiCc(uint8_t value);
 
     //! CC 7 as an internal device exposes it, carrying the extended value range.
     static MidiCcController faderMidiCcController();

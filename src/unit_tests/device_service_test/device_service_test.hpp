@@ -54,6 +54,8 @@ private slots:
     void test_clearAutomation_shouldRestoreAutomatedDevices();
     void test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame();
     void test_scheduleParameterChange_relative_shouldScaleTheKnob();
+    void test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob();
+    void test_scheduleSideChainCc_notSideChain_shouldBeLeftToTheCcPath();
     void test_clearAutomation_shouldRestoreAutomatedEffects();
     void test_copyDevice_differentType_shouldReplaceTargetDevice();
     void test_copyDevice_emptySource_shouldFail();

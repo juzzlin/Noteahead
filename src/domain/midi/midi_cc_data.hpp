@@ -32,9 +32,15 @@ public:
 
     double normalizedValue() const;
 
+    //! Sent by a side-chain rather than written in the song: an internal device takes a fader one
+    //! as a duck under its Fader instead of as a new Fader setting
+    bool isSideChain() const;
+    void setSideChain(bool sideChain);
+
 private:
     uint8_t m_controller = 0;
     uint8_t m_value = 0;
+    bool m_sideChain = false;
 };
 
 } // namespace noteahead

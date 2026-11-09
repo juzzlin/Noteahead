@@ -39,4 +39,14 @@ double MidiCcData::normalizedValue() const
     return static_cast<double>(m_value) / 127;
 }
 
+bool MidiCcData::isSideChain() const
+{
+    return m_sideChain;
+}
+
+void MidiCcData::setSideChain(bool sideChain)
+{
+    m_sideChain = sideChain;
+}
+
 } // namespace noteahead

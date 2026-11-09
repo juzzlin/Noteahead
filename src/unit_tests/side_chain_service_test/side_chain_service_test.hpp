@@ -28,6 +28,7 @@ private slots:
     void test_setAndGet_sideChainSettings_shouldUpdateModel();
     void test_removeSettings_shouldRemoveEntry();
     void test_renderToEvents_deletedTrack_shouldNotCrash();
+    void test_renderToEvents_ccEvents_shouldBeMarkedAsSideChain();
 };
 
 } // namespace noteahead

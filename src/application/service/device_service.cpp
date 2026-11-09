@@ -24,6 +24,7 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -1260,6 +1261,18 @@ DeviceService::DeviceS DeviceService::findDevice(const std::string & uuid) const
 void DeviceService::scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame)
 {
     m_audioEngine->scheduleParameterChange({ data.target(), data.parameter(), data.mode(), data.value(), frame });
+}
+
+bool DeviceService::scheduleSideChainCc(const QString & portName, const MidiCcData & data, std::optional<uint64_t> frame)
+{
+    if (!data.isSideChain() || data.controller() != static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB)) {
+        return false;
+    }
+    if (const auto device = deviceForPort(portName); device) {
+        scheduleParameterChange({ data.track(), data.column(), device, Constants::NahdXml::xmlKeyFader().toStdString(), ParameterAutomation::Mode::Relative, Device::faderGainScaleFromMidiCc(data.value()) }, frame);
+        return true;
+    }
+    return false;
 }
 
 void DeviceService::notifyParameterAutomation(const ParameterData & data, std::chrono::milliseconds delay)

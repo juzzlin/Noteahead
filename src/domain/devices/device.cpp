@@ -381,6 +381,12 @@ float Device::faderPositionFromMidiCc(uint8_t value)
     return std::min(1.0f, static_cast<float>(value) / 127.0f * Constants::faderUnityPosition());
 }
 
+double Device::faderGainScaleFromMidiCc(uint8_t value)
+{
+    const double unityGain = ParameterMapper::mapFader(static_cast<double>(faderPositionFromMidiCc(127)));
+    return std::clamp(ParameterMapper::mapFader(static_cast<double>(faderPositionFromMidiCc(value))) / unityGain, 0.0, 1.0);
+}
+
 MidiCcController Device::faderMidiCcController()
 {
     // Named after the knob it drives rather than after the MIDI controller it rides on: every

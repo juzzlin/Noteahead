@@ -60,8 +60,9 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
                                 const auto lookaheadTicks = static_cast<size_t>(sideChainSettings.lookahead.count() / msPerTick);
                                 const size_t proposedTargetTick = event->tick() > lookaheadTicks ? event->tick() - lookaheadTicks : 0;
                                 const size_t targetTick = std::max(startTick, proposedTargetTick);
-                                const auto targetEvent = std::make_shared<Event>(targetTick, MidiCcData(trackIndex, sideChainSettings.sourceColumnIndex, target.controller, target.targetValue));
-                                sideChainEvents.push_back(targetEvent);
+                                MidiCcData targetData { trackIndex, sideChainSettings.sourceColumnIndex, target.controller, target.targetValue };
+                                targetData.setSideChain(true);
+                                sideChainEvents.push_back(std::make_shared<Event>(targetTick, targetData));
 
                                 const auto releaseTicks = static_cast<size_t>(sideChainSettings.release.count() / msPerTick);
                                 size_t releaseTick = event->tick() + releaseTicks;
@@ -69,8 +70,9 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
                                     releaseTick = maxTick > 0 ? maxTick - 1 : 0;
                                 }
 
-                                const auto releaseEvent = std::make_shared<Event>(releaseTick, MidiCcData(trackIndex, sideChainSettings.sourceColumnIndex, target.controller, target.releaseValue));
-                                sideChainEvents.push_back(releaseEvent);
+                                MidiCcData releaseData { trackIndex, sideChainSettings.sourceColumnIndex, target.controller, target.releaseValue };
+                                releaseData.setSideChain(true);
+                                sideChainEvents.push_back(std::make_shared<Event>(releaseTick, releaseData));
                             }
                         };
 

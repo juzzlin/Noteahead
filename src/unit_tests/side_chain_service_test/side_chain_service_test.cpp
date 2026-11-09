@@ -96,6 +96,31 @@ void SideChainServiceTest::test_renderToEvents_deletedTrack_shouldNotCrash()
     song.renderToEvents(automationService, sideChainService, 0);
 }
 
+void SideChainServiceTest::test_renderToEvents_ccEvents_shouldBeMarkedAsSideChain()
+{
+    Song song;
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto sideChainService = std::make_shared<SideChainService>();
+
+    SideChainSettings sideChainSettings;
+    sideChainSettings.enabled = true;
+    sideChainSettings.sourceTrackIndex = 0;
+    sideChainSettings.sourceColumnIndex = 0;
+    sideChainSettings.targets.push_back({ true, 7, 100, 127 });
+    sideChainService->setSettings(1, sideChainSettings);
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+
+    size_t sideChainCcCount = 0;
+    for (auto && event : song.renderToEvents(automationService, sideChainService, 0)) {
+        if (const auto cc = event->midiCcData(); cc && cc->controller() == 7) {
+            QVERIFY(cc->isSideChain());
+            sideChainCcCount++;
+        }
+    }
+    // The duck and its release
+    QCOMPARE(sideChainCcCount, size_t { 2 });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SideChainServiceTest)

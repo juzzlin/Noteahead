@@ -17,6 +17,7 @@
 
 #include "../../application/service/device_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
@@ -26,9 +27,11 @@
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/gain.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -636,6 +639,59 @@ void DeviceServiceTest::test_scheduleParameterChange_device_shouldApplyInTheBloc
     // Relative leaves the knob at the value it scales
     QVERIFY(std::abs(synth->lpfCutoff() - 0.8f) < 1.0e-6f);
     QCOMPARE(synth->parameter(key)->get().authoredValue(), 0.8f);
+}
+
+void DeviceServiceTest::test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = std::make_shared<SynthDevice>("TestSynth");
+    service.setDevice(0, synth);
+    const auto port = QString::fromStdString(service.internalDeviceNames().at(0));
+    const auto key = Constants::NahdXml::xmlKeyFader().toStdString();
+    const float knob = ParameterMapper::unmapFader(0.5);
+    synth->setVolume(knob);
+
+    MidiCcData duck { 0, 0, static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), 100 };
+    duck.setSideChain(true);
+    QVERIFY(service.scheduleSideChainCc(port, duck, std::nullopt));
+
+    std::vector<double> buffer(256 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+    audioEngine->process(context);
+
+    // The knob stays where it was set, and what plays is its gain scaled as CC 7 at 100 scales unity
+    QCOMPARE(synth->volume(), knob);
+    const double expected = 0.5 * Device::faderGainScaleFromMidiCc(100);
+    QVERIFY(std::abs(ParameterMapper::mapFader(synth->parameter(key)->get().value()) - expected) < 1.0e-4);
+    QVERIFY(Device::faderGainScaleFromMidiCc(100) < 1.0);
+
+    // The release gives the knob back in full
+    MidiCcData release { 0, 0, static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), 127 };
+    release.setSideChain(true);
+    QVERIFY(service.scheduleSideChainCc(port, release, std::nullopt));
+    audioEngine->process(context);
+    QVERIFY(std::abs(synth->parameter(key)->get().value() - knob) < 1.0e-5f);
+    QCOMPARE(synth->volume(), knob);
+}
+
+void DeviceServiceTest::test_scheduleSideChainCc_notSideChain_shouldBeLeftToTheCcPath()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    service.setDevice(0, std::make_shared<SynthDevice>("TestSynth"));
+    const auto port = QString::fromStdString(service.internalDeviceNames().at(0));
+
+    // Written in the song: CC 7 sets the Fader, as it always has
+    QVERIFY(!service.scheduleSideChainCc(port, MidiCcData { 0, 0, static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), 100 }, std::nullopt));
+    // A side-chain on any other controller stays a CC
+    MidiCcData other { 0, 0, static_cast<uint8_t>(MidiCcMapping::Controller::SoundController5), 100 };
+    other.setSideChain(true);
+    QVERIFY(!service.scheduleSideChainCc(port, other, std::nullopt));
+    // So does one to an external port
+    MidiCcData external { 0, 0, static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), 100 };
+    external.setSideChain(true);
+    QVERIFY(!service.scheduleSideChainCc("Some MIDI Port", external, std::nullopt));
 }
 
 void DeviceServiceTest::test_clearAutomation_shouldRestoreAutomatedDevices()
