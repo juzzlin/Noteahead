@@ -9335,6 +9335,74 @@
         <source>Peak Reduction</source>
         <translation>Peak Reduction</translation>
     </message>
+    <message>
+        <source>OSC 2 Frequency</source>
+        <translation>OSC 2 频率</translation>
+    </message>
+    <message>
+        <source>OSC 3 Frequency</source>
+        <translation>OSC 3 频率</translation>
+    </message>
+    <message>
+        <source>Filter Attack</source>
+        <translation>滤波器起音</translation>
+    </message>
+    <message>
+        <source>Filter Decay</source>
+        <translation>滤波器衰减</translation>
+    </message>
+    <message>
+        <source>Loudness Attack</source>
+        <translation>响度起音</translation>
+    </message>
+    <message>
+        <source>Loudness Decay</source>
+        <translation>响度衰减</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>调制深度</translation>
+    </message>
+    <message>
+        <source>OSC 1 Volume</source>
+        <translation>OSC 1 音量</translation>
+    </message>
+    <message>
+        <source>OSC 2 Volume</source>
+        <translation>OSC 2 音量</translation>
+    </message>
+    <message>
+        <source>OSC 3 Volume</source>
+        <translation>OSC 3 音量</translation>
+    </message>
+    <message>
+        <source>Ext In Volume</source>
+        <translation>Ext In 音量</translation>
+    </message>
+    <message>
+        <source>Noise Volume</source>
+        <translation>噪声音量</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>强调</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>轮廓量</translation>
+    </message>
+    <message>
+        <source>Filter Sustain</source>
+        <translation>滤波器延持</translation>
+    </message>
+    <message>
+        <source>Loudness Sustain</source>
+        <translation>响度延持</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -13460,6 +13528,443 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Send levels of this device to the master send effects</source>
         <translation>此设备发送到主发送效果的电平</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Oscillators</source>
+        <translation>振荡器</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>混音器</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>修饰器</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>模拟</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>模拟</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>漂移</translation>
+    </message>
+    <message>
+        <source>How far the three VCOs slowly wander out of tune together</source>
+        <translation>三个 VCO 一起缓慢跑调的程度</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>不稳定度</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that they beat slowly against each other</source>
+        <translation>每个 VCO 各自漂移的程度，使它们彼此缓慢拍频</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>容差</translation>
+    </message>
+    <message>
+        <source>How far the VCOs are out of tune with each other, and the filter off its knob, for good</source>
+        <translation>VCO 之间以及滤波器相对旋钮的固定偏差程度</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Contour</name>
+    <message>
+        <source>Loudness Contour</source>
+        <translation>响度轮廓</translation>
+    </message>
+    <message>
+        <source>Filter Contour</source>
+        <translation>滤波器轮廓</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation>起音时间</translation>
+    </message>
+    <message>
+        <source>1 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 10 s at 10</source>
+        <translation>0 时 1 ms，0.5 时 10 ms，2 时 200 ms，4 时 600 ms，6 时 1 s，8 时 5 s，10 时 10 s</translation>
+    </message>
+    <message>
+        <source>Decay Time</source>
+        <translation>衰减时间</translation>
+    </message>
+    <message>
+        <source>4 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 35 s at 10</source>
+        <translation>0 时 4 ms，0.5 时 10 ms，2 时 200 ms，4 时 600 ms，6 时 1 s，8 时 5 s，10 时 35 s</translation>
+    </message>
+    <message>
+        <source>Sustain Level</source>
+        <translation>延持电平</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>On, a released note dies away over the decay time. Off, it stops at once.</source>
+        <translation>开启时，松开的音符在衰减时间内逐渐消失。关闭时，立即停止。</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Controllers</name>
+    <message>
+        <source>Controllers</source>
+        <translation>控制器</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>调音</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation>滑音</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation>滤波器</translation>
+    </message>
+    <message>
+        <source>Low-Pass</source>
+        <translation>低通</translation>
+    </message>
+    <message>
+        <source>High-Pass</source>
+        <translation>高通</translation>
+    </message>
+    <message>
+        <source>Cutoff Frequency</source>
+        <translation>截止频率</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>强调</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>轮廓量</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 1</source>
+        <translation>键盘控制 1</translation>
+    </message>
+    <message>
+        <source>A third of the keyboard&apos;s pitch moves the cutoff; with 2 as well, all of it</source>
+        <translation>按键音高的三分之一移动截止频率；与 2 一起时为全部</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 2</source>
+        <translation>键盘控制 2</translation>
+    </message>
+    <message>
+        <source>Two thirds of the keyboard&apos;s pitch moves the cutoff; with 1 as well, all of it</source>
+        <translation>按键音高的三分之二移动截止频率；与 1 一起时为全部</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Global</name>
+    <message>
+        <source>Keyboard</source>
+        <translation>键盘</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>优先级</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>最低</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>最高</translation>
+    </message>
+    <message>
+        <source>Last</source>
+        <translation>最后</translation>
+    </message>
+    <message>
+        <source>Multi-Trigger</source>
+        <translation>多重触发</translation>
+    </message>
+    <message>
+        <source>Every new note restarts the contours. Off, notes played legato share the contours of the first.</source>
+        <translation>每个新音符都会重新启动轮廓。关闭时，连奏的音符共用第一个音符的轮廓。</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>弯音范围</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>力度灵敏度</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>声像扩散</translation>
+    </message>
+    <message>
+        <source>OSC 1 to the left and OSC 2 to the right, each through a filter of its own</source>
+        <translation>OSC 1 在左、OSC 2 在右，各自通过自己的滤波器</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>三角波</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>方波</translation>
+    </message>
+    <message>
+        <source>The LFO&apos;s shape: a smooth triangle, or a square that jumps between two values</source>
+        <translation>LFO 的形状：平滑的三角波，或在两个值之间跳变的方波</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>速率</translation>
+    </message>
+    <message>
+        <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
+        <translation>LFO 的运行速度。LED 随之闪烁。将第二调制源选为 LFO 才能听到它。</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Mixer</name>
+    <message>
+        <source>Mixer</source>
+        <translation>混音器</translation>
+    </message>
+    <message>
+        <source>Overload: the mix is driving the filter into distortion</source>
+        <translation>过载：混音正把滤波器推向失真</translation>
+    </message>
+    <message>
+        <source>OSC 1</source>
+        <translation>OSC 1</translation>
+    </message>
+    <message>
+        <source>OSC 2</source>
+        <translation>OSC 2</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>噪声</translation>
+    </message>
+    <message>
+        <source>Ext In</source>
+        <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>白</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>粉红</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Modulation</name>
+    <message>
+        <source>Modulation</source>
+        <translation>调制</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Filter EG</source>
+        <translation>滤波器 EG</translation>
+    </message>
+    <message>
+        <source>The source at the left end of Mod Mix: OSC 3 as a slow or audio-rate modulator, or the filter contour</source>
+        <translation>Mod Mix 左端的源：OSC 3 作为慢速或音频速率调制器，或滤波器包络</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>噪声</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>The source at the right end of Mod Mix: noise for random wobble, or the LFO</source>
+        <translation>Mod Mix 右端的源：噪声用于随机摆动，或 LFO</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Blends the two sources: OSC 3 or Filter EG at 0, Noise or LFO at 10</source>
+        <translation>混合两个源：0 为 OSC 3 或 Filter EG，10 为 Noise 或 LFO</translation>
+    </message>
+    <message>
+        <source>How much modulation reaches its destinations. The modulation wheel turns this knob.</source>
+        <translation>有多少调制到达其目标。调制轮转动此旋钮。</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the filter cutoff, for wah and growl</source>
+        <translation>将调制送到滤波器截止频率，用于哇音和咆哮声</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>调制深度</translation>
+    </message>
+    <message>
+        <source>Oscillator Modulation</source>
+        <translation>振荡器调制</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the pitch of the VCOs, for vibrato and trills. OSC 3 is left out while it is off the keyboard.</source>
+        <translation>将调制送到 VCO 的音高，用于颤音和颤音交替。OSC 3 不跟随键盘时不受影响。</translation>
+    </message>
+    <message>
+        <source>Filter Modulation</source>
+        <translation>滤波器调制</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Oscillator</name>
+    <message>
+        <source>OSC %1</source>
+        <translation>OSC %1</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>三角波</translation>
+    </message>
+    <message>
+        <source>Reverse Saw</source>
+        <translation>反向锯齿波</translation>
+    </message>
+    <message>
+        <source>Triangle-Saw</source>
+        <translation>三角-锯齿波</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation>锯齿波</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>方波</translation>
+    </message>
+    <message>
+        <source>Wide Pulse</source>
+        <translation>宽脉冲</translation>
+    </message>
+    <message>
+        <source>Narrow Pulse</source>
+        <translation>窄脉冲</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>频率</translation>
+    </message>
+    <message>
+        <source>Semitones from OSC 1</source>
+        <translation>相对 OSC 1 的半音数</translation>
+    </message>
+    <message>
+        <source>Keyboard Control</source>
+        <translation>键盘控制</translation>
+    </message>
+    <message>
+        <source>Off, OSC 3 ignores the keys and the wheels and stays where its knobs put it</source>
+        <translation>关闭时，OSC 3 不跟随按键和轮子，停在旋钮设定的位置</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+    <message>
+        <source>A monophonic three-VCO synthesizer after the Model D</source>
+        <translation>仿 Model D 的三 VCO 单音合成器</translation>
     </message>
 </context>
 <context>

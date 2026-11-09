@@ -460,6 +460,10 @@ ApplicationWindow {
         id: pianoSynthAcousticDialog
         anchors.centerIn: parent
     }
+    SynthDDialog {
+        id: synthDDialog
+        anchors.centerIn: parent
+    }
     SpeechDialog {
         id: speechDialog
         anchors.centerIn: parent
@@ -1236,6 +1240,7 @@ ApplicationWindow {
         deviceRackController.pianoSynthV2DialogRequested.connect(pianoSynthV2Dialog.open);
         deviceRackController.pianoSynthV3DialogRequested.connect(pianoSynthV3Dialog.open);
         deviceRackController.pianoSynthAcousticDialogRequested.connect(pianoSynthAcousticDialog.open);
+        deviceRackController.synthDDialogRequested.connect(synthDDialog.open);
         deviceRackController.speechDialogRequested.connect(speechDialog.open);
         deviceRackController.kick808DialogRequested.connect(kick808Dialog.open);
         deviceRackController.kickSynthDialogRequested.connect(kickSynthDialog.open);

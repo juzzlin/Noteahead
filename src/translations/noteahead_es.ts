@@ -9336,6 +9336,74 @@
         <source>Peak Reduction</source>
         <translation>Peak Reduction</translation>
     </message>
+    <message>
+        <source>OSC 2 Frequency</source>
+        <translation>Frecuencia de OSC 2</translation>
+    </message>
+    <message>
+        <source>OSC 3 Frequency</source>
+        <translation>Frecuencia de OSC 3</translation>
+    </message>
+    <message>
+        <source>Filter Attack</source>
+        <translation>Attack del filtro</translation>
+    </message>
+    <message>
+        <source>Filter Decay</source>
+        <translation>Decay del filtro</translation>
+    </message>
+    <message>
+        <source>Loudness Attack</source>
+        <translation>Attack de volumen</translation>
+    </message>
+    <message>
+        <source>Loudness Decay</source>
+        <translation>Decay de volumen</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>Profundidad de modulación</translation>
+    </message>
+    <message>
+        <source>OSC 1 Volume</source>
+        <translation>Volumen de OSC 1</translation>
+    </message>
+    <message>
+        <source>OSC 2 Volume</source>
+        <translation>Volumen de OSC 2</translation>
+    </message>
+    <message>
+        <source>OSC 3 Volume</source>
+        <translation>Volumen de OSC 3</translation>
+    </message>
+    <message>
+        <source>Ext In Volume</source>
+        <translation>Volumen de Ext In</translation>
+    </message>
+    <message>
+        <source>Noise Volume</source>
+        <translation>Volumen de ruido</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>Énfasis</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>Cantidad de contorno</translation>
+    </message>
+    <message>
+        <source>Filter Sustain</source>
+        <translation>Sustain del filtro</translation>
+    </message>
+    <message>
+        <source>Loudness Sustain</source>
+        <translation>Sustain de volumen</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -13462,6 +13530,443 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Send levels of this device to the master send effects</source>
         <translation>Niveles de envío de este dispositivo a los efectos de envío máster</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>Aceptar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Oscillators</source>
+        <translation>Osciladores</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mezclador</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modificadores</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analógico</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analógico</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Deriva</translation>
+    </message>
+    <message>
+        <source>How far the three VCOs slowly wander out of tune together</source>
+        <translation>Cuánto se desafinan lentamente juntos los tres VCO</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Inestabilidad</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that they beat slowly against each other</source>
+        <translation>Cuánto deriva cada VCO por su cuenta, de modo que baten lentamente entre sí</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolerancia</translation>
+    </message>
+    <message>
+        <source>How far the VCOs are out of tune with each other, and the filter off its knob, for good</source>
+        <translation>Cuánto se desafinan los VCO entre sí, y el filtro respecto a su mando, de forma permanente</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Contour</name>
+    <message>
+        <source>Loudness Contour</source>
+        <translation>Contorno de volumen</translation>
+    </message>
+    <message>
+        <source>Filter Contour</source>
+        <translation>Contorno del filtro</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation>Tiempo de ataque</translation>
+    </message>
+    <message>
+        <source>1 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 10 s at 10</source>
+        <translation>1 ms en 0, 10 ms en 0,5, 200 ms en 2, 600 ms en 4, 1 s en 6, 5 s en 8 y 10 s en 10</translation>
+    </message>
+    <message>
+        <source>Decay Time</source>
+        <translation>Tiempo de decay</translation>
+    </message>
+    <message>
+        <source>4 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 35 s at 10</source>
+        <translation>4 ms en 0, 10 ms en 0,5, 200 ms en 2, 600 ms en 4, 1 s en 6, 5 s en 8 y 35 s en 10</translation>
+    </message>
+    <message>
+        <source>Sustain Level</source>
+        <translation>Nivel de sustain</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Caída</translation>
+    </message>
+    <message>
+        <source>On, a released note dies away over the decay time. Off, it stops at once.</source>
+        <translation>Activado, una nota soltada se apaga a lo largo del tiempo de decay. Desactivado, se detiene al instante.</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Controllers</name>
+    <message>
+        <source>Controllers</source>
+        <translation>Controladores</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Afinación</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation>Glissando</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation>Filtro</translation>
+    </message>
+    <message>
+        <source>Low-Pass</source>
+        <translation>Paso bajo</translation>
+    </message>
+    <message>
+        <source>High-Pass</source>
+        <translation>Paso alto</translation>
+    </message>
+    <message>
+        <source>Cutoff Frequency</source>
+        <translation>Frecuencia de corte</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>Énfasis</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>Cantidad de contorno</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 1</source>
+        <translation>Control de teclado 1</translation>
+    </message>
+    <message>
+        <source>A third of the keyboard&apos;s pitch moves the cutoff; with 2 as well, all of it</source>
+        <translation>Un tercio de la altura del teclado mueve el corte; con 2 también, toda</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 2</source>
+        <translation>Control de teclado 2</translation>
+    </message>
+    <message>
+        <source>Two thirds of the keyboard&apos;s pitch moves the cutoff; with 1 as well, all of it</source>
+        <translation>Dos tercios de la altura del teclado mueven el corte; con 1 también, toda</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Global</name>
+    <message>
+        <source>Keyboard</source>
+        <translation>Teclado</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioridad</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Más grave</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Más aguda</translation>
+    </message>
+    <message>
+        <source>Last</source>
+        <translation>Última</translation>
+    </message>
+    <message>
+        <source>Multi-Trigger</source>
+        <translation>Multidisparo</translation>
+    </message>
+    <message>
+        <source>Every new note restarts the contours. Off, notes played legato share the contours of the first.</source>
+        <translation>Cada nota nueva reinicia los contornos. Desactivado, las notas tocadas en legato comparten los contornos de la primera.</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Rango de pitch bend</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Sensibilidad a la velocidad</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Dispersión del paneo</translation>
+    </message>
+    <message>
+        <source>OSC 1 to the left and OSC 2 to the right, each through a filter of its own</source>
+        <translation>OSC 1 a la izquierda y OSC 2 a la derecha, cada uno por su propio filtro</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte del HPF</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Paneo</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>Triangular</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Cuadrada</translation>
+    </message>
+    <message>
+        <source>The LFO&apos;s shape: a smooth triangle, or a square that jumps between two values</source>
+        <translation>La forma del LFO: un triángulo suave o una cuadrada que salta entre dos valores</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
+        <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
+        <translation>La velocidad del LFO. El LED lo sigue. Elige LFO como segunda fuente de modulación para oírlo.</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Mixer</name>
+    <message>
+        <source>Mixer</source>
+        <translation>Mezclador</translation>
+    </message>
+    <message>
+        <source>Overload: the mix is driving the filter into distortion</source>
+        <translation>Sobrecarga: la mezcla está llevando el filtro a la distorsión</translation>
+    </message>
+    <message>
+        <source>OSC 1</source>
+        <translation>OSC 1</translation>
+    </message>
+    <message>
+        <source>OSC 2</source>
+        <translation>OSC 2</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruido</translation>
+    </message>
+    <message>
+        <source>Ext In</source>
+        <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Activado</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Blanco</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Modulation</name>
+    <message>
+        <source>Modulation</source>
+        <translation>Modulación</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Filter EG</source>
+        <translation>EG del filtro</translation>
+    </message>
+    <message>
+        <source>The source at the left end of Mod Mix: OSC 3 as a slow or audio-rate modulator, or the filter contour</source>
+        <translation>La fuente del extremo izquierdo de Mod Mix: OSC 3 como modulador lento o de audio, o la envolvente del filtro</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruido</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>The source at the right end of Mod Mix: noise for random wobble, or the LFO</source>
+        <translation>La fuente del extremo derecho de Mod Mix: ruido para una oscilación aleatoria, o el LFO</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Blends the two sources: OSC 3 or Filter EG at 0, Noise or LFO at 10</source>
+        <translation>Mezcla las dos fuentes: OSC 3 o Filter EG en 0, Noise o LFO en 10</translation>
+    </message>
+    <message>
+        <source>How much modulation reaches its destinations. The modulation wheel turns this knob.</source>
+        <translation>Cuánta modulación llega a sus destinos. La rueda de modulación gira este mando.</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the filter cutoff, for wah and growl</source>
+        <translation>Envía la modulación al corte del filtro, para wah y gruñido</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>Profundidad de modulación</translation>
+    </message>
+    <message>
+        <source>Oscillator Modulation</source>
+        <translation>Modulación de osciladores</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the pitch of the VCOs, for vibrato and trills. OSC 3 is left out while it is off the keyboard.</source>
+        <translation>Envía la modulación a la afinación de los VCO, para vibrato y trinos. OSC 3 queda fuera mientras no sigue al teclado.</translation>
+    </message>
+    <message>
+        <source>Filter Modulation</source>
+        <translation>Modulación del filtro</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Oscillator</name>
+    <message>
+        <source>OSC %1</source>
+        <translation>OSC %1</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>Triangular</translation>
+    </message>
+    <message>
+        <source>Reverse Saw</source>
+        <translation>Sierra inversa</translation>
+    </message>
+    <message>
+        <source>Triangle-Saw</source>
+        <translation>Triángulo-sierra</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation>Sierra</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Cuadrada</translation>
+    </message>
+    <message>
+        <source>Wide Pulse</source>
+        <translation>Pulso ancho</translation>
+    </message>
+    <message>
+        <source>Narrow Pulse</source>
+        <translation>Pulso estrecho</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Frecuencia</translation>
+    </message>
+    <message>
+        <source>Semitones from OSC 1</source>
+        <translation>Semitonos respecto a OSC 1</translation>
+    </message>
+    <message>
+        <source>Keyboard Control</source>
+        <translation>Control de teclado</translation>
+    </message>
+    <message>
+        <source>Off, OSC 3 ignores the keys and the wheels and stays where its knobs put it</source>
+        <translation>Desactivado, OSC 3 ignora las teclas y las ruedas y se queda donde lo ponen sus mandos</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preajuste:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Guardar los ajustes actuales como preajuste propio</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Eliminar el preajuste propio seleccionado</translation>
+    </message>
+    <message>
+        <source>A monophonic three-VCO synthesizer after the Model D</source>
+        <translation>Un sintetizador monofónico de tres VCO al estilo del Model D</translation>
     </message>
 </context>
 <context>

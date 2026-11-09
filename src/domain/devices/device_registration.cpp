@@ -38,6 +38,7 @@
 #include "string_voice_v2_device.hpp"
 #include "string_voice_v3_device.hpp"
 #include "sub_mixer_device.hpp"
+#include "synth_d_device.hpp"
 #include "synth_device.hpp"
 #include "wavetable_synth_device.hpp"
 #include "xy_pad_device.hpp"
@@ -106,6 +107,9 @@ void DeviceFactory::init()
     });
     registerDevice(PianoSynthAcousticDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<PianoSynthAcousticDevice>(name);
+    });
+    registerDevice(SynthDDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<SynthDDevice>(name);
     });
     registerDevice(SubMixerDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<SubMixerDevice>(name);

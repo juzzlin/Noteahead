@@ -54,6 +54,7 @@
 #include "../../domain/devices/string_voice_v2_device.hpp"
 #include "../../domain/devices/string_voice_v3_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
+#include "../../domain/devices/synth_d_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/devices/xy_pad_device.hpp"
@@ -3858,6 +3859,49 @@ void XmlSerializationTest::test_toXmlFromXml_pianoSynthAcousticDevice_shouldLoad
     }
     QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_synthDDevice_shouldLoadCorrectly()
+{
+    namespace Xml = Constants::NahdXml;
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    const std::vector<QString> knobs { Xml::xmlKeyTune(), Xml::xmlKeyGlide(), Xml::xmlKeyModMix(), Xml::xmlKeyModDepth(), Xml::xmlKeyLfoRate(), Xml::xmlKeyVco2Pitch(), Xml::xmlKeyVco3Pitch(), Xml::xmlKeyVco1Level(), Xml::xmlKeyVco2Level(), Xml::xmlKeyVco3Level(), Xml::xmlKeyFeedback(), Xml::xmlKeyNoiseLevel(), Xml::xmlKeyCutoff(), Xml::xmlKeyResonance() };
+    // Every switch and selector moved off its default
+    const std::vector<std::pair<QString, int>> choices { { Xml::xmlKeyModSource1(), 1 }, { Xml::xmlKeyModSource2(), 1 }, { Xml::xmlKeyOscillatorModulation(), 1 }, { Xml::xmlKeyVco1Range(), 0 }, { Xml::xmlKeyVco3Waveform(), 5 }, { Xml::xmlKeyVco3KeyboardControl(), 0 }, { Xml::xmlKeyFeedbackOn(), 1 }, { Xml::xmlKeyColor(), 1 }, { Xml::xmlKeyFilterType(), 1 }, { Xml::xmlKeyEnv2DecaySwitch(), 1 }, { Xml::xmlKeyNotePriority(), 2 }, { Xml::xmlKeyRetrigger(), 1 } };
+    auto synth = std::make_shared<SynthDDevice>("SynthD");
+    for (size_t i = 0; i < knobs.size(); i++) {
+        synth->setKnob(knobs.at(i), 0.05f + 0.06f * static_cast<float>(i));
+    }
+    for (auto && [key, value] : choices) {
+        synth->setChoice(key, value);
+    }
+    deviceServiceOut.setDevice(1, synth);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<SynthDDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), SynthDDevice::typeIdString());
+    for (size_t i = 0; i < knobs.size(); i++) {
+        QVERIFY2(std::abs(restored->knob(knobs.at(i)) - (0.05f + 0.06f * static_cast<float>(i))) < 0.001f, knobs.at(i).toStdString().c_str());
+    }
+    for (auto && [key, value] : choices) {
+        QVERIFY2(restored->choice(key) == value, key.toStdString().c_str());
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectly()

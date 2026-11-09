@@ -9336,6 +9336,74 @@
         <source>Peak Reduction</source>
         <translation>Peak Reduction</translation>
     </message>
+    <message>
+        <source>OSC 2 Frequency</source>
+        <translation>OSC 2 -taajuus</translation>
+    </message>
+    <message>
+        <source>OSC 3 Frequency</source>
+        <translation>OSC 3 -taajuus</translation>
+    </message>
+    <message>
+        <source>Filter Attack</source>
+        <translation>Suotimen attack</translation>
+    </message>
+    <message>
+        <source>Filter Decay</source>
+        <translation>Suotimen decay</translation>
+    </message>
+    <message>
+        <source>Loudness Attack</source>
+        <translation>Voimakkuuden attack</translation>
+    </message>
+    <message>
+        <source>Loudness Decay</source>
+        <translation>Voimakkuuden decay</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>Modulaation syvyys</translation>
+    </message>
+    <message>
+        <source>OSC 1 Volume</source>
+        <translation>OSC 1 -voimakkuus</translation>
+    </message>
+    <message>
+        <source>OSC 2 Volume</source>
+        <translation>OSC 2 -voimakkuus</translation>
+    </message>
+    <message>
+        <source>OSC 3 Volume</source>
+        <translation>OSC 3 -voimakkuus</translation>
+    </message>
+    <message>
+        <source>Ext In Volume</source>
+        <translation>Ext In -voimakkuus</translation>
+    </message>
+    <message>
+        <source>Noise Volume</source>
+        <translation>Kohinan voimakkuus</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>Korostus</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>Verhokäyrän määrä</translation>
+    </message>
+    <message>
+        <source>Filter Sustain</source>
+        <translation>Suotimen sustain</translation>
+    </message>
+    <message>
+        <source>Loudness Sustain</source>
+        <translation>Voimakkuuden sustain</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -13462,6 +13530,443 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Send levels of this device to the master send effects</source>
         <translation>Tämän laitteen lähtötasot masterin lähtöefekteihin</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+    <message>
+        <source>Oscillators</source>
+        <translation>Oskillaattorit</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mikseri</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Muokkaimet</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Ajautuma</translation>
+    </message>
+    <message>
+        <source>How far the three VCOs slowly wander out of tune together</source>
+        <translation>Kuinka paljon kolme VCO:ta vaeltavat hitaasti yhdessä pois vireestä</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Epävakaus</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that they beat slowly against each other</source>
+        <translation>Kuinka paljon kukin VCO vaeltaa omin päin, niin että ne huojuvat hitaasti toisiaan vasten</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Toleranssi</translation>
+    </message>
+    <message>
+        <source>How far the VCOs are out of tune with each other, and the filter off its knob, for good</source>
+        <translation>Kuinka paljon VCO:t ovat pysyvästi epävireessä toisiinsa nähden ja suodin sivussa nupistaan</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Contour</name>
+    <message>
+        <source>Loudness Contour</source>
+        <translation>Voimakkuuden verhokäyrä</translation>
+    </message>
+    <message>
+        <source>Filter Contour</source>
+        <translation>Suotimen verhokäyrä</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation>Attack-aika</translation>
+    </message>
+    <message>
+        <source>1 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 10 s at 10</source>
+        <translation>1 ms kohdassa 0, 10 ms kohdassa 0,5, 200 ms kohdassa 2, 600 ms kohdassa 4, 1 s kohdassa 6, 5 s kohdassa 8 ja 10 s kohdassa 10</translation>
+    </message>
+    <message>
+        <source>Decay Time</source>
+        <translation>Decay-aika</translation>
+    </message>
+    <message>
+        <source>4 ms at 0, 10 ms at 0.5, 200 ms at 2, 600 ms at 4, 1 s at 6, 5 s at 8 and 35 s at 10</source>
+        <translation>4 ms kohdassa 0, 10 ms kohdassa 0,5, 200 ms kohdassa 2, 600 ms kohdassa 4, 1 s kohdassa 6, 5 s kohdassa 8 ja 35 s kohdassa 10</translation>
+    </message>
+    <message>
+        <source>Sustain Level</source>
+        <translation>Sustain-taso</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>On, a released note dies away over the decay time. Off, it stops at once.</source>
+        <translation>Päällä vapautettu nuotti vaimenee decay-ajan kuluessa. Pois päältä se loppuu heti.</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Controllers</name>
+    <message>
+        <source>Controllers</source>
+        <translation>Ohjaimet</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Viritys</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation>Liuku</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation>Suodin</translation>
+    </message>
+    <message>
+        <source>Low-Pass</source>
+        <translation>Alipäästö</translation>
+    </message>
+    <message>
+        <source>High-Pass</source>
+        <translation>Ylipäästö</translation>
+    </message>
+    <message>
+        <source>Cutoff Frequency</source>
+        <translation>Cutoff-taajuus</translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation>Korostus</translation>
+    </message>
+    <message>
+        <source>Amount of Contour</source>
+        <translation>Verhokäyrän määrä</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 1</source>
+        <translation>Koskettimiston ohjaus 1</translation>
+    </message>
+    <message>
+        <source>A third of the keyboard&apos;s pitch moves the cutoff; with 2 as well, all of it</source>
+        <translation>Kolmannes koskettimen sävelkorkeudesta liikuttaa cutoffia; yhdessä 2:n kanssa kaikki</translation>
+    </message>
+    <message>
+        <source>Keyboard Control 2</source>
+        <translation>Koskettimiston ohjaus 2</translation>
+    </message>
+    <message>
+        <source>Two thirds of the keyboard&apos;s pitch moves the cutoff; with 1 as well, all of it</source>
+        <translation>Kaksi kolmannesta koskettimen sävelkorkeudesta liikuttaa cutoffia; yhdessä 1:n kanssa kaikki</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Global</name>
+    <message>
+        <source>Keyboard</source>
+        <translation>Koskettimisto</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioriteetti</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Matalin</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Korkein</translation>
+    </message>
+    <message>
+        <source>Last</source>
+        <translation>Viimeisin</translation>
+    </message>
+    <message>
+        <source>Multi-Trigger</source>
+        <translation>Multi-trigger</translation>
+    </message>
+    <message>
+        <source>Every new note restarts the contours. Off, notes played legato share the contours of the first.</source>
+        <translation>Jokainen uusi nuotti aloittaa verhokäyrät alusta. Pois päältä legatona soitetut nuotit jakavat ensimmäisen verhokäyrät.</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Pitch bend -alue</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation>Voimakkuusherkkyys</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation>Panoroinnin levitys</translation>
+    </message>
+    <message>
+        <source>OSC 1 to the left and OSC 2 to the right, each through a filter of its own</source>
+        <translation>OSC 1 vasemmalle ja OSC 2 oikealle, kumpikin oman suotimensa läpi</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorointi</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>Kolmio</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Kanttiaalto</translation>
+    </message>
+    <message>
+        <source>The LFO&apos;s shape: a smooth triangle, or a square that jumps between two values</source>
+        <translation>LFO:n aaltomuoto: pehmeä kolmio tai kahden arvon välillä hyppivä kanttiaalto</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Nopeus</translation>
+    </message>
+    <message>
+        <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
+        <translation>Kuinka nopeasti LFO käy. LED seuraa sitä. Valitse toiseksi modulaatiolähteeksi LFO kuullaksesi sen.</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Mixer</name>
+    <message>
+        <source>Mixer</source>
+        <translation>Mikseri</translation>
+    </message>
+    <message>
+        <source>Overload: the mix is driving the filter into distortion</source>
+        <translation>Ylikuormitus: miksaus ajaa suotimen säröön</translation>
+    </message>
+    <message>
+        <source>OSC 1</source>
+        <translation>OSC 1</translation>
+    </message>
+    <message>
+        <source>OSC 2</source>
+        <translation>OSC 2</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Kohina</translation>
+    </message>
+    <message>
+        <source>Ext In</source>
+        <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Päällä</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Valkoinen</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Pinkki</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Modulation</name>
+    <message>
+        <source>Modulation</source>
+        <translation>Modulaatio</translation>
+    </message>
+    <message>
+        <source>OSC 3</source>
+        <translation>OSC 3</translation>
+    </message>
+    <message>
+        <source>Filter EG</source>
+        <translation>Suotimen verhokäyrä</translation>
+    </message>
+    <message>
+        <source>The source at the left end of Mod Mix: OSC 3 as a slow or audio-rate modulator, or the filter contour</source>
+        <translation>Mod Mixin vasemman pään lähde: OSC 3 hitaana tai äänitaajuisena moduloijana, tai suodattimen verhokäyrä</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Kohina</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>The source at the right end of Mod Mix: noise for random wobble, or the LFO</source>
+        <translation>Mod Mixin oikean pään lähde: kohina satunnaiseen huojuntaan, tai LFO</translation>
+    </message>
+    <message>
+        <source>Mod Mix</source>
+        <translation>Mod Mix</translation>
+    </message>
+    <message>
+        <source>Blends the two sources: OSC 3 or Filter EG at 0, Noise or LFO at 10</source>
+        <translation>Sekoittaa kaksi lähdettä: OSC 3 tai Filter EG asennossa 0, Noise tai LFO asennossa 10</translation>
+    </message>
+    <message>
+        <source>How much modulation reaches its destinations. The modulation wheel turns this knob.</source>
+        <translation>Kuinka paljon modulaatiota pääsee kohteisiinsa. Modulaatiopyörä kääntää tätä nuppia.</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the filter cutoff, for wah and growl</source>
+        <translation>Ohjaa modulaation suodattimen rajataajuuteen wah- ja murinaefekteihin</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation>Modulaation syvyys</translation>
+    </message>
+    <message>
+        <source>Oscillator Modulation</source>
+        <translation>Oskillaattorien modulaatio</translation>
+    </message>
+    <message>
+        <source>Sends the modulation to the pitch of the VCOs, for vibrato and trills. OSC 3 is left out while it is off the keyboard.</source>
+        <translation>Ohjaa modulaation VCO:iden vireeseen vibratoa ja trillejä varten. OSC 3 jää pois, kun se ei seuraa koskettimistoa.</translation>
+    </message>
+    <message>
+        <source>Filter Modulation</source>
+        <translation>Suotimen modulaatio</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Oscillator</name>
+    <message>
+        <source>OSC %1</source>
+        <translation>OSC %1</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation>Kolmio</translation>
+    </message>
+    <message>
+        <source>Reverse Saw</source>
+        <translation>Käänteinen saha</translation>
+    </message>
+    <message>
+        <source>Triangle-Saw</source>
+        <translation>Kolmio-saha</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation>Saha</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Kanttiaalto</translation>
+    </message>
+    <message>
+        <source>Wide Pulse</source>
+        <translation>Leveä pulssi</translation>
+    </message>
+    <message>
+        <source>Narrow Pulse</source>
+        <translation>Kapea pulssi</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Taajuus</translation>
+    </message>
+    <message>
+        <source>Semitones from OSC 1</source>
+        <translation>Puolisävelaskelia OSC 1:stä</translation>
+    </message>
+    <message>
+        <source>Keyboard Control</source>
+        <translation>Koskettimiston ohjaus</translation>
+    </message>
+    <message>
+        <source>Off, OSC 3 ignores the keys and the wheels and stays where its knobs put it</source>
+        <translation>Pois päältä OSC 3 ei seuraa koskettimia eikä pyöriä vaan pysyy nuppiensa asettamassa korkeudessa</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Esiasetus:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Tallenna</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Poista valittu oma esiasetus</translation>
+    </message>
+    <message>
+        <source>A monophonic three-VCO synthesizer after the Model D</source>
+        <translation>Monofoninen kolmen VCO:n syntetisaattori Model D:n tapaan</translation>
     </message>
 </context>
 <context>

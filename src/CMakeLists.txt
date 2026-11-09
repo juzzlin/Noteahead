@@ -325,6 +325,17 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV3Dialog_Voice.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Analog.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Contour.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Controllers.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Mixer.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Modulation.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Oscillator.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/ParameterAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/ParameterAutomationTargets.js
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml

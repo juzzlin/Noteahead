@@ -35,6 +35,7 @@ set(HEADER_FILES
     controllers/song_overview_controller.hpp
     controllers/speech_controller.hpp
     controllers/synth_controller.hpp
+    controllers/synth_d_controller.hpp
     controllers/wavetable_synth_controller.hpp
     controllers/xy_pad_controller.hpp
     controllers/xy_pad_panel_controller.hpp
@@ -92,6 +93,7 @@ set(SOURCE_FILES
     controllers/song_overview_controller.cpp
     controllers/speech_controller.cpp
     controllers/synth_controller.cpp
+    controllers/synth_d_controller.cpp
     controllers/wavetable_synth_controller.cpp
     controllers/xy_pad_controller.cpp
     controllers/xy_pad_panel_controller.cpp

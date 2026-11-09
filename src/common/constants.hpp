@@ -99,6 +99,7 @@ QString kick808DeviceName();
 QString kickSynthDeviceName();
 QString electricBassDeviceName();
 QString pianoSynthAcousticDeviceName();
+QString synthDDeviceName();
 QString snareSynthDeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
@@ -1078,6 +1079,25 @@ QString xmlKeyCrackle();
 QString xmlKeyPlayToEnd();
 QString xmlKeyRingMod();
 QString xmlKeyWobble();
+QString xmlKeyModMix();
+QString xmlKeyModDepth();
+QString xmlKeyModSource1();
+QString xmlKeyModSource2();
+QString xmlKeyOscillatorModulation();
+QString xmlKeyFilterModulation();
+QString xmlKeyVco3Range();
+QString xmlKeyVco3Level();
+QString xmlKeyVco3KeyboardControl();
+QString xmlKeyVco1On();
+QString xmlKeyVco2On();
+QString xmlKeyVco3On();
+QString xmlKeyNoiseOn();
+QString xmlKeyFeedbackOn();
+QString xmlKeyKeyboardControl1();
+QString xmlKeyKeyboardControl2();
+QString xmlKeyEnv1DecaySwitch();
+QString xmlKeyEnv2DecaySwitch();
+QString xmlKeyNotePriority();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

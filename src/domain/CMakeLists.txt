@@ -40,6 +40,8 @@ set(HEADER_FILES
     devices/string_voice_v3_device.hpp
     devices/speech_device.hpp
     devices/sub_mixer_device.hpp
+    devices/synth_d_device.hpp
+    devices/synth_d_presets.hpp
     devices/synth_device.hpp
     devices/synth_oscillator_stage.hpp
     devices/synth_presets.hpp
@@ -105,6 +107,8 @@ set(HEADER_FILES
     dsp/speech/text_to_phonemes.hpp
     dsp/svf_filter.hpp
     dsp/sweep_envelope.hpp
+    dsp/synth_d_voice.hpp
+    dsp/transistor_ladder_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
     dsp/volume.hpp
@@ -274,6 +278,8 @@ set(SOURCE_FILES
     devices/string_voice_v3_device.cpp
     devices/speech_device.cpp
     devices/sub_mixer_device.cpp
+    devices/synth_d_device.cpp
+    devices/synth_d_presets.cpp
     devices/synth_device.cpp
     devices/synth_oscillator_stage.cpp
     devices/synth_presets.cpp
@@ -339,6 +345,8 @@ set(SOURCE_FILES
     dsp/speech/text_to_phonemes.cpp
     dsp/svf_filter.cpp
     dsp/sweep_envelope.cpp
+    dsp/synth_d_voice.cpp
+    dsp/transistor_ladder_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp
     dsp/volume.cpp

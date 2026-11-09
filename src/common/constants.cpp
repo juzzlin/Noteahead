@@ -254,6 +254,11 @@ QString pianoSynthAcousticDeviceName()
     return "Noteahead PianoSynthAcoustic";
 }
 
+QString synthDDeviceName()
+{
+    return "Noteahead SynthD";
+}
+
 QString snareSynthDeviceName()
 {
     return "Noteahead SnareSynth";
@@ -3924,6 +3929,101 @@ QString xmlKeyRingMod()
 QString xmlKeyWobble()
 {
     return "wobble";
+}
+
+QString xmlKeyModMix()
+{
+    return "modMix";
+}
+
+QString xmlKeyModDepth()
+{
+    return "modDepth";
+}
+
+QString xmlKeyModSource1()
+{
+    return "modSource1";
+}
+
+QString xmlKeyModSource2()
+{
+    return "modSource2";
+}
+
+QString xmlKeyOscillatorModulation()
+{
+    return "oscillatorModulation";
+}
+
+QString xmlKeyFilterModulation()
+{
+    return "filterModulation";
+}
+
+QString xmlKeyVco3Range()
+{
+    return "vco3Range";
+}
+
+QString xmlKeyVco3Level()
+{
+    return "vco3Level";
+}
+
+QString xmlKeyVco3KeyboardControl()
+{
+    return "vco3KeyboardControl";
+}
+
+QString xmlKeyVco1On()
+{
+    return "vco1On";
+}
+
+QString xmlKeyVco2On()
+{
+    return "vco2On";
+}
+
+QString xmlKeyVco3On()
+{
+    return "vco3On";
+}
+
+QString xmlKeyNoiseOn()
+{
+    return "noiseOn";
+}
+
+QString xmlKeyFeedbackOn()
+{
+    return "feedbackOn";
+}
+
+QString xmlKeyKeyboardControl1()
+{
+    return "keyboardControl1";
+}
+
+QString xmlKeyKeyboardControl2()
+{
+    return "keyboardControl2";
+}
+
+QString xmlKeyEnv1DecaySwitch()
+{
+    return "env1DecaySwitch";
+}
+
+QString xmlKeyEnv2DecaySwitch()
+{
+    return "env2DecaySwitch";
+}
+
+QString xmlKeyNotePriority()
+{
+    return "notePriority";
 }
 
 } // namespace NahdXml
