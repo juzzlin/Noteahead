@@ -65,24 +65,24 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## Adding a New Rack Effect (checklist)
 
-1. Create `src/domain/effects/<name>.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `process(double&, double&)`, `process(AudioContext&)`, `sync()`, `reset()`. Register `Parameter` objects in the constructor.
-2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources also go in `src/domain/dsp/CMakeLists.txt`.
+1. Create `src/domain/effects/<name>.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `processSample(double&, double&)` (protected), `sync()` and `reset()`; override `processBlock(AudioContext&)` only for work that cannot be done a frame at a time (lookahead, side-chains, transforms). `Effect::process()` is not virtual: it applies Mix, Solo, bypass and send mode around the effect's own work. Register `Parameter` objects in the constructor, Mix through `addMixParameter(default, MixLaw)` and Solo through `addSoloParameter()`. `Gain` is the smallest template.
+2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go there too; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
 3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`. Reuse existing generic keys where they fit — e.g. `xmlKeyBandGain(i)`, `xmlKeyGain()`.
-4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp`: by `typeIdString()`, by type string, and a `registerLegacyEffect()` snake_case alias.
+4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp` by `typeIdString()`. The type-string and `registerLegacyEffect()` registrations of older effects exist only for projects saved before type ids; a new effect has none.
 5. Add `Q_PROPERTY` type string, `Q_INVOKABLE` parameter-key methods, an `addEffect(...)` line in `availableEffects()`, and an `effectParametersSummary()` branch to `EffectRackController`.
 6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` following the *Dialog sizing* rules below, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the branch to `EffectDialogLauncher.qml` — the single place a type is mapped to its dialog.
 7. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
-8. Add a round-trip case to `xml_serialization_test` and a `CHANGELOG` entry under *New features*.
+8. Add a round-trip case to `xml_serialization_test`, a gallery case to `effect_rack_controller_test`, and a `CHANGELOG` entry under *New features*.
 
 ## Adding a New Device (checklist)
 
 1. Create `src/domain/devices/<name>_device.hpp/.cpp` inheriting from `Device`. Implement `name()`, `category()`, `typeName()`, `typeId()`, `typeIdString()` (static), the `processMidi*` methods (MIDI CC arrives through `processDeviceMidiCc()`, not `processMidiCc()`, which `Device` owns so that no device can miss the CCs every device has; advertise the device's own CCs from `deviceMidiCcControllers()`), `processAudio(AudioContext &)`, `hasActiveAudio()`, `reset()`/`resetDeviceAudio()` (the device's own state; `Device::resetAudio()` resets the insert rack and then calls it, so no device can leave its inserts out of a render's reset), `serializeToXml()`/`deserializeFromXml()` and `syncParameters()`. Register `Parameter` objects in the constructor. `PianoSynthDevice` is the smallest complete template.
-2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go in **both** `src/domain/CMakeLists.txt` and `src/domain/dsp/CMakeLists.txt`.
+2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go there too; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
 3. Add `<name>DeviceName()` and any new `Constants::NahdXml` keys to `src/common/constants.hpp/.cpp`. Reuse existing generic keys where they fit.
 4. Register the device in `DeviceFactory::init()` in `src/domain/devices/device_registration.cpp`.
 5. Add `src/view/controllers/<name>_controller.hpp/.cpp` (one `Q_PROPERTY` per parameter; `int` scaled by `Constants::uiInternalScaling()` for continuous, `bool` for switches) and both files to `src/view/CMakeLists.txt`.
 6. In `DeviceRackController`: add a `<name>DialogRequested` signal, a branch in `openDevice()`, and an `addDevice(...)` line in `availableDevices()` — which feeds `DeviceGalleryDialog.qml` and is asserted by `device_rack_controller_test`.
-7. In `Application`: add the controller member, add it to the `DeviceRackController` controller vector, `qmlRegisterType` it, and expose it as a context property. Add a `<name>DeviceName` property to `ApplicationService` for the dialog title.
+7. In `Application`: add the controller member, add it to the `DeviceRackController` controller vector, `qmlRegisterType` it, and expose it as a context property. The dialog takes its title from `<name>Controller.displayName`; the `<name>DeviceName` properties on `ApplicationService` are only for older dialogs.
 8. Add `src/view/qml/Dialogs/<Name>Dialog.qml` plus its section files, following the *Dialog sizing* rules below, register them in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate the dialog in `Main.qml` and connect the request signal in the same `Component.onCompleted` block.
 9. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
 10. Add a project-level round-trip case to `xml_serialization_test` (it covers the factory registration too) and a `CHANGELOG` entry under *New features*.
@@ -114,6 +114,16 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 - `const` everywhere applicable. All non-mutating methods must be `const`.
 - Smart pointers only; no raw `new`/`delete`.
 - `=` for local variable initialization; `{}` for class instantiation only.
+- Naming:
+  - `PascalCase`: types and enum values.
+  - `camelCase`: functions, locals, parameters, plain-struct fields and `constexpr` locals.
+  - `m_camelCase`: class data members.
+  - `PascalCase`: named constants at namespace or class scope, such as `MaxSweepSeconds`. No `k`
+    prefix, no `ALL_CAPS` (except `TAG`) and no `s_`.
+  - `snake_case`: C++ file names.
+  - Unit-bearing values say their unit: `cutoffHz`, `gainDb`, `decaySeconds`. A bare name means the
+    0..1 knob position.
+  - Accessors are `cutoff()`/`setCutoff()`, never `getX()`.
 - Post-increment (`i++`) for loop counters.
 - No string literals duplicated — centralize in `constants.hpp`.
 - All implementation in `.cpp`; headers contain declarations only.
