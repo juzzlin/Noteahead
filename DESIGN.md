@@ -14,7 +14,8 @@ machine.
     their own units; loading ignores it.
   - Any other value normalized to 0…1 (or -1…1) is saved as an integer with **10000 for 1**,
     through `Utils::Xml::normalizedToXml()` and `readNormalizedAttribute()`. This covers send
-    levels (`level="940"`) and the Min/Max of a modulator's MIDI target (`min="8000"`).
+    levels (`level="940"`), the Min/Max of a modulator's MIDI target (`min="8000"`) and the range
+    of a device's MIDI mapping.
   - MIDI values are saved in MIDI's own integers: CC 0–127, pitch bend in whole percent.
 - **Decimals only where a value has no grid of its own.** Parameter automation positions
   (`value0`/`value1`) and the nodes of a drawn automation curve are saved with 12 significant
@@ -34,3 +35,96 @@ machine.
   old file or 1/10000 of one in a new file. Example: sends are written as `level` and an older
   `value` is still read.
 - Parameter keys are generic, and renamed keys are registered as legacy names; see `CLAUDE.md`.
+
+### Elements and attributes
+
+Element and attribute names are defined once, in `Constants::NahdXml`. A name in a saved file is
+frozen, misspellings included (`ColumMuted`). Attributes marked *optional* are left out when they
+hold their default, and an element that holds nothing is usually left out too.
+
+```text
+Project                    fileFormatVersion applicationName applicationVersion createdDate
+├─ Song                    beatsPerMinute linesPerBeat timeSpent(optional, seconds)
+│  ├─ Metadata
+│  │  ├─ Tags / Tag        name value
+│  │  ├─ ExportTags / Tag  name value
+│  │  ├─ Notes             text content (optional)
+│  │  └─ RenderSettings    format sampleRate bitDepth oversampleFactor fastRender
+│  │                       normalizeEnabled normalizeLevelTenthsDb trimEnabled trimMinutes
+│  │                       trimSeconds fadeOutEnabled fadeOutSeconds fadeOutTenths
+│  │                       silenceEnabled silenceSeconds silenceTenths analyzeEnabled
+│  ├─ SongSettings         autoNoteOffOffset autoNoteOffSyncEnabled autoNoteOffSyncDenominator
+│  ├─ PlayOrder / Position index pattern skipped(optional)
+│  ├─ Mixer
+│  │  ├─ ColumMuted, ColumSoloed            track column
+│  │  ├─ TrackMuted, TrackSoloed            index
+│  │  ├─ ColumnVelocityScale                track column value
+│  │  └─ TrackVelocityScale                 index value
+│  ├─ Automation
+│  │  ├─ MidiCcAutomation  controller eventsPerBeat lineOffset comment enabled
+│  │  ├─ PitchBendAutomation               eventsPerBeat lineOffset comment enabled
+│  │  └─ ParameterAutomation               mode(optional: relative) eventsPerBeat lineOffset
+│  │                                       comment enabled
+│  │     each with:
+│  │     ├─ Location       pattern track column
+│  │     ├─ Target         owner ownerId parameter (ParameterAutomation only)
+│  │     ├─ Interpolation  line0 line1 value0 value1 curve(optional)
+│  │     │  └─ Node        line value (only for a Drawn curve)
+│  │     └─ Modulation     type(SineWave, Random) cycles amplitude offset inverted (optional)
+│  ├─ Devices
+│  │  ├─ Device            slot name typeName category typeId uuid octave(optional)
+│  │  │  ├─ MidiMappings / MidiMapping     kind(optional: cc) controller target min max
+│  │  │  ├─ InsertEffects  enabled
+│  │  │  │  └─ Effect      typeId type id enabled, holding Parameters
+│  │  │  ├─ Parameters / Parameter         see below
+│  │  │  └─ device-specific children:
+│  │  │     ├─ Voices / Voice index, holding InsertEffects      (Drum Synth, drum pads)
+│  │  │     ├─ Pads / Pad index note, holding InsertEffects     (Sampler)
+│  │  │     ├─ Samples / Sample note path                       (Sampler)
+│  │  │     ├─ Members / Member slot                            (Sub Mixer)
+│  │  │     ├─ Lfos / Lfo index owner ownerId parameter min max (LFO)
+│  │  │     ├─ Pads / Pad index axis(0 = x, 1 = y) owner ownerId parameter min max (XY Pad)
+│  │  │     └─ phrase attribute on Device                       (Speech)
+│  │  └─ MasterEffects
+│  │     ├─ InsertEffects  enabled, holding Effect
+│  │     └─ SendEffects    enabled, holding Effect
+│  │        ├─ Send        deviceSlot subIndex(optional) effectSlot level
+│  │        └─ SendChains / SendChain index, holding InsertEffects
+│  ├─ SideChain / SideChainSettings        track enabled sourceTrack sourceColumn lookahead release
+│  │  └─ Target            enabled controller targetValue releaseValue
+│  ├─ AudioRecorder        latestRecordingFilePath latestRecordingStartTick latestRecordingEndTick
+│  └─ Patterns / Pattern   index name lineCount trackCount
+│     └─ Tracks / Track    index name lineCount columnCount columnIndices(optional)
+│        ├─ Instrument     portName channel group
+│        │  └─ InstrumentSettings          see below
+│        └─ Columns / Column               index name lineCount
+│           ├─ Lines / Line                index (only lines that hold something)
+│           │  ├─ NoteData  type(noteOn, noteOff, none) note velocity delay pan
+│           │  └─ LineEvent, holding InstrumentSettings
+│           └─ ColumnSettings              delay transpose midiDelay* chordNote1..3Offset/Velocity/Delay
+│                                          arpeggiatorEnabled arpeggiatorPattern
+│                                          arpeggiatorEventsPerBeat
+├─ PerformancePanel / Element              type sourceId
+└─ Data                    path, base64 content of an embedded sample
+```
+
+- **Parameter**: `name valueType value`, where `valueType` is `float`, `int` or `bool`. A `float`
+  also has `min max default scale`; see *Numbers* above.
+- **InstrumentSettings**: `patch bankEnabled bankLsb bankMsb bankByteOrderSwapped transpose
+  drumTrack sendMidiClock sendTransport delay velocityJitter velocityKeyTrack
+  velocityKeyTrackOffset`, the auto note-off attributes of `SongSettings`, and `MidiCcSetting`
+  children (`enabled controller value`). Optional settings are left out when unset.
+- **Targets** (`Target`, `Lfo`, XY `Pad`): `owner` is `effect`, `device` or `midi`. For `midi`,
+  `ownerId` is the port and `parameter` is `channel:controller` or `channel:pb`; `min` and `max`
+  appear only on a MIDI target whose range is not the whole of it.
+- **Curves**: `curve` is `Linear` (left out), `Exponential`, `Logarithmic`, `EaseIn`, `EaseOut`,
+  `EaseInOut` or `Drawn`.
+- **Unknown devices**: a `Device` this version cannot create is written back as it was read, so
+  saving never loses what a newer version made.
+
+Other files use the same elements under another root:
+
+- **Exported device or effect settings**: `Settings` (with the `Project` attributes), holding one
+  `Device`, `Effect` or `InsertEffects` and any `Data` a Sampler embeds.
+- **User presets**: `Preset fileFormatVersion applicationName applicationVersion createdDate typeId
+  name`, holding `Parameters`.
