@@ -117,7 +117,11 @@ ColumnLayout {
             Layout.preferredWidth: grid.share * 2
         }
         ComboBox {
+            id: parameterComboBox
             enabled: root.target !== null
+            popup: ColumnsPopup {
+                comboBox: parameterComboBox
+            }
             model: root.target ? root.target.parameters.map(parameter => parameter.label) : []
             currentIndex: root.target ? root.target.parameters.findIndex(parameter => parameter.key === root.parameter) : -1
             onActivated: index => root.targetChosen(root.target.owner, root.target.ownerId, root.target.parameters[index].key)

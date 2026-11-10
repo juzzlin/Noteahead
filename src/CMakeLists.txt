@@ -55,6 +55,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/AutomationCurveView.qml
     ${QML_BASE_DIR}/Components/AutomationRowHeading.qml
     ${QML_BASE_DIR}/Components/ClipLed.qml
+    ${QML_BASE_DIR}/Components/ColumnsPopup.qml
     ${QML_BASE_DIR}/Components/DateField.qml
     ${QML_BASE_DIR}/Components/DeviceMenuButton.qml
     ${QML_BASE_DIR}/Components/DrumPad.qml

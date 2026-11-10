@@ -239,7 +239,11 @@ AnimatedDialog {
                             onClicked: root.learningRow = root.learningRow === mappingRow.index ? -1 : mappingRow.index
                         }
                         ComboBox {
+                            id: mappingTargetComboBox
                             model: root.mappingTargets
+                            popup: ColumnsPopup {
+                                comboBox: mappingTargetComboBox
+                            }
                             textRole: "label"
                             valueRole: "key"
                             Layout.fillWidth: true
