@@ -15893,13 +15893,13 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Cancel</source>
         <translation>Anuluj</translation>
     </message>
-</context>
-<context>
-    <name>XyPadDialog_Pad</name>
     <message>
         <source>Pad %1</source>
         <translation>Pad %1</translation>
     </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
     <message>
         <source>X target</source>
         <translation>Cel X</translation>

@@ -15891,13 +15891,13 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
-</context>
-<context>
-    <name>XyPadDialog_Pad</name>
     <message>
         <source>Pad %1</source>
         <translation>Pad %1</translation>
     </message>
+</context>
+<context>
+    <name>XyPadDialog_Pad</name>
     <message>
         <source>X target</source>
         <translation>Destino X</translation>

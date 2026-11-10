@@ -57,6 +57,7 @@ Other:
 * Settings => MIDI: choose whether recorded notes take VEL or the played velocity
 * XY Pad Return defaults to 70 ms
 * Long MIDI CC and parameter lists open in four columns
+* XY Pad dialog: a tab per pad, with MIDI Min/Max beside the target
 * Mod wheel (CC 1) on every instrument, adding to the patch without moving its knob
   - Electric Bass: finger vibrato
 

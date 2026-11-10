@@ -44,6 +44,9 @@ ColumnLayout {
     //! Max say how far it goes, instead of a depth around a setting.
     readonly property bool isMidi: root.owner === "midi" && root.ownerId !== ""
     property string label: qsTr("Target")
+    //! Whether Min and Max go on the target's own row, for a picker given the room
+    property bool rangeBesideTarget: false
+    readonly property bool showsRangeBeside: root.isMidi && root.rangeBesideTarget
 
     signal targetChosen(string owner, string ownerId, string parameter)
     //! A device or effect was chosen, with its parameters in the order they are listed: which of
@@ -69,13 +72,32 @@ ColumnLayout {
         valueFromText: (text, locale) => parseInt(text) || 0
     }
 
+    component MinSpinBox: MidiRangeSpinBox {
+        pitchBend: root.pitchBend
+        value: root.midiMin
+        onValueModified: root.midiMinChosen(value)
+        ToolTip.visible: hovered
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.text: qsTr("What the bottom of the swing sends")
+    }
+
+    component MaxSpinBox: MidiRangeSpinBox {
+        pitchBend: root.pitchBend
+        value: root.midiMax
+        onValueModified: root.midiMaxChosen(value)
+        ToolTip.visible: hovered
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.text: qsTr("What the top of the swing sends. Below Min turns it around.")
+    }
+
     GridLayout {
         id: grid
         // Two thirds of the row for the target, sized from the picker rather than left to the layout,
         // which shares out width by what each box holds: a target's name runs long, a parameter's
         // does not
-        readonly property real share: (root.width - columnSpacing) / 3
-        columns: 2
+        readonly property real share: (root.width - (columns - 1) * columnSpacing - (root.showsRangeBeside ? 2 * rangeWidth : 0)) / 3
+        readonly property real rangeWidth: 130
+        columns: root.showsRangeBeside ? 4 : 2
         columnSpacing: 10
         Layout.fillWidth: true
         Label {
@@ -83,6 +105,14 @@ ColumnLayout {
         }
         Label {
             text: qsTr("Parameter")
+        }
+        Label {
+            visible: root.showsRangeBeside
+            text: qsTr("Min")
+        }
+        Label {
+            visible: root.showsRangeBeside
+            text: qsTr("Max")
         }
         ComboBox {
             id: targetComboBox
@@ -128,34 +158,28 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: grid.share
         }
+        MinSpinBox {
+            visible: root.showsRangeBeside
+            Layout.preferredWidth: grid.rangeWidth
+        }
+        MaxSpinBox {
+            visible: root.showsRangeBeside
+            Layout.preferredWidth: grid.rangeWidth
+        }
     }
 
     RowLayout {
-        visible: root.isMidi
+        visible: root.isMidi && !root.rangeBesideTarget
         spacing: 10
         Layout.fillWidth: true
         Label {
             text: qsTr("Min")
         }
-        MidiRangeSpinBox {
-            pitchBend: root.pitchBend
-            value: root.midiMin
-            onValueModified: root.midiMinChosen(value)
-            ToolTip.visible: hovered
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.text: qsTr("What the bottom of the swing sends")
-        }
+        MinSpinBox {}
         Label {
             text: qsTr("Max")
         }
-        MidiRangeSpinBox {
-            pitchBend: root.pitchBend
-            value: root.midiMax
-            onValueModified: root.midiMaxChosen(value)
-            ToolTip.visible: hovered
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.text: qsTr("What the top of the swing sends. Below Min turns it around.")
-        }
+        MaxSpinBox {}
         Item {
             Layout.fillWidth: true
         }

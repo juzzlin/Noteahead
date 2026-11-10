@@ -107,29 +107,44 @@ AnimatedDialog {
             }
         }
 
-        ScrollView {
-            id: contentScrollView
-            clip: true
-            ScrollBar.vertical.policy: ScrollBar.AsNeeded
-            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        // A pad to a page, as the Synth's tabs: a pad's targets get the whole width, and each page
+        // scrolls on its own when a MIDI target's range and warnings make it taller than the room
+        ColumnLayout {
+            spacing: 10
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            // Two by two, as the LFO device's dialog: four columns would leave the pickers too narrow
-            GridLayout {
-                width: contentScrollView.availableWidth
-                columns: 2
-                columnSpacing: 30
-                rowSpacing: 20
+            StackLayout {
+                currentIndex: padTabBar.currentIndex
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
                 Repeater {
                     model: xyPadController.pads
-                    delegate: XyPadDialog_Pad {
+                    delegate: ScrollView {
+                        id: padScrollView
                         required property var modelData
-                        pad: modelData
-                        targets: root.targets
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
+                        clip: true
+                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                        XyPadDialog_Pad {
+                            width: padScrollView.availableWidth
+                            pad: padScrollView.modelData
+                            targets: root.targets
+                        }
+                    }
+                }
+            }
+
+            AppTabBar {
+                id: padTabBar
+                Layout.fillWidth: true
+                Repeater {
+                    model: xyPadController.pads
+                    delegate: AppTabButton {
+                        required property var modelData
+                        text: qsTr("Pad %1").arg(modelData.index + 1)
                     }
                 }
             }

@@ -35,10 +35,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 6
 
-    SectionHeading {
-        text: qsTr("Pad %1").arg(root.pad.index + 1)
-    }
     ModulationTargetPicker {
+        rangeBesideTarget: true
         label: qsTr("X target")
         targets: root.targets
         owner: root.pad.xTargetOwner
@@ -55,6 +53,7 @@ ColumnLayout {
         onTargetCleared: root.pad.clearTarget(0)
     }
     ModulationTargetPicker {
+        rangeBesideTarget: true
         label: qsTr("Y target")
         targets: root.targets
         owner: root.pad.yTargetOwner
