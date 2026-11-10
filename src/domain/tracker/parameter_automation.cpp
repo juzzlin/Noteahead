@@ -25,6 +25,10 @@
 #include <QVariant>
 
 #include <algorithm>
+#include <charconv>
+#include <cmath>
+#include <format>
+#include <string_view>
 
 namespace noteahead {
 
@@ -43,12 +47,74 @@ QString positionToXml(double position)
 
 QString ParameterAutomation::Target::ownerToString(Owner owner)
 {
-    return owner == Owner::Device ? C::xmlValueDevice() : C::xmlValueEffect();
+    switch (owner) {
+    case Owner::Device:
+        return C::xmlValueDevice();
+    case Owner::MidiCc:
+        return C::xmlValueMidiCc();
+    case Owner::Effect:
+        break;
+    }
+    return C::xmlValueEffect();
 }
 
 ParameterAutomation::Target::Owner ParameterAutomation::Target::ownerFromString(const QString & owner)
 {
-    return owner == C::xmlValueDevice() ? Owner::Device : Owner::Effect;
+    if (owner == C::xmlValueDevice()) {
+        return Owner::Device;
+    }
+    return owner == C::xmlValueMidiCc() ? Owner::MidiCc : Owner::Effect;
+}
+
+bool ParameterAutomation::Target::isSameDestination(const Target & other) const
+{
+    return owner == other.owner && ownerId == other.ownerId && parameter == other.parameter;
+}
+
+ParameterAutomation::Target ParameterAutomation::Target::withRangeOf(const Target & previous) const
+{
+    auto target = *this;
+    if (owner == Owner::MidiCc && previous.owner == Owner::MidiCc) {
+        target.ccMin = previous.ccMin;
+        target.ccMax = previous.ccMax;
+    }
+    return target;
+}
+
+std::string ParameterAutomation::Target::midiCcKey(uint8_t channel, uint8_t controller)
+{
+    return std::format("{}:{}", channel, controller);
+}
+
+std::optional<ParameterAutomation::Target::MidiCcAddress> ParameterAutomation::Target::midiCcAddress() const
+{
+    if (owner != Owner::MidiCc) {
+        return std::nullopt;
+    }
+    const auto separator = parameter.find(':');
+    if (separator == std::string::npos) {
+        return std::nullopt;
+    }
+    const auto parse = [](std::string_view text) -> std::optional<unsigned> {
+        unsigned number = 0;
+        if (const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), number); error != std::errc {} || end != text.data() + text.size()) {
+            return std::nullopt;
+        }
+        return number;
+    };
+    const auto channel = parse(std::string_view { parameter }.substr(0, separator));
+    const auto controller = parse(std::string_view { parameter }.substr(separator + 1));
+    if (!channel || !controller || *channel > 15 || *controller > 127) {
+        return std::nullopt;
+    }
+    return MidiCcAddress { static_cast<uint8_t>(*channel), static_cast<uint8_t>(*controller) };
+}
+
+uint8_t ParameterAutomation::Target::midiCcValue(double position) const
+{
+    const double low = static_cast<double>(ccMin);
+    const double high = static_cast<double>(ccMax);
+    return static_cast<uint8_t>(std::clamp(std::lround(low + std::clamp(position, 0.0, 1.0) * (high - low)), 0L, 127L));
 }
 
 ParameterAutomation::ParameterAutomation() = default;

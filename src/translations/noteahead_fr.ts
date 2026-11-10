@@ -7747,12 +7747,32 @@
         <translation>Aucun</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>Ce qu&apos;envoie le bas de l&apos;amplitude</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>Ce qu&apos;envoie le haut de l&apos;amplitude. En dessous de Min, le sens s&apos;inverse.</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Cible manquante</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>Aussi déplacé par un autre modulateur : leurs mouvements s&apos;additionnent</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>Aussi envoyé par un autre modulateur : la dernière valeur envoyée l&apos;emporte</translation>
     </message>
 </context>
 <context>
@@ -10476,6 +10496,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC : %1, canal %2 (%3)</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11547,6 +11571,18 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>S&apos;applique aux nouveaux morceaux. À remplacer par morceau dans Morceau → Paramètres, ou par canal dans les paramètres de piste.</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>Débit CC max. du XY Pad et du LFO (par seconde) :</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>Combien de messages par seconde peuvent être envoyés à chaque contrôleur d&apos;un appareil externe que le XY Pad ou le LFO déplace. Les valeurs intermédiaires sont omises, jamais la dernière.</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>Les appareils internes reçoivent chaque changement, les rendus restent donc exacts.</translation>
     </message>
 </context>
 <context>

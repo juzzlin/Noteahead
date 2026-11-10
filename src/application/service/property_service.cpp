@@ -193,6 +193,45 @@ QVariantList PropertyService::midiMappingTargets(int slot) const
     return targets;
 }
 
+void PropertyService::setMidiDestinationResolver(MidiDestinationResolver resolver)
+{
+    m_midiDestinationResolver = std::move(resolver);
+}
+
+QVariantList PropertyService::modulationTargets() const
+{
+    auto targets = automationTargets();
+    if (!m_midiDestinationResolver) {
+        return targets;
+    }
+    const auto owner = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::MidiCc);
+    for (auto && destination : m_midiDestinationResolver()) {
+        const auto port = QString::fromStdString(destination.port);
+        QStringList tracks;
+        for (auto && name : destination.trackNames) {
+            tracks << QString::fromStdString(name);
+        }
+        QVariantList parameters;
+        for (auto && controller : getAvailableMidiControllers(port)) {
+            const auto map = controller.toMap();
+            // Channel mode messages are not controls a modulator could sweep
+            if (const auto number = map["number"].toInt(); number < static_cast<int>(MidiCcMapping::Controller::AllSoundOff)) {
+                parameters.push_back(QVariantMap {
+                  { "key", QString::fromStdString(ParameterAutomation::Target::midiCcKey(destination.channel, static_cast<uint8_t>(number))) },
+                  { "label", map["name"] } });
+            }
+        }
+        QVariantMap map;
+        map["owner"] = owner;
+        map["ownerId"] = port;
+        map["channel"] = static_cast<int>(destination.channel);
+        map["label"] = QCoreApplication::translate("PropertyService", "MIDI CC: %1, channel %2 (%3)").arg(port).arg(destination.channel + 1).arg(tracks.join(", "));
+        map["parameters"] = std::move(parameters);
+        targets.push_back(map);
+    }
+    return targets;
+}
+
 QVariantList PropertyService::automationTargetsForPort(const QString & portName) const
 {
     QVariantList targets;

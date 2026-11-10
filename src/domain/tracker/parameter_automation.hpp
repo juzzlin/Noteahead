@@ -21,7 +21,9 @@
 #include "interpolator.hpp"
 #include "modulation.hpp"
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace noteahead {
@@ -48,21 +50,53 @@ public:
         enum class Owner
         {
             Effect,
-            Device
+            Device,
+            //! A MIDI controller of an instrument rather than a parameter: what a modulator moves
+            //! on external gear, or through an internal device's own CC handling. Only modulators
+            //! aim at one; a parameter automation never does.
+            MidiCc
+        };
+
+        //! Where a MIDI CC target sends: the channel, 0 to 15, and the controller.
+        struct MidiCcAddress
+        {
+            uint8_t channel {};
+            uint8_t controller {};
         };
 
         Owner owner = Owner::Effect;
-        //! The owner's id: Effect::id() for an effect, Device::uuid() for a device.
+        //! The owner's id: Effect::id() for an effect, Device::uuid() for a device, the port's name
+        //! for a MIDI CC.
         std::string ownerId;
-        //! The parameter's key within its owner.
+        //! The parameter's key within its owner. For a MIDI CC, its channel and controller as
+        //! midiCcKey() writes them.
         std::string parameter;
+        //! The values the bottom and the top of a modulator's swing send, for a MIDI CC. Min above
+        //! Max turns it around.
+        uint8_t ccMin { 0 };
+        uint8_t ccMax { 127 };
 
         bool operator==(const Target & other) const = default;
 
-        //! "effect" or "device", as the project file and the UI both name an owner. Anything else
-        //! reads as an effect, which is what an automation that does not say is aimed at.
+        //! Whether @p other is the same parameter or controller, whatever range it is moved over.
+        bool isSameDestination(const Target & other) const;
+        //! This target with @p previous's CC range when both are MIDI CCs, so that picking another
+        //! controller keeps the range set for the last.
+        Target withRangeOf(const Target & previous) const;
+
+        //! "effect", "device" or "midiCc", as the project file and the UI both name an owner.
+        //! Anything else reads as an effect, which is what an automation that does not say is
+        //! aimed at.
         static QString ownerToString(Owner owner);
         static Owner ownerFromString(const QString & owner);
+
+        //! The parameter key of a MIDI CC target: "2:74" for controller 74 on channel 2.
+        static std::string midiCcKey(uint8_t channel, uint8_t controller);
+        //! The channel and the controller of a MIDI CC target, or nothing for any other target, or
+        //! one whose key does not parse.
+        std::optional<MidiCcAddress> midiCcAddress() const;
+        //! Where a MIDI CC target's controller goes for a modulator at @p position, 0 to 1.
+        uint8_t midiCcValue(double position) const;
     };
 
     enum class Mode

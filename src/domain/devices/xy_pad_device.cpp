@@ -506,6 +506,11 @@ void XyPadDevice::serializeToXml(ProjectWriter & writer) const
                 writer.writeAttribute(NahdXml::xmlKeyOwner(), ParameterAutomation::Target::ownerToString(target.owner));
                 writer.writeAttribute(NahdXml::xmlKeyOwnerId(), QString::fromStdString(target.ownerId));
                 writer.writeAttribute(NahdXml::xmlKeyParameterName(), QString::fromStdString(target.parameter));
+                // A controller's range, only where it is not the whole of it
+                if (target.owner == ParameterAutomation::Target::Owner::MidiCc && (target.ccMin != 0 || target.ccMax != 127)) {
+                    writer.writeAttribute(NahdXml::xmlKeyMin(), QString::number(target.ccMin));
+                    writer.writeAttribute(NahdXml::xmlKeyMax(), QString::number(target.ccMax));
+                }
                 writer.writeEndElement();
             }
         }
@@ -544,6 +549,8 @@ void XyPadDevice::deserializeFromXml(ProjectReader & reader)
                             target.owner = ParameterAutomation::Target::ownerFromString(Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyOwner(), false).value_or(QString {}));
                             target.ownerId = Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyOwnerId(), false).value_or(QString {}).toStdString();
                             target.parameter = Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyParameterName(), false).value_or(QString {}).toStdString();
+                            target.ccMin = static_cast<uint8_t>(std::clamp(Utils::Xml::readIntAttribute(reader, NahdXml::xmlKeyMin(), false).value_or(0), 0, 127));
+                            target.ccMax = static_cast<uint8_t>(std::clamp(Utils::Xml::readIntAttribute(reader, NahdXml::xmlKeyMax(), false).value_or(127), 0, 127));
                             if (pad && *pad >= 0 && *pad < static_cast<int>(PadCount) && axis && *axis >= 0 && *axis < static_cast<int>(AxisCount)) {
                                 m_pads.at(static_cast<size_t>(*pad)).axes.at(static_cast<size_t>(*axis)).target = std::move(target);
                             }

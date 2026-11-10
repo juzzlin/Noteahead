@@ -350,6 +350,23 @@ void LfoDeviceTest::test_lfoLed_shouldFollowTheShape()
     QVERIFY2(device.lfoLed(1) > early, qPrintable(QString { "%1 -> %2" }.arg(early).arg(device.lfoLed(1))));
 }
 
+void LfoDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
+{
+    LfoDevice original { "LFO" };
+    ParameterAutomation::Target target { ParameterAutomation::Target::Owner::MidiCc, "External", ParameterAutomation::Target::midiCcKey(4, 74) };
+    target.ccMin = 30;
+    target.ccMax = 90;
+    original.setTarget(1, target);
+    const auto xml = toXml(original);
+
+    LfoDevice restored { "LFO" };
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != NahdXml::xmlKeyDevice()) {
+    }
+    restored.deserializeFromXml(reader);
+    QCOMPARE(restored.target(1), target);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LfoDeviceTest)

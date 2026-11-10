@@ -57,6 +57,9 @@ class LfoPanelController : public QObject
     Q_PROPERTY(QString targetParameter READ targetParameter NOTIFY changed)
     //! Whether another modulation source -- an LFO, an XY pad axis -- moves the same parameter
     Q_PROPERTY(bool targetShared READ targetShared NOTIFY changed)
+    //! What the bottom and the top of the swing send, 0 to 127, for a MIDI CC target
+    Q_PROPERTY(int ccMin READ ccMin WRITE setCcMin NOTIFY changed)
+    Q_PROPERTY(int ccMax READ ccMax WRITE setCcMax NOTIFY changed)
 
 public:
     LfoPanelController(size_t index, LfoController & owner);
@@ -92,6 +95,10 @@ public:
     QString targetOwnerId() const;
     QString targetParameter() const;
     bool targetShared() const;
+    int ccMin() const;
+    void setCcMin(int value);
+    int ccMax() const;
+    void setCcMax(int value);
     Q_INVOKABLE void setTarget(const QString & owner, const QString & ownerId, const QString & parameter);
     Q_INVOKABLE void clearTarget();
     //! Aims the LFO at @p owner, at the first of @p parameters no modulation source moves yet. See

@@ -7747,12 +7747,32 @@
         <translation>Geen</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>Wat de onderkant van de uitslag stuurt</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>Wat de bovenkant van de uitslag stuurt. Onder Min keert het om.</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Doel ontbreekt</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>Wordt ook door een andere modulator bewogen: de bewegingen tellen op</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>Ook verstuurd door een andere modulator: de laatst verstuurde waarde wint</translation>
     </message>
 </context>
 <context>
@@ -10476,6 +10496,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC: %1, kanaal %2 (%3)</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11547,6 +11571,18 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>Geldt voor nieuwe songs. Per song te overschrijven via Song → Instellingen, of per kanaal in de trackinstellingen.</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>Max. CC-snelheid van XY Pad en LFO (per seconde):</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>Hoeveel berichten per seconde er mogen worden verstuurd naar elke controller van externe apparatuur die de XY Pad of de LFO beweegt. Tussenliggende waarden vervallen, nooit de laatste.</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>Interne apparaten krijgen elke wijziging, zodat renders exact blijven.</translation>
     </message>
 </context>
 <context>

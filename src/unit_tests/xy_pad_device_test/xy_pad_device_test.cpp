@@ -30,6 +30,8 @@
 #include <QTest>
 
 #include <cmath>
+#include <mutex>
+#include <vector>
 
 namespace noteahead {
 
@@ -447,6 +449,170 @@ void XyPadDeviceTest::test_engine_padOnEffect_shouldLetGoAtHome()
     runEngine(static_cast<uint32_t>(seconds(1.5)));
     QVERIFY(!gain->parameter(key)->get().isModulated());
     QCOMPARE(gain->parameter(key)->get().value(), authored);
+}
+
+namespace {
+
+ParameterAutomation::Target midiCcTarget(const std::string & port, uint8_t channel, uint8_t controller, uint8_t ccMin = 0, uint8_t ccMax = 127)
+{
+    ParameterAutomation::Target target { ParameterAutomation::Target::Owner::MidiCc, port, ParameterAutomation::Target::midiCcKey(channel, controller) };
+    target.ccMin = ccMin;
+    target.ccMax = ccMax;
+    return target;
+}
+
+void runEngineFor(AudioEngine & engine, uint32_t frames)
+{
+    constexpr uint32_t block { 256 };
+    std::vector<double> buffer(block * 2);
+    for (uint32_t done = 0; done < frames; done += block) {
+        std::ranges::fill(buffer, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), block, static_cast<uint32_t>(SampleRate) };
+        engine.process(context);
+    }
+}
+
+//! What the engine handed over for external gear, as it arrived
+struct SentMessages
+{
+    std::mutex mutex;
+    std::vector<std::pair<std::string, uint8_t>> messages;
+
+    std::vector<std::pair<std::string, uint8_t>> take()
+    {
+        const std::lock_guard<std::mutex> lock { mutex };
+        return messages;
+    }
+};
+
+} // namespace
+
+void XyPadDeviceTest::test_midiCcTarget_key_shouldRoundTripTheAddress()
+{
+    const auto target = midiCcTarget("Port", 15, 74);
+    QCOMPARE(target.parameter, std::string { "15:74" });
+    QVERIFY(target.midiCcAddress());
+    QCOMPARE(target.midiCcAddress()->channel, uint8_t { 15 });
+    QCOMPARE(target.midiCcAddress()->controller, uint8_t { 74 });
+    QCOMPARE(ParameterAutomation::Target::ownerFromString(ParameterAutomation::Target::ownerToString(target.owner)), ParameterAutomation::Target::Owner::MidiCc);
+    // Not a CC, or one that does not parse
+    QVERIFY(!cutoffTarget().midiCcAddress());
+    const ParameterAutomation::Target badChannel { ParameterAutomation::Target::Owner::MidiCc, "Port", "16:1" };
+    const ParameterAutomation::Target badController { ParameterAutomation::Target::Owner::MidiCc, "Port", "1:x" };
+    QVERIFY(!badChannel.midiCcAddress());
+    QVERIFY(!badController.midiCcAddress());
+}
+
+void XyPadDeviceTest::test_midiCcTarget_value_shouldSpanMinToMax()
+{
+    const auto target = midiCcTarget("Port", 0, 1, 20, 100);
+    QCOMPARE(target.midiCcValue(0.0), uint8_t { 20 });
+    QCOMPARE(target.midiCcValue(0.5), uint8_t { 60 });
+    QCOMPARE(target.midiCcValue(1.0), uint8_t { 100 });
+    // Min above Max turns it around
+    QCOMPARE(midiCcTarget("Port", 0, 1, 127, 0).midiCcValue(0.0), uint8_t { 127 });
+    QCOMPARE(midiCcTarget("Port", 0, 1, 127, 0).midiCcValue(1.0), uint8_t { 0 });
+}
+
+void XyPadDeviceTest::test_midiCcTarget_withRangeOf_shouldKeepTheRangeOnlyBetweenControllers()
+{
+    const auto previous = midiCcTarget("Port", 0, 1, 10, 90);
+    const auto picked = midiCcTarget("Port", 0, 74).withRangeOf(previous);
+    QCOMPARE(picked.ccMin, uint8_t { 10 });
+    QCOMPARE(picked.ccMax, uint8_t { 90 });
+    QCOMPARE(picked.parameter, std::string { "0:74" });
+    QCOMPARE(cutoffTarget().withRangeOf(previous), cutoffTarget());
+}
+
+void XyPadDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
+{
+    XyPadDevice original { "XY" };
+    original.setTarget(0, Axis::X, midiCcTarget("Port", 3, 74, 100, 20));
+    original.setTarget(0, Axis::Y, midiCcTarget("Port", 3, 71));
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        original.serializeToXml(writer);
+    }
+    // The whole range is the default, so only the narrowed axis says it
+    const QRegularExpression padWithRange { QString { "<%1 [^>]*%2=" }.arg(NahdXml::xmlKeyPad(), NahdXml::xmlKeyMin()) };
+    QCOMPARE(xml.count(padWithRange), 1);
+
+    XyPadDevice restored { "XY" };
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != NahdXml::xmlKeyDevice()) {
+    }
+    restored.deserializeFromXml(reader);
+    QCOMPARE(restored.target(0, Axis::X), midiCcTarget("Port", 3, 74, 100, 20));
+    QCOMPARE(restored.target(0, Axis::Y), midiCcTarget("Port", 3, 71));
+}
+
+void XyPadDeviceTest::test_engine_padOnInternalMidiCc_shouldReachTheDeviceThroughItsMappings()
+{
+    AudioEngine engine;
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    const auto key = NahdXml::xmlKeyLpfCutoff().toStdString();
+    synth->setMidiMappings({ { MidiMapping::Kind::Cc, 20, key, 0.0, 1.0 } });
+    QVERIFY(pad->updatePadParameter(0, NahdXml::xmlKeyReturnTime(), 0.0f));
+    pad->setTarget(0, Axis::X, midiCcTarget(synth->name(), 0, 20));
+    engine.setDevice(0, pad);
+    engine.setDevice(1, synth);
+
+    pad->press(0, 1.0f, 0.0f);
+    runEngineFor(engine, 4800);
+    QCOMPARE(synth->parameter(key)->get().value(), 1.0f);
+
+    pad->move(0, -1.0f, 0.0f);
+    runEngineFor(engine, 4800);
+    QCOMPARE(synth->parameter(key)->get().value(), 0.0f);
+}
+
+void XyPadDeviceTest::test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAndEndAtTheCentre()
+{
+    AudioEngine engine;
+    SentMessages sent;
+    engine.midiCcOutput().setMaxRate(1000);
+    engine.midiCcOutput().setSender([&sent](const std::string & port, uint8_t, uint8_t, uint8_t value) {
+        const std::lock_guard<std::mutex> lock { sent.mutex };
+        sent.messages.emplace_back(port, value);
+    });
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    pad->setTarget(0, Axis::X, midiCcTarget("External", 1, 74));
+    engine.setDevice(0, pad);
+
+    pad->press(0, 1.0f, 0.0f);
+    runEngineFor(engine, 4800);
+    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == 127);
+    pad->release(0);
+    runEngineFor(engine, static_cast<uint32_t>(SampleRate * 6.0));
+    // Home is the middle of the range
+    QTRY_VERIFY(sent.take().back().second == 64);
+
+    const auto messages = sent.take();
+    QCOMPARE(messages.front().first, std::string { "External" });
+    for (size_t i = 1; i < messages.size(); i++) {
+        QVERIFY(messages.at(i).second != messages.at(i - 1).second);
+    }
+}
+
+void XyPadDeviceTest::test_engine_render_shouldSendNothingToExternalGear()
+{
+    AudioEngine engine;
+    SentMessages sent;
+    engine.midiCcOutput().setSender([&sent](const std::string & port, uint8_t, uint8_t, uint8_t value) {
+        const std::lock_guard<std::mutex> lock { sent.mutex };
+        sent.messages.emplace_back(port, value);
+    });
+    engine.setIsExclusive(true);
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    pad->setTarget(0, Axis::X, midiCcTarget("External", 0, 74));
+    engine.setDevice(0, pad);
+
+    pad->press(0, 1.0f, 0.0f);
+    runEngineFor(engine, 4800);
+    QTest::qWait(50);
+    QVERIFY(sent.take().empty());
 }
 
 } // namespace noteahead

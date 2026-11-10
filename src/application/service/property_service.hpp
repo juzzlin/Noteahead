@@ -18,8 +18,12 @@
 
 #include <QObject>
 #include <QVariantList>
+
+#include <functional>
 #include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 #include "../../domain/devices/device.hpp"
 
@@ -73,12 +77,32 @@ public:
     //! own parameters by label, then each pad's, the label naming the pad. Empty for an empty slot.
     Q_INVOKABLE QVariantList midiMappingTargets(int slot) const;
 
+    //! A port and channel the song plays, and the tracks that play it.
+    struct MidiDestination
+    {
+        std::string port;
+        uint8_t channel {};
+        std::vector<std::string> trackNames;
+    };
+
+    using MidiDestinationList = std::vector<MidiDestination>;
+    using MidiDestinationResolver = std::function<MidiDestinationList()>;
+    void setMidiDestinationResolver(MidiDestinationResolver resolver);
+
+    //! What a modulator -- the LFO device, the XY pad -- can move: everything automationTargets()
+    //! lists, then the MIDI controllers of every port and channel the song plays, as owner
+    //! "midiCc", the port as ownerId, a label, and the controllers as parameters keyed by
+    //! ParameterAutomation::Target::midiCcKey(). Kept apart from automationTargets() because a
+    //! parameter automation never aims at a controller: a MIDI CC automation does that.
+    Q_INVOKABLE QVariantList modulationTargets() const;
+
 private:
     //! The controller as the port's device declares it, or nothing when the port is not an
     //! internal device or does not offer that controller.
     std::optional<MidiCcController> deviceController(int controller, const QString & portName) const;
 
     std::weak_ptr<DeviceService> m_deviceService;
+    MidiDestinationResolver m_midiDestinationResolver;
 };
 
 } // namespace noteahead

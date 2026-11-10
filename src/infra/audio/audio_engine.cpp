@@ -699,8 +699,56 @@ std::shared_ptr<ParameterAutomationTarget> AudioEngine::resolveModulationTarget(
     return resolved;
 }
 
+void AudioEngine::applyMidiCcStep(const Device * sourceDevice, const ModulationSource::Step & step)
+{
+    const auto sent = std::ranges::find_if(m_sentMidiCcs, [&](auto && entry) { return entry.device == sourceDevice && entry.slot == step.slot && entry.target.isSameDestination(step.target); });
+    // Let go of: a controller has no setting to return to, so it stays where it was last sent
+    if (!step.mode) {
+        if (sent != m_sentMidiCcs.end()) {
+            m_sentMidiCcs.erase(sent);
+        }
+        return;
+    }
+    const auto address = step.target.midiCcAddress();
+    if (!address) {
+        return;
+    }
+    // The bottom of the source's swing to its top, whatever the modulation mode: Min and Max
+    // say how far it goes, so there is no setting for it to swing around
+    const auto value = step.target.midiCcValue((std::clamp(step.source, -1.0, 1.0) + 1.0) * 0.5);
+    if (sent != m_sentMidiCcs.end()) {
+        if (sent->value == value && sent->target == step.target) {
+            return;
+        }
+        sent->value = value;
+        sent->target = step.target;
+    } else {
+        m_sentMidiCcs.push_back({ sourceDevice, step.slot, step.target, value });
+    }
+
+    for (auto && [slot, device] : m_devices) {
+        if (device && device->name() == step.target.ownerId) {
+            Device::ScheduledModulation modulation;
+            modulation.frame = step.frame;
+            modulation.cc = Device::ScheduledModulation::Cc { address->controller, value, address->channel };
+            device->scheduleModulation(modulation);
+            return;
+        }
+    }
+    // External gear is not part of a render
+    if (!m_isExclusive.load()) {
+        m_midiCcOutput.push(step.target.ownerId, address->channel, address->controller, value);
+    }
+}
+
+MidiCcOutputQueue & AudioEngine::midiCcOutput()
+{
+    return m_midiCcOutput;
+}
+
 void AudioEngine::releaseModulationsOf(const Device * device)
 {
+    std::erase_if(m_sentMidiCcs, [device](auto && sent) { return sent.device == device; });
     for (auto && active : m_activeModulations) {
         if (active.device == device) {
             if (const auto target = resolveModulationTarget(active.target); target) {
@@ -732,6 +780,10 @@ void AudioEngine::evaluateModulation(const AudioContext & context)
         const size_t end = source + 1 < m_modulationSources.size() ? m_modulationSources.at(source + 1).second : m_modulationSteps.size();
         for (size_t i = begin; i < end; i++) {
             const auto & step = m_modulationSteps.at(i);
+            if (step.target.owner == ParameterAutomation::Target::Owner::MidiCc) {
+                applyMidiCcStep(sourceDevice, step);
+                continue;
+            }
             const auto target = resolveModulationTarget(step.target);
             if (!target) {
                 continue;

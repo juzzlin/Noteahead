@@ -26,7 +26,7 @@ ColumnLayout {
 
     //! The XyPadPanelController this panel edits.
     required property var pad
-    //! Everything a parameter automation can drive, as propertyService.automationTargets() lists it.
+    //! Everything a modulator can move, as propertyService.modulationTargets() lists it.
     required property var targets
 
     Universal.theme: Universal.Dark
@@ -45,6 +45,10 @@ ColumnLayout {
         ownerId: root.pad.xTargetOwnerId
         parameter: root.pad.xTargetParameter
         shared: root.pad.xTargetShared
+        ccMin: root.pad.xCcMin
+        ccMax: root.pad.xCcMax
+        onCcMinChosen: value => root.pad.xCcMin = value
+        onCcMaxChosen: value => root.pad.xCcMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(0, owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(0, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(0)
@@ -56,6 +60,10 @@ ColumnLayout {
         ownerId: root.pad.yTargetOwnerId
         parameter: root.pad.yTargetParameter
         shared: root.pad.yTargetShared
+        ccMin: root.pad.yCcMin
+        ccMax: root.pad.yCcMax
+        onCcMinChosen: value => root.pad.yCcMin = value
+        onCcMaxChosen: value => root.pad.yCcMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(1, owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(1, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(1)
@@ -67,6 +75,8 @@ ColumnLayout {
         // An edge of the pad swings half the depth either way of the setting, so it reads as that swing
         Knob {
             label: qsTr("X Depth")
+            // A controller goes between its Min and Max instead
+            enabled: root.pad.xTargetOwner !== "midiCc"
             mapping: "swing"
             mapMax: 50
             value: root.pad.xDepth
@@ -76,6 +86,8 @@ ColumnLayout {
         }
         Knob {
             label: qsTr("Y Depth")
+            // A controller goes between its Min and Max instead
+            enabled: root.pad.yTargetOwner !== "midiCc"
             mapping: "swing"
             mapMax: 50
             value: root.pad.yDepth

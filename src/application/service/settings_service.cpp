@@ -16,6 +16,7 @@
 #include "settings_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/midi/midi_cc_output_queue.hpp"
 #include "../../infra/settings.hpp"
 
 #include <QGuiApplication>
@@ -47,6 +48,7 @@ SettingsService::SettingsService()
   , m_midiSyncEnabled { Settings::midiSyncEnabled() }
   , m_stepRecordingPlayedVelocity { Settings::stepRecordingPlayedVelocity() }
   , m_liveRecordingPlayedVelocity { Settings::liveRecordingPlayedVelocity() }
+  , m_modulatorCcRate { std::clamp(Settings::modulatorCcRate(MidiCcOutputQueue::DefaultMaxRate), MinModulatorCcRate, MaxModulatorCcRate) }
   , m_waveViewEnabled { Settings::waveViewEnabled() }
   , m_performancePanelEnabled { Settings::performancePanelEnabled() }
   , m_performancePanelHeight { Settings::performancePanelHeight(Constants::defaultPerformancePanelHeight()) }
@@ -286,6 +288,21 @@ void SettingsService::setStepRecordingPlayedVelocity(bool enabled)
         m_stepRecordingPlayedVelocity = enabled;
         Settings::setStepRecordingPlayedVelocity(enabled);
         emit stepRecordingPlayedVelocityChanged();
+    }
+}
+
+int SettingsService::modulatorCcRate() const
+{
+    return m_modulatorCcRate;
+}
+
+void SettingsService::setModulatorCcRate(int rate)
+{
+    rate = std::clamp(rate, MinModulatorCcRate, MaxModulatorCcRate);
+    if (m_modulatorCcRate != rate) {
+        m_modulatorCcRate = rate;
+        Settings::setModulatorCcRate(rate);
+        emit modulatorCcRateChanged();
     }
 }
 

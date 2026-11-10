@@ -288,7 +288,8 @@ size_t DeviceService::modulationSourceCount(const ParameterAutomation::Target & 
     size_t count = 0;
     for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
         if (const auto source = std::dynamic_pointer_cast<ModulationSource>(device(slotIndex)); source) {
-            count += static_cast<size_t>(std::ranges::count(source->modulationTargets(), target));
+            // By destination: two sources over different ranges of a controller still share it
+            count += static_cast<size_t>(std::ranges::count_if(source->modulationTargets(), [&target](auto && other) { return other.isSameDestination(target); }));
         }
     }
     return count;
@@ -336,12 +337,22 @@ std::vector<std::string> DeviceService::suggestedModulationParameters(ParameterA
         if (const auto device = findDevice(ownerId); device) {
             priority = device->modulationPriority();
         }
+    } else if (owner == ParameterAutomation::Target::Owner::MidiCc) {
+        // Cutoff and resonance, the pair a pad is classically swept over, then the mod wheel
+        if (!candidates.empty()) {
+            if (const auto address = ParameterAutomation::Target { owner, ownerId, candidates.front() }.midiCcAddress(); address) {
+                for (auto && controller : { MidiCcMapping::Controller::SoundController5, MidiCcMapping::Controller::SoundController2, MidiCcMapping::Controller::ModulationWheelMSB }) {
+                    priority.push_back(ParameterAutomation::Target::midiCcKey(address->channel, static_cast<uint8_t>(controller)));
+                }
+            }
+        }
     } else if (const auto effect = findEffect(ownerId); effect) {
         priority = effect->modulationPriority();
     }
     return rankModulationParameters(priority, candidates, count, [&](const std::string & key) {
         const ParameterAutomation::Target target { owner, ownerId, key };
-        return modulationSourceCount(target) > static_cast<size_t>(std::ranges::count(ignored, target));
+        const auto ignoredCount = std::ranges::count_if(ignored, [&target](auto && other) { return other.isSameDestination(target); });
+        return modulationSourceCount(target) > static_cast<size_t>(ignoredCount);
     });
 }
 

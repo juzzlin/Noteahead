@@ -34,6 +34,12 @@ ColumnLayout {
     required property string parameter
     //! Whether another modulation source moves the same parameter.
     property bool shared: false
+    //! What the bottom and the top of the swing send, for a MIDI CC target.
+    property int ccMin: 0
+    property int ccMax: 127
+    //! Whether the target is a MIDI controller rather than a parameter: then Min and Max say how
+    //! far it goes, instead of a depth around a setting.
+    readonly property bool isMidiCc: root.owner === "midiCc" && root.ownerId !== ""
     property string label: qsTr("Target")
 
     signal targetChosen(string owner, string ownerId, string parameter)
@@ -41,6 +47,8 @@ ColumnLayout {
     //! them to take is for the source's controller to decide, from what is already taken.
     signal ownerChosen(string owner, string ownerId, var parameters)
     signal targetCleared
+    signal ccMinChosen(int value)
+    signal ccMaxChosen(int value)
 
     readonly property int targetIndex: root.ownerId === "" ? -1 : Targets.findTargetIndex(root.targets, root.owner, root.ownerId, root.parameter)
     readonly property var target: root.targetIndex >= 0 ? root.targets[root.targetIndex] : null
@@ -105,6 +113,41 @@ ColumnLayout {
         }
     }
 
+    RowLayout {
+        visible: root.isMidiCc
+        spacing: 10
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Min")
+        }
+        SpinBox {
+            from: 0
+            to: 127
+            editable: true
+            value: root.ccMin
+            onValueModified: root.ccMinChosen(value)
+            ToolTip.visible: hovered
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.text: qsTr("What the bottom of the swing sends")
+        }
+        Label {
+            text: qsTr("Max")
+        }
+        SpinBox {
+            from: 0
+            to: 127
+            editable: true
+            value: root.ccMax
+            onValueModified: root.ccMaxChosen(value)
+            ToolTip.visible: hovered
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.text: qsTr("What the top of the swing sends. Below Min turns it around.")
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+    }
+
     // Missing rather than silently None: a source whose target was deleted still has it saved
     Label {
         visible: root.ownerId !== "" && root.targetIndex < 0
@@ -114,7 +157,7 @@ ColumnLayout {
     }
     Label {
         visible: root.shared && root.targetIndex >= 0
-        text: qsTr("Also moved by another modulator: their movements add up")
+        text: root.isMidiCc ? qsTr("Also sent by another modulator: the last value sent wins") : qsTr("Also moved by another modulator: their movements add up")
         color: Theme.warning
         font.pixelSize: Theme.bodyPixelSize
         wrapMode: Text.WordWrap

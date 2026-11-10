@@ -601,6 +601,28 @@ void PropertyServiceTest::test_automationTargets_everySynth_shouldOfferItsContro
     }
 }
 
+void PropertyServiceTest::test_modulationTargets_shouldAddTheSongsMidiDestinations()
+{
+    PropertyService service;
+    QVERIFY(service.modulationTargets().isEmpty());
+    service.setMidiDestinationResolver([] {
+        return PropertyService::MidiDestinationList { { "External", 2, { "Bass", "Lead" } } };
+    });
+
+    const auto targets = service.modulationTargets();
+    QCOMPARE(targets.size(), 1);
+    const auto target = targets.front().toMap();
+    QCOMPARE(target["owner"].toString(), QString { "midiCc" });
+    QCOMPARE(target["ownerId"].toString(), QString { "External" });
+    QVERIFY(target["label"].toString().contains("Bass, Lead"));
+    // Every controller but the channel mode messages, keyed by channel and number
+    const auto parameters = target["parameters"].toList();
+    QCOMPARE(parameters.size(), 120);
+    QCOMPARE(parameters.at(74).toMap()["key"].toString(), QString { "2:74" });
+    // Kept out of what a parameter automation can drive
+    QVERIFY(service.automationTargets().isEmpty());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PropertyServiceTest)

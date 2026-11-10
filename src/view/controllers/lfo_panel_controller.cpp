@@ -211,10 +211,40 @@ bool LfoPanelController::targetShared() const
     return device && m_owner.deviceService() && m_owner.deviceService()->modulationSourceCount(device->target(m_index)) > 1;
 }
 
+int LfoPanelController::ccMin() const
+{
+    const auto device = m_owner.lfoDevice();
+    return device ? device->target(m_index).ccMin : 0;
+}
+
+void LfoPanelController::setCcMin(int value)
+{
+    if (const auto device = m_owner.lfoDevice(); device) {
+        auto target = device->target(m_index);
+        target.ccMin = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        device->setTarget(m_index, std::move(target));
+    }
+}
+
+int LfoPanelController::ccMax() const
+{
+    const auto device = m_owner.lfoDevice();
+    return device ? device->target(m_index).ccMax : 127;
+}
+
+void LfoPanelController::setCcMax(int value)
+{
+    if (const auto device = m_owner.lfoDevice(); device) {
+        auto target = device->target(m_index);
+        target.ccMax = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        device->setTarget(m_index, std::move(target));
+    }
+}
+
 void LfoPanelController::setTarget(const QString & owner, const QString & ownerId, const QString & parameter)
 {
     if (const auto device = m_owner.lfoDevice(); device) {
-        device->setTarget(m_index, { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() });
+        device->setTarget(m_index, ParameterAutomation::Target { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() }.withRangeOf(device->target(m_index)));
     }
 }
 

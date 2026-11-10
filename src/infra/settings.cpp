@@ -45,6 +45,7 @@ const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto stepRecordingPlayedVelocityKey = "stepRecordingPlayedVelocity";
+const auto modulatorCcRateKey = "modulatorCcRate";
 const auto liveRecordingPlayedVelocityKey = "liveRecordingPlayedVelocity";
 const auto waveViewEnabledKey = "waveViewEnabled";
 const auto performancePanelEnabledKey = "performancePanelEnabled";
@@ -474,6 +475,23 @@ void setMidiSyncEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(midiSyncEnabledKey, enabled);
+    settings.endGroup();
+}
+
+int modulatorCcRate(int defaultRate)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto rate = settings.value(modulatorCcRateKey, defaultRate).toInt();
+    settings.endGroup();
+    return rate;
+}
+
+void setModulatorCcRate(int rate)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(modulatorCcRateKey, rate);
     settings.endGroup();
 }
 

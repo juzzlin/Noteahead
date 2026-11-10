@@ -7746,12 +7746,32 @@
         <translation>无</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>摆动底端发送的值</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>摆动顶端发送的值。低于 Min 时方向反转。</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>目标缺失</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>也受另一个调制器控制：两者的变化会叠加</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>也由另一个调制器发送：以最后发送的值为准</translation>
     </message>
 </context>
 <context>
@@ -10475,6 +10495,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC：%1，通道 %2（%3）</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11545,6 +11569,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>适用于新乐曲。可在「乐曲 → 设置」中按乐曲覆盖，或在轨道设置中按通道覆盖。</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>XY Pad 和 LFO 的最大 CC 速率（每秒）：</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>XY Pad 或 LFO 移动的外部设备每个控制器每秒最多可发送的消息数。中间值会被省略，但最后一个值绝不会。</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>内部设备会收到每一次变化，因此渲染保持精确。</translation>
     </message>
 </context>
 <context>

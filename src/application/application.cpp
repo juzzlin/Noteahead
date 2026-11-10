@@ -256,6 +256,30 @@ Application::Application(int & argc, char ** argv)
     EffectFactory::init();
     DeviceFactory::init();
     m_propertyService->setDeviceService(m_deviceService);
+    // The ports and channels the song plays, which is what a modulator can send MIDI CC to
+    m_propertyService->setMidiDestinationResolver([editorService = std::weak_ptr<EditorService> { m_editorService }] {
+        PropertyService::MidiDestinationList destinations;
+        const auto locked = editorService.lock();
+        const auto song = locked ? locked->song() : nullptr;
+        if (!song) {
+            return destinations;
+        }
+        for (auto && track : song->trackIndices()) {
+            const auto instrument = song->instrument(track);
+            if (!instrument || instrument->midiAddress().portName().isEmpty()) {
+                continue;
+            }
+            const auto port = instrument->midiAddress().portName().toStdString();
+            const auto channel = instrument->midiAddress().channel();
+            auto destination = std::ranges::find_if(destinations, [&](auto && existing) { return existing.port == port && existing.channel == channel; });
+            if (destination == destinations.end()) {
+                destinations.push_back({ port, channel, {} });
+                destination = std::prev(destinations.end());
+            }
+            destination->trackNames.push_back(song->trackName(track));
+        }
+        return destinations;
+    });
     // Initial empty rack, devices will be added via DeviceRackDialog/Gallery
     m_editorService->setMixerService(m_mixerService);
 
@@ -900,6 +924,17 @@ void Application::connectStateMachine()
 
 void Application::connectPlayerService()
 {
+    // Modulators aimed at external gear: what they send, and how often
+    m_audioEngine->midiCcOutput().setSender([midiService = std::weak_ptr<MidiService> { m_midiService }](const std::string & port, uint8_t channel, uint8_t controller, uint8_t value) {
+        if (const auto service = midiService.lock(); service) {
+            service->sendPortCcData(port, channel, controller, value);
+        }
+    });
+    m_audioEngine->midiCcOutput().setMaxRate(m_settingsService->modulatorCcRate());
+    connect(m_settingsService.get(), &SettingsService::modulatorCcRateChanged, this, [this] {
+        m_audioEngine->midiCcOutput().setMaxRate(m_settingsService->modulatorCcRate());
+    });
+
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());
     });

@@ -161,10 +161,69 @@ bool XyPadPanelController::yTargetShared() const
     return targetShared(1);
 }
 
+int XyPadPanelController::ccEnd(int axis, bool top) const
+{
+    const auto device = m_owner.xyPadDevice();
+    if (!device) {
+        return top ? 127 : 0;
+    }
+    const auto target = device->target(m_index, toAxis(axis));
+    return top ? target.ccMax : target.ccMin;
+}
+
+void XyPadPanelController::setCcEnd(int axis, bool top, int value)
+{
+    if (const auto device = m_owner.xyPadDevice(); device) {
+        auto target = device->target(m_index, toAxis(axis));
+        (top ? target.ccMax : target.ccMin) = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        device->setTarget(m_index, toAxis(axis), std::move(target));
+    }
+}
+
+int XyPadPanelController::xCcMin() const
+{
+    return ccEnd(0, false);
+}
+
+void XyPadPanelController::setXCcMin(int value)
+{
+    setCcEnd(0, false, value);
+}
+
+int XyPadPanelController::xCcMax() const
+{
+    return ccEnd(0, true);
+}
+
+void XyPadPanelController::setXCcMax(int value)
+{
+    setCcEnd(0, true, value);
+}
+
+int XyPadPanelController::yCcMin() const
+{
+    return ccEnd(1, false);
+}
+
+void XyPadPanelController::setYCcMin(int value)
+{
+    setCcEnd(1, false, value);
+}
+
+int XyPadPanelController::yCcMax() const
+{
+    return ccEnd(1, true);
+}
+
+void XyPadPanelController::setYCcMax(int value)
+{
+    setCcEnd(1, true, value);
+}
+
 void XyPadPanelController::setTarget(int axis, const QString & owner, const QString & ownerId, const QString & parameter)
 {
     if (const auto device = m_owner.xyPadDevice(); device) {
-        device->setTarget(m_index, toAxis(axis), { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() });
+        device->setTarget(m_index, toAxis(axis), ParameterAutomation::Target { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() }.withRangeOf(device->target(m_index, toAxis(axis))));
     }
 }
 

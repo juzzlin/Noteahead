@@ -20,6 +20,7 @@
 #include "../../domain/devices/modulation_source.hpp"
 #include "../../domain/dsp/metronome.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
+#include "../midi/midi_cc_output_queue.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -173,6 +174,9 @@ private:
 public:
     bool isExclusive() const;
 
+    //! Where modulators' MIDI CCs for external gear go: set its sender and its rate.
+    MidiCcOutputQueue & midiCcOutput();
+
     //! Whole-callback DSP load, in percent of the real-time budget, plus an overrun count.
     LoadMeter & loadMeter();
     const LoadMeter & loadMeter() const;
@@ -215,6 +219,9 @@ private:
     std::shared_ptr<ParameterAutomationTarget> resolveModulationTarget(const ParameterAutomation::Target & target);
     //! Takes every modulation @p device put on anything back off. For a device leaving the rack.
     void releaseModulationsOf(const Device * device);
+    //! Sends a modulator's step to a MIDI CC: to the internal device behind the port, at its frame,
+    //! or onto the queue for external gear. Only a value that changed goes anywhere.
+    void applyMidiCcStep(const Device * sourceDevice, const ModulationSource::Step & step);
 
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
@@ -310,6 +317,18 @@ private:
     };
 
     std::vector<ActiveModulation> m_activeModulations;
+
+    //! The value each source slot last sent to a MIDI CC, so that nothing is sent twice.
+    struct SentMidiCc
+    {
+        const Device * device {};
+        size_t slot {};
+        ParameterAutomation::Target target;
+        uint8_t value {};
+    };
+
+    std::vector<SentMidiCc> m_sentMidiCcs;
+    MidiCcOutputQueue m_midiCcOutput;
     //! The latest step per source slot for an effect target: the index into m_modulationSteps,
     //! and the device it came from.
     std::vector<std::pair<size_t, const Device *>> m_effectModulationSteps;

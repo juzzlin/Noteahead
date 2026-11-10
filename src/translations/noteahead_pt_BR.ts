@@ -7747,12 +7747,32 @@
         <translation>Nenhum</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>O que a parte de baixo da excursão envia</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>O que a parte de cima da excursão envia. Abaixo de Min, inverte.</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Destino ausente</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>Também movido por outro modulador: os movimentos se somam</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>Também enviado por outro modulador: vence o último valor enviado</translation>
     </message>
 </context>
 <context>
@@ -10476,6 +10496,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC: %1, canal %2 (%3)</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11547,6 +11571,18 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>Aplica-se a músicas novas. Substitua por música em Música → Configurações, ou por canal nas configurações da faixa.</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>Taxa máx. de CC do XY Pad e do LFO (por segundo):</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>Quantas mensagens por segundo podem ser enviadas a cada controlador de um equipamento externo movido pelo XY Pad ou pelo LFO. Valores intermediários são omitidos, nunca o último.</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>Dispositivos internos recebem cada mudança, então os renders continuam exatos.</translation>
     </message>
 </context>
 <context>

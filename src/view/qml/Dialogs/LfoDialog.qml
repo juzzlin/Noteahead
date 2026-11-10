@@ -31,7 +31,7 @@ AnimatedDialog {
     //! Read when the dialog opens: what there is to modulate changes as devices and effects come and go
     property var targets: []
     onAboutToShow: {
-        targets = propertyService.automationTargets();
+        targets = propertyService.modulationTargets();
         // Another device's targets may have moved since: the shared warnings read the whole rack
         lfoController.requestSettings();
     }

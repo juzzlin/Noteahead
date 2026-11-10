@@ -40,6 +40,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool stepRecordingPlayedVelocity READ stepRecordingPlayedVelocity WRITE setStepRecordingPlayedVelocity NOTIFY stepRecordingPlayedVelocityChanged)
     Q_PROPERTY(bool liveRecordingPlayedVelocity READ liveRecordingPlayedVelocity WRITE setLiveRecordingPlayedVelocity NOTIFY liveRecordingPlayedVelocityChanged)
+    //! Messages per second per controller the XY Pad and the LFO may send to external gear.
+    Q_PROPERTY(int modulatorCcRate READ modulatorCcRate WRITE setModulatorCcRate NOTIFY modulatorCcRateChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
     Q_PROPERTY(bool performancePanelEnabled READ performancePanelEnabled WRITE setPerformancePanelEnabled NOTIFY performancePanelEnabledChanged)
     Q_PROPERTY(int performancePanelHeight READ performancePanelHeight WRITE setPerformancePanelHeight NOTIFY performancePanelHeightChanged)
@@ -117,6 +119,10 @@ public:
     void setStepRecordingPlayedVelocity(bool enabled);
     bool liveRecordingPlayedVelocity() const;
     void setLiveRecordingPlayedVelocity(bool enabled);
+    int modulatorCcRate() const;
+    void setModulatorCcRate(int rate);
+    static constexpr int MinModulatorCcRate { 10 };
+    static constexpr int MaxModulatorCcRate { 1000 };
     //! The velocity to record a note played at @p playedVelocity with, live or step by step.
     quint8 recordingVelocity(bool live, quint8 playedVelocity) const;
 
@@ -186,6 +192,7 @@ signals:
     void midiSyncEnabledChanged();
     void stepRecordingPlayedVelocityChanged();
     void liveRecordingPlayedVelocityChanged();
+    void modulatorCcRateChanged();
     void waveViewEnabledChanged();
     void performancePanelEnabledChanged();
     void performancePanelHeightChanged();
@@ -227,6 +234,7 @@ private:
     bool m_midiSyncEnabled;
     bool m_stepRecordingPlayedVelocity;
     bool m_liveRecordingPlayedVelocity;
+    int m_modulatorCcRate;
     bool m_waveViewEnabled;
     bool m_performancePanelEnabled;
     int m_performancePanelHeight;

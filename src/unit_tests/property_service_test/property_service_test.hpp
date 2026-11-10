@@ -41,6 +41,7 @@ private slots:
     void test_automationTargets_autoFilter_shouldDescribeItsParameters();
     void test_automationTargets_parameterWithoutDisplay_shouldBePercentOfTravel();
     void test_automationParameter_missing_shouldBeEmpty();
+    void test_modulationTargets_shouldAddTheSongsMidiDestinations();
 };
 
 } // namespace noteahead

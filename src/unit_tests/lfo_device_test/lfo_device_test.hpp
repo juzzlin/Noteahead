@@ -40,6 +40,7 @@ private slots:
     void test_phase_shouldOffsetTheStart();
     void test_xmlSerialization_shouldRestoreTargetsAndControls();
     void test_xmlSerialization_untouched_shouldWriteNoTargets();
+    void test_xmlSerialization_midiCcTarget_shouldRestoreTheRange();
     void test_automatableParameters_shouldBeGroupedByLfo();
     void test_lfoLed_shouldFollowTheShape();
 };

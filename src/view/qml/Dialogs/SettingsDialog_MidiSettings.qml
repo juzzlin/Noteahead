@@ -185,7 +185,7 @@ SectionBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 9
-                rows: 2
+                rows: 4
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
@@ -221,6 +221,40 @@ SectionBox {
                     wrapMode: Text.WordWrap
                     color: themeService.accentColor
                     text: qsTr("Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.")
+                }
+                Label {
+                    text: qsTr("Max CC rate from XY Pad and LFO (per second):")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    from: 10
+                    to: 1000
+                    stepSize: 10
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                    value: settingsService.modulatorCcRate
+                    editable: true
+                    onValueModified: settingsService.modulatorCcRate = value
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.")
+                }
+                Label {
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 3
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    color: themeService.accentColor
+                    text: qsTr("Internal devices get every change, so renders stay exact.")
                 }
             }
         }

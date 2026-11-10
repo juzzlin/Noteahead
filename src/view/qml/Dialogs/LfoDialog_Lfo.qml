@@ -26,7 +26,7 @@ ColumnLayout {
 
     //! The LfoPanelController this panel edits.
     required property var lfo
-    //! Everything a parameter automation can drive, as propertyService.automationTargets() lists it.
+    //! Everything a modulator can move, as propertyService.modulationTargets() lists it.
     required property var targets
 
     Universal.theme: Universal.Dark
@@ -51,6 +51,10 @@ ColumnLayout {
         ownerId: root.lfo.targetOwnerId
         parameter: root.lfo.targetParameter
         shared: root.lfo.targetShared
+        ccMin: root.lfo.ccMin
+        ccMax: root.lfo.ccMax
+        onCcMinChosen: value => root.lfo.ccMin = value
+        onCcMaxChosen: value => root.lfo.ccMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.lfo.setTarget(owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.lfo.chooseTargetOwner(owner, ownerId, parameters)
         onTargetCleared: root.lfo.clearTarget()
@@ -120,6 +124,8 @@ ColumnLayout {
         }
         Knob {
             label: qsTr("Depth")
+            // A controller goes between its Min and Max instead
+            enabled: root.lfo.targetOwner !== "midiCc"
             // Bipolar swings half the depth either way of the setting, so it reads as that swing
             mapping: root.lfo.modulationMode === 0 ? "swing" : "linear"
             mapMax: root.lfo.modulationMode === 0 ? 50 : to

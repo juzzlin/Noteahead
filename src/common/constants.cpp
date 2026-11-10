@@ -3421,6 +3421,11 @@ QString xmlValueDevice()
     return "device";
 }
 
+QString xmlValueMidiCc()
+{
+    return "midiCc";
+}
+
 QString xmlValueEffect()
 {
     return "effect";

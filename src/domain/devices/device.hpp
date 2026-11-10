@@ -279,6 +279,17 @@ public:
         std::optional<ParameterModulation::Mode> mode;
         double source {};
         double depth {};
+
+        //! A controller value to take as a MIDI CC instead, for a modulator aimed at one of the
+        //! device's controllers: then everything above but the frame is unused.
+        struct Cc
+        {
+            uint8_t controller {};
+            uint8_t value {};
+            uint8_t channel {};
+        };
+
+        std::optional<Cc> cc;
     };
 
     //! Queues a modulation step for the block about to be rendered, to be applied at its own frame.

@@ -7748,12 +7748,32 @@
         <translation>Brak</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>Co wysyła dolny koniec wychylenia</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>Co wysyła górny koniec wychylenia. Poniżej Min odwraca kierunek.</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Brak celu</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>Porusza nim też inny modulator: ich ruchy się sumują</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>Wysyłane też przez inny modulator: wygrywa ostatnio wysłana wartość</translation>
     </message>
 </context>
 <context>
@@ -10477,6 +10497,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC: %1, kanał %2 (%3)</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11549,6 +11573,18 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>Dotyczy nowych utworów. Można to nadpisać dla utworu w Utwór → Ustawienia lub dla kanału w ustawieniach ścieżki.</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>Maks. tempo CC z XY Pad i LFO (na sekundę):</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>Ile wiadomości na sekundę można wysłać do każdego kontrolera zewnętrznego sprzętu poruszanego przez XY Pad lub LFO. Wartości pośrednie są pomijane, nigdy ostatnia.</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>Urządzenia wewnętrzne dostają każdą zmianę, więc rendery pozostają dokładne.</translation>
     </message>
 </context>
 <context>

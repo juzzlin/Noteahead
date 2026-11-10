@@ -346,6 +346,11 @@ void MidiService::stopAllNotes()
     }
 }
 
+void MidiService::sendPortCcData(const std::string & portName, quint8 channel, quint8 controller, quint8 value)
+{
+    m_outputWorker->sendCcData(QString::fromStdString(portName), channel, controller, std::min<quint8>(value, 127));
+}
+
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
     if (const auto instr = instrument.lock()) {

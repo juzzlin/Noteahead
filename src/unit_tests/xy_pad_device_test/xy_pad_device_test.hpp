@@ -45,6 +45,13 @@ private slots:
     void test_automatableParameters_position_shouldBeListed();
     void test_engine_padAndLfoOnOneCutoff_shouldAddUp();
     void test_engine_padOnEffect_shouldLetGoAtHome();
+    void test_midiCcTarget_key_shouldRoundTripTheAddress();
+    void test_midiCcTarget_value_shouldSpanMinToMax();
+    void test_midiCcTarget_withRangeOf_shouldKeepTheRangeOnlyBetweenControllers();
+    void test_xmlSerialization_midiCcTarget_shouldRestoreTheRange();
+    void test_engine_padOnInternalMidiCc_shouldReachTheDeviceThroughItsMappings();
+    void test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAndEndAtTheCentre();
+    void test_engine_render_shouldSendNothingToExternalGear();
 };
 
 } // namespace noteahead

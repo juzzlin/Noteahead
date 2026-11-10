@@ -7747,12 +7747,32 @@
         <translation>Ei mitään</translation>
     </message>
     <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>What the bottom of the swing sends</source>
+        <translation>Mitä heilahduksen alapää lähettää</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>What the top of the swing sends. Below Min turns it around.</source>
+        <translation>Mitä heilahduksen yläpää lähettää. Miniä pienempi kääntää suunnan.</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Kohde puuttuu</translation>
     </message>
     <message>
         <source>Also moved by another modulator: their movements add up</source>
         <translation>Myös toinen modulaattori liikuttaa tätä: liikkeet lasketaan yhteen</translation>
+    </message>
+    <message>
+        <source>Also sent by another modulator: the last value sent wins</source>
+        <translation>Myös toinen modulaattori lähettää tätä: viimeksi lähetetty arvo voittaa</translation>
     </message>
 </context>
 <context>
@@ -10476,6 +10496,10 @@
         <source>Pad %1</source>
         <translation type="unfinished">Pad %1</translation>
     </message>
+    <message>
+        <source>MIDI CC: %1, channel %2 (%3)</source>
+        <translation>MIDI CC: %1, kanava %2 (%3)</translation>
+    </message>
 </context>
 <context>
     <name>RecentFilesDialog</name>
@@ -11547,6 +11571,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.</source>
         <translation>Koskee uusia kappaleita. Ohita kappalekohtaisesti kohdassa Kappale → Asetukset tai kanavakohtaisesti raita-asetuksissa.</translation>
+    </message>
+    <message>
+        <source>Max CC rate from XY Pad and LFO (per second):</source>
+        <translation>XY Padin ja LFO:n CC-viestien enimmäistahti (sekunnissa):</translation>
+    </message>
+    <message>
+        <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>
+        <translation>Kuinka monta viestiä sekunnissa saa lähettää kullekin ulkoisen laitteen ohjaimelle, jota XY Pad tai LFO liikuttaa. Väliarvot jätetään pois, viimeistä ei koskaan.</translation>
+    </message>
+    <message>
+        <source>Internal devices get every change, so renders stay exact.</source>
+        <translation>Sisäiset laitteet saavat jokaisen muutoksen, joten renderöinnit pysyvät tarkkoina.</translation>
     </message>
 </context>
 <context>

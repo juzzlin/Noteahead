@@ -23,6 +23,10 @@ function targetLabel(target) {
     if (!target) {
         return qsTr("Missing target");
     }
+    // Named by the port and the tracks that play it, which only C++ knows
+    if (target.owner === "midiCc") {
+        return target.label;
+    }
     if (target.owner === "device") {
         const device = qsTr("Device %1 (%2)").arg(target.deviceSlot + 1).arg(target.deviceTypeName);
         // The tracks it plays on, as the device rack sums them up, which is what tells two of the

@@ -51,6 +51,11 @@ class XyPadPanelController : public QObject
     //! Whether another modulation source -- an LFO, another axis -- moves the same parameter
     Q_PROPERTY(bool xTargetShared READ xTargetShared NOTIFY changed)
     Q_PROPERTY(bool yTargetShared READ yTargetShared NOTIFY changed)
+    //! What each axis's bottom and top send, 0 to 127, for a MIDI CC target
+    Q_PROPERTY(int xCcMin READ xCcMin WRITE setXCcMin NOTIFY changed)
+    Q_PROPERTY(int xCcMax READ xCcMax WRITE setXCcMax NOTIFY changed)
+    Q_PROPERTY(int yCcMin READ yCcMin WRITE setYCcMin NOTIFY changed)
+    Q_PROPERTY(int yCcMax READ yCcMax WRITE setYCcMax NOTIFY changed)
 
 public:
     XyPadPanelController(size_t index, XyPadController & owner);
@@ -72,6 +77,14 @@ public:
     QString yTargetParameter() const;
     bool xTargetShared() const;
     bool yTargetShared() const;
+    int xCcMin() const;
+    void setXCcMin(int value);
+    int xCcMax() const;
+    void setXCcMax(int value);
+    int yCcMin() const;
+    void setYCcMin(int value);
+    int yCcMax() const;
+    void setYCcMax(int value);
 
     Q_INVOKABLE void setTarget(int axis, const QString & owner, const QString & ownerId, const QString & parameter);
     Q_INVOKABLE void clearTarget(int axis);
@@ -89,6 +102,8 @@ private:
     bool targetShared(int axis) const;
     int depth(int axis) const;
     void setDepth(int axis, int value);
+    int ccEnd(int axis, bool top) const;
+    void setCcEnd(int axis, bool top, int value);
 
     size_t m_index;
     XyPadController & m_owner;

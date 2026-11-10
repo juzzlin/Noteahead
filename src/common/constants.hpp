@@ -992,6 +992,7 @@ QString xmlValueBool();
 QString xmlValueFloat();
 QString xmlValueSineWave();
 QString xmlValueDevice();
+QString xmlValueMidiCc();
 QString xmlValueEffect();
 QString xmlValueRelative();
 QString xmlValueRandom();
