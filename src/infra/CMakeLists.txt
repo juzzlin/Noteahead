@@ -22,7 +22,7 @@ set(HEADER_FILES
     midi/midi_backend_in.hpp
     midi/midi_backend_out.hpp
     midi/midi_cc_mapping.hpp
-    midi/midi_cc_output_queue.hpp
+    midi/midi_output_queue.hpp
     midi/midi_port.hpp
     settings.hpp
     xml/nahd_xml_reader.hpp
@@ -50,7 +50,7 @@ set(SOURCE_FILES
     midi/midi_backend_in.cpp
     midi/midi_backend_out.cpp
     midi/midi_cc_mapping.cpp
-    midi/midi_cc_output_queue.cpp
+    midi/midi_output_queue.cpp
     midi/midi_port.cpp
     settings.cpp
     xml/nahd_xml_reader.cpp

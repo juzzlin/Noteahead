@@ -101,9 +101,9 @@ void setStepRecordingPlayedVelocity(bool enabled);
 bool liveRecordingPlayedVelocity();
 void setLiveRecordingPlayedVelocity(bool enabled);
 
-//! Messages per second per controller a modulator may send to external gear.
-int modulatorCcRate(int defaultRate);
-void setModulatorCcRate(int rate);
+//! Messages per second per controller or pitch bend a modulator may send to external gear.
+int modulatorMidiRate(int defaultRate);
+void setModulatorMidiRate(int rate);
 
 bool waveViewEnabled();
 void setMetronomeEnabled(bool enabled);

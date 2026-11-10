@@ -7763,6 +7763,10 @@
         <translation>Mitä heilahduksen yläpää lähettää. Miniä pienempi kääntää suunnan.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>Liikkeen keskikohta taivuttaa %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Kohde puuttuu</translation>
     </message>
@@ -10497,8 +10501,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC: %1, kanava %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI: %1, kanava %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11573,8 +11581,8 @@ Audio files will appear next to the current project file.</source>
         <translation>Koskee uusia kappaleita. Ohita kappalekohtaisesti kohdassa Kappale → Asetukset tai kanavakohtaisesti raita-asetuksissa.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>XY Padin ja LFO:n CC-viestien enimmäistahti (sekunnissa):</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>XY Padin ja LFO:n MIDI-viestien enimmäistahti (sekunnissa):</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

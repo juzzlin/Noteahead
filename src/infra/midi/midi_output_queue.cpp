@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc_output_queue.hpp"
+#include "midi_output_queue.hpp"
 
 #include <algorithm>
 #include <map>
@@ -22,37 +22,37 @@
 
 namespace noteahead {
 
-MidiCcOutputQueue::MidiCcOutputQueue()
+MidiOutputQueue::MidiOutputQueue()
   : m_thread { [this] { run(); } }
 {
 }
 
-MidiCcOutputQueue::~MidiCcOutputQueue()
+MidiOutputQueue::~MidiOutputQueue()
 {
     m_running = false;
     m_wake.release();
     m_thread.join();
 }
 
-void MidiCcOutputQueue::setSender(Sender sender)
+void MidiOutputQueue::setSender(Sender sender)
 {
     const std::lock_guard<std::mutex> lock { m_senderMutex };
     m_sender = std::move(sender);
 }
 
-void MidiCcOutputQueue::setMaxRate(int messagesPerSecond)
+void MidiOutputQueue::setMaxRate(int messagesPerSecond)
 {
     m_maxRate = std::max(1, messagesPerSecond);
     // A lower rate shortens nothing already waiting, a higher one may let it out now
     m_wake.release();
 }
 
-int MidiCcOutputQueue::maxRate() const
+int MidiOutputQueue::maxRate() const
 {
     return m_maxRate;
 }
 
-std::optional<uint16_t> MidiCcOutputQueue::portIndex(const std::string & port)
+std::optional<uint16_t> MidiOutputQueue::portIndex(const std::string & port)
 {
     const size_t count = m_portCount.load(std::memory_order_relaxed);
     for (size_t index = 0; index < count; index++) {
@@ -68,7 +68,7 @@ std::optional<uint16_t> MidiCcOutputQueue::portIndex(const std::string & port)
     return static_cast<uint16_t>(count);
 }
 
-bool MidiCcOutputQueue::push(const std::string & port, uint8_t channel, uint8_t controller, uint8_t value)
+bool MidiOutputQueue::push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value)
 {
     const auto index = portIndex(port);
     if (!index) {
@@ -88,17 +88,17 @@ bool MidiCcOutputQueue::push(const std::string & port, uint8_t channel, uint8_t 
     return true;
 }
 
-void MidiCcOutputQueue::run()
+void MidiOutputQueue::run()
 {
     struct Pending
     {
-        uint8_t value {};
+        uint16_t value {};
         bool waiting {};
         Clock::time_point nextAllowed {};
     };
 
-    // By port, channel and controller
-    std::map<std::tuple<uint16_t, uint8_t, uint8_t>, Pending> controllers;
+    // By port, channel and controller, or no controller for the channel's pitch bend
+    std::map<std::tuple<uint16_t, uint8_t, std::optional<uint8_t>>, Pending> controllers;
 
     while (true) {
         std::optional<Clock::time_point> deadline;
@@ -117,7 +117,7 @@ void MidiCcOutputQueue::run()
             return;
         }
 
-        // Only the latest value of each controller matters
+        // Only the latest value of each controller and pitch bend matters
         for (size_t tail = m_tail.load(std::memory_order_relaxed); tail != m_head.load(std::memory_order_acquire); tail = (tail + 1) % Capacity) {
             const auto message = m_ring.at(tail);
             auto & pending = controllers[{ message.port, message.channel, message.controller }];

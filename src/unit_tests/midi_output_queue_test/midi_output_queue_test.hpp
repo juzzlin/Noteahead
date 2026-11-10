@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_CC_OUTPUT_QUEUE_TEST_HPP
-#define MIDI_CC_OUTPUT_QUEUE_TEST_HPP
+#ifndef MIDI_OUTPUT_QUEUE_TEST_HPP
+#define MIDI_OUTPUT_QUEUE_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class MidiCcOutputQueueTest : public QObject
+class MidiOutputQueueTest : public QObject
 {
     Q_OBJECT
 
@@ -28,8 +28,9 @@ private slots:
     void test_push_shouldReachTheSender();
     void test_push_fasterThanTheRate_shouldDropTheValuesBetweenButNeverTheLast();
     void test_push_controllers_shouldEachHaveARateOfTheirOwn();
+    void test_push_pitchBend_shouldHaveARateApartFromTheControllers();
 };
 
 } // namespace noteahead
 
-#endif // MIDI_CC_OUTPUT_QUEUE_TEST_HPP
+#endif // MIDI_OUTPUT_QUEUE_TEST_HPP

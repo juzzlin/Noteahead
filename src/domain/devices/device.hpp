@@ -280,16 +280,18 @@ public:
         double source {};
         double depth {};
 
-        //! A controller value to take as a MIDI CC instead, for a modulator aimed at one of the
-        //! device's controllers: then everything above but the frame is unused.
-        struct Cc
+        //! A MIDI message to take instead, for a modulator aimed at one of the device's
+        //! controllers or its pitch bend: then everything above but the frame is unused.
+        struct Midi
         {
-            uint8_t controller {};
-            uint8_t value {};
+            //! The CC's controller, or nothing for a pitch bend.
+            std::optional<uint8_t> controller;
+            //! The CC's value, or the pitch bend's 14-bit value.
+            uint16_t value {};
             uint8_t channel {};
         };
 
-        std::optional<Cc> cc;
+        std::optional<Midi> midi;
     };
 
     //! Queues a modulation step for the block about to be rendered, to be applied at its own frame.

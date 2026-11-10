@@ -223,7 +223,7 @@ SectionBox {
                     text: qsTr("Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.")
                 }
                 Label {
-                    text: qsTr("Max CC rate from XY Pad and LFO (per second):")
+                    text: qsTr("Max MIDI rate from XY Pad and LFO (per second):")
                     Layout.column: 0
                     Layout.columnSpan: 2
                     Layout.row: 2
@@ -237,9 +237,9 @@ SectionBox {
                     Layout.columnSpan: 5
                     Layout.row: 2
                     Layout.fillWidth: true
-                    value: settingsService.modulatorCcRate
+                    value: settingsService.modulatorMidiRate
                     editable: true
-                    onValueModified: settingsService.modulatorCcRate = value
+                    onValueModified: settingsService.modulatorMidiRate = value
                     Keys.onReturnPressed: focus = false
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout

@@ -7763,6 +7763,10 @@
         <translation>Ce qu&apos;envoie le haut de l&apos;amplitude. En dessous de Min, le sens s&apos;inverse.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>Le milieu de la course infléchit de %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Cible manquante</translation>
     </message>
@@ -10497,8 +10501,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC : %1, canal %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI : %1, canal %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11573,8 +11581,8 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation>S&apos;applique aux nouveaux morceaux. À remplacer par morceau dans Morceau → Paramètres, ou par canal dans les paramètres de piste.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>Débit CC max. du XY Pad et du LFO (par seconde) :</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>Débit MIDI max. du XY Pad et du LFO (par seconde) :</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

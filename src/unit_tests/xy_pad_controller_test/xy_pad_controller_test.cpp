@@ -189,6 +189,30 @@ void XyPadControllerTest::test_panel_chooseTargetOwner_otherAxisSet_shouldLeaveI
     QCOMPARE(panel(controller, 1).xTargetParameter(), QString { "hpfCutoff" });
 }
 
+void XyPadControllerTest::test_panel_chooseTargetOwner_midi_shouldNeverPickThePitchBend()
+{
+    const auto deviceService = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto pad = std::make_shared<XyPadDevice>("XY");
+    deviceService->setDevice(0, pad);
+    XyPadController controller { deviceService };
+    controller.setDevice(pad);
+    // Listed first, as the picker lists it, and with no standard controller among the rest
+    const QStringList parameters { "0:pb", "0:20", "0:21" };
+
+    panel(controller, 0).chooseTargetOwner(0, "midi", "External", parameters);
+    QCOMPARE(panel(controller, 0).xTargetParameter(), QString { "0:20" });
+    QCOMPARE(panel(controller, 0).yTargetParameter(), QString { "0:21" });
+    QVERIFY(!panel(controller, 0).xPitchBend());
+
+    // Picked by hand it is a pitch bend, over the whole of its range
+    panel(controller, 0).setTarget(0, "midi", "External", "0:pb");
+    QVERIFY(panel(controller, 0).xPitchBend());
+    QCOMPARE(panel(controller, 0).xMidiMin(), -100);
+    QCOMPARE(panel(controller, 0).xMidiMax(), 100);
+    panel(controller, 0).setXMidiMin(-500);
+    QCOMPARE(panel(controller, 0).xMidiMin(), -100);
+}
+
 void XyPadControllerTest::test_press_shouldReachTheDevice()
 {
     XyPadController controller { nullptr };

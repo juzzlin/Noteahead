@@ -7762,6 +7762,10 @@
         <translation>摆动顶端发送的值。低于 Min 时方向反转。</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>摆动中点弯音 %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>目标缺失</translation>
     </message>
@@ -10496,8 +10500,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC：%1，通道 %2（%3）</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI：%1，通道 %2（%3）</translation>
     </message>
 </context>
 <context>
@@ -11571,8 +11579,8 @@ Audio files will appear next to the current project file.</source>
         <translation>适用于新乐曲。可在「乐曲 → 设置」中按乐曲覆盖，或在轨道设置中按通道覆盖。</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>XY Pad 和 LFO 的最大 CC 速率（每秒）：</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>XY Pad 和 LFO 的最大 MIDI 速率（每秒）：</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

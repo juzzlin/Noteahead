@@ -211,32 +211,39 @@ bool LfoPanelController::targetShared() const
     return device && m_owner.deviceService() && m_owner.deviceService()->modulationSourceCount(device->target(m_index)) > 1;
 }
 
-int LfoPanelController::ccMin() const
+bool LfoPanelController::pitchBend() const
 {
     const auto device = m_owner.lfoDevice();
-    return device ? device->target(m_index).ccMin : 0;
+    const auto address = device ? device->target(m_index).midiAddress() : std::nullopt;
+    return address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend;
 }
 
-void LfoPanelController::setCcMin(int value)
+int LfoPanelController::midiMin() const
+{
+    const auto device = m_owner.lfoDevice();
+    return device ? device->target(m_index).midiMin : 0;
+}
+
+void LfoPanelController::setMidiMin(int value)
 {
     if (const auto device = m_owner.lfoDevice(); device) {
         auto target = device->target(m_index);
-        target.ccMin = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        target.setMidiRange(value, target.midiMax);
         device->setTarget(m_index, std::move(target));
     }
 }
 
-int LfoPanelController::ccMax() const
+int LfoPanelController::midiMax() const
 {
     const auto device = m_owner.lfoDevice();
-    return device ? device->target(m_index).ccMax : 127;
+    return device ? device->target(m_index).midiMax : 127;
 }
 
-void LfoPanelController::setCcMax(int value)
+void LfoPanelController::setMidiMax(int value)
 {
     if (const auto device = m_owner.lfoDevice(); device) {
         auto target = device->target(m_index);
-        target.ccMax = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        target.setMidiRange(target.midiMin, value);
         device->setTarget(m_index, std::move(target));
     }
 }

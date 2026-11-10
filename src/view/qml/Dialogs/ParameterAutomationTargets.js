@@ -24,7 +24,7 @@ function targetLabel(target) {
         return qsTr("Missing target");
     }
     // Named by the port and the tracks that play it, which only C++ knows
-    if (target.owner === "midiCc") {
+    if (target.owner === "midi") {
         return target.label;
     }
     if (target.owner === "device") {

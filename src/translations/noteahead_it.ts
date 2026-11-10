@@ -7763,6 +7763,10 @@
         <translation>Cosa invia la cima dell&apos;escursione. Sotto Min la inverte.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>Il centro dell&apos;escursione piega del %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Destinazione mancante</translation>
     </message>
@@ -10497,8 +10501,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC: %1, canale %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI: %1, canale %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11573,8 +11581,8 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation>Vale per i nuovi brani. Puoi sovrascriverlo per brano in Brano → Impostazioni, o per canale nelle impostazioni della traccia.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>Frequenza CC max da XY Pad e LFO (al secondo):</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>Frequenza MIDI max da XY Pad e LFO (al secondo):</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

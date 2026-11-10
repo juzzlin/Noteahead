@@ -925,14 +925,14 @@ void Application::connectStateMachine()
 void Application::connectPlayerService()
 {
     // Modulators aimed at external gear: what they send, and how often
-    m_audioEngine->midiCcOutput().setSender([midiService = std::weak_ptr<MidiService> { m_midiService }](const std::string & port, uint8_t channel, uint8_t controller, uint8_t value) {
+    m_audioEngine->midiOutput().setSender([midiService = std::weak_ptr<MidiService> { m_midiService }](const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value) {
         if (const auto service = midiService.lock(); service) {
-            service->sendPortCcData(port, channel, controller, value);
+            service->sendPortMidiData(port, channel, controller, value);
         }
     });
-    m_audioEngine->midiCcOutput().setMaxRate(m_settingsService->modulatorCcRate());
-    connect(m_settingsService.get(), &SettingsService::modulatorCcRateChanged, this, [this] {
-        m_audioEngine->midiCcOutput().setMaxRate(m_settingsService->modulatorCcRate());
+    m_audioEngine->midiOutput().setMaxRate(m_settingsService->modulatorMidiRate());
+    connect(m_settingsService.get(), &SettingsService::modulatorMidiRateChanged, this, [this] {
+        m_audioEngine->midiOutput().setMaxRate(m_settingsService->modulatorMidiRate());
     });
 
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {

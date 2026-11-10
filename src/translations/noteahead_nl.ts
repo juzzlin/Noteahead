@@ -7763,6 +7763,10 @@
         <translation>Wat de bovenkant van de uitslag stuurt. Onder Min keert het om.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>Het midden van de uitslag buigt %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Doel ontbreekt</translation>
     </message>
@@ -10497,8 +10501,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC: %1, kanaal %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI: %1, kanaal %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11573,8 +11581,8 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Geldt voor nieuwe songs. Per song te overschrijven via Song → Instellingen, of per kanaal in de trackinstellingen.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>Max. CC-snelheid van XY Pad en LFO (per seconde):</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>Max. MIDI-snelheid van XY Pad en LFO (per seconde):</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

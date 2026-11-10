@@ -34,12 +34,15 @@ ColumnLayout {
     required property string parameter
     //! Whether another modulation source moves the same parameter.
     property bool shared: false
-    //! What the bottom and the top of the swing send, for a MIDI CC target.
-    property int ccMin: 0
-    property int ccMax: 127
-    //! Whether the target is a MIDI controller rather than a parameter: then Min and Max say how
-    //! far it goes, instead of a depth around a setting.
-    readonly property bool isMidiCc: root.owner === "midiCc" && root.ownerId !== ""
+    //! What the bottom and the top of the swing send, for a MIDI target: a CC's value, or the pitch
+    //! bend in percent.
+    property int midiMin: 0
+    property int midiMax: 127
+    //! Whether the MIDI target is a pitch bend, whose Min and Max run from -100 % to 100 %.
+    property bool pitchBend: false
+    //! Whether the target is a MIDI controller or pitch bend rather than a parameter: then Min and
+    //! Max say how far it goes, instead of a depth around a setting.
+    readonly property bool isMidi: root.owner === "midi" && root.ownerId !== ""
     property string label: qsTr("Target")
 
     signal targetChosen(string owner, string ownerId, string parameter)
@@ -47,14 +50,24 @@ ColumnLayout {
     //! them to take is for the source's controller to decide, from what is already taken.
     signal ownerChosen(string owner, string ownerId, var parameters)
     signal targetCleared
-    signal ccMinChosen(int value)
-    signal ccMaxChosen(int value)
+    signal midiMinChosen(int value)
+    signal midiMaxChosen(int value)
 
     readonly property int targetIndex: root.ownerId === "" ? -1 : Targets.findTargetIndex(root.targets, root.owner, root.ownerId, root.parameter)
     readonly property var target: root.targetIndex >= 0 ? root.targets[root.targetIndex] : null
 
     Layout.fillWidth: true
     spacing: 6
+
+    //! A CC's value, 0 to 127, or a pitch bend in percent, -100 % to 100 %
+    component MidiRangeSpinBox: SpinBox {
+        property bool pitchBend: false
+        from: pitchBend ? -100 : 0
+        to: pitchBend ? 100 : 127
+        editable: true
+        textFromValue: (value, locale) => pitchBend ? value + " %" : value.toString()
+        valueFromText: (text, locale) => parseInt(text) || 0
+    }
 
     GridLayout {
         id: grid
@@ -114,18 +127,16 @@ ColumnLayout {
     }
 
     RowLayout {
-        visible: root.isMidiCc
+        visible: root.isMidi
         spacing: 10
         Layout.fillWidth: true
         Label {
             text: qsTr("Min")
         }
-        SpinBox {
-            from: 0
-            to: 127
-            editable: true
-            value: root.ccMin
-            onValueModified: root.ccMinChosen(value)
+        MidiRangeSpinBox {
+            pitchBend: root.pitchBend
+            value: root.midiMin
+            onValueModified: root.midiMinChosen(value)
             ToolTip.visible: hovered
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.text: qsTr("What the bottom of the swing sends")
@@ -133,12 +144,10 @@ ColumnLayout {
         Label {
             text: qsTr("Max")
         }
-        SpinBox {
-            from: 0
-            to: 127
-            editable: true
-            value: root.ccMax
-            onValueModified: root.ccMaxChosen(value)
+        MidiRangeSpinBox {
+            pitchBend: root.pitchBend
+            value: root.midiMax
+            onValueModified: root.midiMaxChosen(value)
             ToolTip.visible: hovered
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.text: qsTr("What the top of the swing sends. Below Min turns it around.")
@@ -146,6 +155,17 @@ ColumnLayout {
         Item {
             Layout.fillWidth: true
         }
+    }
+
+    Label {
+        // Off centre, the middle of the swing bends: worth saying, since the pad's centre and an
+        // LFO's zero are where nothing is expected to move
+        visible: root.isMidi && root.pitchBend && root.midiMin + root.midiMax !== 0
+        text: qsTr("The middle of the swing bends by %1 %").arg((root.midiMin + root.midiMax) / 2)
+        color: Theme.warning
+        font.pixelSize: Theme.bodyPixelSize
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
     }
 
     // Missing rather than silently None: a source whose target was deleted still has it saved
@@ -157,7 +177,7 @@ ColumnLayout {
     }
     Label {
         visible: root.shared && root.targetIndex >= 0
-        text: root.isMidiCc ? qsTr("Also sent by another modulator: the last value sent wins") : qsTr("Also moved by another modulator: their movements add up")
+        text: root.isMidi ? qsTr("Also sent by another modulator: the last value sent wins") : qsTr("Also moved by another modulator: their movements add up")
         color: Theme.warning
         font.pixelSize: Theme.bodyPixelSize
         wrapMode: Text.WordWrap

@@ -25,6 +25,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 
 namespace noteahead {
 
@@ -51,40 +52,60 @@ public:
         {
             Effect,
             Device,
-            //! A MIDI controller of an instrument rather than a parameter: what a modulator moves
-            //! on external gear, or through an internal device's own CC handling. Only modulators
-            //! aim at one; a parameter automation never does.
-            MidiCc
+            //! A MIDI controller or the pitch bend of an instrument rather than a parameter: what
+            //! a modulator moves on external gear, or through an internal device's own MIDI
+            //! handling. Only modulators aim at one; a parameter automation never does.
+            Midi
         };
 
-        //! Where a MIDI CC target sends: the channel, 0 to 15, and the controller.
-        struct MidiCcAddress
+        //! What a MIDI target sends.
+        enum class MidiMessage
+        {
+            Cc,
+            PitchBend
+        };
+
+        //! Where a MIDI target sends: the channel, 0 to 15, and the message. The controller is for a
+        //! CC only.
+        struct MidiAddress
         {
             uint8_t channel {};
+            MidiMessage message { MidiMessage::Cc };
             uint8_t controller {};
         };
 
         Owner owner = Owner::Effect;
         //! The owner's id: Effect::id() for an effect, Device::uuid() for a device, the port's name
-        //! for a MIDI CC.
+        //! for a MIDI target.
         std::string ownerId;
-        //! The parameter's key within its owner. For a MIDI CC, its channel and controller as
-        //! midiCcKey() writes them.
+        //! The parameter's key within its owner. For a MIDI target, its channel and message as
+        //! midiCcKey() or midiPitchBendKey() write them.
         std::string parameter;
-        //! The values the bottom and the top of a modulator's swing send, for a MIDI CC. Min above
-        //! Max turns it around.
-        uint8_t ccMin { 0 };
-        uint8_t ccMax { 127 };
+        //! What the bottom and the top of a modulator's swing send, for a MIDI target: the value of
+        //! a CC, 0 to 127, or the pitch bend in percent of its range, -100 to 100. Min above Max
+        //! turns it around.
+        int midiMin { 0 };
+        int midiMax { 127 };
 
         bool operator==(const Target & other) const = default;
 
         //! Whether @p other is the same parameter or controller, whatever range it is moved over.
         bool isSameDestination(const Target & other) const;
-        //! This target with @p previous's CC range when both are MIDI CCs, so that picking another
-        //! controller keeps the range set for the last.
+        //! This target with @p previous's range when both send the same kind of MIDI message, so
+        //! that picking another controller keeps the range set for the last. Otherwise a MIDI
+        //! target gets its message's full range.
         Target withRangeOf(const Target & previous) const;
 
-        //! "effect", "device" or "midiCc", as the project file and the UI both name an owner.
+        //! The full range of @p message: 0 to 127 for a CC, -100 to 100 percent for pitch bend.
+        static std::pair<int, int> fullRange(MidiMessage message);
+        //! Whether a MIDI target's range is something other than its message's full range, and so
+        //! worth saving.
+        bool hasPartialMidiRange() const;
+        //! Sets a MIDI target's range from what a project says, the full range where it says
+        //! nothing and clamped into it where it says too much.
+        void setMidiRange(std::optional<int> min, std::optional<int> max);
+
+        //! "effect", "device" or "midi", as the project file and the UI both name an owner.
         //! Anything else reads as an effect, which is what an automation that does not say is
         //! aimed at.
         static QString ownerToString(Owner owner);
@@ -92,11 +113,14 @@ public:
 
         //! The parameter key of a MIDI CC target: "2:74" for controller 74 on channel 2.
         static std::string midiCcKey(uint8_t channel, uint8_t controller);
-        //! The channel and the controller of a MIDI CC target, or nothing for any other target, or
-        //! one whose key does not parse.
-        std::optional<MidiCcAddress> midiCcAddress() const;
-        //! Where a MIDI CC target's controller goes for a modulator at @p position, 0 to 1.
-        uint8_t midiCcValue(double position) const;
+        //! The parameter key of a MIDI pitch bend target: "2:pb" on channel 2.
+        static std::string midiPitchBendKey(uint8_t channel);
+        //! Where a MIDI target sends, or nothing for any other target, or one whose key does not
+        //! parse.
+        std::optional<MidiAddress> midiAddress() const;
+        //! What a MIDI target sends for a modulator at @p position, 0 to 1: a CC's value, or the
+        //! pitch bend's 14-bit value with no bend at 8192.
+        uint16_t midiValue(double position) const;
     };
 
     enum class Mode

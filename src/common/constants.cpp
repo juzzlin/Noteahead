@@ -3421,9 +3421,14 @@ QString xmlValueDevice()
     return "device";
 }
 
-QString xmlValueMidiCc()
+QString xmlValueMidi()
 {
-    return "midiCc";
+    return "midi";
+}
+
+QString xmlValuePitchBendKey()
+{
+    return "pb";
 }
 
 QString xmlValueEffect()

@@ -346,9 +346,14 @@ void MidiService::stopAllNotes()
     }
 }
 
-void MidiService::sendPortCcData(const std::string & portName, quint8 channel, quint8 controller, quint8 value)
+void MidiService::sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, quint16 value)
 {
-    m_outputWorker->sendCcData(QString::fromStdString(portName), channel, controller, std::min<quint8>(value, 127));
+    if (controller) {
+        m_outputWorker->sendCcData(QString::fromStdString(portName), channel, *controller, static_cast<quint8>(std::min<quint16>(value, 127)));
+    } else {
+        const PitchBendData data { 0, 0, std::min<uint16_t>(value, 16383) };
+        m_outputWorker->sendPitchBendData(QString::fromStdString(portName), channel, data.msb(), data.lsb());
+    }
 }
 
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)

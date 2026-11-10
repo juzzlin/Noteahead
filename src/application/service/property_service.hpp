@@ -90,10 +90,11 @@ public:
     void setMidiDestinationResolver(MidiDestinationResolver resolver);
 
     //! What a modulator -- the LFO device, the XY pad -- can move: everything automationTargets()
-    //! lists, then the MIDI controllers of every port and channel the song plays, as owner
-    //! "midiCc", the port as ownerId, a label, and the controllers as parameters keyed by
-    //! ParameterAutomation::Target::midiCcKey(). Kept apart from automationTargets() because a
-    //! parameter automation never aims at a controller: a MIDI CC automation does that.
+    //! lists, then the pitch bend and the MIDI controllers of every port and channel the song
+    //! plays, as owner "midi", the port as ownerId, a label, and those as parameters keyed by
+    //! ParameterAutomation::Target::midiPitchBendKey() and midiCcKey(). Kept apart from
+    //! automationTargets() because a parameter automation never aims at a controller: a MIDI CC
+    //! or pitch bend automation does that.
     Q_INVOKABLE QVariantList modulationTargets() const;
 
 private:

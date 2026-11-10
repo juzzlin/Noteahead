@@ -51,6 +51,11 @@ private slots:
     void test_xmlSerialization_midiCcTarget_shouldRestoreTheRange();
     void test_engine_padOnInternalMidiCc_shouldReachTheDeviceThroughItsMappings();
     void test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAndEndAtTheCentre();
+    void test_midiPitchBendTarget_key_shouldRoundTripTheAddress();
+    void test_midiPitchBendTarget_value_shouldCentreOnNoBend();
+    void test_engine_padOnInternalPitchBend_shouldBendTheDevice();
+    void test_engine_padOnExternalPitchBend_shouldReturnToTheCentre();
+    void test_engine_pitchBendLetGo_shouldSendTheCentre();
     void test_engine_render_shouldSendNothingToExternalGear();
 };
 

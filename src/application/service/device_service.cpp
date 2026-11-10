@@ -333,14 +333,22 @@ std::vector<std::string> DeviceService::rankModulationParameters(const std::vect
 std::vector<std::string> DeviceService::suggestedModulationParameters(ParameterAutomation::Target::Owner owner, const std::string & ownerId, const std::vector<std::string> & candidates, size_t count, const std::vector<ParameterAutomation::Target> & ignored) const
 {
     std::vector<std::string> priority;
+    auto choosable = candidates;
+    if (owner == ParameterAutomation::Target::Owner::Midi) {
+        std::erase_if(choosable, [&](auto && key) {
+            const auto address = ParameterAutomation::Target { owner, ownerId, key }.midiAddress();
+            return address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend;
+        });
+    }
     if (owner == ParameterAutomation::Target::Owner::Device) {
         if (const auto device = findDevice(ownerId); device) {
             priority = device->modulationPriority();
         }
-    } else if (owner == ParameterAutomation::Target::Owner::MidiCc) {
-        // Cutoff and resonance, the pair a pad is classically swept over, then the mod wheel
-        if (!candidates.empty()) {
-            if (const auto address = ParameterAutomation::Target { owner, ownerId, candidates.front() }.midiCcAddress(); address) {
+    } else if (owner == ParameterAutomation::Target::Owner::Midi) {
+        // Cutoff and resonance, the pair a pad is classically swept over, then the mod wheel. Never
+        // the pitch bend: bending a whole instrument is not something to pick for anyone
+        if (!choosable.empty()) {
+            if (const auto address = ParameterAutomation::Target { owner, ownerId, choosable.front() }.midiAddress(); address) {
                 for (auto && controller : { MidiCcMapping::Controller::SoundController5, MidiCcMapping::Controller::SoundController2, MidiCcMapping::Controller::ModulationWheelMSB }) {
                     priority.push_back(ParameterAutomation::Target::midiCcKey(address->channel, static_cast<uint8_t>(controller)));
                 }
@@ -349,7 +357,7 @@ std::vector<std::string> DeviceService::suggestedModulationParameters(ParameterA
     } else if (const auto effect = findEffect(ownerId); effect) {
         priority = effect->modulationPriority();
     }
-    return rankModulationParameters(priority, candidates, count, [&](const std::string & key) {
+    return rankModulationParameters(priority, choosable, count, [&](const std::string & key) {
         const ParameterAutomation::Target target { owner, ownerId, key };
         const auto ignoredCount = std::ranges::count_if(ignored, [&target](auto && other) { return other.isSameDestination(target); });
         return modulationSourceCount(target) > static_cast<size_t>(ignoredCount);

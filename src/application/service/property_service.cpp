@@ -204,14 +204,19 @@ QVariantList PropertyService::modulationTargets() const
     if (!m_midiDestinationResolver) {
         return targets;
     }
-    const auto owner = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::MidiCc);
+    const auto owner = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::Midi);
     for (auto && destination : m_midiDestinationResolver()) {
         const auto port = QString::fromStdString(destination.port);
         QStringList tracks;
         for (auto && name : destination.trackNames) {
             tracks << QString::fromStdString(name);
         }
-        QVariantList parameters;
+        // Pitch bend first, apart from the controllers below it
+        QVariantList parameters {
+            QVariantMap {
+              { "key", QString::fromStdString(ParameterAutomation::Target::midiPitchBendKey(destination.channel)) },
+              { "label", QCoreApplication::translate("PropertyService", "Pitch Bend") } }
+        };
         for (auto && controller : getAvailableMidiControllers(port)) {
             const auto map = controller.toMap();
             // Channel mode messages are not controls a modulator could sweep
@@ -225,7 +230,7 @@ QVariantList PropertyService::modulationTargets() const
         map["owner"] = owner;
         map["ownerId"] = port;
         map["channel"] = static_cast<int>(destination.channel);
-        map["label"] = QCoreApplication::translate("PropertyService", "MIDI CC: %1, channel %2 (%3)").arg(port).arg(destination.channel + 1).arg(tracks.join(", "));
+        map["label"] = QCoreApplication::translate("PropertyService", "MIDI: %1, channel %2 (%3)").arg(port).arg(destination.channel + 1).arg(tracks.join(", "));
         map["parameters"] = std::move(parameters);
         targets.push_back(map);
     }

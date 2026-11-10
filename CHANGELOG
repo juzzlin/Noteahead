@@ -27,7 +27,7 @@ New features:
 * Live recording of the controller keyboard's CCs and pitch bend as drawn automations
   - Sustain pedal steps on the nearest line
 
-* XY Pad and LFO can move MIDI CCs of external gear and internal devices
+* XY Pad and LFO can move MIDI CCs and pitch bend of external gear and internal devices
   - Min/Max per target, and a rate cap in Settings => MIDI
 
 Bug fixes:
@@ -40,6 +40,7 @@ Other:
 * Device rack holds 32 devices instead of 16
 * LPF and HPF on the Noise FX Synth output
 * Settings => MIDI: choose whether recorded notes take VEL or the played velocity
+* XY Pad Return defaults to 70 ms
 * Mod wheel (CC 1) on every instrument, adding to the patch without moving its knob
   - Electric Bass: finger vibrato
 

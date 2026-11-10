@@ -45,10 +45,11 @@ ColumnLayout {
         ownerId: root.pad.xTargetOwnerId
         parameter: root.pad.xTargetParameter
         shared: root.pad.xTargetShared
-        ccMin: root.pad.xCcMin
-        ccMax: root.pad.xCcMax
-        onCcMinChosen: value => root.pad.xCcMin = value
-        onCcMaxChosen: value => root.pad.xCcMax = value
+        pitchBend: root.pad.xPitchBend
+        midiMin: root.pad.xMidiMin
+        midiMax: root.pad.xMidiMax
+        onMidiMinChosen: value => root.pad.xMidiMin = value
+        onMidiMaxChosen: value => root.pad.xMidiMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(0, owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(0, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(0)
@@ -60,10 +61,11 @@ ColumnLayout {
         ownerId: root.pad.yTargetOwnerId
         parameter: root.pad.yTargetParameter
         shared: root.pad.yTargetShared
-        ccMin: root.pad.yCcMin
-        ccMax: root.pad.yCcMax
-        onCcMinChosen: value => root.pad.yCcMin = value
-        onCcMaxChosen: value => root.pad.yCcMax = value
+        pitchBend: root.pad.yPitchBend
+        midiMin: root.pad.yMidiMin
+        midiMax: root.pad.yMidiMax
+        onMidiMinChosen: value => root.pad.yMidiMin = value
+        onMidiMaxChosen: value => root.pad.yMidiMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.pad.setTarget(1, owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.pad.chooseTargetOwner(1, owner, ownerId, parameters)
         onTargetCleared: root.pad.clearTarget(1)
@@ -76,7 +78,7 @@ ColumnLayout {
         Knob {
             label: qsTr("X Depth")
             // A controller goes between its Min and Max instead
-            enabled: root.pad.xTargetOwner !== "midiCc"
+            enabled: root.pad.xTargetOwner !== "midi"
             mapping: "swing"
             mapMax: 50
             value: root.pad.xDepth
@@ -87,7 +89,7 @@ ColumnLayout {
         Knob {
             label: qsTr("Y Depth")
             // A controller goes between its Min and Max instead
-            enabled: root.pad.yTargetOwner !== "midiCc"
+            enabled: root.pad.yTargetOwner !== "midi"
             mapping: "swing"
             mapMax: 50
             value: root.pad.yDepth

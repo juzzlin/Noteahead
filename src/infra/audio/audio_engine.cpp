@@ -20,6 +20,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/parameter_automation_target.hpp"
 #include "real_time_worker_pool.hpp"
 
@@ -699,56 +700,79 @@ std::shared_ptr<ParameterAutomationTarget> AudioEngine::resolveModulationTarget(
     return resolved;
 }
 
-void AudioEngine::applyMidiCcStep(const Device * sourceDevice, const ModulationSource::Step & step)
+void AudioEngine::applyMidiStep(const Device * sourceDevice, const ModulationSource::Step & step)
 {
-    const auto sent = std::ranges::find_if(m_sentMidiCcs, [&](auto && entry) { return entry.device == sourceDevice && entry.slot == step.slot && entry.target.isSameDestination(step.target); });
-    // Let go of: a controller has no setting to return to, so it stays where it was last sent
+    const auto sent = std::ranges::find_if(m_sentMidi, [&](auto && entry) { return entry.device == sourceDevice && entry.slot == step.slot && entry.target.isSameDestination(step.target); });
+    // Let go of: a controller has no setting to return to, so it stays where it was last sent, but
+    // a pitch bend goes back to its centre
     if (!step.mode) {
-        if (sent != m_sentMidiCcs.end()) {
-            m_sentMidiCcs.erase(sent);
+        if (sent != m_sentMidi.end()) {
+            centrePitchBend(sent->target, sent->value, step.frame);
+            m_sentMidi.erase(sent);
         }
         return;
     }
-    const auto address = step.target.midiCcAddress();
+    const auto address = step.target.midiAddress();
     if (!address) {
         return;
     }
     // The bottom of the source's swing to its top, whatever the modulation mode: Min and Max
     // say how far it goes, so there is no setting for it to swing around
-    const auto value = step.target.midiCcValue((std::clamp(step.source, -1.0, 1.0) + 1.0) * 0.5);
-    if (sent != m_sentMidiCcs.end()) {
+    const auto value = step.target.midiValue((std::clamp(step.source, -1.0, 1.0) + 1.0) * 0.5);
+    if (sent != m_sentMidi.end()) {
         if (sent->value == value && sent->target == step.target) {
             return;
         }
         sent->value = value;
         sent->target = step.target;
     } else {
-        m_sentMidiCcs.push_back({ sourceDevice, step.slot, step.target, value });
+        m_sentMidi.push_back({ sourceDevice, step.slot, step.target, value });
     }
+    sendMidi(step.target, *address, value, step.frame);
+}
 
+void AudioEngine::sendMidi(const ParameterAutomation::Target & target, const ParameterAutomation::Target::MidiAddress & address, uint16_t value, uint64_t frame)
+{
+    const auto controller = address.message == ParameterAutomation::Target::MidiMessage::Cc ? std::optional { address.controller } : std::nullopt;
     for (auto && [slot, device] : m_devices) {
-        if (device && device->name() == step.target.ownerId) {
+        if (device && device->name() == target.ownerId) {
             Device::ScheduledModulation modulation;
-            modulation.frame = step.frame;
-            modulation.cc = Device::ScheduledModulation::Cc { address->controller, value, address->channel };
+            modulation.frame = frame;
+            modulation.midi = Device::ScheduledModulation::Midi { controller, value, address.channel };
             device->scheduleModulation(modulation);
             return;
         }
     }
     // External gear is not part of a render
     if (!m_isExclusive.load()) {
-        m_midiCcOutput.push(step.target.ownerId, address->channel, address->controller, value);
+        m_midiOutput.push(target.ownerId, address.channel, controller, value);
     }
 }
 
-MidiCcOutputQueue & AudioEngine::midiCcOutput()
+void AudioEngine::centrePitchBend(const ParameterAutomation::Target & target, uint16_t lastSent, uint64_t frame)
 {
-    return m_midiCcOutput;
+    if (const auto address = target.midiAddress(); address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend) {
+        if (const auto centre = PitchBendData { 0, 0, 0.0 }.value14(); lastSent != centre) {
+            sendMidi(target, *address, centre, frame);
+        }
+    }
+}
+
+MidiOutputQueue & AudioEngine::midiOutput()
+{
+    return m_midiOutput;
 }
 
 void AudioEngine::releaseModulationsOf(const Device * device)
 {
-    std::erase_if(m_sentMidiCcs, [device](auto && sent) { return sent.device == device; });
+    std::erase_if(m_sentMidi, [this, device](auto && sent) {
+        if (sent.device != device) {
+            return false;
+        }
+        // Not a render's frame: the device is leaving now
+        centrePitchBend(sent.target, sent.value, 0);
+        return true;
+    });
     for (auto && active : m_activeModulations) {
         if (active.device == device) {
             if (const auto target = resolveModulationTarget(active.target); target) {
@@ -780,8 +804,8 @@ void AudioEngine::evaluateModulation(const AudioContext & context)
         const size_t end = source + 1 < m_modulationSources.size() ? m_modulationSources.at(source + 1).second : m_modulationSteps.size();
         for (size_t i = begin; i < end; i++) {
             const auto & step = m_modulationSteps.at(i);
-            if (step.target.owner == ParameterAutomation::Target::Owner::MidiCc) {
-                applyMidiCcStep(sourceDevice, step);
+            if (step.target.owner == ParameterAutomation::Target::Owner::Midi) {
+                applyMidiStep(sourceDevice, step);
                 continue;
             }
             const auto target = resolveModulationTarget(step.target);
@@ -800,7 +824,7 @@ void AudioEngine::evaluateModulation(const AudioContext & context)
             // undone by a step queued earlier in the same block that is applied only as it renders
             if (step.target.owner == ParameterAutomation::Target::Owner::Device) {
                 if (const auto device = dynamic_cast<Device *>(target.get()); device) {
-                    device->scheduleModulation({ step.frame, &step.target.parameter, { sourceDevice, step.slot }, step.mode, step.source, step.depth });
+                    device->scheduleModulation({ step.frame, &step.target.parameter, { sourceDevice, step.slot }, step.mode, step.source, step.depth, std::nullopt });
                 }
             } else {
                 // An effect runs once per block, so only the last step of each slot on each target

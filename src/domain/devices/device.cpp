@@ -1017,8 +1017,12 @@ void Device::applyScheduledModulations(uint64_t frame)
     }
     // In the order queued, so that of two due at once from the same source the later one wins
     for (auto && modulation : m_scheduledModulations) {
-        if (modulation.frame <= frame && modulation.cc) {
-            processMidiCc(modulation.cc->controller, modulation.cc->value, modulation.cc->channel);
+        if (modulation.frame <= frame && modulation.midi) {
+            if (const auto & midi = *modulation.midi; midi.controller) {
+                processMidiCc(*midi.controller, static_cast<uint8_t>(midi.value), midi.channel);
+            } else {
+                processMidiPitchBend(midi.value, midi.channel);
+            }
         } else if (modulation.frame <= frame && modulation.key) {
             if (modulation.mode) {
                 applyParameterModulation(*modulation.key, modulation.sourceId, *modulation.mode, modulation.source, modulation.depth);

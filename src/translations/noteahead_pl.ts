@@ -7764,6 +7764,10 @@
         <translation>Co wysyła górny koniec wychylenia. Poniżej Min odwraca kierunek.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>Środek zakresu wygina o %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Brak celu</translation>
     </message>
@@ -10498,8 +10502,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC: %1, kanał %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI: %1, kanał %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11575,8 +11583,8 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <translation>Dotyczy nowych utworów. Można to nadpisać dla utworu w Utwór → Ustawienia lub dla kanału w ustawieniach ścieżki.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>Maks. tempo CC z XY Pad i LFO (na sekundę):</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>Maks. tempo MIDI z XY Pad i LFO (na sekundę):</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

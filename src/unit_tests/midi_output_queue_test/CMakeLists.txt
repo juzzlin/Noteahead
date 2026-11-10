@@ -1,5 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
-set(NAME midi_cc_output_queue_test)
+set(NAME midi_output_queue_test)
 set(SRC
 ${NAME}.cpp
     ${NAME}.hpp)

@@ -51,10 +51,11 @@ ColumnLayout {
         ownerId: root.lfo.targetOwnerId
         parameter: root.lfo.targetParameter
         shared: root.lfo.targetShared
-        ccMin: root.lfo.ccMin
-        ccMax: root.lfo.ccMax
-        onCcMinChosen: value => root.lfo.ccMin = value
-        onCcMaxChosen: value => root.lfo.ccMax = value
+        pitchBend: root.lfo.pitchBend
+        midiMin: root.lfo.midiMin
+        midiMax: root.lfo.midiMax
+        onMidiMinChosen: value => root.lfo.midiMin = value
+        onMidiMaxChosen: value => root.lfo.midiMax = value
         onTargetChosen: (owner, ownerId, parameter) => root.lfo.setTarget(owner, ownerId, parameter)
         onOwnerChosen: (owner, ownerId, parameters) => root.lfo.chooseTargetOwner(owner, ownerId, parameters)
         onTargetCleared: root.lfo.clearTarget()
@@ -125,7 +126,7 @@ ColumnLayout {
         Knob {
             label: qsTr("Depth")
             // A controller goes between its Min and Max instead
-            enabled: root.lfo.targetOwner !== "midiCc"
+            enabled: root.lfo.targetOwner !== "midi"
             // Bipolar swings half the depth either way of the setting, so it reads as that swing
             mapping: root.lfo.modulationMode === 0 ? "swing" : "linear"
             mapMax: root.lfo.modulationMode === 0 ? 50 : to

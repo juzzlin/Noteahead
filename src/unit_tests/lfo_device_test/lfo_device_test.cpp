@@ -353,10 +353,18 @@ void LfoDeviceTest::test_lfoLed_shouldFollowTheShape()
 void LfoDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
 {
     LfoDevice original { "LFO" };
-    ParameterAutomation::Target target { ParameterAutomation::Target::Owner::MidiCc, "External", ParameterAutomation::Target::midiCcKey(4, 74) };
-    target.ccMin = 30;
-    target.ccMax = 90;
+    ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiCcKey(4, 74) };
+    target.midiMin = 30;
+    target.midiMax = 90;
     original.setTarget(1, target);
+    ParameterAutomation::Target bend { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiPitchBendKey(4) };
+    bend.midiMin = -50;
+    bend.midiMax = 25;
+    original.setTarget(2, bend);
+    ParameterAutomation::Target fullBend { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiPitchBendKey(5) };
+    fullBend.midiMin = -100;
+    fullBend.midiMax = 100;
+    original.setTarget(3, fullBend);
     const auto xml = toXml(original);
 
     LfoDevice restored { "LFO" };
@@ -365,6 +373,9 @@ void LfoDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
     }
     restored.deserializeFromXml(reader);
     QCOMPARE(restored.target(1), target);
+    QCOMPARE(restored.target(2), bend);
+    // Its whole range, though not written, is the pitch bend's and not a controller's
+    QCOMPARE(restored.target(3), fullBend);
 }
 
 } // namespace noteahead

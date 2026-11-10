@@ -992,7 +992,9 @@ QString xmlValueBool();
 QString xmlValueFloat();
 QString xmlValueSineWave();
 QString xmlValueDevice();
-QString xmlValueMidiCc();
+QString xmlValueMidi();
+//! The message part of a MIDI pitch bend target's key, as in "2:pb".
+QString xmlValuePitchBendKey();
 QString xmlValueEffect();
 QString xmlValueRelative();
 QString xmlValueRandom();

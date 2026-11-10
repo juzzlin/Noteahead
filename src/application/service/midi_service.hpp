@@ -93,9 +93,9 @@ public:
     virtual Q_INVOKABLE void seekDevicesToNoteIndex(const PortNoteCounts & counts);
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
-    //! Sends a CC straight to an output port, for a modulator aimed at external gear. Callable from
-    //! any thread.
-    void sendPortCcData(const std::string & portName, quint8 channel, quint8 controller, quint8 value);
+    //! Sends a CC, or a 14-bit pitch bend when there is no @p controller, straight to an output
+    //! port, for a modulator aimed at external gear. Callable from any thread.
+    void sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, quint16 value);
     //! Controller moves go the same way as the notes.
     //!
     //! Not merely for their own accuracy: a value written on the same line as a note has to reach

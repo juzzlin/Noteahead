@@ -7763,6 +7763,10 @@
         <translation>Lo que envía el extremo superior del recorrido. Por debajo de Min lo invierte.</translation>
     </message>
     <message>
+        <source>The middle of the swing bends by %1 %</source>
+        <translation>El centro del recorrido desafina un %1 %</translation>
+    </message>
+    <message>
         <source>Target missing</source>
         <translation>Falta el destino</translation>
     </message>
@@ -10497,8 +10501,12 @@
         <translation type="unfinished">Pad %1</translation>
     </message>
     <message>
-        <source>MIDI CC: %1, channel %2 (%3)</source>
-        <translation>MIDI CC: %1, canal %2 (%3)</translation>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>MIDI: %1, channel %2 (%3)</source>
+        <translation>MIDI: %1, canal %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -11573,8 +11581,8 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
         <translation>Se aplica a las canciones nuevas. Puedes anularlo por canción en Canción → Ajustes, o por canal en los ajustes de pista.</translation>
     </message>
     <message>
-        <source>Max CC rate from XY Pad and LFO (per second):</source>
-        <translation>Tasa máx. de CC del XY Pad y el LFO (por segundo):</translation>
+        <source>Max MIDI rate from XY Pad and LFO (per second):</source>
+        <translation>Tasa máx. de MIDI del XY Pad y el LFO (por segundo):</translation>
     </message>
     <message>
         <source>How many messages per second each controller of external gear the XY Pad or the LFO moves may be sent. Values in between are left out, never the last one.</source>

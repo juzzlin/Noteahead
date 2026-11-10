@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_CC_OUTPUT_QUEUE_HPP
-#define MIDI_CC_OUTPUT_QUEUE_HPP
+#ifndef MIDI_OUTPUT_QUEUE_HPP
+#define MIDI_OUTPUT_QUEUE_HPP
 
 #include <array>
 #include <atomic>
@@ -29,19 +29,20 @@
 
 namespace noteahead {
 
-//! Carries MIDI CC messages from the audio thread, where a modulator aimed at external gear makes
-//! them, to a thread of its own that hands them on to be sent.
+//! Carries MIDI CC and pitch bend messages from the audio thread, where a modulator aimed at
+//! external gear makes them, to a thread of its own that hands them on to be sent.
 //!
 //! The audio thread only writes to a fixed ring and wakes the sender, so it never waits on MIDI. The
-//! sender holds each controller to a maximum rate: of the values that come faster, the ones in
+//! sender holds each controller, and each channel's pitch bend, to a maximum rate: of the values that come faster, the ones in
 //! between are dropped, but never the last, which goes out as soon as the rate allows. A gesture
 //! therefore always ends where it was left, and a slow port is never flooded.
-class MidiCcOutputQueue
+class MidiOutputQueue
 {
 public:
     using Clock = std::chrono::steady_clock;
-    //! Sends one message: the port's name, the channel 0 to 15, the controller and the value.
-    using Sender = std::function<void(const std::string & port, uint8_t channel, uint8_t controller, uint8_t value)>;
+    //! Sends one message: the port's name, the channel 0 to 15, the controller, or nothing for a
+    //! pitch bend, and the value: 0 to 127 for a CC, 0 to 16383 for a pitch bend.
+    using Sender = std::function<void(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value)>;
 
     //! How many messages fit between two wakeups of the sender.
     static constexpr size_t Capacity { 1024 };
@@ -49,28 +50,29 @@ public:
     static constexpr size_t MaxPorts { 64 };
     static constexpr int DefaultMaxRate { 100 };
 
-    MidiCcOutputQueue();
-    ~MidiCcOutputQueue();
+    MidiOutputQueue();
+    ~MidiOutputQueue();
 
-    MidiCcOutputQueue(const MidiCcOutputQueue &) = delete;
-    MidiCcOutputQueue & operator=(const MidiCcOutputQueue &) = delete;
+    MidiOutputQueue(const MidiOutputQueue &) = delete;
+    MidiOutputQueue & operator=(const MidiOutputQueue &) = delete;
 
     void setSender(Sender sender);
-    //! Messages per second per controller, at least 1.
+    //! Messages per second per controller or pitch bend, at least 1.
     void setMaxRate(int messagesPerSecond);
     int maxRate() const;
 
     //! Queues a message. For the audio thread: never blocks, and allocates only the first time it
     //! sees a port. False when the ring or the port table is full and the message was dropped.
-    bool push(const std::string & port, uint8_t channel, uint8_t controller, uint8_t value);
+    //! @p controller is nothing for a pitch bend.
+    bool push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value);
 
 private:
     struct Message
     {
         uint16_t port {};
         uint8_t channel {};
-        uint8_t controller {};
-        uint8_t value {};
+        std::optional<uint8_t> controller;
+        uint16_t value {};
     };
 
     std::optional<uint16_t> portIndex(const std::string & port);
@@ -96,4 +98,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_CC_OUTPUT_QUEUE_HPP
+#endif // MIDI_OUTPUT_QUEUE_HPP

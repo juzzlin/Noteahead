@@ -161,63 +161,80 @@ bool XyPadPanelController::yTargetShared() const
     return targetShared(1);
 }
 
-int XyPadPanelController::ccEnd(int axis, bool top) const
+int XyPadPanelController::midiEnd(int axis, bool top) const
 {
     const auto device = m_owner.xyPadDevice();
     if (!device) {
         return top ? 127 : 0;
     }
     const auto target = device->target(m_index, toAxis(axis));
-    return top ? target.ccMax : target.ccMin;
+    return top ? target.midiMax : target.midiMin;
 }
 
-void XyPadPanelController::setCcEnd(int axis, bool top, int value)
+bool XyPadPanelController::isPitchBend(int axis) const
+{
+    const auto device = m_owner.xyPadDevice();
+    const auto address = device ? device->target(m_index, toAxis(axis)).midiAddress() : std::nullopt;
+    return address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend;
+}
+
+bool XyPadPanelController::xPitchBend() const
+{
+    return isPitchBend(0);
+}
+
+bool XyPadPanelController::yPitchBend() const
+{
+    return isPitchBend(1);
+}
+
+void XyPadPanelController::setMidiEnd(int axis, bool top, int value)
 {
     if (const auto device = m_owner.xyPadDevice(); device) {
         auto target = device->target(m_index, toAxis(axis));
-        (top ? target.ccMax : target.ccMin) = static_cast<uint8_t>(std::clamp(value, 0, 127));
+        target.setMidiRange(top ? target.midiMin : value, top ? value : target.midiMax);
         device->setTarget(m_index, toAxis(axis), std::move(target));
     }
 }
 
-int XyPadPanelController::xCcMin() const
+int XyPadPanelController::xMidiMin() const
 {
-    return ccEnd(0, false);
+    return midiEnd(0, false);
 }
 
-void XyPadPanelController::setXCcMin(int value)
+void XyPadPanelController::setXMidiMin(int value)
 {
-    setCcEnd(0, false, value);
+    setMidiEnd(0, false, value);
 }
 
-int XyPadPanelController::xCcMax() const
+int XyPadPanelController::xMidiMax() const
 {
-    return ccEnd(0, true);
+    return midiEnd(0, true);
 }
 
-void XyPadPanelController::setXCcMax(int value)
+void XyPadPanelController::setXMidiMax(int value)
 {
-    setCcEnd(0, true, value);
+    setMidiEnd(0, true, value);
 }
 
-int XyPadPanelController::yCcMin() const
+int XyPadPanelController::yMidiMin() const
 {
-    return ccEnd(1, false);
+    return midiEnd(1, false);
 }
 
-void XyPadPanelController::setYCcMin(int value)
+void XyPadPanelController::setYMidiMin(int value)
 {
-    setCcEnd(1, false, value);
+    setMidiEnd(1, false, value);
 }
 
-int XyPadPanelController::yCcMax() const
+int XyPadPanelController::yMidiMax() const
 {
-    return ccEnd(1, true);
+    return midiEnd(1, true);
 }
 
-void XyPadPanelController::setYCcMax(int value)
+void XyPadPanelController::setYMidiMax(int value)
 {
-    setCcEnd(1, true, value);
+    setMidiEnd(1, true, value);
 }
 
 void XyPadPanelController::setTarget(int axis, const QString & owner, const QString & ownerId, const QString & parameter)
