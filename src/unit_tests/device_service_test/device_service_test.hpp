@@ -55,6 +55,7 @@ private slots:
     void test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame();
     void test_scheduleParameterChange_relative_shouldScaleTheKnob();
     void test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob();
+    void test_modulationWheel_everyDevice_shouldOpenItsTargetUnderTheKnob();
     void test_scheduleSideChainCc_notSideChain_shouldBeLeftToTheCcPath();
     void test_clearAutomation_shouldRestoreAutomatedEffects();
     void test_copyDevice_differentType_shouldReplaceTargetDevice();

@@ -740,4 +740,9 @@ std::vector<std::string> StringEnsembleDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> StringEnsembleDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLpfCutoff().toStdString() };
+}
+
 } // namespace noteahead

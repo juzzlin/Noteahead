@@ -905,4 +905,9 @@ std::vector<std::string> SnareSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> SnareSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyTone().toStdString() };
+}
+
 } // namespace noteahead

@@ -749,4 +749,9 @@ std::vector<std::string> BassSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> BassSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLpfCutoff().toStdString() };
+}
+
 } // namespace noteahead

@@ -629,4 +629,9 @@ std::vector<std::string> PianoSynthV3Device::modulationPriority() const
     };
 }
 
+std::vector<std::string> PianoSynthV3Device::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyBrightness().toStdString() };
+}
+
 } // namespace noteahead

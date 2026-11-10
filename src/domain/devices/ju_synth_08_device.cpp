@@ -1548,4 +1548,9 @@ std::vector<std::string> JuSynth08Device::modulationPriority() const
     };
 }
 
+std::vector<std::string> JuSynth08Device::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyPitchLfoDepth().toStdString() };
+}
+
 } // namespace noteahead

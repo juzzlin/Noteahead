@@ -2526,16 +2526,25 @@ void SynthTest::test_midiCcResonanceReset_shouldRestoreManualValue()
     QCOMPARE(synth.lpfResonance(), 0.3f);
 }
 
-void SynthTest::test_midiCcModWheel_shouldOverrideLfoIntensity()
+void SynthTest::test_midiCcModWheel_shouldOpenLfoIntensityFromTheKnob()
 {
     SynthDevice synth { "Test Synth" };
-    synth.setLfoInt(0.0f);
+    // Parameter value 0.5 maps to 0.0 intensity via the cubic centered mapping
+    synth.setLfoInt(0.5f);
+    const auto key = Constants::NahdXml::xmlKeyLfoIntensity().toStdString();
 
     synth.processMidiCc(1, 127, 0);
     QCOMPARE(synth.lfoInt(), 1.0f);
 
+    // Halfway up the wheel is halfway from the knob to the top, under a knob that stays put
     synth.processMidiCc(1, 64, 0);
-    QCOMPARE(synth.lfoInt(), 64.0f / 127.0f);
+    QVERIFY(std::abs(synth.parameter(key)->get().value() - (0.5f + 0.5f * 64.0f / 127.0f)) < 1.0e-5f);
+    QCOMPARE(synth.parameter(key)->get().shownValue(), 0.5f);
+    QVERIFY(synth.lfoInt() > 0.0f && synth.lfoInt() < 1.0f);
+
+    // At rest the patch plays as set
+    synth.processMidiCc(1, 0, 0);
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
 }
 
 void SynthTest::test_midiCcModWheelReset_shouldRestoreLfoIntensity()

@@ -25,6 +25,7 @@
 #include "../dsp/drum/tom_engine.hpp"
 #include "drum_pad_device.hpp"
 
+#include <optional>
 #include <string>
 
 namespace noteahead {

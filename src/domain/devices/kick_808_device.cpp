@@ -450,4 +450,9 @@ std::vector<std::string> Kick808Device::modulationPriority() const
     };
 }
 
+std::vector<std::string> Kick808Device::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyTone().toStdString() };
+}
+
 } // namespace noteahead

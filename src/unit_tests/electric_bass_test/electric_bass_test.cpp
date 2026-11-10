@@ -21,6 +21,7 @@
 #include "../../domain/devices/electric_bass_presets.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/modal_bass_string.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QTest>
 
@@ -220,6 +221,42 @@ void ElectricBassTest::test_device_pitchBend_shouldRaiseThePitch()
     renderDevice(device, 1.0, x);
     // Two semitones up by default
     QVERIFY(std::abs(pitchHz(x, 0.3, 1.0, noteHz(42)) - noteHz(40) * std::exp2(2.0 * 8191.0 / 8192.0 / 12.0)) < 1.0);
+}
+
+void ElectricBassTest::test_device_modulationWheel_shouldVibrateUpFromTheNote_data()
+{
+    QTest::addColumn<int>("wheel");
+    QTest::addColumn<double>("minSpreadCents");
+    QTest::addColumn<double>("maxSpreadCents");
+    QTest::newRow("at rest") << 0 << 0.0 << 5.0;
+    QTest::newRow("full") << 127 << 20.0 << 45.0;
+}
+
+void ElectricBassTest::test_device_modulationWheel_shouldVibrateUpFromTheNote()
+{
+    QFETCH(int, wheel);
+    QFETCH(double, minSpreadCents);
+    QFETCH(double, maxSpreadCents);
+
+    ElectricBassDevice device { "Bass" };
+    device.processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB), static_cast<uint8_t>(wheel), 0);
+    device.processMidiNoteOn(52, 100);
+    std::vector<double> x;
+    renderDevice(device, 1.4, x);
+
+    // Short windows, a quarter of a vibrato cycle each, to follow the swing
+    const double nominal = noteHz(52);
+    double lowest = 1.0e9;
+    double highest = 0.0;
+    for (double from = 0.3; from < 1.3; from += 0.025) {
+        const double cents = 1200.0 * std::log2(pitchHz(x, from, from + 0.05, nominal) / nominal);
+        lowest = std::min(lowest, cents);
+        highest = std::max(highest, cents);
+    }
+    const double spread = highest - lowest;
+    QVERIFY2(spread >= minSpreadCents && spread <= maxSpreadCents, qPrintable(QString::number(spread)));
+    // A fretted string is only ever pushed sharp
+    QVERIFY2(lowest > -5.0, qPrintable(QString::number(lowest)));
 }
 
 void ElectricBassTest::test_device_octave_up_shouldPlayAnOctaveHigher()

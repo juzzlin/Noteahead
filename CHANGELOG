@@ -31,6 +31,8 @@ Other:
 * Device rack holds 32 devices instead of 16
 * LPF and HPF on the Noise FX Synth output
 * Settings => MIDI: choose whether recorded notes take VEL or the played velocity
+* Mod wheel (CC 1) on every instrument, adding to the patch without moving its knob
+  - Electric Bass: finger vibrato
 
 12.0.0
 ======

@@ -28,6 +28,7 @@
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace noteahead {
@@ -43,6 +44,7 @@ public:
     std::string typeName() const override;
     std::string typeId() const override;
     std::vector<std::string> modulationPriority() const override;
+    std::vector<std::string> modulationWheelTargets() const override;
 
     std::vector<MidiCcController> deviceMidiCcControllers() const override;
 

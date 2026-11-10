@@ -1616,8 +1616,8 @@ void SamplerTest::test_availableMidiCcControllers_shouldListGlobalsAndAllPads()
 
     const auto controllers = sampler.availableMidiCcControllers();
 
-    // Fader + Pan + LPF + HPF + Expression + (16 pads * 4 CCs per pad)
-    QCOMPARE(controllers.size(), size_t { 5 + SamplerDevice::padCount * 4 });
+    // Fader + Pan + LPF + HPF + Mod Wheel + Expression + (16 pads * 4 CCs per pad)
+    QCOMPARE(controllers.size(), size_t { 6 + SamplerDevice::padCount * 4 });
 
     // An unknown number yields a default-constructed entry, which fails the comparisons below
     const auto byNumber = [&controllers](int number) -> MidiCcController {
@@ -2748,6 +2748,21 @@ void SamplerTest::test_applyParameterAutomation_padCutoff_shouldReachASoundingNo
     render(*sampler, 2048);
     const double closed = rms(render(*sampler, 2048));
     QVERIFY2(closed < open * 0.1, qPrintable(QString { "%1 -> %2" }.arg(open).arg(closed)));
+}
+
+void SamplerTest::test_modulationWheel_pads_shouldOpenTheFilterUnderTheKnob()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleCutoff(60, 0.3f);
+    const auto cutoff = [&sampler] { return sampler->sample(60)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString())->get().value(); };
+
+    sampler->processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB), 127, 0);
+    QVERIFY(std::abs(cutoff() - 1.0f) < 1.0e-5f);
+    // The knob stays where it was set
+    QVERIFY(std::abs(sampler->sampleCutoff(60) - 0.3f) < 1.0e-5f);
+
+    sampler->processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, 0);
+    QVERIFY(std::abs(cutoff() - 0.3f) < 1.0e-5f);
 }
 
 } // namespace noteahead

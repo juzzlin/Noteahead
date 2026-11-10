@@ -1021,4 +1021,9 @@ std::vector<std::string> SpeechDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> SpeechDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyVibratoDepth().toStdString() };
+}
+
 } // namespace noteahead

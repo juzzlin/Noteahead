@@ -50,6 +50,8 @@ public:
     std::string category() const override;
 
     std::vector<MidiCcController> deviceMidiCcControllers() const override;
+    //! Every pad's filter cutoff, so the wheel opens up the whole kit
+    std::vector<std::string> modulationWheelTargets() const override;
     //! Every drum's described parameters, grouped by drum.
     AutomatableParameterList automatableParameters() const override;
 

@@ -20,6 +20,7 @@
 #include "drum_pad_device.hpp"
 #include "fm_drums_presets.hpp"
 
+#include <optional>
 #include <string>
 
 namespace noteahead {

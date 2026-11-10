@@ -935,4 +935,14 @@ std::vector<std::string> DrumSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> DrumSynthDevice::modulationWheelTargets() const
+{
+    // Every drum's filter, so the wheel opens up the whole kit
+    std::vector<std::string> targets;
+    for (int voice = 0; voice < DrumSynth::NumVoices; voice++) {
+        targets.push_back(DrumSynth::voiceId(voice) + "_" + Constants::NahdXml::xmlKeyCutoff().toStdString());
+    }
+    return targets;
+}
+
 } // namespace noteahead

@@ -1111,4 +1111,9 @@ std::vector<std::string> StringVoiceV3Device::modulationPriority() const
     };
 }
 
+std::vector<std::string> StringVoiceV3Device::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyVibratoDepth().toStdString() };
+}
+
 } // namespace noteahead

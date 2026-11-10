@@ -578,4 +578,9 @@ std::vector<std::string> KickSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> KickSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyDecay().toStdString() };
+}
+
 } // namespace noteahead

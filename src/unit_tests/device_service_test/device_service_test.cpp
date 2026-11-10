@@ -21,9 +21,11 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/gain.hpp"
@@ -38,6 +40,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <set>
 #include <thread>
 
 #include <QBuffer>
@@ -639,6 +642,56 @@ void DeviceServiceTest::test_scheduleParameterChange_device_shouldApplyInTheBloc
     // Relative leaves the knob at the value it scales
     QVERIFY(std::abs(synth->lpfCutoff() - 0.8f) < 1.0e-6f);
     QCOMPARE(synth->parameter(key)->get().authoredValue(), 0.8f);
+}
+
+void DeviceServiceTest::test_modulationWheel_everyDevice_shouldOpenItsTargetUnderTheKnob()
+{
+    const auto wheel = static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB);
+    const auto resetAll = static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers);
+    // They play no notes, so there is no wheel to play them with
+    const std::set<std::string> withoutWheel { SubMixerDevice::typeIdString(), LfoDevice::typeIdString(), XyPadDevice::typeIdString() };
+
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "WheelTest");
+        const auto controllers = device->availableMidiCcControllers();
+        const bool listed = std::ranges::any_of(controllers, [wheel](auto && controller) { return controller.number == wheel; });
+        QVERIFY2(listed != withoutWheel.contains(typeId), device->typeName().c_str());
+
+        const auto targets = device->modulationWheelTargets();
+        if (targets.empty()) {
+            continue; // Takes CC 1 itself, or has no use for it
+        }
+        const float knob = 0.3f;
+        for (auto && target : targets) {
+            const auto p = device->parameter(target);
+            QVERIFY2(p && p->get().type() == Parameter::Type::Continuous, (device->typeName() + ": " + target).c_str());
+            p->get().setValue(knob);
+        }
+        const auto valueOf = [&device](const std::string & key) { return device->parameter(key)->get().value(); };
+
+        device->processMidiCc(wheel, 127, 0);
+        for (auto && target : targets) {
+            // Full wheel opens it all the way, under a knob that stays where it was set
+            QVERIFY2(std::abs(valueOf(target) - 1.0f) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+            QCOMPARE(device->parameter(target)->get().shownValue(), knob);
+        }
+
+        device->processMidiCc(wheel, 64, 0);
+        for (auto && target : targets) {
+            QVERIFY(std::abs(valueOf(target) - (knob + 64.0f / 127.0f * (1.0f - knob))) < 1.0e-5f);
+        }
+
+        device->processMidiCc(resetAll, 127, 0);
+        for (auto && target : targets) {
+            QVERIFY2(std::abs(valueOf(target) - knob) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+        }
+
+        device->processMidiCc(wheel, 127, 0);
+        device->processMidiCc(wheel, 0, 0);
+        for (auto && target : targets) {
+            QVERIFY2(std::abs(valueOf(target) - knob) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+        }
+    }
 }
 
 void DeviceServiceTest::test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob()

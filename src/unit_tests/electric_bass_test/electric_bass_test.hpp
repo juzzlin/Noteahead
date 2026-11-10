@@ -34,6 +34,8 @@ private slots:
     void test_device_noteOn_overlapping_shouldPlayLegatoOnTheSameString();
     void test_device_noteOff_legato_shouldPullOffToTheHeldNote();
     void test_device_pitchBend_shouldRaiseThePitch();
+    void test_device_modulationWheel_shouldVibrateUpFromTheNote_data();
+    void test_device_modulationWheel_shouldVibrateUpFromTheNote();
     void test_device_octave_up_shouldPlayAnOctaveHigher();
     void test_device_lpfCutoff_closed_shouldQuietenTheNote();
     void test_presets_every_shouldPeakNearInit();

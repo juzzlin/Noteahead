@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace noteahead {
 
@@ -191,6 +192,10 @@ std::vector<MidiCcController> Device::deviceMidiCcControllers() const
 std::vector<MidiCcController> Device::availableMidiCcControllers() const
 {
     auto controllers = deviceMidiCcControllers();
+    const auto wheel = static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB);
+    if (!modulationWheelTargets().empty() && std::ranges::none_of(controllers, [wheel](auto && controller) { return controller.number == wheel; })) {
+        controllers.push_back({ wheel, "Mod Wheel" });
+    }
     controllers.push_back(expressionMidiCcController());
     return controllers;
 }
@@ -268,13 +273,69 @@ bool Device::producesAudio() const
 
 void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
-    if (controller == static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB)) {
+    using MidiCcMapping::Controller;
+    if (controller == static_cast<uint8_t>(Controller::ExpressionControllerMSB)) {
         if (updateExpressionParameter(static_cast<float>(value) / 127.0f, false)) {
             emit parametersChanged();
         }
         return;
     }
+    if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) {
+        if (const auto targets = modulationWheelTargets(); !targets.empty()) {
+            applyModulationWheel(targets, value);
+            return;
+        }
+    } else if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
+        clearModulationWheel();
+    }
     processDeviceMidiCc(controller, value, channel);
+}
+
+std::vector<std::string> Device::modulationWheelTargets() const
+{
+    return {};
+}
+
+namespace {
+//! The modulation wheel's own source on its device, apart from the LFO and XY pad slots
+constexpr size_t ModulationWheelSlot = std::numeric_limits<size_t>::max();
+} // namespace
+
+void Device::applyModulationWheel(const std::vector<std::string> & keys, uint8_t value)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    const auto source = modulationWheelSource();
+    for (auto && key : keys) {
+        const auto p = parameter(key);
+        if (!p || p->get().type() != Parameter::Type::Continuous) {
+            continue;
+        }
+        if (value == 0) {
+            p->get().clearModulation(source);
+        } else {
+            p->get().setModulatedValue(source, modulationWheelValue(p->get().unmodulatedValue(), value));
+        }
+        // Not signalled: CCs arrive on the audio thread, and the knob does not move anyway
+        syncAutomatedParameter(key);
+    }
+}
+
+void Device::clearModulationWheel()
+{
+    for (auto && key : modulationWheelTargets()) {
+        clearParameterModulation(key, modulationWheelSource());
+    }
+}
+
+ModulationSourceId Device::modulationWheelSource() const
+{
+    return { this, ModulationWheelSlot };
+}
+
+float Device::modulationWheelValue(float base, uint8_t value)
+{
+    // From the knob towards the top of the travel, so at rest the patch plays as set
+    return base + static_cast<float>(value) / 127.0f * (1.0f - base);
 }
 
 void Device::serializeToXml(ProjectWriter & writer) const
@@ -648,6 +709,7 @@ void Device::setBpm(float bpm)
 
 void Device::reset()
 {
+    clearModulationWheel();
     ParameterContainer::reset();
     syncParameters();
     m_insertEffectRack.reset();

@@ -499,4 +499,9 @@ std::vector<std::string> Kick909Device::modulationPriority() const
     };
 }
 
+std::vector<std::string> Kick909Device::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyDecay().toStdString() };
+}
+
 } // namespace noteahead

@@ -447,7 +447,6 @@ std::vector<MidiCcController> SynthDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
-        { static_cast<uint8_t>(Controller::ModulationWheelMSB), "LFO Int" },
         faderMidiCcController(),
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
         { static_cast<uint8_t>(Controller::SoundController2), "Resonance" },
@@ -1032,20 +1031,9 @@ void SynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
-            // The LFO intensity rides on the modulation wheel and never reaches a parameter, so it
-            // has to be put back from the one it belongs to by hand.
-            if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
-                if (const auto restored = static_cast<float>(ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0)); std::abs(restored - m_lfoInt) > 0.0001f) {
-                    m_lfoInt = restored;
-                    changed = true;
-                }
-            }
         } else {
             const float val = static_cast<float>(value) / 127.0f;
-            if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) { // LFO intensity (temporary, not saved to param)
-                m_lfoInt = val;
-                changed = true;
-            } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
+            if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
                 changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
@@ -3325,6 +3313,11 @@ std::vector<std::string> SynthDevice::modulationPriority() const
         NahdXml::xmlKeyHpfCutoff().toStdString(),
         NahdXml::xmlKeyPanSpread().toStdString()
     };
+}
+
+std::vector<std::string> SynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLfoIntensity().toStdString() };
 }
 
 } // namespace noteahead

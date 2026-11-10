@@ -554,4 +554,9 @@ std::vector<std::string> PianoSynthAcousticDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> PianoSynthAcousticDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyBrightness().toStdString() };
+}
+
 } // namespace noteahead

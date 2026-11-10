@@ -1243,4 +1243,9 @@ std::vector<std::string> NoiseFxDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> NoiseFxDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyCutoff().toStdString() };
+}
+
 } // namespace noteahead

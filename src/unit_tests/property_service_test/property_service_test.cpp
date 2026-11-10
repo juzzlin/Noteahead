@@ -154,8 +154,8 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     // Test Sampler CCs
     {
         const auto controllers = propertyService.getAvailableMidiControllers(samplerPortName);
-        // Fader + Pan + LPF + HPF + (16 pads * 4 CCs per pad) + Expression = 4 + 64 + 1 = 69
-        QCOMPARE(controllers.size(), 69);
+        // Fader + Pan + LPF + HPF + (16 pads * 4 CCs per pad) + Mod Wheel + Expression = 4 + 64 + 2 = 70
+        QCOMPARE(controllers.size(), 70);
         QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
         QCOMPARE(controllers.at(1).toMap()["name"].toString(), "10: Pan");
         QCOMPARE(controllers.at(2).toMap()["name"].toString(), "74: LPF");
@@ -167,7 +167,8 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
         QCOMPARE(controllers.at(7).toMap()["name"].toString(), "102: Pad 1 HPF (C-3)");
         QCOMPARE(controllers.at(67).toMap()["name"].toString(), "117: Pad 16 HPF (D#4)");
         // Device appends this to every device's list, so it is last whatever the device offers
-        QCOMPARE(controllers.at(68).toMap()["name"].toString(), "11: Expression");
+        QCOMPARE(controllers.at(68).toMap()["name"].toString(), "1: Mod Wheel");
+        QCOMPARE(controllers.at(69).toMap()["name"].toString(), "11: Expression");
         // Device-wide CCs drive no single note and stay unqualified
         QCOMPARE(controllers.at(1).toMap()["name"].toString(), "10: Pan");
     }
@@ -175,8 +176,8 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     // Test DrumSynth CCs
     {
         const auto controllers = propertyService.getAvailableMidiControllers(drumSynthPortName);
-        // Volume + Pan + (11 voices * 3 CCs per voice) + Expression = 2 + 33 + 1 = 36
-        QCOMPARE(controllers.size(), 36);
+        // Volume + Pan + (11 voices * 3 CCs per voice) + Mod Wheel + Expression = 2 + 33 + 2 = 37
+        QCOMPARE(controllers.size(), 37);
         QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
         QCOMPARE(controllers.at(1).toMap()["name"].toString(), "10: Pan");
         QCOMPARE(controllers.at(2).toMap()["name"].toString(), "14: Kick Pan");
@@ -185,7 +186,8 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     // Test BassSynth CCs
     {
         const auto controllers = propertyService.getAvailableMidiControllers(bassSynthPortName);
-        QCOMPARE(controllers.size(), 5);
+        // Fader, Pan, LPF, HPF, Mod Wheel and Expression
+        QCOMPARE(controllers.size(), 6);
         QCOMPARE(controllers.at(2).toMap()["name"].toString(), "74: LPF");
         QCOMPARE(controllers.at(3).toMap()["name"].toString(), "81: HPF");
     }
@@ -200,7 +202,7 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     // Test with custom device name
     {
         const auto controllers = propertyService.getAvailableMidiControllers("Sampler 1");
-        QCOMPARE(controllers.size(), 69);
+        QCOMPARE(controllers.size(), 70);
         QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
     }
 }

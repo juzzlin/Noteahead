@@ -2101,4 +2101,9 @@ std::vector<std::string> FmSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> FmSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLfoIntensity().toStdString() };
+}
+
 } // namespace noteahead

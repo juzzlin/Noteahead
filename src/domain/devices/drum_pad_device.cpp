@@ -90,6 +90,15 @@ Device::AutomatableParameterList DrumPadDevice::automatableParameters() const
     return list;
 }
 
+std::vector<std::string> DrumPadDevice::modulationWheelTargets() const
+{
+    std::vector<std::string> targets;
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        targets.push_back(DrumSynthV2::voiceId(voice) + "_" + Constants::NahdXml::xmlKeyCutoff().toStdString());
+    }
+    return targets;
+}
+
 std::vector<MidiCcController> DrumPadDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;

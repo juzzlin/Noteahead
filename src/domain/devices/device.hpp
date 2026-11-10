@@ -107,6 +107,13 @@ public:
     //! could drop Expression by forgetting it; deviceMidiCcControllers() is what devices fill in.
     std::vector<MidiCcController> availableMidiCcControllers() const;
 
+    //! The parameters the modulation wheel (CC 1) opens up, from where their knobs are set towards
+    //! the top of their travel: at rest the patch plays as set. A modulation rather than an
+    //! automation, so the knobs stay put and nothing of it is saved. Usually one; a drum kit names
+    //! the same control on every pad. Empty for a device that takes CC 1 itself in
+    //! processDeviceMidiCc(), or has no use for it.
+    virtual std::vector<std::string> modulationWheelTargets() const;
+
     size_t id() const;
     void setId(size_t id);
 
@@ -517,6 +524,11 @@ signals:
     void parameterAutomationScheduled(qint64 delayMs);
 
 protected:
+    //! The source the modulation wheel modulates under, for a device that applies it itself to
+    //! parameters of its own that Device cannot reach, such as the Sampler's pads.
+    ModulationSourceId modulationWheelSource() const;
+    //! Where the modulation wheel at @p value puts a parameter whose knob is set at @p base.
+    static float modulationWheelValue(float base, uint8_t value);
     //! For the audio thread: publishes where LFO @p index is in its shape, -1..1.
     void publishLfoLed(size_t index, double shapeValue);
 
@@ -570,6 +582,10 @@ protected:
     float linearGainInternal() const;
 
 private:
+    //! Moves the modulation wheel's targets to where the wheel at @p value puts them.
+    void applyModulationWheel(const std::vector<std::string> & keys, uint8_t value);
+    //! Puts the modulation wheel back at rest.
+    void clearModulationWheel();
     //! The note @p note becomes when shifted by @p semitones, or nothing when that falls outside
     //! MIDI.
     static std::optional<uint8_t> shiftedNote(uint8_t note, int semitones);

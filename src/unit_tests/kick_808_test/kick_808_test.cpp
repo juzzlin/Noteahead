@@ -506,8 +506,8 @@ void Kick808Test::test_midiCc_shouldReachEveryParameter()
 {
     Kick808Device kick { "Test Kick" };
 
-    // Fader, Pan and Expression plus every knob on the panel.
-    QCOMPARE(kick.availableMidiCcControllers().size(), size_t { 13 });
+    // Fader, Pan, Mod Wheel and Expression plus every knob on the panel.
+    QCOMPARE(kick.availableMidiCcControllers().size(), size_t { 14 });
 
     kick.processMidiCc(70, 0, 0); // Tuning
     kick.processMidiCc(71, 127, 0); // Tone

@@ -441,6 +441,8 @@ public:
     void restoreState() override;
 
 private:
+    //! Opens every loaded pad's filter with the modulation wheel at @p value, 0 putting them back.
+    void applyModulationWheelToPads(uint8_t value);
     struct Voice;
     void updateVoiceEffects(Voice & voice);
     //! The LPF and HPF cutoffs a pad plays through, its own knobs offset by the device-wide ones.

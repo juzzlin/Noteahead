@@ -25,6 +25,7 @@ class SamplerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_modulationWheel_pads_shouldOpenTheFilterUnderTheKnob();
     void test_automatableParameters_loadedPad_shouldBeListedUnderItsKey();
     void test_applyParameterAutomation_pad_shouldDriveThePadAndClearBack();
     void test_applyParameterModulation_pad_shouldModulateThePadAndClearBack();

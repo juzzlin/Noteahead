@@ -390,6 +390,7 @@ std::vector<MidiCcController> SamplerDevice::deviceMidiCcControllers() const
         list.push_back(padController(padHpfCutoffCcStart + pad, "HPF"));
     }
 
+    list.push_back({ static_cast<uint8_t>(Controller::ModulationWheelMSB), "Mod Wheel" });
     return list;
 }
 
@@ -548,6 +549,29 @@ bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterA
     }
     // Not signalled, as in Device::applyParameterAutomation()
     return true;
+}
+
+void SamplerDevice::applyModulationWheelToPads(uint8_t value)
+{
+    const auto source = modulationWheelSource();
+    for (auto && sample : m_samples) {
+        if (!sample) {
+            continue;
+        }
+        if (const auto cutoff = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); cutoff) {
+            if (value == 0) {
+                cutoff->get().clearModulation(source);
+            } else {
+                cutoff->get().setModulatedValue(source, modulationWheelValue(cutoff->get().unmodulatedValue(), value));
+            }
+            syncSampleFields(*sample);
+        }
+    }
+    for (auto && voice : m_voices) {
+        if (voice.active) {
+            updateVoiceEffects(voice);
+        }
+    }
 }
 
 bool SamplerDevice::applyParameterModulation(const std::string & key, ModulationSourceId sourceId, ParameterModulation::Mode mode, double source, double depth)
@@ -749,6 +773,10 @@ void SamplerDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
+            applyModulationWheelToPads(0);
+        } else if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) {
+            // The filter is the pads' own, out of Device's reach, so the wheel is applied here
+            applyModulationWheelToPads(value);
         } else if (const auto target = padCcTarget(controller, value); target) {
             // The per-pad CC blocks are disjoint from every controller the modes below read, so they
             // address a pad the same way whether or not channel mode is on.

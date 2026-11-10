@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -60,6 +61,13 @@ constexpr double OutputGain = 0.07;
 constexpr double BendSmoothingSeconds = 0.005;
 //! The strings are retuned this often while a bend moves
 constexpr uint32_t BendInterval = 16;
+//! Finger vibrato on the modulation wheel. A fretted string can only be pushed sharp, so the pitch
+//! swings up from the note and back rather than either side of it.
+constexpr double VibratoRateHz = 5.0;
+//! How far up the wheel at the top pushes the string
+constexpr double MaxVibratoCents = 40.0;
+//! How fast the depth follows the wheel, so the vibrato swells in rather than steps
+constexpr double VibratoSmoothingSeconds = 0.05;
 
 struct CcParameter
 {
@@ -166,7 +174,7 @@ std::string ElectricBassDevice::typeId() const
 
 std::vector<MidiCcController> ElectricBassDevice::deviceMidiCcControllers() const
 {
-    std::vector<MidiCcController> controllers;
+    std::vector<MidiCcController> controllers { { static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB), "Vibrato" } };
     for (const auto & parameter : ccParameters()) {
         controllers.push_back({ parameter.controller, parameter.label });
     }
@@ -248,7 +256,7 @@ void ElectricBassDevice::startNote(size_t stringIndex, uint8_t note, float veloc
     } else {
         voice.string.pluck(noteHz(note), fret, inharmonicity, amplitude, tilt);
     }
-    voice.string.setPitchRatio(m_bend);
+    voice.string.setPitchRatio(m_bend * m_vibratoRatio);
     voice.note = note;
     voice.velocity = velocity;
 }
@@ -313,9 +321,13 @@ void ElectricBassDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, 
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
+            m_vibratoTarget = 0.0;
         } else {
             const float val = static_cast<float>(value) / 127.0f;
-            if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
+            if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) {
+                // A performance gesture rather than a setting: nothing is saved, no knob moves
+                m_vibratoTarget = static_cast<double>(val);
+            } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
                 changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
@@ -386,15 +398,20 @@ void ElectricBassDevice::processAudio(AudioContext & context)
 
     const double gain = linearGainInternal() * OutputGain;
     const double bendCoefficient = 1.0 - std::exp(-static_cast<double>(BendInterval) / (BendSmoothingSeconds * sampleRate));
+    const double vibratoCoefficient = 1.0 - std::exp(-static_cast<double>(BendInterval) / (VibratoSmoothingSeconds * sampleRate));
+    const double vibratoPhaseStep = 2.0 * std::numbers::pi * VibratoRateHz * static_cast<double>(BendInterval) / sampleRate;
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        if (i % BendInterval == 0 && m_bend != m_bendTarget) {
-            m_bend += (m_bendTarget - m_bend) * bendCoefficient;
-            if (std::abs(m_bend - m_bendTarget) < 1.0e-6) {
-                m_bend = m_bendTarget;
+        if (i % BendInterval == 0 && (m_bend != m_bendTarget || m_vibratoDepth > 0.0 || m_vibratoTarget > 0.0)) {
+            if (m_bend != m_bendTarget) {
+                m_bend += (m_bendTarget - m_bend) * bendCoefficient;
+                if (std::abs(m_bend - m_bendTarget) < 1.0e-6) {
+                    m_bend = m_bendTarget;
+                }
             }
+            updateVibrato(vibratoCoefficient, vibratoPhaseStep);
             for (auto && voice : m_voices) {
-                voice.string.setPitchRatio(m_bend);
+                voice.string.setPitchRatio(m_bend * m_vibratoRatio);
             }
         }
 
@@ -451,6 +468,22 @@ void ElectricBassDevice::resetDeviceAudio()
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
     m_bend = m_bendTarget = 1.0;
+    m_vibratoTarget = m_vibratoDepth = m_vibratoPhase = 0.0;
+    m_vibratoRatio = 1.0;
+}
+
+void ElectricBassDevice::updateVibrato(double coefficient, double phaseStep)
+{
+    m_vibratoDepth += (m_vibratoTarget - m_vibratoDepth) * coefficient;
+    if (m_vibratoTarget == 0.0 && m_vibratoDepth < 1.0e-4) {
+        // At rest: the next vibrato starts from the note itself rather than partway up a swing
+        m_vibratoDepth = m_vibratoPhase = 0.0;
+        m_vibratoRatio = 1.0;
+        return;
+    }
+    m_vibratoPhase = std::fmod(m_vibratoPhase + phaseStep, 2.0 * std::numbers::pi);
+    const double cents = m_vibratoDepth * MaxVibratoCents * 0.5 * (1.0 - std::cos(m_vibratoPhase));
+    m_vibratoRatio = std::exp2(cents / 1200.0);
 }
 
 void ElectricBassDevice::serializeToXml(ProjectWriter & writer) const

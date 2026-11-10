@@ -108,6 +108,8 @@ protected:
     void syncParameters() override;
 
 private:
+    void updateVibrato(double coefficient, double phaseStep);
+
     struct Voice
     {
         ModalBassString string;
@@ -143,6 +145,11 @@ private:
     int m_pitchBendRange { 2 };
     double m_bendTarget { 1.0 };
     double m_bend { 1.0 };
+    //! Finger vibrato: the wheel's position, the depth following it, and where the swing is
+    double m_vibratoTarget { 0.0 };
+    double m_vibratoDepth { 0.0 };
+    double m_vibratoPhase { 0.0 };
+    double m_vibratoRatio { 1.0 };
 };
 
 } // namespace noteahead

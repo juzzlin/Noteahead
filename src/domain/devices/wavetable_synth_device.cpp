@@ -1908,4 +1908,9 @@ std::vector<std::string> WavetableSynthDevice::modulationPriority() const
     };
 }
 
+std::vector<std::string> WavetableSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLfoIntensity().toStdString() };
+}
+
 } // namespace noteahead
