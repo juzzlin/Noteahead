@@ -35,6 +35,9 @@ private slots:
     void test_remainderOutside_noOverlap_shouldKeepItAsIs();
     void test_remainderOutside_covered_shouldBeNothing();
     void test_remainderOutside_middle_shouldKeepBothSidesAsTheyPlay();
+    void test_steps_shouldHoldEachSettingUpToTheNearestLine();
+    void test_steps_twiceOnOneLine_shouldKeepTheLast();
+    void test_remainderOutside_midiCc_shouldKeepItsValuesInSteps();
 };
 
 } // namespace noteahead

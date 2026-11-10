@@ -16,6 +16,8 @@
 #ifndef AUTOMATION_TAKE_HPP
 #define AUTOMATION_TAKE_HPP
 
+#include "../midi/midi_cc_automation.hpp"
+#include "../midi/pitch_bend_automation.hpp"
 #include "automation_curve.hpp"
 #include "parameter_automation.hpp"
 
@@ -42,13 +44,29 @@ std::vector<SampleList> split(const SampleList & samples);
 //! measured up and down. The ends stay.
 AutomationCurve::NodeList simplify(const AutomationCurve::NodeList & nodes, double tolerance);
 
+//! A drawn curve and the lines it spans, whatever kind of automation it is going to be.
+struct DrawnSpan
+{
+    size_t line0 = 0;
+    size_t line1 = 0;
+    AutomationCurve curve;
+};
+
 //! A piece of a take as a drawn curve, from the line it began on to the line after it ended, held
 //! within a pattern of @p lineCount lines. Nothing when the pattern leaves no room for a curve.
+std::optional<DrawnSpan> drawnSpan(const SampleList & piece, size_t lineCount, double tolerance);
+//! drawnSpan() as a parameter automation's interpolation.
 std::optional<ParameterAutomation::InterpolationParameters> curve(const SampleList & piece, size_t lineCount, double tolerance);
+
+//! A piece of a take of a switch, such as a sustain pedal: every change moved to the nearest line
+//! and held until it, so that the curve steps there instead of ramping between two settings.
+SampleList steps(const SampleList & piece);
 
 //! What is left of @p automation outside lines @p line0 to @p line1, which a take has just been
 //! recorded over: none, one or two automations, drawn so that they play as before.
 std::vector<ParameterAutomation> remainderOutside(const ParameterAutomation & automation, size_t line0, size_t line1);
+std::vector<MidiCcAutomation> remainderOutside(const MidiCcAutomation & automation, size_t line0, size_t line1);
+std::vector<PitchBendAutomation> remainderOutside(const PitchBendAutomation & automation, size_t line0, size_t line1);
 
 } // namespace noteahead::AutomationTake
 

@@ -20,7 +20,6 @@
 #include <QTimer>
 
 #include <chrono>
-#include <deque>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -29,6 +28,7 @@
 
 #include "../../domain/tracker/automation_set.hpp"
 #include "../../domain/tracker/automation_take.hpp"
+#include "playback_line_clock.hpp"
 
 namespace noteahead {
 
@@ -96,15 +96,6 @@ private:
         AutomationTake::SampleList y;
     };
 
-    struct Anchor
-    {
-        size_t pattern = 0;
-        size_t line = 0;
-        std::chrono::steady_clock::time_point due;
-    };
-
-    //! The pattern and the line, between lines, being heard at @p time.
-    std::optional<std::pair<size_t, double>> songLine(std::chrono::steady_clock::time_point time) const;
     void sample(Take & take, std::chrono::steady_clock::time_point time);
     void finish(const Take & take);
     //! Takes what automates @p target in @p pattern off lines @p line0 to @p line1: out of the
@@ -117,9 +108,7 @@ private:
     Clock m_clock;
     bool m_armed = false;
     std::vector<Take> m_takes;
-    //! The last lines the song reached and when each is due: a few, since they are heard a
-    //! lookahead after they are announced.
-    std::deque<Anchor> m_anchors;
+    PlaybackLineClock m_lineClock;
     QTimer m_sampleTimer;
 };
 

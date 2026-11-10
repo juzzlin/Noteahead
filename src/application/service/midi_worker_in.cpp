@@ -193,14 +193,19 @@ void MidiWorkerIn::handleControlChange(quint8 channel, MessageCR message)
 
     const auto controller = message.at(1);
     const auto value = message.at(2);
-    emit controlChangeReceived(currentAddress(channel), controller, value);
 
-    // Check if this CC is mapped to a transport action
-    if (m_midiSyncEnabled && value > 0) { // optional: ignore value==0
+    // A transport button is taken here, press and release alike, rather than also played on the
+    // instrument or recorded into the song
+    if (m_midiSyncEnabled) {
         if (const auto it = m_transportMappings.find(controller); it != m_transportMappings.end() && it->second) {
-            it->second(); // Call the mapped action
+            if (value > 0) {
+                it->second();
+            }
+            return;
         }
     }
+
+    emit controlChangeReceived(currentAddress(channel), controller, value);
 
     switch (controller) {
     case 6:

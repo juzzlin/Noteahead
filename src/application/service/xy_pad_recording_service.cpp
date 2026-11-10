@@ -29,8 +29,6 @@ namespace noteahead {
 
 namespace {
 
-//! How many announced lines are kept: far more than any lookahead spans.
-constexpr size_t MaxAnchors { 16 };
 //! An axis that stayed this close to the centre the whole take was not moved.
 constexpr double CentreThreshold { 0.002 };
 
@@ -70,7 +68,7 @@ void XyPadRecordingService::setArmed(bool armed)
         m_armed = armed;
         if (!m_armed) {
             finishTakes();
-            m_anchors.clear();
+            m_lineClock.clear();
         }
         emit armedChanged();
     }
@@ -83,28 +81,8 @@ void XyPadRecordingService::setTick(quint64 tick, std::chrono::steady_clock::dur
         return;
     }
     if (const auto position = song->songPositionByTick(static_cast<size_t>(tick)); position) {
-        m_anchors.push_back({ position->pattern, position->line, m_clock() + lookahead });
-        while (m_anchors.size() > MaxAnchors) {
-            m_anchors.pop_front();
-        }
+        m_lineClock.announce(position->pattern, position->line, m_clock() + lookahead);
     }
-}
-
-std::optional<std::pair<size_t, double>> XyPadRecordingService::songLine(std::chrono::steady_clock::time_point time) const
-{
-    const auto song = m_editorService->song();
-    if (!song || !song->beatsPerMinute() || !song->linesPerBeat()) {
-        return std::nullopt;
-    }
-    const auto lineDuration = std::chrono::duration<double>(60.0 / static_cast<double>(song->beatsPerMinute() * song->linesPerBeat()));
-    // The last line already heard, and how far into it the song is, short of the next one
-    for (auto anchor = m_anchors.rbegin(); anchor != m_anchors.rend(); anchor++) {
-        if (anchor->due <= time) {
-            const double into = std::chrono::duration<double>(time - anchor->due) / lineDuration;
-            return std::pair { anchor->pattern, static_cast<double>(anchor->line) + std::clamp(into, 0.0, 0.999) };
-        }
-    }
-    return std::nullopt;
 }
 
 void XyPadRecordingService::startTake(const QString & deviceUuid, int pad)
@@ -133,7 +111,8 @@ void XyPadRecordingService::startTake(const QString & deviceUuid, int pad)
 void XyPadRecordingService::sample(Take & take, std::chrono::steady_clock::time_point time)
 {
     const auto device = take.device.lock();
-    if (const auto line = songLine(time); device && line) {
+    const auto song = m_editorService->song();
+    if (const auto line = song ? m_lineClock.songLine(*song, time) : std::nullopt; device && line) {
         take.x.push_back({ line->first, line->second, knobPosition(device->positionX(take.pad)) });
         take.y.push_back({ line->first, line->second, knobPosition(device->positionY(take.pad)) });
     }

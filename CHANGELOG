@@ -24,6 +24,9 @@ New features:
 * MIDI Mappings in Device Settings: map controller CCs to device parameters, with Learn
   - Saved with the project and in exported device settings
 
+* Live recording of the controller keyboard's CCs and pitch bend as drawn automations
+  - Sustain pedal steps on the nearest line
+
 Bug fixes:
 
 * Side-chain on CC 7 ducks an internal device under its Fader instead of overwriting it

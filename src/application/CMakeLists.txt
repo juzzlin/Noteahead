@@ -45,12 +45,14 @@ set(HEADER_FILES
     service/kick_synth_preview.hpp
     service/language_service.hpp
     service/manual_service.hpp
+    service/midi_recording_service.hpp
     service/midi_service.hpp
     service/midi_worker.hpp
     service/midi_worker_in.hpp
     service/midi_worker_out.hpp
     service/mix_advice_formatter.hpp
     service/mixer_service.hpp
+    service/playback_line_clock.hpp
     service/player_service.hpp
     service/player_worker.hpp
     service/preset_service.hpp
@@ -118,12 +120,14 @@ set(SOURCE_FILES
     service/kick_synth_preview.cpp
     service/language_service.cpp
     service/manual_service.cpp
+    service/midi_recording_service.cpp
     service/midi_service.cpp
     service/midi_worker.cpp
     service/midi_worker_in.cpp
     service/midi_worker_out.cpp
     service/mix_advice_formatter.cpp
     service/mixer_service.cpp
+    service/playback_line_clock.cpp
     service/player_service.cpp
     service/player_worker.cpp
     service/preset_service.cpp

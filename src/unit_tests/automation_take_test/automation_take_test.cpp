@@ -121,6 +121,36 @@ void AutomationTakeTest::test_remainderOutside_middle_shouldKeepBothSidesAsTheyP
     QCOMPARE(right.value1, 1.0);
 }
 
+void AutomationTakeTest::test_steps_shouldHoldEachSettingUpToTheNearestLine()
+{
+    const auto stepped = steps({ { 0, 2.4, 127.0 }, { 0, 3.0, 127.0 }, { 0, 5.6, 0.0 } });
+    QCOMPARE(stepped.size(), size_t { 3 });
+    QCOMPARE(stepped.at(0).line, 2.0);
+    QCOMPARE(stepped.at(1).line, 5.5);
+    QCOMPARE(stepped.at(1).value, 127.0);
+    QCOMPARE(stepped.at(2).line, 6.0);
+    QCOMPARE(stepped.at(2).value, 0.0);
+}
+
+void AutomationTakeTest::test_steps_twiceOnOneLine_shouldKeepTheLast()
+{
+    const auto stepped = steps({ { 0, 1.0, 0.0 }, { 0, 4.1, 127.0 }, { 0, 4.2, 0.0 } });
+    QCOMPARE(stepped.back().line, 4.0);
+    QCOMPARE(stepped.back().value, 0.0);
+}
+
+void AutomationTakeTest::test_remainderOutside_midiCc_shouldKeepItsValuesInSteps()
+{
+    const MidiCcAutomation automation { 1, AutomationLocation { 0, 0, 0 }, 1, { 0, 10, 0, 100 }, {} };
+    const auto remainder = remainderOutside(automation, 4, 6);
+    QCOMPARE(remainder.size(), size_t { 2 });
+    QCOMPARE(remainder.at(0).interpolation().line1, size_t { 3 });
+    QCOMPARE(remainder.at(0).interpolation().value1, uint8_t { 30 });
+    QCOMPARE(remainder.at(1).interpolation().line0, size_t { 7 });
+    QCOMPARE(remainder.at(1).interpolation().value0, uint8_t { 70 });
+    QCOMPARE(remainder.at(1).controller(), uint8_t { 1 });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AutomationTakeTest)

@@ -86,6 +86,7 @@ class ManualService;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiImporter;
+class MidiRecordingService;
 class MidiService;
 class MidiSettingsModel;
 class MixerService;
@@ -249,6 +250,7 @@ private:
     std::shared_ptr<PlayerService> m_playerService;
     std::shared_ptr<KeyboardService> m_keyboardService;
     std::shared_ptr<XyPadRecordingService> m_xyPadRecordingService;
+    std::shared_ptr<MidiRecordingService> m_midiRecordingService;
     std::shared_ptr<SessionTimerService> m_sessionTimerService;
 
     std::shared_ptr<MidiExporter> m_midiExporter;

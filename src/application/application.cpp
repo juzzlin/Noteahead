@@ -129,6 +129,7 @@
 #include "service/keyboard_service.hpp"
 #include "service/language_service.hpp"
 #include "service/manual_service.hpp"
+#include "service/midi_recording_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -229,6 +230,7 @@ Application::Application(int & argc, char ** argv)
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
   , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_xyPadRecordingService { std::make_shared<XyPadRecordingService>(m_deviceService, m_editorService, m_automationService) }
+  , m_midiRecordingService { std::make_shared<MidiRecordingService>(m_editorService, m_automationService) }
   , m_sessionTimerService { std::make_shared<SessionTimerService>(m_editorService, m_settingsService) }
   , m_midiExporter { std::make_shared<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_midiImporter { std::make_shared<MidiImporter>() }
@@ -903,16 +905,27 @@ void Application::connectPlayerService()
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 
-    // The XY pads record while the song plays in edit mode, as notes do
+    // The XY pads and the controller keyboard's CCs and pitch bend record while the song plays in
+    // edit mode, as notes do
     connect(m_playerService.get(), &PlayerService::tickUpdated, this, [this](quint64 tick) {
-        m_xyPadRecordingService->setTick(tick, m_deviceService->scheduleLookahead().value_or(std::chrono::steady_clock::duration::zero()));
+        const auto lookahead = m_deviceService->scheduleLookahead().value_or(std::chrono::steady_clock::duration::zero());
+        m_xyPadRecordingService->setTick(tick, lookahead);
+        m_midiRecordingService->setTick(tick, lookahead);
     });
-    const auto armXyPadRecording = [this] {
-        m_xyPadRecordingService->setArmed(m_playerService->isPlaying() && m_applicationService->editMode());
+    const auto armRecording = [this] {
+        const bool armed = m_playerService->isPlaying() && m_applicationService->editMode();
+        m_xyPadRecordingService->setArmed(armed);
+        m_midiRecordingService->setArmed(armed);
     };
-    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, armXyPadRecording);
-    connect(m_applicationService.get(), &ApplicationService::editModeChanged, this, armXyPadRecording);
+    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, armRecording);
+    connect(m_applicationService.get(), &ApplicationService::editModeChanged, this, armRecording);
     connect(m_deviceService.get(), &DeviceService::xyPadPressed, m_xyPadRecordingService.get(), &XyPadRecordingService::startTake);
+    connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, quint8 controller, quint8 value) {
+        m_midiRecordingService->recordCc(controller, value);
+    });
+    connect(m_midiService.get(), &MidiService::pitchBendReceived, this, [this](const auto &, quint16 value) {
+        m_midiRecordingService->recordPitchBend(value);
+    });
 
     // The session timer counts while there is input, and while the song plays
     m_application->installEventFilter(m_sessionTimerService.get());

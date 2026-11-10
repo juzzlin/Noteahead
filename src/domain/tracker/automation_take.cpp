@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 
 namespace noteahead::AutomationTake {
 
@@ -61,31 +62,73 @@ void simplifyInto(const AutomationCurve::NodeList & nodes, size_t first, size_t 
 }
 
 //! The automation's own value at @p line, as it plays it before modulation
-double valueAt(const ParameterAutomation::InterpolationParameters & interpolation, double line)
+template<typename Interpolation>
+double valueAt(const Interpolation & interpolation, double line)
 {
     if (interpolation.curve == Interpolator::CurveType::Drawn && !interpolation.drawnCurve.isEmpty()) {
         return interpolation.drawnCurve.valueAt(line);
     }
     const double span = static_cast<double>(interpolation.line1) - static_cast<double>(interpolation.line0);
     const double phase = span > 0.0 ? std::clamp((line - static_cast<double>(interpolation.line0)) / span, 0.0, 1.0) : 0.0;
-    return interpolation.value0 + Interpolator::applyCurve(interpolation.curve, phase) * (interpolation.value1 - interpolation.value0);
+    const auto value0 = static_cast<double>(interpolation.value0);
+    return value0 + Interpolator::applyCurve(interpolation.curve, phase) * (static_cast<double>(interpolation.value1) - value0);
 }
 
 //! The whole automation as a drawn curve: its own nodes, its ramp, or its shape on every line,
 //! which is as finely as it is played
-AutomationCurve drawnCurveOf(const ParameterAutomation::InterpolationParameters & interpolation)
+template<typename Interpolation>
+AutomationCurve drawnCurveOf(const Interpolation & interpolation)
 {
     if (interpolation.curve == Interpolator::CurveType::Drawn && !interpolation.drawnCurve.isEmpty()) {
         return interpolation.drawnCurve;
     }
     if (interpolation.curve == Interpolator::CurveType::Linear || interpolation.curve == Interpolator::CurveType::Drawn) {
-        return AutomationCurve::ramp(interpolation.line0, interpolation.value0, interpolation.line1, interpolation.value1);
+        return AutomationCurve::ramp(interpolation.line0, static_cast<double>(interpolation.value0), interpolation.line1, static_cast<double>(interpolation.value1));
     }
     AutomationCurve::NodeList nodes;
     for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
         nodes.push_back({ static_cast<double>(line), valueAt(interpolation, static_cast<double>(line)) });
     }
     return AutomationCurve { std::move(nodes) };
+}
+
+//! An end value of a drawn curve in the automation's own value type
+template<typename Value>
+Value endValue(double value)
+{
+    if constexpr (std::is_floating_point_v<Value>) {
+        return static_cast<Value>(value);
+    } else {
+        return static_cast<Value>(std::lround(value));
+    }
+}
+
+template<typename Automation>
+std::vector<Automation> remainderOutsideOf(const Automation & automation, size_t line0, size_t line1)
+{
+    using Interpolation = std::remove_cvref_t<decltype(automation.interpolation())>;
+    using Value = decltype(Interpolation::value0);
+    const auto & interpolation = automation.interpolation();
+    if (interpolation.line1 < line0 || interpolation.line0 > line1) {
+        return { automation };
+    }
+    const auto whole = drawnCurveOf(interpolation);
+    std::vector<Automation> remainder;
+    const auto keep = [&](size_t from, size_t to) {
+        auto piece = whole;
+        piece.setSpan(from, to);
+        auto kept = automation;
+        kept.setInterpolation({ from, to, endValue<Value>(piece.nodes().front().value), endValue<Value>(piece.nodes().back().value), Interpolator::CurveType::Drawn, piece });
+        remainder.push_back(std::move(kept));
+    };
+    // A piece needs two lines to be an automation, and stops a line short of the take
+    if (line0 >= interpolation.line0 + 2) {
+        keep(interpolation.line0, line0 - 1);
+    }
+    if (interpolation.line1 >= line1 + 2) {
+        keep(line1 + 1, interpolation.line1);
+    }
+    return remainder;
 }
 
 } // namespace
@@ -108,7 +151,7 @@ AutomationCurve::NodeList simplify(const AutomationCurve::NodeList & nodes, doub
     return simplified;
 }
 
-std::optional<ParameterAutomation::InterpolationParameters> curve(const SampleList & piece, size_t lineCount, double tolerance)
+std::optional<DrawnSpan> drawnSpan(const SampleList & piece, size_t lineCount, double tolerance)
 {
     if (piece.empty() || lineCount < 2) {
         return std::nullopt;
@@ -136,33 +179,54 @@ std::optional<ParameterAutomation::InterpolationParameters> curve(const SampleLi
         }
     }
     nodes.push_back({ end, lastValue });
-    nodes = simplify(nodes, tolerance);
-    return ParameterAutomation::InterpolationParameters { line0, line1, nodes.front().value, nodes.back().value, Interpolator::CurveType::Drawn, AutomationCurve { std::move(nodes) } };
+    return DrawnSpan { line0, line1, AutomationCurve { simplify(nodes, tolerance) } };
+}
+
+std::optional<ParameterAutomation::InterpolationParameters> curve(const SampleList & piece, size_t lineCount, double tolerance)
+{
+    if (auto span = drawnSpan(piece, lineCount, tolerance); span) {
+        const auto & nodes = span->curve.nodes();
+        return ParameterAutomation::InterpolationParameters { span->line0, span->line1, nodes.front().value, nodes.back().value, Interpolator::CurveType::Drawn, std::move(span->curve) };
+    }
+    return std::nullopt;
+}
+
+SampleList steps(const SampleList & piece)
+{
+    //! How long before its line a change is held off: well clear of the line, which is where the
+    //! curve is read, and of the closest two nodes may come
+    constexpr double holdBefore { 0.5 };
+    SampleList stepped;
+    for (auto && sample : piece) {
+        const double line = std::round(sample.line);
+        if (stepped.empty()) {
+            stepped.push_back({ sample.pattern, line, sample.value });
+        } else if (const auto previous = stepped.back(); sample.value != previous.value) {
+            if (line - holdBefore > previous.line) {
+                stepped.push_back({ sample.pattern, line - holdBefore, previous.value });
+                stepped.push_back({ sample.pattern, line, sample.value });
+            } else {
+                // Changed again within the line it last changed on: the last setting on it wins
+                stepped.back().value = sample.value;
+            }
+        }
+    }
+    return stepped;
 }
 
 std::vector<ParameterAutomation> remainderOutside(const ParameterAutomation & automation, size_t line0, size_t line1)
 {
-    const auto & interpolation = automation.interpolation();
-    if (interpolation.line1 < line0 || interpolation.line0 > line1) {
-        return { automation };
-    }
-    const auto whole = drawnCurveOf(interpolation);
-    std::vector<ParameterAutomation> remainder;
-    const auto keep = [&](size_t from, size_t to) {
-        auto piece = whole;
-        piece.setSpan(from, to);
-        auto kept = automation;
-        kept.setInterpolation({ from, to, piece.nodes().front().value, piece.nodes().back().value, Interpolator::CurveType::Drawn, piece });
-        remainder.push_back(std::move(kept));
-    };
-    // A piece needs two lines to be an automation, and stops a line short of the take
-    if (line0 >= interpolation.line0 + 2) {
-        keep(interpolation.line0, line0 - 1);
-    }
-    if (interpolation.line1 >= line1 + 2) {
-        keep(line1 + 1, interpolation.line1);
-    }
-    return remainder;
+    return remainderOutsideOf(automation, line0, line1);
+}
+
+std::vector<MidiCcAutomation> remainderOutside(const MidiCcAutomation & automation, size_t line0, size_t line1)
+{
+    return remainderOutsideOf(automation, line0, line1);
+}
+
+std::vector<PitchBendAutomation> remainderOutside(const PitchBendAutomation & automation, size_t line0, size_t line1)
+{
+    return remainderOutsideOf(automation, line0, line1);
 }
 
 } // namespace noteahead::AutomationTake
