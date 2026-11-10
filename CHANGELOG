@@ -30,6 +30,8 @@ New features:
 * XY Pad and LFO can move MIDI CCs and pitch bend of external gear and internal devices
   - Min/Max per target, and a rate cap in Settings => MIDI
 
+* XY Pad leaves a fading tail where it moves
+
 Bug fixes:
 
 * Side-chain on CC 7 ducks an internal device under its Fader instead of overwriting it

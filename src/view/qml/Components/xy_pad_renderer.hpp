@@ -16,6 +16,8 @@
 #ifndef XY_PAD_RENDERER_HPP
 #define XY_PAD_RENDERER_HPP
 
+#include "xy_pad_trail.hpp"
+
 #include <QColor>
 #include <QPointer>
 #include <QQuickPaintedItem>
@@ -30,7 +32,7 @@ class XyPadController;
 //! One pad of an XY pad device, played with the mouse: a press puts the hand on the pad, a drag
 //! moves it and a release lets the pad glide home. The crosshair shows where the audio thread has
 //! the pad, not where the hand is, so the glide is seen as it is heard. Redraws at the display rate
-//! only while the pad is held or still on its way; otherwise it is idle.
+//! only while the pad is held, still on its way or its tail still fading; otherwise it is idle.
 class XyPadRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -42,6 +44,8 @@ class XyPadRenderer : public QQuickPaintedItem
     Q_PROPERTY(QString xLabel READ xLabel WRITE setXLabel NOTIFY xLabelChanged)
     Q_PROPERTY(QString yLabel READ yLabel WRITE setYLabel NOTIFY yLabelChanged)
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
+    //! Whether a moving pad leaves a fading tail behind it.
+    Q_PROPERTY(bool trailEnabled READ trailEnabled WRITE setTrailEnabled NOTIFY trailEnabledChanged)
 
 public:
     explicit XyPadRenderer(QQuickItem * parent = nullptr);
@@ -61,6 +65,9 @@ public:
     QColor accentColor() const;
     void setAccentColor(const QColor & color);
 
+    bool trailEnabled() const;
+    void setTrailEnabled(bool enabled);
+
     void paint(QPainter * painter) override;
 
 signals:
@@ -69,6 +76,7 @@ signals:
     void xLabelChanged();
     void yLabelChanged();
     void accentColorChanged();
+    void trailEnabledChanged();
 
 protected:
     void mousePressEvent(QMouseEvent * event) override;
@@ -90,6 +98,9 @@ private:
     void startRedrawing();
     void onPadPressed(int pad);
     void onPadsAutomated(qint64 delayMs);
+    //! The pad's position in the item, from the pad's -1..1.
+    QPointF toItem(const QPointF & padPosition) const;
+    void paintTrail(QPainter * painter) const;
 
     QPointer<XyPadController> m_controller;
     int m_pad { 0 };
@@ -99,6 +110,8 @@ private:
     QString m_yLabel;
     QColor m_accentColor { "#4fc3f7" };
     bool m_handOn { false };
+    bool m_trailEnabled { true };
+    XyPadTrail m_trail;
     QTimer m_frameTimer;
 };
 

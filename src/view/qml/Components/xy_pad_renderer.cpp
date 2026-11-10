@@ -20,7 +20,9 @@
 #include <QPainter>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
+#include <cmath>
 
 namespace noteahead {
 
@@ -29,6 +31,21 @@ namespace {
 const auto frameInterval = std::chrono::milliseconds { 16 };
 //! How long a pad goes on moving after an automation's step: a few of its slew times
 constexpr qint64 AutomationFollowMs { 100 };
+//! Straight pieces per gap between two of the tail's points, so that a fast drag, sampled once a
+//! frame, curves instead of showing its corners
+constexpr int TrailSubdivisions { 6 };
+
+//! How far, in pixels, each piece of the tail reaches into its neighbours
+constexpr double SeamOverlap { 0.5 };
+
+//! The Catmull-Rom curve through @p p1 to @p p2 at @p t, shaped by their neighbours @p p0 and @p p3
+QPointF catmullRom(const QPointF & p0, const QPointF & p1, const QPointF & p2, const QPointF & p3, double t)
+{
+    const double t2 = t * t;
+    const double t3 = t2 * t;
+    return 0.5 * ((2.0 * p1) + (-p0 + p2) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3);
+}
+
 } // namespace
 
 XyPadRenderer::XyPadRenderer(QQuickItem * parent)
@@ -53,6 +70,7 @@ void XyPadRenderer::setController(QObject * controller)
             disconnect(m_controller, nullptr, this, nullptr);
         }
         m_controller = xyPadController;
+        m_trail.clear();
         if (m_controller) {
             // The same pad can be shown twice, in its dialog and on the performance panel
             connect(m_controller, &XyPadController::padPressed, this, &XyPadRenderer::onPadPressed);
@@ -73,6 +91,7 @@ void XyPadRenderer::setPad(int pad)
     if (m_pad != pad) {
         letGo();
         m_pad = pad;
+        m_trail.clear();
         emit padChanged();
         update();
     }
@@ -120,6 +139,21 @@ void XyPadRenderer::setAccentColor(const QColor & color)
     }
 }
 
+bool XyPadRenderer::trailEnabled() const
+{
+    return m_trailEnabled;
+}
+
+void XyPadRenderer::setTrailEnabled(bool enabled)
+{
+    if (m_trailEnabled != enabled) {
+        m_trailEnabled = enabled;
+        m_trail.clear();
+        emit trailEnabledChanged();
+        update();
+    }
+}
+
 QPointF XyPadRenderer::toPad(const QPointF & position) const
 {
     const double x = width() > 0 ? position.x() / width() * 2.0 - 1.0 : 0.0;
@@ -154,12 +188,17 @@ void XyPadRenderer::letGo()
 
 void XyPadRenderer::onFrame()
 {
+    const auto now = XyPadTrail::Clock::now();
+    if (m_trailEnabled && m_controller) {
+        m_trail.add({ m_controller->positionX(m_pad), m_controller->positionY(m_pad) }, now);
+    }
     update();
     // The pad is still gliding after the hand has gone, so the redraws stop only once it is home.
     // The hand can also be on it in another view of the same pad.
     // An automation moves it in steps, and it rests between them
     const bool automated = std::chrono::steady_clock::now() < m_automatedUntil;
-    if (!m_handOn && !automated && (!m_controller || (!m_controller->isPressed(m_pad) && !m_controller->isMoving(m_pad)))) {
+    const bool fading = m_trailEnabled && !m_trail.isEmpty(now);
+    if (!m_handOn && !automated && !fading && (!m_controller || (!m_controller->isPressed(m_pad) && !m_controller->isMoving(m_pad)))) {
         m_frameTimer.stop();
     }
 }
@@ -234,10 +273,88 @@ void XyPadRenderer::itemChange(ItemChange change, const ItemChangeData & data)
             m_frameTimer.start();
         } else {
             letGo();
+            m_trail.clear();
             m_frameTimer.stop();
         }
     }
     QQuickPaintedItem::itemChange(change, data);
+}
+
+QPointF XyPadRenderer::toItem(const QPointF & padPosition) const
+{
+    return { (padPosition.x() + 1.0) / 2.0 * width(), (1.0 - padPosition.y()) / 2.0 * height() };
+}
+
+void XyPadRenderer::paintTrail(QPainter * painter) const
+{
+    const auto points = m_trail.points(XyPadTrail::Clock::now());
+    if (points.size() < 2) {
+        return;
+    }
+
+    struct Vertex
+    {
+        QPointF position;
+        double life;
+    };
+
+    // The curve through the points, in short straight pieces, each vertex as old as where it lies
+    std::vector<Vertex> vertices;
+    vertices.reserve(points.size() * TrailSubdivisions + 1);
+    vertices.push_back({ toItem(points.front().position), 1.0 - points.front().age });
+    for (size_t index = 0; index + 1 < points.size(); index++) {
+        const auto p0 = toItem(points.at(index > 0 ? index - 1 : index).position);
+        const auto p1 = toItem(points.at(index).position);
+        const auto p2 = toItem(points.at(index + 1).position);
+        const auto p3 = toItem(points.at(index + 2 < points.size() ? index + 2 : index + 1).position);
+        for (int step = 1; step <= TrailSubdivisions; step++) {
+            const double t = static_cast<double>(step) / TrailSubdivisions;
+            const double age = points.at(index).age + (points.at(index + 1).age - points.at(index).age) * t;
+            vertices.push_back({ catmullRom(p0, p1, p2, p3, t), 1.0 - std::clamp(age, 0.0, 1.0) });
+        }
+    }
+    // Each vertex's normal, between those of the pieces on either side, so the pieces of the ribbon
+    // share their edges instead of overlapping
+    std::vector<QPointF> normals(vertices.size());
+    for (size_t index = 0; index < vertices.size(); index++) {
+        const auto & before = vertices.at(index > 0 ? index - 1 : index).position;
+        const auto & after = vertices.at(index + 1 < vertices.size() ? index + 1 : index).position;
+        const auto direction = after - before;
+        const double length = std::hypot(direction.x(), direction.y());
+        normals.at(index) = length > 0.0 ? QPointF { -direction.y() / length, direction.x() / length } : QPointF {};
+    }
+
+    painter->save();
+    // Where pieces overlap the brighter one wins instead of adding up, so nothing ever gets brighter
+    // than the accent colour at the head
+    painter->setCompositionMode(QPainter::CompositionMode_Lighten);
+    painter->setPen(Qt::NoPen);
+    // A wide faint glow first, then a thin core over it, both in the accent colour fading out
+    for (const bool core : { false, true }) {
+        const auto halfWidth = [core](double life) { return (core ? 0.5 + 1.5 * life : 1.0 + 5.0 * life); };
+        for (size_t index = 0; index + 1 < vertices.size(); index++) {
+            const auto & from = vertices.at(index);
+            const auto & to = vertices.at(index + 1);
+            const double life = (from.life + to.life) * 0.5;
+            if (life <= 0.0) {
+                continue;
+            }
+            auto color = m_accentColor;
+            color.setAlphaF(static_cast<float>(core ? std::pow(life, 1.5) : 0.18 * life));
+            painter->setBrush(color);
+            // Each piece reaches half a pixel into the next, so the antialiased seams never show
+            const auto direction = to.position - from.position;
+            const double length = std::hypot(direction.x(), direction.y());
+            const auto overlap = length > 0.0 ? direction * (SeamOverlap / length) : QPointF {};
+            const auto fromOffset = normals.at(index) * halfWidth(from.life);
+            const auto toOffset = normals.at(index + 1) * halfWidth(to.life);
+            const auto start = from.position - overlap;
+            const auto end = to.position + overlap;
+            const std::array quad { start + fromOffset, end + toOffset, end - toOffset, start - fromOffset };
+            painter->drawPolygon(quad.data(), static_cast<int>(quad.size()));
+        }
+    }
+    painter->restore();
 }
 
 void XyPadRenderer::paint(QPainter * painter)
@@ -276,8 +393,10 @@ void XyPadRenderer::paint(QPainter * painter)
     if (!m_controller) {
         return;
     }
-    const double x = (m_controller->positionX(m_pad) + 1.0) / 2.0 * area.width();
-    const double y = (1.0 - m_controller->positionY(m_pad)) / 2.0 * area.height();
+    if (m_trailEnabled) {
+        paintTrail(painter);
+    }
+    const auto [x, y] = toItem({ m_controller->positionX(m_pad), m_controller->positionY(m_pad) });
     auto color = m_accentColor;
     // Fainter at rest, so a pad that is being played stands out from the other three
     const bool active = m_handOn || m_controller->isPressed(m_pad) || m_controller->isMoving(m_pad);
