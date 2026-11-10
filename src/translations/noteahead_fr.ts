@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Les départs conservent leur niveau quoi que fasse le fader : le dispositif devient donc plus « wet » à mesure qu&apos;on le baisse.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>Assignations MIDI</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Un contrôleur assigné ici déplace le paramètre entre Min et Max, avant tout ce que l&apos;appareil lui-même fait de ce contrôleur. Appuyez sur Learn et tournez un bouton du contrôleur pour prendre son CC.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Tournez...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Prendre le CC du prochain bouton du contrôleur que vous tournez</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Supprimer cette assignation</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Position du bouton, en pourcentage, contrôleur en bas</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Position du bouton, en pourcentage, contrôleur en haut</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Ajouter une assignation</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Assigner un contrôleur à un paramètre de cet appareil</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

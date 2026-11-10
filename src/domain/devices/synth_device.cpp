@@ -2004,6 +2004,7 @@ void SynthDevice::serializeToXml(ProjectWriter & writer) const
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -2032,6 +2033,8 @@ void SynthDevice::deserializeFromXml(ProjectReader & reader)
             if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                     insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {

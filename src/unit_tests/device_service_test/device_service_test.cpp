@@ -694,6 +694,87 @@ void DeviceServiceTest::test_modulationWheel_everyDevice_shouldOpenItsTargetUnde
     }
 }
 
+namespace {
+QString deviceXml(const Device & device)
+{
+    QString xml;
+    NahdXmlWriter writer { xml };
+    device.serializeToXml(writer);
+    return xml;
+}
+
+void readDeviceXml(Device & device, const QString & xml)
+{
+    NahdXmlReader reader { xml };
+    reader.readNextStartElement();
+    device.deserializeFromXml(reader);
+}
+} // namespace
+
+void DeviceServiceTest::test_midiMapping_everyDevice_shouldMoveItsTargetAndSurviveXml()
+{
+    const uint8_t controller = 20;
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "MappingTest");
+        const auto automatables = device->automatableParameters();
+        // A device with nothing to map still has to keep its mappings through a save
+        const auto target = automatables.empty() ? std::string { "missing" } : automatables.front().key;
+        const MidiMapping mapping { MidiMapping::Kind::Cc, controller, target, 0.8, 0.2 };
+        device->setMidiMappings({ mapping });
+
+        const auto controllers = device->availableMidiCcControllers();
+        QVERIFY2(std::ranges::count(controllers, controller, &MidiCcController::number) == 1, device->typeName().c_str());
+
+        if (!automatables.empty()) {
+            const auto valueOf = [&device, &target]() { return device->parameter(target)->get().value(); };
+            const float knob = device->parameter(target)->get().authoredValue();
+            device->processMidiCc(controller, 0, 0);
+            QVERIFY2(std::abs(valueOf() - 0.8f) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+            device->processMidiCc(controller, 127, 0);
+            QVERIFY2(std::abs(valueOf() - 0.2f) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+            // Played, not authored: the transport hands the knob back
+            device->clearAutomation();
+            QVERIFY2(std::abs(valueOf() - knob) < 1.0e-5f, (device->typeName() + ": " + target).c_str());
+        }
+
+        const auto copy = DeviceFactory::createDevice(typeId, "MappingTest");
+        readDeviceXml(*copy, deviceXml(*device));
+        QVERIFY2(copy->midiMappings() == Device::MidiMappingList { mapping }, device->typeName().c_str());
+    }
+}
+
+void DeviceServiceTest::test_midiMapping_mappedCc_shouldOverrideTheDevice()
+{
+    SynthDevice synth { "TestSynth" };
+    const auto wheel = static_cast<uint8_t>(MidiCcMapping::Controller::ModulationWheelMSB);
+    const auto lfoKey = synth.modulationWheelTargets().at(0);
+    const auto cutoffKey = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    synth.setMidiMappings({ { MidiMapping::Kind::Cc, wheel, cutoffKey, 0.0, 1.0 } });
+    const float lfo = synth.parameter(lfoKey)->get().value();
+
+    synth.processMidiCc(wheel, 127, 0);
+
+    QCOMPARE(synth.parameter(cutoffKey)->get().value(), 1.0f);
+    QCOMPARE(synth.parameter(lfoKey)->get().value(), lfo);
+    const auto controllers = synth.availableMidiCcControllers();
+    const auto it = std::ranges::find(controllers, wheel, &MidiCcController::number);
+    QVERIFY(it != controllers.end());
+    QVERIFY(it->name != "Mod Wheel");
+    QCOMPARE(std::ranges::count(controllers, wheel, &MidiCcController::number), 1);
+}
+
+void DeviceServiceTest::test_midiMapping_withoutMappings_shouldWriteNothingAndReadOverOldOnes()
+{
+    SynthDevice synth { "TestSynth" };
+    const auto xml = deviceXml(synth);
+    QVERIFY(!xml.contains(Constants::NahdXml::xmlKeyMidiMappings()));
+
+    SynthDevice mapped { "TestSynth" };
+    mapped.setMidiMappings({ { MidiMapping::Kind::Cc, 74, Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.0, 1.0 } });
+    readDeviceXml(mapped, xml);
+    QVERIFY(mapped.midiMappings().empty());
+}
+
 void DeviceServiceTest::test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

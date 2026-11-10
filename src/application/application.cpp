@@ -839,6 +839,11 @@ void Application::connectMidiService()
         }
     });
 
+    // MIDI Learn in the Device Settings dialog
+    connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, const auto & controller, const auto &) {
+        m_deviceRackController->notifyControllerCcReceived(static_cast<int>(controller));
+    });
+
     // Apply MIDI CC via a MIDI controller
     connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, const auto & controller, const auto & value) {
         const auto track = m_editorService->position().track;

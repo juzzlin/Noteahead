@@ -21,6 +21,9 @@ New features:
   - Presets fitted to real kicks: damped and open 24", a 20" from inside and outside, and more
   - Techno kicks and toms among its presets
 
+* MIDI Mappings in Device Settings: map controller CCs to device parameters, with Learn
+  - Saved with the project and in exported device settings
+
 Bug fixes:
 
 * Side-chain on CC 7 ducks an internal device under its Fader instead of overwriting it

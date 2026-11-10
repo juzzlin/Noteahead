@@ -56,6 +56,9 @@ private slots:
     void test_scheduleParameterChange_relative_shouldScaleTheKnob();
     void test_scheduleSideChainCc_fader_shouldDuckUnderTheKnob();
     void test_modulationWheel_everyDevice_shouldOpenItsTargetUnderTheKnob();
+    void test_midiMapping_everyDevice_shouldMoveItsTargetAndSurviveXml();
+    void test_midiMapping_mappedCc_shouldOverrideTheDevice();
+    void test_midiMapping_withoutMappings_shouldWriteNothingAndReadOverOldOnes();
     void test_scheduleSideChainCc_notSideChain_shouldBeLeftToTheCcPath();
     void test_clearAutomation_shouldRestoreAutomatedEffects();
     void test_copyDevice_differentType_shouldReplaceTargetDevice();

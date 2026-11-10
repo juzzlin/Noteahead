@@ -299,9 +299,11 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - MIDI Side-Chain
   - Trigger MIDI CC events based on other tracks or columns.
 - Step Recording
-  - Record notes directly from a MIDI controller into the editor.
+  - Record notes directly from a MIDI controller into the editor, at the toolbar's velocity or as played.
 
 ### MIDI & Connectivity
+- MIDI Mappings
+  - Map controller CCs to any device parameter per project, with MIDI Learn. The mod wheel works on every instrument.
 - MIDI Hot-Plug
   - Automatic detection and setup of MIDI devices as they go online/offline.
 - Virtual MIDI Out

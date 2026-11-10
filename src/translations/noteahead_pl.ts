@@ -2151,6 +2151,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Wysyłki zachowują swój poziom niezależnie od suwaka, więc urządzenie staje się bardziej mokre w miarę jego ściszania.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>Mapowania MIDI</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Zmapowany tu kontroler przesuwa parametr między Min a Max, przed tym, co samo urządzenie robi z tym kontrolerem. Naciśnij Learn i porusz pokrętłem kontrolera, aby pobrać jego CC.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Porusz...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Pobierz CC z następnego poruszonego pokrętła kontrolera</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Usuń to mapowanie</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Położenie pokrętła w procentach przy dolnym położeniu kontrolera</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Położenie pokrętła w procentach przy górnym położeniu kontrolera</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Dodaj mapowanie</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Zmapuj kontroler na parametr tego urządzenia</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

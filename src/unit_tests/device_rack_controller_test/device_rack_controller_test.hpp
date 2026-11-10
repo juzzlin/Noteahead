@@ -46,6 +46,7 @@ private slots:
     void test_deviceClipped_shouldLatchUntilCleared();
     void test_deviceClipped_afterClearing_shouldStayClearWhileBelowFullScale();
     void test_deviceSettings_shouldRoundTripThroughController();
+    void test_deviceMidiMappings_shouldRoundTripThroughController();
     void test_removeDeviceByName_shouldClearCorrectSlot();
     void test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
     void test_importSettings_differentType_shouldEmitConfirmationWithMismatch();

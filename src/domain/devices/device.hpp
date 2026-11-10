@@ -20,6 +20,7 @@
 
 #include "../dsp/audio_context.hpp"
 #include "../effects/effect_rack.hpp"
+#include "../midi/midi_mapping.hpp"
 #include "../tracker/parameter_automation_target.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "../utility/audio_scope.hpp"
@@ -113,6 +114,14 @@ public:
     //! the same control on every pad. Empty for a device that takes CC 1 itself in
     //! processDeviceMidiCc(), or has no use for it.
     virtual std::vector<std::string> modulationWheelTargets() const;
+
+    //! The user's controller mappings: each moves one parameter from a controller, ahead of whatever
+    //! the device itself does with that controller. Kept with the project and in exported settings.
+    using MidiMappingList = std::vector<MidiMapping>;
+    MidiMappingList midiMappings() const;
+    void setMidiMappings(MidiMappingList mappings);
+    //! Highest CC a mapping can take: 120 and up are channel mode messages.
+    static constexpr uint8_t MaxMappableCc { 119 };
 
     size_t id() const;
     void setId(size_t id);
@@ -547,6 +556,11 @@ protected:
 
     void serializeAttributesToXml(ProjectWriter & writer) const;
     void deserializeAttributesFromXml(ProjectReader & reader);
+    //! Writes <MidiMappings>, or nothing when there are none, so a project without them is written
+    //! exactly as before.
+    void serializeMidiMappingsToXml(ProjectWriter & writer) const;
+    //! Reads the <MidiMappings> the reader sits on, and leaves it at its end.
+    void deserializeMidiMappingsFromXml(ProjectReader & reader);
 
     virtual void syncParameters();
     //! Brings whatever depends on parameter @p key up to date after an automation step moved it.
@@ -586,6 +600,10 @@ private:
     void applyModulationWheel(const std::vector<std::string> & keys, uint8_t value);
     //! Puts the modulation wheel back at rest.
     void clearModulationWheel();
+    //! Moves every parameter mapped to CC @p controller. False when nothing is mapped to it.
+    bool applyMidiMappings(uint8_t controller, uint8_t value);
+    //! The name a mapped CC is listed under: the label of the parameter it moves.
+    std::string midiMappingName(const MidiMapping & mapping) const;
     //! The note @p note becomes when shifted by @p semitones, or nothing when that falls outside
     //! MIDI.
     static std::optional<uint8_t> shiftedNote(uint8_t note, int semitones);
@@ -632,6 +650,8 @@ private:
     std::optional<double> m_nextNoteBeats;
 
     std::array<std::atomic<float>, MaxLfoLeds> m_lfoLeds {};
+
+    MidiMappingList m_midiMappings;
 
     mutable std::recursive_mutex m_mutex;
 };

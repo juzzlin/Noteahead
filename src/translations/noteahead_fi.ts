@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Lähdöt pitävät tasonsa riippumatta liu&apos;usta, joten laite muuttuu märemmäksi kun vedät sitä alas.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>MIDI-kytkennät</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Tähän kytketty ohjain liikuttaa parametria Minin ja Maxin välillä, ennen kuin laite itse tekee ohjaimella mitään. Paina Learn ja liikuta ohjaimen nuppia, niin sen CC otetaan käyttöön.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Liikuta...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Ota CC seuraavasta ohjaimen nupista, jota liikutat</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Poista tämä kytkentä</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Nupin asento prosentteina ohjaimen ala-asennossa</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Nupin asento prosentteina ohjaimen yläasennossa</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Lisää kytkentä</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Kytke ohjain tämän laitteen parametriin</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

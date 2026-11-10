@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Le mandate mantengono il loro livello qualunque cosa faccia il fader, quindi il dispositivo diventa più wet man mano che lo abbassi.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>Mappature MIDI</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Un controller mappato qui muove il parametro tra Min e Max, prima di qualsiasi cosa il dispositivo stesso faccia con quel controller. Premi Learn e muovi una manopola del controller per prenderne il CC.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Muovi...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Prendi il CC dalla prossima manopola del controller che muovi</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Rimuovi questa mappatura</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Posizione della manopola, in percentuale, con il controller al minimo</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Posizione della manopola, in percentuale, con il controller al massimo</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Aggiungi mappatura</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Mappa un controller su un parametro di questo dispositivo</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

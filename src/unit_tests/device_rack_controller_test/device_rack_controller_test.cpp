@@ -728,6 +728,37 @@ void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughControl
     QCOMPARE(controller.deviceSendTap(2), static_cast<int>(Device::SendTap::PreFader));
 }
 
+void DeviceRackControllerTest::test_deviceMidiMappings_shouldRoundTripThroughController()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    const auto device = std::make_shared<MockDevice>(prefix + " 1");
+    deviceService->setDevice(0, device);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+    QVERIFY(controller.deviceMidiMappings(0).isEmpty());
+
+    // Out of range values are brought back into it
+    controller.setDeviceMidiMappings(0, { QVariantMap { { "controller", 200 }, { "target", "cutoff" }, { "min", 0.75 }, { "max", 1.5 } } });
+
+    QVERIFY(editorService->isModified());
+    const auto expected = MidiMapping { MidiMapping::Kind::Cc, Device::MaxMappableCc, "cutoff", 0.75, 1.0 };
+    QVERIFY(device->midiMappings() == Device::MidiMappingList { expected });
+    const auto mappings = controller.deviceMidiMappings(0);
+    QCOMPARE(mappings.size(), 1);
+    QCOMPARE(mappings.at(0).toMap()["controller"].toInt(), static_cast<int>(Device::MaxMappableCc));
+    QCOMPARE(mappings.at(0).toMap()["target"].toString(), QString { "cutoff" });
+    QCOMPARE(mappings.at(0).toMap()["min"].toDouble(), 0.75);
+    QCOMPARE(mappings.at(0).toMap()["max"].toDouble(), 1.0);
+
+    QSignalSpy learnSpy { &controller, &DeviceRackController::controllerCcReceived };
+    controller.notifyControllerCcReceived(74);
+    QCOMPARE(learnSpy.count(), 1);
+    QCOMPARE(learnSpy.at(0).at(0).toInt(), 74);
+}
+
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

@@ -1417,6 +1417,21 @@ QString xmlKeyMembers()
     return "Members";
 }
 
+QString xmlKeyMidiMappings()
+{
+    return "MidiMappings";
+}
+
+QString xmlKeyMidiMapping()
+{
+    return "MidiMapping";
+}
+
+QString xmlKeyKind()
+{
+    return "kind";
+}
+
 QString xmlKeyMember()
 {
     return "Member";

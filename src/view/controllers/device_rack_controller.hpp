@@ -127,6 +127,15 @@ public:
     Q_INVOKABLE int deviceSendTap(int slotIndex) const;
     Q_INVOKABLE void setDeviceSendTap(int slotIndex, int value);
 
+    //! The device's controller mappings as { controller, target, min, max }, min and max being knob
+    //! positions 0..1.
+    Q_INVOKABLE QVariantList deviceMidiMappings(int slotIndex) const;
+    Q_INVOKABLE void setDeviceMidiMappings(int slotIndex, const QVariantList & mappings);
+    //! Highest CC a mapping can take.
+    Q_INVOKABLE int maxMappableMidiCc() const;
+    //! For MIDI Learn: a controller CC came in from the controller keyboard.
+    void notifyControllerCcReceived(int controller);
+
     //! Slot index of a device by name, or -1 when no such device is in the rack.
     Q_INVOKABLE int slotOfDevice(const QString & deviceName) const;
 
@@ -185,6 +194,8 @@ signals:
     //! A device dialog open on the slot is bound to the device object that was there before the
     //! import, which a file of a different type replaces outright, so it has to react to this.
     void deviceSettingsImported(int slotIndex);
+    //! A CC came in from the controller keyboard, for a mapping that is learning its controller.
+    void controllerCcReceived(int controller);
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();

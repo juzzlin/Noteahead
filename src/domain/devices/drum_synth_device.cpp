@@ -438,6 +438,7 @@ void DrumSynthDevice::serializeToXml(ProjectWriter & writer) const
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -478,6 +479,8 @@ void DrumSynthDevice::deserializeFromXml(ProjectReader & reader)
             if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                     insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {

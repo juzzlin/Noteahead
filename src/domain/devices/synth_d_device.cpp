@@ -423,6 +423,7 @@ void SynthDDevice::serializeToXml(ProjectWriter & writer) const
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Xml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Xml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -449,6 +450,8 @@ void SynthDDevice::deserializeFromXml(ProjectReader & reader)
             if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Xml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
+                } else if (reader.name() == Xml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
                 } else if (reader.name() == Xml::xmlKeyInsertEffects()) {
                     insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Xml::xmlKeyParameter()) {

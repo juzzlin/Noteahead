@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Los envíos mantienen su nivel haga lo que haga el fader, así que el dispositivo suena más húmedo a medida que lo bajas.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>Asignaciones MIDI</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Un controlador asignado aquí mueve el parámetro entre Min y Max, por delante de lo que el propio dispositivo haga con ese controlador. Pulsa Learn y mueve un mando del controlador para tomar su CC.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Mueve...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Tomar el CC del siguiente mando del controlador que muevas</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Eliminar esta asignación</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Posición del mando, en porcentaje, con el controlador al mínimo</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Posición del mando, en porcentaje, con el controlador al máximo</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Añadir asignación</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Asignar un controlador a un parámetro de este dispositivo</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

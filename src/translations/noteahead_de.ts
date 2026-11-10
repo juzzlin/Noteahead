@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>Die Sends behalten ihren Pegel, was der Fader auch tut, sodass das Gerät beim Herunterziehen halliger wird.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>MIDI-Zuweisungen</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Ein hier zugewiesener Controller bewegt den Parameter zwischen Min und Max, vor allem, was das Gerät selbst mit diesem Controller macht. Drücke Learn und bewege einen Regler am Controller, um seinen CC zu übernehmen.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Bewegen...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>Den CC vom nächsten bewegten Regler am Controller übernehmen</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Diese Zuweisung entfernen</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Reglerstellung in Prozent am unteren Ende des Controllers</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Reglerstellung in Prozent am oberen Ende des Controllers</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Zuweisung hinzufügen</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Einen Controller einem Parameter dieses Geräts zuweisen</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

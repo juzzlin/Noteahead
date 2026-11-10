@@ -59,6 +59,7 @@
 
 #include <QVariantMap>
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -288,6 +289,51 @@ void DeviceRackController::setDeviceSendTap(int slotIndex, int value)
         device->setSendTap(static_cast<Device::SendTap>(value));
         m_editorService->setIsModified(true);
     }
+}
+
+QVariantList DeviceRackController::deviceMidiMappings(int slotIndex) const
+{
+    QVariantList list;
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        for (auto && mapping : device->midiMappings()) {
+            list.push_back(QVariantMap {
+              { "controller", static_cast<int>(mapping.controller) },
+              { "target", QString::fromStdString(mapping.target) },
+              { "min", mapping.min },
+              { "max", mapping.max } });
+        }
+    }
+    return list;
+}
+
+void DeviceRackController::setDeviceMidiMappings(int slotIndex, const QVariantList & mappings)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        Device::MidiMappingList list;
+        for (auto && item : mappings) {
+            const auto map = item.toMap();
+            MidiMapping mapping;
+            mapping.controller = static_cast<uint16_t>(std::clamp(map["controller"].toInt(), 0, static_cast<int>(Device::MaxMappableCc)));
+            mapping.target = map["target"].toString().toStdString();
+            mapping.min = std::clamp(map["min"].toDouble(), 0.0, 1.0);
+            mapping.max = std::clamp(map["max"].toDouble(), 0.0, 1.0);
+            list.push_back(std::move(mapping));
+        }
+        if (list != device->midiMappings()) {
+            device->setMidiMappings(std::move(list));
+            m_editorService->setIsModified(true);
+        }
+    }
+}
+
+int DeviceRackController::maxMappableMidiCc() const
+{
+    return Device::MaxMappableCc;
+}
+
+void DeviceRackController::notifyControllerCcReceived(int controller)
+{
+    emit controllerCcReceived(controller);
 }
 
 QVariantList DeviceRackController::deviceMeterLevels(int slotIndex) const

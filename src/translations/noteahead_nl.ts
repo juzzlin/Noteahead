@@ -2150,6 +2150,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>De sends behouden hun niveau wat de fader ook doet, dus het apparaat wordt natter naarmate je het omlaag trekt.</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>MIDI-toewijzingen</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>Een hier toegewezen controller beweegt de parameter tussen Min en Max, vóór alles wat het apparaat zelf met die controller doet. Druk op Learn en beweeg een knop op de controller om zijn CC over te nemen.</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>Beweeg...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>De CC overnemen van de volgende knop die je op de controller beweegt</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>Deze toewijzing verwijderen</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>Knopstand in procenten bij de onderkant van de controller</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>Knopstand in procenten bij de bovenkant van de controller</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>Toewijzing toevoegen</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>Een controller toewijzen aan een parameter van dit apparaat</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

@@ -175,6 +175,24 @@ QVariantList PropertyService::automationTargets() const
     return targets;
 }
 
+QVariantList PropertyService::midiMappingTargets(int slot) const
+{
+    QVariantList targets;
+    if (const auto deviceService = m_deviceService.lock(); deviceService && slot >= 0) {
+        if (const auto device = deviceService->device(static_cast<size_t>(slot)); device) {
+            for (auto && group : deviceParameterGroups(*device)) {
+                const auto prefix = groupLabel(group);
+                for (auto && parameter : group.parameters) {
+                    const auto map = parameter.toMap();
+                    const auto label = map["label"].toString();
+                    targets.push_back(QVariantMap { { "key", map["key"] }, { "label", prefix.isEmpty() ? label : prefix + ": " + label } });
+                }
+            }
+        }
+    }
+    return targets;
+}
+
 QVariantList PropertyService::automationTargetsForPort(const QString & portName) const
 {
     QVariantList targets;

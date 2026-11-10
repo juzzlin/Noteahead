@@ -69,6 +69,9 @@ public:
     Q_INVOKABLE QVariantList automationTargetsForPort(const QString & portName) const;
     //! One parameter of automationTargets(), or an empty map when the target or the parameter is gone.
     Q_INVOKABLE QVariantMap automationParameter(const QString & owner, const QString & ownerId, const QString & key) const;
+    //! What a controller mapping on the device in @p slot can move, as { key, label }: the device's
+    //! own parameters by label, then each pad's, the label naming the pad. Empty for an empty slot.
+    Q_INVOKABLE QVariantList midiMappingTargets(int slot) const;
 
 private:
     //! The controller as the port's device declares it, or nothing when the port is not an

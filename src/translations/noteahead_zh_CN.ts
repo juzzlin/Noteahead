@@ -2149,6 +2149,58 @@
         <source>Sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</source>
         <translation>无论推子如何变化，发送都保持自身电平，因此拉低设备时它会变得更「湿」。</translation>
     </message>
+    <message>
+        <source>MIDI Mappings</source>
+        <translation>MIDI 映射</translation>
+    </message>
+    <message>
+        <source>A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.</source>
+        <translation>在此映射的控制器会在 Min 与 Max 之间移动参数，优先于设备自身对该控制器的处理。按下 Learn 并转动控制器上的旋钮即可获取其 CC。</translation>
+    </message>
+    <message>
+        <source>CC</source>
+        <translation>CC</translation>
+    </message>
+    <message>
+        <source>Move...</source>
+        <translation>转动...</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Learn</translation>
+    </message>
+    <message>
+        <source>Take the CC from the next controller knob you move</source>
+        <translation>从下一个转动的控制器旋钮获取 CC</translation>
+    </message>
+    <message>
+        <source>Remove this mapping</source>
+        <translation>移除此映射</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation>Min</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s bottom</source>
+        <translation>控制器处于最低时的旋钮位置（百分比）</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation>Max</translation>
+    </message>
+    <message>
+        <source>Knob position, in percent, at the controller&apos;s top</source>
+        <translation>控制器处于最高时的旋钮位置（百分比）</translation>
+    </message>
+    <message>
+        <source>Add Mapping</source>
+        <translation>添加映射</translation>
+    </message>
+    <message>
+        <source>Map a controller to a parameter of this device</source>
+        <translation>将控制器映射到此设备的参数</translation>
+    </message>
 </context>
 <context>
     <name>DimensionDialog</name>

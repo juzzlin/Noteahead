@@ -180,6 +180,7 @@ set(HEADER_FILES
     midi/midi_cc_data.hpp
     midi/midi_cc_setting.hpp
     midi/midi_import_mode.hpp
+    midi/midi_mapping.hpp
     midi/midi_note_data.hpp
     midi/pitch_bend_automation.hpp
     midi/pitch_bend_data.hpp
@@ -420,6 +421,7 @@ set(SOURCE_FILES
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp
     midi/midi_cc_setting.cpp
+    midi/midi_mapping.cpp
     midi/midi_note_data.cpp
     midi/pitch_bend_automation.cpp
     midi/pitch_bend_data.cpp

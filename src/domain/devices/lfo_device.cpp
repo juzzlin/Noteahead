@@ -379,6 +379,7 @@ void LfoDevice::serializeToXml(ProjectWriter & writer) const
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(NahdXml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -419,6 +420,8 @@ void LfoDevice::deserializeFromXml(ProjectReader & reader)
             if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
+                } else if (reader.name() == NahdXml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
                 } else if (reader.name() == NahdXml::xmlKeyInsertEffects()) {
                     insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == NahdXml::xmlKeyParameter()) {

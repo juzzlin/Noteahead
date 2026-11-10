@@ -41,10 +41,63 @@ AnimatedDialog {
         radius: 2
     }
 
+    //! What a mapping can move, as { key, label }
+    property var mappingTargets: []
+    //! The mapping row waiting for a controller to be moved, or -1
+    property int learningRow: -1
+
     onOpened: {
         root.slotIndex = deviceRackController.slotOfDevice(root.deviceName);
         faderPositionCombo.currentIndex = deviceRackController.deviceFaderPosition(root.slotIndex);
         sendTapCombo.currentIndex = deviceRackController.deviceSendTap(root.slotIndex);
+        root.learningRow = -1;
+        root.mappingTargets = propertyService.midiMappingTargets(root.slotIndex);
+        mappingsModel.clear();
+        for (const mapping of deviceRackController.deviceMidiMappings(root.slotIndex)) {
+            mappingsModel.append(mapping);
+        }
+    }
+    onClosed: root.learningRow = -1
+
+    function commitMappings(): void {
+        const mappings = [];
+        for (let i = 0; i < mappingsModel.count; i++) {
+            const mapping = mappingsModel.get(i);
+            mappings.push({
+                "controller": mapping.controller,
+                "target": mapping.target,
+                "min": mapping.min,
+                "max": mapping.max
+            });
+        }
+        deviceRackController.setDeviceMidiMappings(root.slotIndex, mappings);
+    }
+
+    //! In the dialog rather than in the row: removing the row destroys the context the row's own
+    //! handler runs in, and anything after the removal there would no longer resolve.
+    function removeMapping(row: int): void {
+        if (root.learningRow === row) {
+            root.learningRow = -1;
+        } else if (root.learningRow > row) {
+            root.learningRow--;
+        }
+        mappingsModel.remove(row);
+        root.commitMappings();
+    }
+
+    ListModel {
+        id: mappingsModel
+    }
+
+    Connections {
+        target: deviceRackController
+        function onControllerCcReceived(controller: int): void {
+            if (root.visible && root.learningRow >= 0 && root.learningRow < mappingsModel.count && controller <= deviceRackController.maxMappableMidiCc()) {
+                mappingsModel.setProperty(root.learningRow, "controller", controller);
+                root.learningRow = -1;
+                root.commitMappings();
+            }
+        }
     }
 
     footer: DialogButtonBox {
@@ -56,6 +109,7 @@ AnimatedDialog {
     }
 
     ScrollView {
+        id: scrollView
         anchors.fill: parent
         anchors.margins: 20
         clip: true
@@ -63,7 +117,7 @@ AnimatedDialog {
         ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
         ColumnLayout {
-            width: parent.width
+            width: scrollView.availableWidth
             spacing: 14
 
             SectionHeading {
@@ -133,6 +187,137 @@ AnimatedDialog {
                 Layout.fillWidth: true
                 Layout.leftMargin: 150
                 wrapMode: Text.WordWrap
+            }
+
+            SectionHeading {
+                text: qsTr("MIDI Mappings")
+                Layout.topMargin: 10
+            }
+
+            Label {
+                text: qsTr("A controller mapped here moves the parameter between Min and Max, ahead of whatever the device itself does with that controller. Press Learn and move a knob on the controller to pick its CC.")
+                font.pixelSize: 12
+                opacity: 0.7
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+            }
+
+            Repeater {
+                model: mappingsModel
+                delegate: ColumnLayout {
+                    id: mappingRow
+                    required property int index
+                    required property int controller
+                    required property string target
+                    required property double min
+                    required property double max
+                    Layout.fillWidth: true
+                    spacing: 6
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Label {
+                            text: qsTr("CC")
+                            Layout.preferredWidth: 40
+                        }
+                        SpinBox {
+                            from: 0
+                            to: deviceRackController.maxMappableMidiCc()
+                            value: mappingRow.controller
+                            editable: true
+                            Layout.preferredWidth: 120
+                            onValueModified: {
+                                mappingsModel.setProperty(mappingRow.index, "controller", value);
+                                root.commitMappings();
+                            }
+                        }
+                        AppButton {
+                            text: root.learningRow === mappingRow.index ? qsTr("Move...") : qsTr("Learn")
+                            highlighted: root.learningRow === mappingRow.index
+                            toolTipText: qsTr("Take the CC from the next controller knob you move")
+                            onClicked: root.learningRow = root.learningRow === mappingRow.index ? -1 : mappingRow.index
+                        }
+                        ComboBox {
+                            model: root.mappingTargets
+                            textRole: "label"
+                            valueRole: "key"
+                            Layout.fillWidth: true
+                            Component.onCompleted: currentIndex = indexOfValue(mappingRow.target)
+                            onActivated: {
+                                mappingsModel.setProperty(mappingRow.index, "target", currentValue);
+                                root.commitMappings();
+                            }
+                        }
+                        AppButton {
+                            text: "\u2715"
+                            implicitWidth: 40
+                            toolTipText: qsTr("Remove this mapping")
+                            onClicked: root.removeMapping(mappingRow.index)
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Label {
+                            text: qsTr("Min")
+                            Layout.preferredWidth: 40
+                        }
+                        SpinBox {
+                            from: 0
+                            to: 100
+                            value: Math.round(mappingRow.min * 100)
+                            editable: true
+                            Layout.preferredWidth: 120
+                            ToolTip.delay: Constants.toolTipDelay
+                            ToolTip.timeout: Constants.toolTipTimeout
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Knob position, in percent, at the controller's bottom")
+                            onValueModified: {
+                                mappingsModel.setProperty(mappingRow.index, "min", value / 100);
+                                root.commitMappings();
+                            }
+                        }
+                        Label {
+                            text: qsTr("Max")
+                            Layout.leftMargin: 12
+                        }
+                        SpinBox {
+                            from: 0
+                            to: 100
+                            value: Math.round(mappingRow.max * 100)
+                            editable: true
+                            Layout.preferredWidth: 120
+                            ToolTip.delay: Constants.toolTipDelay
+                            ToolTip.timeout: Constants.toolTipTimeout
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Knob position, in percent, at the controller's top")
+                            onValueModified: {
+                                mappingsModel.setProperty(mappingRow.index, "max", value / 100);
+                                root.commitMappings();
+                            }
+                        }
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+            }
+
+            AppButton {
+                text: qsTr("Add Mapping")
+                enabled: root.mappingTargets.length > 0
+                toolTipText: qsTr("Map a controller to a parameter of this device")
+                onClicked: {
+                    mappingsModel.append({
+                        "controller": 1,
+                        "target": root.mappingTargets[0].key,
+                        "min": 0.0,
+                        "max": 1.0
+                    });
+                    root.commitMappings();
+                }
             }
         }
     }

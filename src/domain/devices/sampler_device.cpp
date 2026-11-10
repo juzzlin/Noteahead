@@ -2143,6 +2143,7 @@ void SamplerDevice::serializeToXml(ProjectWriter & writer) const
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -2231,6 +2232,8 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyParameters()) {
             deserializeParametersFromXml(reader);
+        } else if (name == Constants::NahdXml::xmlKeyMidiMappings()) {
+            deserializeMidiMappingsFromXml(reader);
         } else if (name == Constants::NahdXml::xmlKeyInsertEffects()) {
             insertEffectRack().deserializeEffectsFromXml(reader);
         } else if (name == Constants::NahdXml::xmlKeyParameter()) {

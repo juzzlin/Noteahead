@@ -191,6 +191,7 @@ void SubMixerDevice::serializeToXml(ProjectWriter & writer) const
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     insertEffectRack().serializeEffectsToXml(writer);
@@ -220,6 +221,8 @@ void SubMixerDevice::deserializeFromXml(ProjectReader & reader)
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyParameters()) {
             deserializeParametersFromXml(reader);
+        } else if (name == Constants::NahdXml::xmlKeyMidiMappings()) {
+            deserializeMidiMappingsFromXml(reader);
         } else if (name == Constants::NahdXml::xmlKeyInsertEffects()) {
             insertEffectRack().deserializeEffectsFromXml(reader);
         } else if (name == Constants::NahdXml::xmlKeyParameter()) {

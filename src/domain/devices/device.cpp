@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <limits>
 
 namespace noteahead {
@@ -196,7 +197,28 @@ std::vector<MidiCcController> Device::availableMidiCcControllers() const
     if (!modulationWheelTargets().empty() && std::ranges::none_of(controllers, [wheel](auto && controller) { return controller.number == wheel; })) {
         controllers.push_back({ wheel, "Mod Wheel" });
     }
-    controllers.push_back(expressionMidiCcController());
+
+    // A mapped CC means what its mappings make of it, whatever the device would have done with it
+    std::vector<MidiCcController> mapped;
+    for (auto && mapping : midiMappings()) {
+        if (mapping.kind != MidiMapping::Kind::Cc || mapping.controller > MaxMappableCc) {
+            continue;
+        }
+        const auto number = static_cast<uint8_t>(mapping.controller);
+        if (const auto it = std::ranges::find(mapped, number, &MidiCcController::number); it != mapped.end()) {
+            it->name += " + " + midiMappingName(mapping);
+        } else {
+            mapped.push_back({ number, midiMappingName(mapping) });
+        }
+    }
+    const auto isMapped = [&mapped](uint8_t number) { return std::ranges::find(mapped, number, &MidiCcController::number) != mapped.end(); };
+    std::erase_if(controllers, [&isMapped](auto && controller) { return isMapped(controller.number); });
+    std::ranges::sort(mapped, {}, &MidiCcController::number);
+    controllers.insert(controllers.end(), mapped.begin(), mapped.end());
+
+    if (const auto expression = expressionMidiCcController(); !isMapped(expression.number)) {
+        controllers.push_back(expression);
+    }
     return controllers;
 }
 
@@ -274,6 +296,10 @@ bool Device::producesAudio() const
 void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
     using MidiCcMapping::Controller;
+    // The user's mappings come first, so that they can take a controller over from the device
+    if (controller <= MaxMappableCc && applyMidiMappings(controller, value)) {
+        return;
+    }
     if (controller == static_cast<uint8_t>(Controller::ExpressionControllerMSB)) {
         if (updateExpressionParameter(static_cast<float>(value) / 127.0f, false)) {
             emit parametersChanged();
@@ -294,6 +320,77 @@ void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 std::vector<std::string> Device::modulationWheelTargets() const
 {
     return {};
+}
+
+Device::MidiMappingList Device::midiMappings() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_midiMappings;
+}
+
+void Device::setMidiMappings(MidiMappingList mappings)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_midiMappings = std::move(mappings);
+}
+
+bool Device::applyMidiMappings(uint8_t controller, uint8_t value)
+{
+    bool mapped = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        const double normalized = static_cast<double>(value) / 127.0;
+        for (auto && mapping : m_midiMappings) {
+            if (mapping.kind == MidiMapping::Kind::Cc && mapping.controller == controller) {
+                applyParameterAutomation(mapping.target, ParameterAutomation::Mode::Absolute, mapping.targetValue(normalized));
+                mapped = true;
+            }
+        }
+    }
+    if (mapped) {
+        emit parametersChanged();
+    }
+    return mapped;
+}
+
+std::string Device::midiMappingName(const MidiMapping & mapping) const
+{
+    for (auto && automatable : automatableParameters()) {
+        if (automatable.key == mapping.target) {
+            const auto & display = automatable.parameter.display();
+            auto name = display && !display->label.empty() ? display->label : automatable.key;
+            return automatable.groupName.empty() ? name : std::format("{} ({})", name, automatable.groupName);
+        }
+    }
+    return mapping.target;
+}
+
+void Device::serializeMidiMappingsToXml(ProjectWriter & writer) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (m_midiMappings.empty()) {
+        return;
+    }
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMidiMappings());
+    for (auto && mapping : m_midiMappings) {
+        mapping.serializeToXml(writer);
+    }
+    writer.writeEndElement();
+}
+
+void Device::deserializeMidiMappingsFromXml(ProjectReader & reader)
+{
+    MidiMappingList mappings;
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyMidiMapping()) {
+            if (auto mapping = MidiMapping::deserializeFromXml(reader); mapping) {
+                mappings.push_back(std::move(*mapping));
+            }
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+    setMidiMappings(std::move(mappings));
 }
 
 namespace {
@@ -342,6 +439,7 @@ void Device::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     m_insertEffectRack.serializeEffectsToXml(writer);
@@ -369,6 +467,8 @@ void Device::deserializeFromXml(ProjectReader & reader)
             if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                     m_insertEffectRack.deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
@@ -1185,6 +1285,8 @@ void Device::deserializeAttributesFromXml(ProjectReader & reader)
     if (const auto uuid = reader.attribute(Constants::NahdXml::xmlKeyUuid()).toString(); !uuid.isEmpty()) {
         m_uuid = uuid.toStdString();
     }
+    // Settings read over a device replace its mappings, even with none of their own
+    setMidiMappings({});
     const auto octave = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyOctave(), false);
     m_octave.store(supportsOctave() && octave ? std::clamp(*octave, MinOctave, MaxOctave) : 0, std::memory_order_relaxed);
 }

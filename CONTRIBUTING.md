@@ -279,7 +279,7 @@ Inherit from `Device` and implement:
 | `bool hasActiveAudio() const` | False when silent, so the engine can skip the device. |
 | `reset()` | Parameters back to defaults, then the audio state. |
 | `resetDeviceAudio()` | Clears only the device's own audio state. `Device::resetAudio()` resets the insert rack first and then calls this. |
-| `serializeToXml()` / `deserializeFromXml()` | Usually: attributes, insert effects, then the parameters. Copy them from a neighbour. |
+| `serializeToXml()` / `deserializeFromXml()` | Usually: attributes, MIDI mappings, insert effects, then the parameters. Copy them from a neighbour; the device-level test round-trips every device's mappings. |
 | `syncParameters()` | Reads the parameters into the members the DSP runs on. |
 
 Override these where they apply:
