@@ -718,7 +718,7 @@ void DeviceService::serializeReverbSends(ProjectWriter & writer) const
                     writer.writeStartElement(Constants::NahdXml::xmlKeySend());
                     writer.writeAttribute(Constants::NahdXml::xmlKeyDeviceSlot(), QString::number(deviceSlot));
                     writer.writeAttribute(Constants::NahdXml::xmlKeyEffectSlot(), QString::number(effectSlot));
-                    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(send)));
+                    writer.writeAttribute(Constants::NahdXml::xmlKeyLevel(), QString::number(Utils::Xml::normalizedToXml(send)));
                     writer.writeEndElement(); // Send
                 }
             }
@@ -734,7 +734,7 @@ void DeviceService::serializeReverbSends(ProjectWriter & writer) const
                         writer.writeAttribute(Constants::NahdXml::xmlKeyDeviceSlot(), QString::number(deviceSlot));
                         writer.writeAttribute(Constants::NahdXml::xmlKeySubIndex(), QString::number(sourceIndex));
                         writer.writeAttribute(Constants::NahdXml::xmlKeyEffectSlot(), QString::number(effectSlot));
-                        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(send)));
+                        writer.writeAttribute(Constants::NahdXml::xmlKeyLevel(), QString::number(Utils::Xml::normalizedToXml(send)));
                         writer.writeEndElement(); // Send
                     }
                 }
@@ -850,7 +850,11 @@ void DeviceService::deserializeEffectSend(ProjectReader & reader)
 {
     const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
     const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
-    const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+    // An integer level, or in older projects a decimal value
+    auto value = Utils::Xml::readNormalizedAttribute(reader, Constants::NahdXml::xmlKeyLevel());
+    if (!value) {
+        value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+    }
     // Absent on every send written before parts could route themselves, which is what makes those
     // files read back as the device's own send.
     const auto subIndex = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeySubIndex(), false);

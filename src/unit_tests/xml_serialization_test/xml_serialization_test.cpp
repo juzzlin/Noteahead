@@ -119,13 +119,19 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <QLocale>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QTest>
 
+#include <array>
+#include <clocale>
 #include <cmath>
+#include <cstdio>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace noteahead {
@@ -815,6 +821,49 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_drawn_shouldLoadN
     QCOMPARE(automationServiceIn.pitchBendAutomations().at(0).interpolation().drawnCurve, pitchBendCurve);
     QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().curve, Interpolator::CurveType::Drawn);
     QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().drawnCurve, parameterCurve);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_finnishLocale_shouldKeepDecimalPoints()
+{
+    // Finnish writes a decimal comma, both in C's locale and in Qt's: a project must not, and has to
+    // read back the same wherever it is opened
+    const std::string previousCLocale { std::setlocale(LC_ALL, nullptr) };
+    const QLocale previousQLocale;
+    const bool hasFinnishCLocale = std::setlocale(LC_ALL, "fi_FI.UTF-8") || std::setlocale(LC_ALL, "fi_FI.utf8");
+    QLocale::setDefault(QLocale { QLocale::Finnish, QLocale::Finland });
+    const auto restore = qScopeGuard([&] {
+        std::setlocale(LC_ALL, previousCLocale.c_str());
+        QLocale::setDefault(previousQLocale);
+    });
+    // The locales really are in effect, so the checks below can fail
+    QCOMPARE(QLocale {}.toString(0.5), QString { "0,5" });
+    if (hasFinnishCLocale) {
+        std::array<char, 16> text {};
+        std::snprintf(text.data(), text.size(), "%g", 0.5);
+        QCOMPARE(QString { text.data() }, QString { "0,5" });
+    } else {
+        qInfo() << "fi_FI is not installed: checking Qt's locale only";
+    }
+
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    const AutomationCurve curve { { { 0, 0.125 }, { 1.03125, 0.987654321 }, { 8, 0.5 } } };
+    ParameterAutomation::InterpolationParameters interpolation { 0, 8, 0.125, 0.5, Interpolator::CurveType::Drawn };
+    interpolation.drawnCurve = curve;
+    automationServiceOut.addParameterAutomation({ 0, AutomationLocation { 0, 0, 2 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, interpolation, {}, {}, true });
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    const auto xml = editorService.toXml();
+    QVERIFY(xml.contains("\"0.987654321\""));
+    QVERIFY(xml.contains("\"1.03125\""));
+    QVERIFY(!xml.contains("0,987654321"));
+
+    editorService.fromXml(xml);
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().value0, 0.125);
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).interpolation().drawnCurve, curve);
 }
 
 void XmlSerializationTest::test_toXml_automationService_notDrawn_shouldWriteNoNodes()

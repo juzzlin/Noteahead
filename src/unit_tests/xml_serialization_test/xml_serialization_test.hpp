@@ -57,6 +57,7 @@ private slots:
     void test_toXmlFromXml_automationService_pitchBend_curve_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_eventsPerBeat_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_drawn_shouldLoadNodes();
+    void test_toXmlFromXml_finnishLocale_shouldKeepDecimalPoints();
     void test_toXml_automationService_notDrawn_shouldWriteNoNodes();
     void test_fromXml_automationService_drawnWithoutNodes_shouldRampBetweenEnds();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();

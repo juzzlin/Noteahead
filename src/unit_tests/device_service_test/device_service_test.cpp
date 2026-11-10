@@ -1255,6 +1255,8 @@ void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
     QString xml;
     NahdXmlWriter writer { xml };
     service.serializeToXml(writer);
+    // Saved as an integer, 10000 for full
+    QVERIFY(xml.contains(QString { "%1=\"7500\"" }.arg(Constants::NahdXml::xmlKeyLevel())));
 
     // Deserialize into another engine / service
     const auto audioEngine2 = std::make_shared<AudioEngine>();
@@ -1272,6 +1274,30 @@ void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
     QCOMPARE(dev2->reverbSend(0), 0.5f);
     QCOMPARE(dev2->reverbSend(1), 0.0f);
     QCOMPARE(dev2->reverbSend(2), 0.75f);
+}
+
+void DeviceServiceTest::test_reverbSends_decimalValueOfOlderProjects_shouldStillLoad()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto dev = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, dev);
+    dev->setReverbSend(1, 0.094f);
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+    // As a project saved before levels were integers has it
+    const QString levelAttribute = QString { "%1=\"940\"" }.arg(Constants::NahdXml::xmlKeyLevel());
+    QVERIFY(xml.contains(levelAttribute));
+    xml.replace(levelAttribute, QString { "%1=\"0.094\"" }.arg(Constants::NahdXml::xmlKeyValue()));
+
+    DeviceService service2 { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto dev2 = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service2.setDevice(0, dev2);
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    service2.deserializeFromXml(reader);
+    QCOMPARE(dev2->reverbSend(1), 0.094f);
 }
 
 void DeviceServiceTest::test_partSends_shouldSaveAndLoadCorrectly()

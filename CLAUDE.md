@@ -59,6 +59,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## XML Serialization
 
+- The project file's number formats and compatibility rules are in `DESIGN.md`: integers for anything with a fixed range (10000 for 1 when normalized), decimals only for automation positions and drawn nodes, and never the system's locale.
 - Parameter XML keys must be **generic** (no device/effect prefix). E.g., `"lpfCutoff"`, not `"synthLpfCutoff"`.
 - When renaming a key, register the old name(s) as legacy names in the `Parameter` constructor's `LegacyNameList`. `ParameterContainer` maps legacy names at deserialization time.
 - Every renamed key must have a corresponding legacy-name round-trip test in `xml_serialization_test`.
