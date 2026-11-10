@@ -508,8 +508,8 @@ void XyPadDevice::serializeToXml(ProjectWriter & writer) const
                 writer.writeAttribute(NahdXml::xmlKeyParameterName(), QString::fromStdString(target.parameter));
                 // A controller's range, only where it is not the whole of it
                 if (target.hasPartialMidiRange()) {
-                    writer.writeAttribute(NahdXml::xmlKeyMin(), QString::number(target.midiMin));
-                    writer.writeAttribute(NahdXml::xmlKeyMax(), QString::number(target.midiMax));
+                    writer.writeAttribute(NahdXml::xmlKeyMin(), QString::number(Utils::Xml::normalizedToXml(target.midiMin)));
+                    writer.writeAttribute(NahdXml::xmlKeyMax(), QString::number(Utils::Xml::normalizedToXml(target.midiMax)));
                 }
                 writer.writeEndElement();
             }
@@ -549,7 +549,7 @@ void XyPadDevice::deserializeFromXml(ProjectReader & reader)
                             target.owner = ParameterAutomation::Target::ownerFromString(Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyOwner(), false).value_or(QString {}));
                             target.ownerId = Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyOwnerId(), false).value_or(QString {}).toStdString();
                             target.parameter = Utils::Xml::readStringAttribute(reader, NahdXml::xmlKeyParameterName(), false).value_or(QString {}).toStdString();
-                            target.setMidiRange(Utils::Xml::readIntAttribute(reader, NahdXml::xmlKeyMin(), false), Utils::Xml::readIntAttribute(reader, NahdXml::xmlKeyMax(), false));
+                            target.setMidiRange(Utils::Xml::readNormalizedAttribute(reader, NahdXml::xmlKeyMin()), Utils::Xml::readNormalizedAttribute(reader, NahdXml::xmlKeyMax()));
                             if (pad && *pad >= 0 && *pad < static_cast<int>(PadCount) && axis && *axis >= 0 && *axis < static_cast<int>(AxisCount)) {
                                 m_pads.at(static_cast<size_t>(*pad)).axes.at(static_cast<size_t>(*axis)).target = std::move(target);
                             }

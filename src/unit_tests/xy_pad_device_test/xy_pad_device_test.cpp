@@ -16,12 +16,15 @@
 #include "xy_pad_device_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/gain.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
+#include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -454,7 +457,7 @@ void XyPadDeviceTest::test_engine_padOnEffect_shouldLetGoAtHome()
 
 namespace {
 
-ParameterAutomation::Target midiCcTarget(const std::string & port, uint8_t channel, uint8_t controller, int min = 0, int max = 127)
+ParameterAutomation::Target midiCcTarget(const std::string & port, uint8_t channel, uint8_t controller, double min = 0.0, double max = 1.0)
 {
     ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Midi, port, ParameterAutomation::Target::midiCcKey(channel, controller) };
     target.midiMin = min;
@@ -462,16 +465,13 @@ ParameterAutomation::Target midiCcTarget(const std::string & port, uint8_t chann
     return target;
 }
 
-ParameterAutomation::Target pitchBendTarget(const std::string & port, uint8_t channel, int min = -100, int max = 100)
+ParameterAutomation::Target pitchBendTarget(const std::string & port, uint8_t channel, double min = -1.0, double max = 1.0)
 {
     ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Midi, port, ParameterAutomation::Target::midiPitchBendKey(channel) };
     target.midiMin = min;
     target.midiMax = max;
     return target;
 }
-
-constexpr uint16_t BendCentre { 8192 };
-constexpr uint16_t BendTop { 16383 };
 
 void runEngineFor(AudioEngine & engine, uint32_t frames)
 {
@@ -488,9 +488,9 @@ void runEngineFor(AudioEngine & engine, uint32_t frames)
 struct SentMessages
 {
     std::mutex mutex;
-    std::vector<std::pair<std::string, uint16_t>> messages;
+    std::vector<std::pair<std::string, double>> messages;
 
-    std::vector<std::pair<std::string, uint16_t>> take()
+    std::vector<std::pair<std::string, double>> take()
     {
         const std::lock_guard<std::mutex> lock { mutex };
         return messages;
@@ -517,21 +517,21 @@ void XyPadDeviceTest::test_midiCcTarget_key_shouldRoundTripTheAddress()
 
 void XyPadDeviceTest::test_midiCcTarget_value_shouldSpanMinToMax()
 {
-    const auto target = midiCcTarget("Port", 0, 1, 20, 100);
-    QCOMPARE(target.midiValue(0.0), uint16_t { 20 });
-    QCOMPARE(target.midiValue(0.5), uint16_t { 60 });
-    QCOMPARE(target.midiValue(1.0), uint16_t { 100 });
+    const auto target = midiCcTarget("Port", 0, 1, 0.2, 0.8);
+    QCOMPARE(target.midiValue(0.0), 0.2);
+    QCOMPARE(target.midiValue(0.5), 0.5);
+    QCOMPARE(target.midiValue(1.0), 0.8);
     // Min above Max turns it around
-    QCOMPARE(midiCcTarget("Port", 0, 1, 127, 0).midiValue(0.0), uint16_t { 127 });
-    QCOMPARE(midiCcTarget("Port", 0, 1, 127, 0).midiValue(1.0), uint16_t { 0 });
+    QCOMPARE(midiCcTarget("Port", 0, 1, 1.0, 0.0).midiValue(0.0), 1.0);
+    QCOMPARE(midiCcTarget("Port", 0, 1, 1.0, 0.0).midiValue(1.0), 0.0);
 }
 
 void XyPadDeviceTest::test_midiCcTarget_withRangeOf_shouldKeepTheRangeOnlyBetweenControllers()
 {
-    const auto previous = midiCcTarget("Port", 0, 1, 10, 90);
+    const auto previous = midiCcTarget("Port", 0, 1, 0.1, 0.9);
     const auto picked = midiCcTarget("Port", 0, 74).withRangeOf(previous);
-    QCOMPARE(picked.midiMin, 10);
-    QCOMPARE(picked.midiMax, 90);
+    QCOMPARE(picked.midiMin, 0.1);
+    QCOMPARE(picked.midiMax, 0.9);
     QCOMPARE(picked.parameter, std::string { "0:74" });
     QCOMPARE(cutoffTarget().withRangeOf(previous), cutoffTarget());
 }
@@ -539,7 +539,7 @@ void XyPadDeviceTest::test_midiCcTarget_withRangeOf_shouldKeepTheRangeOnlyBetwee
 void XyPadDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
 {
     XyPadDevice original { "XY" };
-    original.setTarget(0, Axis::X, midiCcTarget("Port", 3, 74, 100, 20));
+    original.setTarget(0, Axis::X, midiCcTarget("Port", 3, 74, 0.8, 0.2));
     original.setTarget(0, Axis::Y, midiCcTarget("Port", 3, 71));
     QString xml;
     {
@@ -549,13 +549,15 @@ void XyPadDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
     // The whole range is the default, so only the narrowed axis says it
     const QRegularExpression padWithRange { QString { "<%1 [^>]*%2=" }.arg(NahdXml::xmlKeyPad(), NahdXml::xmlKeyMin()) };
     QCOMPARE(xml.count(padWithRange), 1);
+    // Saved as integers, 10000 for 1
+    QVERIFY(xml.contains(QString { "%1=\"8000\" %2=\"2000\"" }.arg(NahdXml::xmlKeyMin(), NahdXml::xmlKeyMax())));
 
     XyPadDevice restored { "XY" };
     NahdXmlReader reader { xml };
     while (reader.readNextStartElement() && reader.name() != NahdXml::xmlKeyDevice()) {
     }
     restored.deserializeFromXml(reader);
-    QCOMPARE(restored.target(0, Axis::X), midiCcTarget("Port", 3, 74, 100, 20));
+    QCOMPARE(restored.target(0, Axis::X), midiCcTarget("Port", 3, 74, 0.8, 0.2));
     QCOMPARE(restored.target(0, Axis::Y), midiCcTarget("Port", 3, 71));
 }
 
@@ -585,7 +587,7 @@ void XyPadDeviceTest::test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAnd
     AudioEngine engine;
     SentMessages sent;
     engine.midiOutput().setMaxRate(1000);
-    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t>, uint16_t value) {
+    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t>, double value) {
         const std::lock_guard<std::mutex> lock { sent.mutex };
         sent.messages.emplace_back(port, value);
     });
@@ -595,17 +597,36 @@ void XyPadDeviceTest::test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAnd
 
     pad->press(0, 1.0f, 0.0f);
     runEngineFor(engine, 4800);
-    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == 127);
+    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == 1.0);
     pad->release(0);
     runEngineFor(engine, static_cast<uint32_t>(SampleRate * 6.0));
-    // Home is the middle of the range
-    QTRY_VERIFY(sent.take().back().second == 64);
+    // Home is the middle of the range, as near as the glide gets and exactly on the wire
+    QTRY_VERIFY(std::abs(sent.take().back().second - 0.5) < 1.0e-3);
+    QCOMPARE(int { MidiCcData::value7(sent.take().back().second) }, 64);
 
     const auto messages = sent.take();
     QCOMPARE(messages.front().first, std::string { "External" });
     for (size_t i = 1; i < messages.size(); i++) {
         QVERIFY(messages.at(i).second != messages.at(i - 1).second);
     }
+}
+
+void XyPadDeviceTest::test_midiTarget_displayedValue_shouldSurviveTheProjectAndTheWire()
+{
+    const auto check = [](const ParameterAutomation::Target & target, int lowest, int highest) {
+        for (int displayed = lowest; displayed <= highest; displayed++) {
+            const auto value = target.midiValueFromDisplayed(displayed);
+            const auto restored = std::optional { Utils::Xml::normalizedFromXml(Utils::Xml::normalizedToXml(value)) };
+            QCOMPARE(target.displayedMidiValue(*restored), displayed);
+            if (target.midiAddress()->message == ParameterAutomation::Target::MidiMessage::Cc) {
+                QCOMPARE(int { MidiCcData::value7(*restored) }, displayed);
+            } else {
+                QCOMPARE(PitchBendData(0, 0, *restored * 100.0).value14(), PitchBendData(0, 0, static_cast<double>(displayed)).value14());
+            }
+        }
+    };
+    check(midiCcTarget("Port", 0, 74), 0, 127);
+    check(pitchBendTarget("Port", 0), -100, 100);
 }
 
 void XyPadDeviceTest::test_midiPitchBendTarget_key_shouldRoundTripTheAddress()
@@ -617,20 +638,20 @@ void XyPadDeviceTest::test_midiPitchBendTarget_key_shouldRoundTripTheAddress()
     QCOMPARE(target.midiAddress()->message, ParameterAutomation::Target::MidiMessage::PitchBend);
     QVERIFY(!target.hasPartialMidiRange());
     // From a controller its range is not carried over: a pitch bend gets the whole of its own
-    const auto picked = ParameterAutomation::Target { ParameterAutomation::Target::Owner::Midi, "Port", ParameterAutomation::Target::midiPitchBendKey(3) }.withRangeOf(midiCcTarget("Port", 3, 74, 10, 90));
+    const auto picked = ParameterAutomation::Target { ParameterAutomation::Target::Owner::Midi, "Port", ParameterAutomation::Target::midiPitchBendKey(3) }.withRangeOf(midiCcTarget("Port", 3, 74, 0.1, 0.9));
     QCOMPARE(picked, target);
-    QCOMPARE(pitchBendTarget("Port", 3).withRangeOf(pitchBendTarget("Port", 3, -20, 20)), pitchBendTarget("Port", 3, -20, 20));
+    QCOMPARE(pitchBendTarget("Port", 3).withRangeOf(pitchBendTarget("Port", 3, -0.2, 0.2)), pitchBendTarget("Port", 3, -0.2, 0.2));
 }
 
 void XyPadDeviceTest::test_midiPitchBendTarget_value_shouldCentreOnNoBend()
 {
     const auto target = pitchBendTarget("Port", 0);
-    QCOMPARE(target.midiValue(0.0), uint16_t { 0 });
-    QCOMPARE(target.midiValue(0.5), BendCentre);
-    QCOMPARE(target.midiValue(1.0), BendTop);
+    QCOMPARE(target.midiValue(0.0), -1.0);
+    QCOMPARE(target.midiValue(0.5), 0.0);
+    QCOMPARE(target.midiValue(1.0), 1.0);
     // Bending only up, the middle of the swing is half way up
-    QCOMPARE(pitchBendTarget("Port", 0, 0, 100).midiValue(0.0), BendCentre);
-    QCOMPARE(pitchBendTarget("Port", 0, 0, 100).midiValue(1.0), BendTop);
+    QCOMPARE(pitchBendTarget("Port", 0, 0.0, 1.0).midiValue(0.0), 0.0);
+    QCOMPARE(pitchBendTarget("Port", 0, 0.0, 1.0).midiValue(1.0), 1.0);
 }
 
 void XyPadDeviceTest::test_engine_padOnInternalPitchBend_shouldBendTheDevice()
@@ -657,7 +678,7 @@ void XyPadDeviceTest::test_engine_padOnExternalPitchBend_shouldReturnToTheCentre
     AudioEngine engine;
     SentMessages sent;
     engine.midiOutput().setMaxRate(1000);
-    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t> controller, uint16_t value) {
+    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t> controller, double value) {
         if (!controller) {
             const std::lock_guard<std::mutex> lock { sent.mutex };
             sent.messages.emplace_back(port, value);
@@ -669,10 +690,10 @@ void XyPadDeviceTest::test_engine_padOnExternalPitchBend_shouldReturnToTheCentre
 
     pad->press(0, 1.0f, 0.0f);
     runEngineFor(engine, 4800);
-    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == BendTop);
+    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == 1.0);
     pad->release(0);
     runEngineFor(engine, static_cast<uint32_t>(SampleRate * 6.0));
-    QTRY_VERIFY(sent.take().back().second == BendCentre);
+    QTRY_VERIFY(sent.take().back().second == 0.0);
 }
 
 void XyPadDeviceTest::test_engine_pitchBendLetGo_shouldSendTheCentre()
@@ -680,7 +701,7 @@ void XyPadDeviceTest::test_engine_pitchBendLetGo_shouldSendTheCentre()
     AudioEngine engine;
     SentMessages sent;
     engine.midiOutput().setMaxRate(1000);
-    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t> controller, uint16_t value) {
+    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t> controller, double value) {
         if (!controller) {
             const std::lock_guard<std::mutex> lock { sent.mutex };
             sent.messages.emplace_back(port, value);
@@ -696,24 +717,24 @@ void XyPadDeviceTest::test_engine_pitchBendLetGo_shouldSendTheCentre()
     runEngineFor(engine, 4800);
     pad->release(0);
     runEngineFor(engine, 4800);
-    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == BendTop);
+    QTRY_VERIFY(!sent.take().empty() && sent.take().back().second == 1.0);
     pad->setTarget(0, Axis::X, midiCcTarget("External", 1, 74));
     runEngineFor(engine, 4800);
-    QTRY_VERIFY(sent.take().back().second == BendCentre);
+    QTRY_VERIFY(sent.take().back().second == 0.0);
 
     // And when the pad leaves the rack
     pad->setTarget(0, Axis::X, pitchBendTarget("External", 1));
     runEngineFor(engine, 4800);
-    QTRY_VERIFY(sent.take().back().second == BendTop);
+    QTRY_VERIFY(sent.take().back().second == 1.0);
     engine.clearDevice(0);
-    QTRY_VERIFY(sent.take().back().second == BendCentre);
+    QTRY_VERIFY(sent.take().back().second == 0.0);
 }
 
 void XyPadDeviceTest::test_engine_render_shouldSendNothingToExternalGear()
 {
     AudioEngine engine;
     SentMessages sent;
-    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t>, uint16_t value) {
+    engine.midiOutput().setSender([&sent](const std::string & port, uint8_t, std::optional<uint8_t>, double value) {
         const std::lock_guard<std::mutex> lock { sent.mutex };
         sent.messages.emplace_back(port, value);
     });

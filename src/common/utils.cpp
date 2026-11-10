@@ -110,6 +110,26 @@ std::optional<int> readIntAttribute(ProjectReader & reader, QString name, bool r
     }
 }
 
+namespace {
+constexpr double NormalizedXmlScale { 10000.0 };
+} // namespace
+
+int normalizedToXml(double value)
+{
+    return static_cast<int>(std::lround(value * NormalizedXmlScale));
+}
+
+double normalizedFromXml(int xmlValue)
+{
+    return static_cast<double>(xmlValue) / NormalizedXmlScale;
+}
+
+std::optional<double> readNormalizedAttribute(ProjectReader & reader, QString name)
+{
+    const auto xmlValue = readIntAttribute(reader, name, false);
+    return xmlValue ? std::optional { normalizedFromXml(*xmlValue) } : std::nullopt;
+}
+
 std::optional<double> readDoubleAttribute(ProjectReader & reader, QString name, bool required)
 {
     const auto attribute = reader.attribute(name);

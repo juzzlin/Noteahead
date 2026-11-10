@@ -41,8 +41,9 @@ class MidiOutputQueue
 public:
     using Clock = std::chrono::steady_clock;
     //! Sends one message: the port's name, the channel 0 to 15, the controller, or nothing for a
-    //! pitch bend, and the value: 0 to 127 for a CC, 0 to 16383 for a pitch bend.
-    using Sender = std::function<void(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value)>;
+    //! pitch bend, and the value, normalized: 0 to 1 for a CC, -1 to 1 for a pitch bend. The
+    //! sender puts it into its protocol's resolution.
+    using Sender = std::function<void(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, double value)>;
 
     //! How many messages fit between two wakeups of the sender.
     static constexpr size_t Capacity { 1024 };
@@ -64,7 +65,7 @@ public:
     //! Queues a message. For the audio thread: never blocks, and allocates only the first time it
     //! sees a port. False when the ring or the port table is full and the message was dropped.
     //! @p controller is nothing for a pitch bend.
-    bool push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value);
+    bool push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, double value);
 
 private:
     struct Message
@@ -72,7 +73,7 @@ private:
         uint16_t port {};
         uint8_t channel {};
         std::optional<uint8_t> controller;
-        uint16_t value {};
+        double value {};
     };
 
     std::optional<uint16_t> portIndex(const std::string & port);

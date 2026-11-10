@@ -20,7 +20,6 @@
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
-#include "../midi/pitch_bend_data.hpp"
 #include "parameter.hpp"
 
 #include <QVariant>
@@ -87,9 +86,9 @@ ParameterAutomation::Target ParameterAutomation::Target::withRangeOf(const Targe
     return target;
 }
 
-std::pair<int, int> ParameterAutomation::Target::fullRange(MidiMessage message)
+std::pair<double, double> ParameterAutomation::Target::fullRange(MidiMessage message)
 {
-    return message == MidiMessage::PitchBend ? std::pair { -100, 100 } : std::pair { 0, 127 };
+    return message == MidiMessage::PitchBend ? std::pair { -1.0, 1.0 } : std::pair { 0.0, 1.0 };
 }
 
 bool ParameterAutomation::Target::hasPartialMidiRange() const
@@ -98,12 +97,29 @@ bool ParameterAutomation::Target::hasPartialMidiRange() const
     return address && std::pair { midiMin, midiMax } != fullRange(address->message);
 }
 
-void ParameterAutomation::Target::setMidiRange(std::optional<int> min, std::optional<int> max)
+void ParameterAutomation::Target::setMidiRange(std::optional<double> min, std::optional<double> max)
 {
     const auto address = midiAddress();
     const auto [lowest, highest] = fullRange(address ? address->message : MidiMessage::Cc);
     midiMin = std::clamp(min.value_or(lowest), lowest, highest);
     midiMax = std::clamp(max.value_or(highest), lowest, highest);
+}
+
+namespace {
+double displayScale(const std::optional<ParameterAutomation::Target::MidiAddress> & address)
+{
+    return address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend ? 100.0 : 127.0;
+}
+} // namespace
+
+int ParameterAutomation::Target::displayedMidiValue(double value) const
+{
+    return static_cast<int>(std::lround(value * displayScale(midiAddress())));
+}
+
+double ParameterAutomation::Target::midiValueFromDisplayed(int displayed) const
+{
+    return static_cast<double>(displayed) / displayScale(midiAddress());
 }
 
 std::string ParameterAutomation::Target::midiCcKey(uint8_t channel, uint8_t controller)
@@ -147,17 +163,13 @@ std::optional<ParameterAutomation::Target::MidiAddress> ParameterAutomation::Tar
     return MidiAddress { static_cast<uint8_t>(*channel), MidiMessage::Cc, static_cast<uint8_t>(*controller) };
 }
 
-uint16_t ParameterAutomation::Target::midiValue(double position) const
+double ParameterAutomation::Target::midiValue(double position) const
 {
     const auto address = midiAddress();
     const auto [lowest, highest] = fullRange(address ? address->message : MidiMessage::Cc);
-    const double low = static_cast<double>(std::clamp(midiMin, lowest, highest));
-    const double high = static_cast<double>(std::clamp(midiMax, lowest, highest));
-    const double value = low + std::clamp(position, 0.0, 1.0) * (high - low);
-    if (address && address->message == MidiMessage::PitchBend) {
-        return PitchBendData { 0, 0, value }.value14();
-    }
-    return static_cast<uint16_t>(std::clamp(std::lround(value), 0L, 127L));
+    const double low = std::clamp(midiMin, lowest, highest);
+    const double high = std::clamp(midiMax, lowest, highest);
+    return low + std::clamp(position, 0.0, 1.0) * (high - low);
 }
 
 ParameterAutomation::ParameterAutomation() = default;

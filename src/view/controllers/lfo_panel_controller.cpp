@@ -221,14 +221,18 @@ bool LfoPanelController::pitchBend() const
 int LfoPanelController::midiMin() const
 {
     const auto device = m_owner.lfoDevice();
-    return device ? device->target(m_index).midiMin : 0;
+    if (!device) {
+        return 0;
+    }
+    const auto target = device->target(m_index);
+    return target.displayedMidiValue(target.midiMin);
 }
 
 void LfoPanelController::setMidiMin(int value)
 {
     if (const auto device = m_owner.lfoDevice(); device) {
         auto target = device->target(m_index);
-        target.setMidiRange(value, target.midiMax);
+        target.setMidiRange(target.midiValueFromDisplayed(value), target.midiMax);
         device->setTarget(m_index, std::move(target));
     }
 }
@@ -236,14 +240,18 @@ void LfoPanelController::setMidiMin(int value)
 int LfoPanelController::midiMax() const
 {
     const auto device = m_owner.lfoDevice();
-    return device ? device->target(m_index).midiMax : 127;
+    if (!device) {
+        return 127;
+    }
+    const auto target = device->target(m_index);
+    return target.displayedMidiValue(target.midiMax);
 }
 
 void LfoPanelController::setMidiMax(int value)
 {
     if (const auto device = m_owner.lfoDevice(); device) {
         auto target = device->target(m_index);
-        target.setMidiRange(target.midiMin, value);
+        target.setMidiRange(target.midiMin, target.midiValueFromDisplayed(value));
         device->setTarget(m_index, std::move(target));
     }
 }

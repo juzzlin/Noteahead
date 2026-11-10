@@ -223,10 +223,10 @@ private:
     //! at its frame, or onto the queue for external gear. Only a value that changed goes anywhere.
     void applyMidiStep(const Device * sourceDevice, const ModulationSource::Step & step);
     //! Sends @p value to a MIDI target at @p frame.
-    void sendMidi(const ParameterAutomation::Target & target, const ParameterAutomation::Target::MidiAddress & address, uint16_t value, uint64_t frame);
+    void sendMidi(const ParameterAutomation::Target & target, const ParameterAutomation::Target::MidiAddress & address, double value, uint64_t frame);
     //! A modulator letting go of a pitch bend leaves no note out of tune: the centre goes out, if
     //! anything else went last.
-    void centrePitchBend(const ParameterAutomation::Target & target, uint16_t lastSent, uint64_t frame);
+    void centrePitchBend(const ParameterAutomation::Target & target, double lastSent, uint64_t frame);
 
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
@@ -329,7 +329,8 @@ private:
         const Device * device {};
         size_t slot {};
         ParameterAutomation::Target target;
-        uint16_t value {};
+        //! Normalized, as the target's range is
+        double value {};
     };
 
     std::vector<SentMidi> m_sentMidi;

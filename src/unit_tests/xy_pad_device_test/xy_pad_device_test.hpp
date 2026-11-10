@@ -51,6 +51,7 @@ private slots:
     void test_xmlSerialization_midiCcTarget_shouldRestoreTheRange();
     void test_engine_padOnInternalMidiCc_shouldReachTheDeviceThroughItsMappings();
     void test_engine_padOnExternalMidiCc_shouldSendEachValueOnceAndEndAtTheCentre();
+    void test_midiTarget_displayedValue_shouldSurviveTheProjectAndTheWire();
     void test_midiPitchBendTarget_key_shouldRoundTripTheAddress();
     void test_midiPitchBendTarget_value_shouldCentreOnNoBend();
     void test_engine_padOnInternalPitchBend_shouldBendTheDevice();

@@ -31,6 +31,8 @@ public:
     uint8_t value() const;
 
     double normalizedValue() const;
+    //! The MIDI 1.0 data byte for a value normalized to 0 to 1.
+    static uint8_t value7(double normalized);
 
     //! Sent by a side-chain rather than written in the song: an internal device takes a fader one
     //! as a duck under its Fader instead of as a new Fader setting

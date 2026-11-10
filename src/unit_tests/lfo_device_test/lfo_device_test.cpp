@@ -354,16 +354,16 @@ void LfoDeviceTest::test_xmlSerialization_midiCcTarget_shouldRestoreTheRange()
 {
     LfoDevice original { "LFO" };
     ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiCcKey(4, 74) };
-    target.midiMin = 30;
-    target.midiMax = 90;
+    target.midiMin = 0.3;
+    target.midiMax = 0.9;
     original.setTarget(1, target);
     ParameterAutomation::Target bend { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiPitchBendKey(4) };
-    bend.midiMin = -50;
-    bend.midiMax = 25;
+    bend.midiMin = -0.5;
+    bend.midiMax = 0.25;
     original.setTarget(2, bend);
     ParameterAutomation::Target fullBend { ParameterAutomation::Target::Owner::Midi, "External", ParameterAutomation::Target::midiPitchBendKey(5) };
-    fullBend.midiMin = -100;
-    fullBend.midiMax = 100;
+    fullBend.midiMin = -1.0;
+    fullBend.midiMax = 1.0;
     original.setTarget(3, fullBend);
     const auto xml = toXml(original);
 

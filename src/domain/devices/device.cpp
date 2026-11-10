@@ -22,6 +22,8 @@
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../dsp/true_stereo_panner.hpp"
+#include "../midi/midi_cc_data.hpp"
+#include "../midi/pitch_bend_data.hpp"
 #include "../tracker/parameter_display.hpp"
 
 #include <QUuid>
@@ -817,6 +819,11 @@ void Device::reset()
 
 void Device::resetAudio()
 {
+    {
+        const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        // A reset device has forgotten what it was sent, so the next value has to go through
+        m_modulatorMidiValues.clear();
+    }
     m_insertEffectRack.reset();
     resetDeviceAudio();
 }
@@ -1009,6 +1016,25 @@ void Device::scheduleModulation(const ScheduledModulation & modulation)
     m_scheduledModulations.push_back(modulation);
 }
 
+void Device::applyModulatorMidi(const ScheduledModulation::Midi & midi)
+{
+    // The device takes MIDI 1.0's resolution
+    const auto value = midi.controller ? static_cast<uint16_t>(MidiCcData::value7(midi.value)) : PitchBendData { 0, 0, midi.value * 100.0 }.value14();
+    auto last = std::ranges::find_if(m_modulatorMidiValues, [&midi](auto && entry) { return entry.channel == midi.channel && entry.controller == midi.controller; });
+    if (last == m_modulatorMidiValues.end()) {
+        m_modulatorMidiValues.push_back({ midi.channel, midi.controller, value });
+    } else if (last->value == value) {
+        return;
+    } else {
+        last->value = value;
+    }
+    if (midi.controller) {
+        processMidiCc(*midi.controller, static_cast<uint8_t>(value), midi.channel);
+    } else {
+        processMidiPitchBend(value, midi.channel);
+    }
+}
+
 void Device::applyScheduledModulations(uint64_t frame)
 {
     const std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -1018,11 +1044,7 @@ void Device::applyScheduledModulations(uint64_t frame)
     // In the order queued, so that of two due at once from the same source the later one wins
     for (auto && modulation : m_scheduledModulations) {
         if (modulation.frame <= frame && modulation.midi) {
-            if (const auto & midi = *modulation.midi; midi.controller) {
-                processMidiCc(*midi.controller, static_cast<uint8_t>(midi.value), midi.channel);
-            } else {
-                processMidiPitchBend(midi.value, midi.channel);
-            }
+            applyModulatorMidi(*modulation.midi);
         } else if (modulation.frame <= frame && modulation.key) {
             if (modulation.mode) {
                 applyParameterModulation(*modulation.key, modulation.sourceId, *modulation.mode, modulation.source, modulation.depth);

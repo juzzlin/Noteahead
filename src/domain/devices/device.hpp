@@ -286,8 +286,8 @@ public:
         {
             //! The CC's controller, or nothing for a pitch bend.
             std::optional<uint8_t> controller;
-            //! The CC's value, or the pitch bend's 14-bit value.
-            uint16_t value {};
+            //! Normalized as the target's range is: the CC 0 to 1, the pitch bend -1 to 1.
+            double value {};
             uint8_t channel {};
         };
 
@@ -659,6 +659,19 @@ private:
     //! Not in time order across sources, so it is searched rather than walked from the front.
     std::vector<ScheduledModulation> m_scheduledModulations;
     void applyScheduledModulations(uint64_t frame);
+    //! A modulator's MIDI message as the device takes it, unless it is what the device last took
+    //! from one: a modulator moves in finer steps than MIDI 1.0 has.
+    void applyModulatorMidi(const ScheduledModulation::Midi & midi);
+
+    //! What the device last took from a modulator, per channel and controller (none for the bend)
+    struct ModulatorMidiValue
+    {
+        uint8_t channel {};
+        std::optional<uint8_t> controller;
+        uint16_t value {};
+    };
+
+    std::vector<ModulatorMidiValue> m_modulatorMidiValues;
     std::optional<uint64_t> nextScheduledModulationFrame(uint64_t from, uint64_t to) const;
     std::optional<double> m_nextNoteBeats;
 

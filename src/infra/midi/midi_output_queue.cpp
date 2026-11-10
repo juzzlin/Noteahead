@@ -68,7 +68,7 @@ std::optional<uint16_t> MidiOutputQueue::portIndex(const std::string & port)
     return static_cast<uint16_t>(count);
 }
 
-bool MidiOutputQueue::push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value)
+bool MidiOutputQueue::push(const std::string & port, uint8_t channel, std::optional<uint8_t> controller, double value)
 {
     const auto index = portIndex(port);
     if (!index) {
@@ -92,7 +92,7 @@ void MidiOutputQueue::run()
 {
     struct Pending
     {
-        uint16_t value {};
+        double value {};
         bool waiting {};
         Clock::time_point nextAllowed {};
     };

@@ -15,6 +15,9 @@
 
 #include "midi_cc_data.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 namespace noteahead {
 
 MidiCcData::MidiCcData(size_t track, size_t column, uint8_t controller, uint8_t value)
@@ -37,6 +40,11 @@ uint8_t MidiCcData::value() const
 double MidiCcData::normalizedValue() const
 {
     return static_cast<double>(m_value) / 127;
+}
+
+uint8_t MidiCcData::value7(double normalized)
+{
+    return static_cast<uint8_t>(std::lround(std::clamp(normalized, 0.0, 1.0) * 127.0));
 }
 
 bool MidiCcData::isSideChain() const

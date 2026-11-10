@@ -81,11 +81,11 @@ public:
         //! The parameter's key within its owner. For a MIDI target, its channel and message as
         //! midiCcKey() or midiPitchBendKey() write them.
         std::string parameter;
-        //! What the bottom and the top of a modulator's swing send, for a MIDI target: the value of
-        //! a CC, 0 to 127, or the pitch bend in percent of its range, -100 to 100. Min above Max
-        //! turns it around.
-        int midiMin { 0 };
-        int midiMax { 127 };
+        //! What the bottom and the top of a modulator's swing send, for a MIDI target, normalized
+        //! and so in no protocol's resolution: a CC's value 0 to 1, or the pitch bend -1 to 1 of its
+        //! range. Min above Max turns it around.
+        double midiMin { 0.0 };
+        double midiMax { 1.0 };
 
         bool operator==(const Target & other) const = default;
 
@@ -96,14 +96,19 @@ public:
         //! target gets its message's full range.
         Target withRangeOf(const Target & previous) const;
 
-        //! The full range of @p message: 0 to 127 for a CC, -100 to 100 percent for pitch bend.
-        static std::pair<int, int> fullRange(MidiMessage message);
+        //! The full normalized range of @p message: 0 to 1 for a CC, -1 to 1 for pitch bend.
+        static std::pair<double, double> fullRange(MidiMessage message);
         //! Whether a MIDI target's range is something other than its message's full range, and so
         //! worth saving.
         bool hasPartialMidiRange() const;
         //! Sets a MIDI target's range from what a project says, the full range where it says
         //! nothing and clamped into it where it says too much.
-        void setMidiRange(std::optional<int> min, std::optional<int> max);
+        void setMidiRange(std::optional<double> min, std::optional<double> max);
+        //! A normalized MIDI value of this target as the UI shows it: a CC's in MIDI 1.0's 0 to
+        //! 127, which is how gear documents its controllers, or a pitch bend's in percent, -100 to
+        //! 100. midiValueFromDisplayed() turns it back.
+        int displayedMidiValue(double value) const;
+        double midiValueFromDisplayed(int displayed) const;
 
         //! "effect", "device" or "midi", as the project file and the UI both name an owner.
         //! Anything else reads as an effect, which is what an automation that does not say is
@@ -118,9 +123,9 @@ public:
         //! Where a MIDI target sends, or nothing for any other target, or one whose key does not
         //! parse.
         std::optional<MidiAddress> midiAddress() const;
-        //! What a MIDI target sends for a modulator at @p position, 0 to 1: a CC's value, or the
-        //! pitch bend's 14-bit value with no bend at 8192.
-        uint16_t midiValue(double position) const;
+        //! What a MIDI target sends for a modulator at @p position, 0 to 1, normalized as Min and
+        //! Max are: whoever sends it puts it into a protocol's resolution.
+        double midiValue(double position) const;
     };
 
     enum class Mode

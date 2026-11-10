@@ -925,7 +925,7 @@ void Application::connectStateMachine()
 void Application::connectPlayerService()
 {
     // Modulators aimed at external gear: what they send, and how often
-    m_audioEngine->midiOutput().setSender([midiService = std::weak_ptr<MidiService> { m_midiService }](const std::string & port, uint8_t channel, std::optional<uint8_t> controller, uint16_t value) {
+    m_audioEngine->midiOutput().setSender([midiService = std::weak_ptr<MidiService> { m_midiService }](const std::string & port, uint8_t channel, std::optional<uint8_t> controller, double value) {
         if (const auto service = midiService.lock(); service) {
             service->sendPortMidiData(port, channel, controller, value);
         }

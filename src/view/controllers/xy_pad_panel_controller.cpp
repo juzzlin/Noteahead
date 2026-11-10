@@ -168,7 +168,7 @@ int XyPadPanelController::midiEnd(int axis, bool top) const
         return top ? 127 : 0;
     }
     const auto target = device->target(m_index, toAxis(axis));
-    return top ? target.midiMax : target.midiMin;
+    return target.displayedMidiValue(top ? target.midiMax : target.midiMin);
 }
 
 bool XyPadPanelController::isPitchBend(int axis) const
@@ -192,7 +192,8 @@ void XyPadPanelController::setMidiEnd(int axis, bool top, int value)
 {
     if (const auto device = m_owner.xyPadDevice(); device) {
         auto target = device->target(m_index, toAxis(axis));
-        target.setMidiRange(top ? target.midiMin : value, top ? value : target.midiMax);
+        const auto end = target.midiValueFromDisplayed(value);
+        target.setMidiRange(top ? target.midiMin : end, top ? end : target.midiMax);
         device->setTarget(m_index, toAxis(axis), std::move(target));
     }
 }

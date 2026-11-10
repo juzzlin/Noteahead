@@ -20,7 +20,6 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
-#include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/parameter_automation_target.hpp"
 #include "real_time_worker_pool.hpp"
 
@@ -731,7 +730,7 @@ void AudioEngine::applyMidiStep(const Device * sourceDevice, const ModulationSou
     sendMidi(step.target, *address, value, step.frame);
 }
 
-void AudioEngine::sendMidi(const ParameterAutomation::Target & target, const ParameterAutomation::Target::MidiAddress & address, uint16_t value, uint64_t frame)
+void AudioEngine::sendMidi(const ParameterAutomation::Target & target, const ParameterAutomation::Target::MidiAddress & address, double value, uint64_t frame)
 {
     const auto controller = address.message == ParameterAutomation::Target::MidiMessage::Cc ? std::optional { address.controller } : std::nullopt;
     for (auto && [slot, device] : m_devices) {
@@ -749,11 +748,11 @@ void AudioEngine::sendMidi(const ParameterAutomation::Target & target, const Par
     }
 }
 
-void AudioEngine::centrePitchBend(const ParameterAutomation::Target & target, uint16_t lastSent, uint64_t frame)
+void AudioEngine::centrePitchBend(const ParameterAutomation::Target & target, double lastSent, uint64_t frame)
 {
     if (const auto address = target.midiAddress(); address && address->message == ParameterAutomation::Target::MidiMessage::PitchBend) {
-        if (const auto centre = PitchBendData { 0, 0, 0.0 }.value14(); lastSent != centre) {
-            sendMidi(target, *address, centre, frame);
+        if (lastSent != 0.0) {
+            sendMidi(target, *address, 0.0, frame);
         }
     }
 }

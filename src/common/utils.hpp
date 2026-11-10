@@ -49,6 +49,12 @@ std::optional<double> readDoubleAttribute(ProjectReader & reader, QString name, 
 std::optional<size_t> readUIntAttribute(ProjectReader & reader, QString name, bool required = true);
 std::optional<QString> readStringAttribute(ProjectReader & reader, QString name, bool required = true);
 std::optional<std::chrono::milliseconds> readMSecAttribute(ProjectReader & reader, QString name, bool required = true);
+//! A normalized value as a project saves it, an integer with 10000 for 1, and back. A project holds
+//! integers rather than decimals.
+int normalizedToXml(double value);
+double normalizedFromXml(int xmlValue);
+//! An attribute normalizedToXml() wrote, or nothing when it is not there.
+std::optional<double> readNormalizedAttribute(ProjectReader & reader, QString name);
 } // namespace Xml
 
 namespace Dsp {

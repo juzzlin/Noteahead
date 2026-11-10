@@ -22,7 +22,10 @@
 
 #include <chrono>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <string>
+#include <tuple>
 
 #include "../instrument_request.hpp"
 
@@ -93,9 +96,11 @@ public:
     virtual Q_INVOKABLE void seekDevicesToNoteIndex(const PortNoteCounts & counts);
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
-    //! Sends a CC, or a 14-bit pitch bend when there is no @p controller, straight to an output
-    //! port, for a modulator aimed at external gear. Callable from any thread.
-    void sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, quint16 value);
+    //! Sends a CC, or a pitch bend when there is no @p controller, straight to an output port, for
+    //! a modulator aimed at external gear. @p value is normalized, 0 to 1 for a CC and -1 to 1 for
+    //! a pitch bend, and goes out in MIDI 1.0's resolution: a value that comes out the same as the
+    //! last one sent is not sent again. Callable from any thread.
+    void sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, double value);
     //! Controller moves go the same way as the notes.
     //!
     //! Not merely for their own accuracy: a value written on the same line as a note has to reach
@@ -175,6 +180,10 @@ private:
     QStringList m_inputPorts;
 
     DeviceServiceS m_deviceService;
+
+    //! The wire value last sent by sendPortMidiData(), per port, channel and controller
+    std::mutex m_portMidiMutex;
+    std::map<std::tuple<std::string, quint8, std::optional<quint8>>, quint16> m_portMidiValues;
 };
 
 } // namespace noteahead

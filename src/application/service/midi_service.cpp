@@ -346,13 +346,22 @@ void MidiService::stopAllNotes()
     }
 }
 
-void MidiService::sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, quint16 value)
+void MidiService::sendPortMidiData(const std::string & portName, quint8 channel, std::optional<quint8> controller, double value)
 {
+    const PitchBendData bend { 0, 0, value * 100.0 };
+    const quint16 wireValue = controller ? MidiCcData::value7(value) : bend.value14();
+    {
+        const std::lock_guard<std::mutex> lock { m_portMidiMutex };
+        const auto [last, isFirst] = m_portMidiValues.try_emplace({ portName, channel, controller }, wireValue);
+        if (!isFirst && last->second == wireValue) {
+            return;
+        }
+        last->second = wireValue;
+    }
     if (controller) {
-        m_outputWorker->sendCcData(QString::fromStdString(portName), channel, *controller, static_cast<quint8>(std::min<quint16>(value, 127)));
+        m_outputWorker->sendCcData(QString::fromStdString(portName), channel, *controller, static_cast<quint8>(wireValue));
     } else {
-        const PitchBendData data { 0, 0, std::min<uint16_t>(value, 16383) };
-        m_outputWorker->sendPitchBendData(QString::fromStdString(portName), channel, data.msb(), data.lsb());
+        m_outputWorker->sendPitchBendData(QString::fromStdString(portName), channel, bend.msb(), bend.lsb());
     }
 }
 
