@@ -738,7 +738,10 @@ void DeviceServiceTest::test_midiMapping_everyDevice_shouldMoveItsTargetAndSurvi
         }
 
         const auto copy = DeviceFactory::createDevice(typeId, "MappingTest");
-        readDeviceXml(*copy, deviceXml(*device));
+        const auto xml = deviceXml(*device);
+        // Saved as integers, 10000 for 1
+        QVERIFY2(xml.contains(QString { "%1=\"8000\" %2=\"2000\"" }.arg(Constants::NahdXml::xmlKeyMin(), Constants::NahdXml::xmlKeyMax())), device->typeName().c_str());
+        readDeviceXml(*copy, xml);
         QVERIFY2(copy->midiMappings() == Device::MidiMappingList { mapping }, device->typeName().c_str());
     }
 }

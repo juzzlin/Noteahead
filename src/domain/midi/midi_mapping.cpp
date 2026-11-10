@@ -49,8 +49,8 @@ void MidiMapping::serializeToXml(ProjectWriter & writer) const
     }
     writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(controller));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTarget(), QString::fromStdString(target));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(min));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(max));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(Utils::Xml::normalizedToXml(min)));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(Utils::Xml::normalizedToXml(max)));
     writer.writeEndElement();
 }
 
@@ -60,8 +60,8 @@ std::optional<MidiMapping> MidiMapping::deserializeFromXml(ProjectReader & reade
     const auto kind = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyKind(), false);
     const auto controller = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyController(), false);
     const auto target = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyTarget(), false);
-    mapping.min = std::clamp(Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyMin(), false).value_or(0.0), 0.0, 1.0);
-    mapping.max = std::clamp(Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyMax(), false).value_or(1.0), 0.0, 1.0);
+    mapping.min = std::clamp(Utils::Xml::readNormalizedAttribute(reader, Constants::NahdXml::xmlKeyMin()).value_or(0.0), 0.0, 1.0);
+    mapping.max = std::clamp(Utils::Xml::readNormalizedAttribute(reader, Constants::NahdXml::xmlKeyMax()).value_or(1.0), 0.0, 1.0);
     reader.skipCurrentElement();
     if ((kind && *kind != kindName(Kind::Cc)) || !controller || !target || target->isEmpty()) {
         return std::nullopt;
