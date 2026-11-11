@@ -42,6 +42,7 @@ private slots:
     void test_voiceStealing_shouldRemainStableWhenOversubscribed();
     void test_hpfAndLpf_shouldAttenuateSignal();
     void test_panSpread_shouldCreateStereoSeparation();
+    void test_sustainPedal_everyVersion_shouldHoldNotesUntilLifted();
 };
 
 } // namespace noteahead

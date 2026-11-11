@@ -242,7 +242,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.48f, 0, 10000, 4800, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     // Zero is the straight-line envelope this synth has always had, so a project saved before the
     // knob existed loads with exactly the shape it was written with.
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -288,7 +288,7 @@ SynthDevice::SynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.05f, 0, 10000, 500 }); // 500 ms of ten seconds
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -1880,7 +1880,7 @@ void SynthDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
         m_delayType = static_cast<Delay::Type>(p->get().xmlValue());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p)
-        m_delayTime = p->get().value() * 10.0f;
+        m_delayTime = p->get().value() * MaxDelaySeconds;
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p)
         m_delayFeedback = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p)
@@ -2988,7 +2988,7 @@ void SynthDevice::setDelayType(Delay::Type type)
 
 float SynthDevice::delayTime() const
 {
-    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime);
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime / MaxDelaySeconds);
 }
 
 void SynthDevice::setDelayTime(float time)

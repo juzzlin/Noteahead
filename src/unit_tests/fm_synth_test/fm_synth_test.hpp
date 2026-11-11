@@ -85,6 +85,7 @@ private slots:
 
     void test_delay_atZeroMix_shouldLeaveNothingBehind();
     void test_delay_shouldRepeatAfterTheNoteStops();
+    void test_delayTime_shouldSpanTenSeconds();
     void test_voiceMode_unison_shouldDetuneTheStack();
 
     void test_lfoFreeRun_default_shouldBeOff();

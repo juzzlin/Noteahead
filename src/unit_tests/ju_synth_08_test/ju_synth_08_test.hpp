@@ -49,6 +49,7 @@ private slots:
     void test_panSpread_unison_shouldWidenTheStack();
     void test_panSpread_changed_shouldMoveTheHeldNote();
     void test_xmlSerialization();
+    void test_octave_shouldShiftByItsOwnOctavesOnly();
 };
 
 #endif // UNIT_TESTS_JU_SYNTH_08_TEST_HPP

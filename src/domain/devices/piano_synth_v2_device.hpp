@@ -138,6 +138,9 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     void releaseVoice(Voice & voice) const;
+    //! Lets the pedal up, releasing the notes it was holding: for a pedal-up and for Reset All
+    //! Controllers alike, so that a reset never leaves held notes ringing.
+    void liftSustainPedal();
     ModalPianoString::Settings stringSettings() const;
     int findVoiceForNote(uint8_t note) const;
     int allocateVoice();

@@ -123,6 +123,9 @@ private:
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
+    //! Lets the pedal up, releasing the notes it was holding: for a pedal-up and for Reset All
+    //! Controllers alike, so that a reset never leaves held notes ringing.
+    void liftSustainPedal();
     int findVoiceForNote(uint8_t note) const;
     int allocateVoice();
     float noteToPan(uint8_t note) const;

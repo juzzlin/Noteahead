@@ -292,7 +292,8 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
         return;
     }
 
-    const double targetFrequency = 440.0 * std::exp2((static_cast<double>(note) - 69.0 + octave() * 12.0) / 12.0);
+    // The note has already been moved by the device's octave in Device::processMidiNoteOn()
+    const double targetFrequency = 440.0 * std::exp2((static_cast<double>(note) - 69.0) / 12.0);
     const double vel = static_cast<double>(velocity) / 127.0;
 
     // The LFO delay starts over when a key goes down with none held
@@ -305,6 +306,9 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
         const bool legato = voice.active && voice.gated;
         voice.note = note;
         voice.velocity = vel;
+        // Portamento glides only between overlapping notes here, by design: a detached note starts
+        // on its own pitch. Unison glides from the note it was playing, and Poly voices start on
+        // their own pitch, having no note of their own to come from.
         if (!legato) {
             voice.frequency = targetFrequency;
             voice.glideFrequency = targetFrequency;
@@ -889,7 +893,7 @@ void JuSynth08Device::syncParameters()
     m_lfoDelay = read(C::xmlKeyLfoDelay());
     m_lfoWaveform = static_cast<int>(read(C::xmlKeyWaveform()));
 
-    m_vco1Range = static_cast<Vco1Range>(std::clamp(static_cast<int>(read(C::xmlKeyVco1Range())), 0, 4));
+    m_vco1Range = static_cast<Vco1Range>(std::clamp(static_cast<int>(read(C::xmlKeyVco1Range())), 0, 3));
     m_vco1Waveform = static_cast<Vco1Waveform>(std::clamp(static_cast<int>(read(C::xmlKeyVco1Waveform())), 0, 3));
     m_crossMod = read(C::xmlKeyCrossMod());
     m_vco1Level = read(C::xmlKeyVco1Level());

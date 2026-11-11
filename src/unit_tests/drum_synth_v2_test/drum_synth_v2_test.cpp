@@ -1112,6 +1112,45 @@ void DrumSynthV2Test::test_applyParameterAutomation_legacyLevelKey_shouldMoveThe
     QVERIFY(std::abs(ParameterMapper::mapFader(static_cast<double>(level)) - 0.5) < 1.0e-3);
 }
 
+namespace {
+
+//! An open hat, choked by a closed one, struck open again, and then the closed one's note ends:
+//! whether that note-off is sent or not must make no difference
+template<typename DeviceT>
+std::vector<double> renderHatsWithClosedNoteOff(bool sendNoteOff)
+{
+    DeviceT device { "Drum Synth" };
+    std::vector<double> rendered;
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    const auto run = [&](uint32_t blocks) {
+        for (uint32_t block = 0; block < blocks; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+            device.processAudio(context);
+            rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+        }
+    };
+    device.processMidiNoteOn(46, 100);
+    run(2);
+    device.processMidiNoteOn(42, 100);
+    run(2);
+    device.processMidiNoteOn(46, 100);
+    run(1);
+    if (sendNoteOff) {
+        device.processMidiNoteOff(42);
+    }
+    run(20);
+    return rendered;
+}
+
+} // namespace
+
+void DrumSynthV2Test::test_closedHatNoteOff_shouldNotChokeALaterOpenHat()
+{
+    QCOMPARE(renderHatsWithClosedNoteOff<DrumSynthV2Device>(true), renderHatsWithClosedNoteOff<DrumSynthV2Device>(false));
+    QCOMPARE(renderHatsWithClosedNoteOff<DrumSynthDevice>(true), renderHatsWithClosedNoteOff<DrumSynthDevice>(false));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DrumSynthV2Test)

@@ -486,6 +486,9 @@ public:
     // Delay parameters
     Delay::Type delayType() const;
     void setDelayType(Delay::Type type);
+    //! The longest delay, at the top of the Time knob.
+    static constexpr float MaxDelaySeconds { 10.0f };
+    //! The Time knob's position, 0 to 1 of MaxDelaySeconds, as setDelayTime() takes it.
     float delayTime() const;
     void setDelayTime(float time);
     float delayFeedback() const;

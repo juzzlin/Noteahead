@@ -584,6 +584,8 @@ void WavetableSynthDevice::processDeviceMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
+//! No mod wheel (CC 1) here: Device::processMidiCc() takes it to modulationWheelTargets() and
+//! never passes it on.
 void WavetableSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
@@ -604,12 +606,6 @@ void WavetableSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value
                     changed = true;
                 }
             }
-        } else if (controller == 1) { // LFO intensity (temporary, not saved to param)
-            // The wheel rests at zero and only adds modulation as it is pushed up, the way it does
-            // on the Synth: the intensity knob is the one that is bipolar. It sets the depth alone,
-            // so the knob in the dialog stays where the patch left it.
-            m_lfoDepth = static_cast<double>(val);
-            changed = true;
         } else if (controller == 7) {
             changed = updateVolumeParameter(faderPositionFromMidiCc(value), false);
         } else if (controller == 10) {
@@ -1203,11 +1199,7 @@ float WavetableSynthDevice::osc1Pos() const
 
 void WavetableSynthDevice::setOsc1Pos(float pos)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc1Pos().toStdString()); synthParameter) {
-        synthParameter->get().setValue(pos);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc1Pos().toStdString(), pos);
 }
 
 int WavetableSynthDevice::osc1Octave() const
@@ -1217,11 +1209,7 @@ int WavetableSynthDevice::osc1Octave() const
 
 void WavetableSynthDevice::setOsc1Octave(int octave)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc1Octave().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(octave);
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyOsc1Octave().toStdString(), octave);
 }
 
 float WavetableSynthDevice::osc1Pitch() const
@@ -1231,11 +1219,7 @@ float WavetableSynthDevice::osc1Pitch() const
 
 void WavetableSynthDevice::setOsc1Pitch(float pitch)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc1Pitch().toStdString()); synthParameter) {
-        synthParameter->get().setValue(pitch);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc1Pitch().toStdString(), pitch);
 }
 
 float WavetableSynthDevice::osc1Level() const
@@ -1245,11 +1229,7 @@ float WavetableSynthDevice::osc1Level() const
 
 void WavetableSynthDevice::setOsc1Level(float level)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc1Level().toStdString()); synthParameter) {
-        synthParameter->get().setValue(level);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc1Level().toStdString(), level);
 }
 
 // Accessors (Osc 2)
@@ -1260,11 +1240,7 @@ float WavetableSynthDevice::osc2Pos() const
 
 void WavetableSynthDevice::setOsc2Pos(float pos)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc2Pos().toStdString()); synthParameter) {
-        synthParameter->get().setValue(pos);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc2Pos().toStdString(), pos);
 }
 
 int WavetableSynthDevice::osc2Octave() const
@@ -1274,11 +1250,7 @@ int WavetableSynthDevice::osc2Octave() const
 
 void WavetableSynthDevice::setOsc2Octave(int octave)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc2Octave().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(octave);
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyOsc2Octave().toStdString(), octave);
 }
 
 float WavetableSynthDevice::osc2Pitch() const
@@ -1288,11 +1260,7 @@ float WavetableSynthDevice::osc2Pitch() const
 
 void WavetableSynthDevice::setOsc2Pitch(float pitch)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc2Pitch().toStdString()); synthParameter) {
-        synthParameter->get().setValue(pitch);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc2Pitch().toStdString(), pitch);
 }
 
 float WavetableSynthDevice::osc2Level() const
@@ -1302,11 +1270,7 @@ float WavetableSynthDevice::osc2Level() const
 
 void WavetableSynthDevice::setOsc2Level(float level)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOsc2Level().toStdString()); synthParameter) {
-        synthParameter->get().setValue(level);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOsc2Level().toStdString(), level);
 }
 
 // Noise
@@ -1317,11 +1281,7 @@ float WavetableSynthDevice::noiseLevel() const
 
 void WavetableSynthDevice::setNoiseLevel(float level)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyNoiseLevel().toStdString()); synthParameter) {
-        synthParameter->get().setValue(level);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyNoiseLevel().toStdString(), level);
 }
 
 // Filter
@@ -1332,11 +1292,7 @@ float WavetableSynthDevice::lpfCutoff() const
 
 void WavetableSynthDevice::setLpfCutoff(float cutoff)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); synthParameter) {
-        synthParameter->get().setValue(cutoff);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), cutoff);
 }
 
 float WavetableSynthDevice::lpfResonance() const
@@ -1346,11 +1302,7 @@ float WavetableSynthDevice::lpfResonance() const
 
 void WavetableSynthDevice::setLpfResonance(float resonance)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); synthParameter) {
-        synthParameter->get().setValue(resonance);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), resonance);
 }
 
 float WavetableSynthDevice::hpfCutoff() const
@@ -1360,11 +1312,7 @@ float WavetableSynthDevice::hpfCutoff() const
 
 void WavetableSynthDevice::setHpfCutoff(float cutoff)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); synthParameter) {
-        synthParameter->get().setValue(cutoff);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
 }
 
 // Amp EG
@@ -1375,11 +1323,7 @@ float WavetableSynthDevice::ampAttack() const
 
 void WavetableSynthDevice::setAmpAttack(float a)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString()); synthParameter) {
-        synthParameter->get().setValue(a);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpAttack().toStdString(), a);
 }
 
 float WavetableSynthDevice::ampDecay() const
@@ -1389,11 +1333,7 @@ float WavetableSynthDevice::ampDecay() const
 
 void WavetableSynthDevice::setAmpDecay(float d)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpDecay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(d);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpDecay().toStdString(), d);
 }
 
 float WavetableSynthDevice::ampSustain() const
@@ -1403,11 +1343,7 @@ float WavetableSynthDevice::ampSustain() const
 
 void WavetableSynthDevice::setAmpSustain(float s)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpSustain().toStdString()); synthParameter) {
-        synthParameter->get().setValue(s);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpSustain().toStdString(), s);
 }
 
 float WavetableSynthDevice::ampRelease() const
@@ -1417,11 +1353,7 @@ float WavetableSynthDevice::ampRelease() const
 
 void WavetableSynthDevice::setAmpRelease(float r)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); synthParameter) {
-        synthParameter->get().setValue(r);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpRelease().toStdString(), r);
 }
 
 float WavetableSynthDevice::ampVelocitySensitivity() const
@@ -1431,11 +1363,7 @@ float WavetableSynthDevice::ampVelocitySensitivity() const
 
 void WavetableSynthDevice::setAmpVelocitySensitivity(float sensitivity)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(sensitivity);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), sensitivity);
 }
 
 float WavetableSynthDevice::ampCurve() const
@@ -1445,11 +1373,7 @@ float WavetableSynthDevice::ampCurve() const
 
 void WavetableSynthDevice::setAmpCurve(float curve)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpCurve().toStdString()); synthParameter) {
-        synthParameter->get().setValue(curve);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);
 }
 
 // Mod EG
@@ -1460,11 +1384,7 @@ float WavetableSynthDevice::modAttack() const
 
 void WavetableSynthDevice::setModAttack(float a)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); synthParameter) {
-        synthParameter->get().setValue(a);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModAttack().toStdString(), a);
 }
 
 float WavetableSynthDevice::modDecay() const
@@ -1474,11 +1394,7 @@ float WavetableSynthDevice::modDecay() const
 
 void WavetableSynthDevice::setModDecay(float d)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(d);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModDecay().toStdString(), d);
 }
 
 float WavetableSynthDevice::modInt() const
@@ -1493,20 +1409,12 @@ float WavetableSynthDevice::modSustain() const
 
 void WavetableSynthDevice::setModSustain(float sustain)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModSustain().toStdString()); synthParameter) {
-        synthParameter->get().setValue(sustain);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModSustain().toStdString(), sustain);
 }
 
 void WavetableSynthDevice::setModInt(float intensity)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(intensity);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModIntensity().toStdString(), intensity);
 }
 
 WavetableSynthDevice::ModTarget WavetableSynthDevice::modTarget() const
@@ -1516,11 +1424,7 @@ WavetableSynthDevice::ModTarget WavetableSynthDevice::modTarget() const
 
 void WavetableSynthDevice::setModTarget(ModTarget target)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(target));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyModTarget().toStdString(), static_cast<int>(target));
 }
 
 float WavetableSynthDevice::modCurve() const
@@ -1530,11 +1434,7 @@ float WavetableSynthDevice::modCurve() const
 
 void WavetableSynthDevice::setModCurve(float curve)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModCurve().toStdString()); synthParameter) {
-        synthParameter->get().setValue(curve);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModCurve().toStdString(), curve);
 }
 
 // LFO
@@ -1545,11 +1445,7 @@ Lfo::Waveform WavetableSynthDevice::lfoWaveform() const
 
 void WavetableSynthDevice::setLfoWaveform(Lfo::Waveform wave)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(wave));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), static_cast<int>(wave));
 }
 
 Lfo::Mode WavetableSynthDevice::lfoMode() const
@@ -1559,11 +1455,7 @@ Lfo::Mode WavetableSynthDevice::lfoMode() const
 
 void WavetableSynthDevice::setLfoMode(Lfo::Mode mode)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(mode));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoMode().toStdString(), static_cast<int>(mode));
 }
 
 float WavetableSynthDevice::lfoRate() const
@@ -1573,11 +1465,7 @@ float WavetableSynthDevice::lfoRate() const
 
 void WavetableSynthDevice::setLfoRate(float rate)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString()); synthParameter) {
-        synthParameter->get().setValue(rate);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoRate().toStdString(), rate);
 }
 
 float WavetableSynthDevice::lfoInt() const
@@ -1587,11 +1475,7 @@ float WavetableSynthDevice::lfoInt() const
 
 void WavetableSynthDevice::setLfoInt(float intensity)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(intensity);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), intensity);
 }
 
 WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfoTarget() const
@@ -1606,11 +1490,7 @@ float WavetableSynthDevice::lfoDelay() const
 
 void WavetableSynthDevice::setLfoDelay(float delay)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoDelay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(delay);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoDelay().toStdString(), delay);
 }
 
 float WavetableSynthDevice::lfoFade() const
@@ -1620,20 +1500,12 @@ float WavetableSynthDevice::lfoFade() const
 
 void WavetableSynthDevice::setLfoFade(float fade)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoFade().toStdString()); synthParameter) {
-        synthParameter->get().setValue(fade);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFade().toStdString(), fade);
 }
 
 void WavetableSynthDevice::setLfoTarget(LfoTarget target)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(target));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoTarget().toStdString(), static_cast<int>(target));
 }
 
 // LFO 2
@@ -1644,11 +1516,7 @@ Lfo::Waveform WavetableSynthDevice::lfo2Waveform() const
 
 void WavetableSynthDevice::setLfo2Waveform(Lfo::Waveform wave)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(wave));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), static_cast<int>(wave));
 }
 
 Lfo::Mode WavetableSynthDevice::lfo2Mode() const
@@ -1658,11 +1526,7 @@ Lfo::Mode WavetableSynthDevice::lfo2Mode() const
 
 void WavetableSynthDevice::setLfo2Mode(Lfo::Mode mode)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(mode));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), static_cast<int>(mode));
 }
 
 float WavetableSynthDevice::lfo2Rate() const
@@ -1672,11 +1536,7 @@ float WavetableSynthDevice::lfo2Rate() const
 
 void WavetableSynthDevice::setLfo2Rate(float rate)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString()); synthParameter) {
-        synthParameter->get().setValue(rate);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), rate);
 }
 
 float WavetableSynthDevice::lfo2Int() const
@@ -1686,11 +1546,7 @@ float WavetableSynthDevice::lfo2Int() const
 
 void WavetableSynthDevice::setLfo2Int(float intensity)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(intensity);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), intensity);
 }
 
 WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfo2Target() const
@@ -1705,11 +1561,7 @@ float WavetableSynthDevice::lfo2Delay() const
 
 void WavetableSynthDevice::setLfo2Delay(float delay)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Delay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(delay);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), delay);
 }
 
 float WavetableSynthDevice::lfo2Fade() const
@@ -1719,11 +1571,7 @@ float WavetableSynthDevice::lfo2Fade() const
 
 void WavetableSynthDevice::setLfo2Fade(float fade)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Fade().toStdString()); synthParameter) {
-        synthParameter->get().setValue(fade);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), fade);
 }
 
 int WavetableSynthDevice::lfoRateDivider() const
@@ -1768,11 +1616,7 @@ void WavetableSynthDevice::setLfo2FreeRun(bool freeRun)
 
 void WavetableSynthDevice::setLfo2Target(LfoTarget target)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(target));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Target().toStdString(), static_cast<int>(target));
 }
 
 // Voice / Global

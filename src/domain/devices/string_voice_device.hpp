@@ -155,6 +155,8 @@ private:
         uint8_t note { 0 };
         float velocity { 1.0f };
         bool active { false };
+        //! Let go of while the sustain pedal was down, and held until it comes up
+        bool sustained { false };
         uint32_t triggerFrame { 0 }; // used to calculate vibrato delay time
         uint64_t triggerId { 0 }; // monotonic allocation order, used for stealing
         double detuneRatio { 1.0 }; // fixed per-voice pitch drift (analog divider imprecision)
@@ -203,6 +205,11 @@ private:
     float m_panSpread { 0.0f };
 
     bool m_ensembleEnabled { true };
+    bool m_sustainPedal { false };
+    //! Lets the pedal up, releasing the notes it was holding: for a pedal-up and for Reset All
+    //! Controllers alike.
+    void liftSustainPedal();
+    void releaseVoice(Voice & voice) const;
     int m_ensembleMode { 0 };
 
     bool m_vocoderEnabled { false };

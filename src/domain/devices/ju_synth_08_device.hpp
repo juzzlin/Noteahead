@@ -64,13 +64,14 @@ public:
         Noise = 3,
     };
 
+    //! VCO1 has the four footages only: the low frequency range is VCO2's alone, as on the
+    //! hardware, so its range parameter stops at Feet2 on purpose.
     enum class Vco1Range
     {
         Feet16 = 0,
         Feet8 = 1,
         Feet4 = 2,
         Feet2 = 3,
-        LowFreq = 4,
     };
 
     enum class Vco2Range

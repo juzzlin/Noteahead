@@ -734,9 +734,9 @@ void FmSynthTest::test_delay_shouldRepeatAfterTheNoteStops()
     // silent, so anything heard past that point can only be the delay.
     FmSynthDevice synth { "Test FM" };
     synth.setAmpRelease(0.0f);
-    // The time is in seconds, so this is 80 ms -- short enough to have come back round inside the
-    // window below, where the half-second default would not have.
-    synth.setDelayTime(0.08f);
+    // 80 ms of the knob's ten seconds: short enough to have come back round inside the window
+    // below, where the half-second default would not have.
+    synth.setDelayTime(0.008f);
     synth.setDelayMix(0.8f);
     synth.setDelayFeedback(0.6f);
     synth.processMidiNoteOn(NoteA4, 127);
@@ -746,6 +746,27 @@ void FmSynthTest::test_delay_shouldRepeatAfterTheNoteStops()
 
     QVERIFY(!synth.hasActiveAudio());
     QVERIFY(rootMeanSquare(renderMono(synth, 4)) > 0.0001);
+}
+
+void FmSynthTest::test_delayTime_shouldSpanTenSeconds()
+{
+    // A fiftieth of the knob is 200 ms: the repeat is heard then and not before
+    FmSynthDevice synth { "Test FM" };
+    synth.setAmpRelease(0.0f);
+    synth.setDelayTime(0.02f);
+    synth.setDelayMix(1.0f);
+    synth.setDelayFeedback(0.0f);
+    synth.processMidiNoteOn(NoteA4, 127);
+    renderMono(synth, 1);
+    synth.processMidiNoteOff(NoteA4);
+    const auto samples = renderMono(synth, 12);
+    const auto window = [&samples](double fromSeconds, double toSeconds) {
+        const auto from = static_cast<size_t>(fromSeconds * SampleRate) - FrameCount;
+        const auto to = static_cast<size_t>(toSeconds * SampleRate) - FrameCount;
+        return rootMeanSquare(std::vector<double>(samples.begin() + static_cast<std::ptrdiff_t>(from), samples.begin() + static_cast<std::ptrdiff_t>(to)));
+    };
+    QVERIFY2(window(0.1, 0.18) < 0.0001, qPrintable(QString::number(window(0.1, 0.18))));
+    QVERIFY2(window(0.2, 0.22) > 0.001, qPrintable(QString::number(window(0.2, 0.22))));
 }
 
 void FmSynthTest::test_voiceMode_unison_shouldDetuneTheStack()

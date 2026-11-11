@@ -16,7 +16,12 @@
 #include "piano_synth_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../domain/devices/piano_synth_acoustic_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
+#include "../../domain/devices/piano_synth_v2_device.hpp"
+#include "../../domain/devices/piano_synth_v3_device.hpp"
+#include "../../domain/dsp/audio_context.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -609,6 +614,56 @@ void PianoSynthTest::test_keyboard_shouldReportMeasurements_againstReference()
               t60.toUtf8().constData(), entry.t60,
               measurement.attackOverTailDb, entry.attackOverTailDb);
     }
+}
+
+namespace {
+
+//! A chord held on the pedal, its keys let go, and then either the pedal lifted or Reset All
+//! Controllers sent: both let the strings go
+template<typename DeviceT>
+std::vector<double> renderPedalEndedBy(uint8_t controller, uint8_t value)
+{
+    DeviceT device { "Piano" };
+    using MidiCcMapping::Controller;
+    std::vector<double> rendered;
+    std::vector<double> buffer(512 * 2, 0.0);
+    const auto run = [&](size_t blocks) {
+        for (size_t block = 0; block < blocks; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+            device.processAudio(context);
+            rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+        }
+    };
+    device.processMidiCc(static_cast<uint8_t>(Controller::SustainPedal), 127, 0);
+    device.processMidiNoteOn(60, 100);
+    device.processMidiNoteOn(64, 100);
+    run(4);
+    device.processMidiNoteOff(60);
+    device.processMidiNoteOff(64);
+    run(4);
+    device.processMidiCc(controller, value, 0);
+    run(40);
+    return rendered;
+}
+
+template<typename DeviceT>
+void checkResetLiftsThePedal()
+{
+    using MidiCcMapping::Controller;
+    const auto lifted = renderPedalEndedBy<DeviceT>(static_cast<uint8_t>(Controller::SustainPedal), 0);
+    const auto reset = renderPedalEndedBy<DeviceT>(static_cast<uint8_t>(Controller::ResetAllControllers), 0);
+    QCOMPARE(reset, lifted);
+}
+
+} // namespace
+
+void PianoSynthTest::test_resetAllControllers_everyPiano_shouldLetGoOfThePedal()
+{
+    checkResetLiftsThePedal<PianoSynthDevice>();
+    checkResetLiftsThePedal<PianoSynthV2Device>();
+    checkResetLiftsThePedal<PianoSynthV3Device>();
+    checkResetLiftsThePedal<PianoSynthAcousticDevice>();
 }
 
 } // namespace noteahead

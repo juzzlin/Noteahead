@@ -117,6 +117,21 @@ void PianoSynthDevice::processDeviceMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
+void PianoSynthDevice::liftSustainPedal()
+{
+    if (m_sustainPedal) {
+        const float rt = 0.005f + m_releaseTime * 1.995f;
+        for (auto & v : m_voices) {
+            if (v.active && v.pendingRelease) {
+                v.string.release(rt);
+                v.string2.release(rt);
+                v.pendingRelease = false;
+            }
+        }
+    }
+    m_sustainPedal = false;
+}
+
 void PianoSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
@@ -127,7 +142,7 @@ void PianoSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, ui
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
-            m_sustainPedal = false;
+            liftSustainPedal();
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -136,18 +151,11 @@ void PianoSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, ui
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {
-                const bool pedalOn = value >= 64;
-                if (m_sustainPedal && !pedalOn) {
-                    const float rt = 0.005f + m_releaseTime * 1.995f;
-                    for (auto & v : m_voices) {
-                        if (v.active && v.pendingRelease) {
-                            v.string.release(rt);
-                            v.string2.release(rt);
-                            v.pendingRelease = false;
-                        }
-                    }
+                if (value >= 64) {
+                    m_sustainPedal = true;
+                } else {
+                    liftSustainPedal();
                 }
-                m_sustainPedal = pedalOn;
             }
         }
     }
