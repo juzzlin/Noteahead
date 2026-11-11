@@ -41,6 +41,8 @@ Bug fixes:
 
 Other:
 
+* Column Flash is on by default
+
 * Less work per sample in several devices and effects
 
 12.1.0

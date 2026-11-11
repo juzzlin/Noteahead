@@ -339,11 +339,11 @@ void ThemeServiceTest::test_volumeMeterStyle_setter_shouldPersistAcrossInstances
     QCOMPARE(reloaded.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Lines));
 }
 
-void ThemeServiceTest::test_columnFlashEnabled_unset_shouldDefaultToDisabled()
+void ThemeServiceTest::test_columnFlashEnabled_unset_shouldDefaultToEnabled()
 {
     QSettings {}.remove("Theme/columnFlashEnabled");
 
-    QCOMPARE(ThemeService {}.columnFlashEnabled(), false);
+    QCOMPARE(ThemeService {}.columnFlashEnabled(), true);
 }
 
 void ThemeServiceTest::test_columnFlashEnabled_setter_shouldUpdateGetterAndEmitSignal()
