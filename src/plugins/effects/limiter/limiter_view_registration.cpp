@@ -16,6 +16,8 @@
 #include "limiter.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,16 @@ void registerLimiterEffectView()
       .type = Constants::RackEffectType::limiter(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "LimiterDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto ceiling = effect->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString());
+          const auto boost = effect->parameter(Constants::NahdXml::xmlKeyBoost().toStdString());
+          if (ceiling && boost) {
+              return QString { "(ceil=%1dB, boost=%2)" }
+                .arg(ceiling->get().xmlValue() / 100.0f, 0, 'f', 1)
+                .arg(boost->get().shownValue() > 0.5f ? EffectSummary::tr("on") : EffectSummary::tr("off"));
+          }
+          return {};
+      },
     });
 }
 

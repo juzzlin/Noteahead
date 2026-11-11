@@ -16,7 +16,11 @@
 #include "eq_32_band_graphical.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,25 @@ void registerEq32BandGraphicalEffectView()
       .type = Constants::RackEffectType::eq32BandGraphical(),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "Eq32BandGraphicalDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          QString modeName { EffectSummary::tr("Stereo") };
+          if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
+              switch (static_cast<Eq32BandGraphical::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().shownValue())), 0, 2))) {
+              case Eq32BandGraphical::StereoMode::Mid:
+                  modeName = EffectSummary::tr("Mid");
+                  break;
+              case Eq32BandGraphical::StereoMode::Side:
+                  modeName = EffectSummary::tr("Side");
+                  break;
+              case Eq32BandGraphical::StereoMode::Stereo:
+                  break;
+              }
+          }
+          if (effect->latencyFrames(effect->sampleRate()) > 0) {
+              return QString { "(Graphical, %1, %2)" }.arg(modeName, EffectSummary::tr("Linear Phase"));
+          }
+          return QString { "(Graphical, %1)" }.arg(modeName);
+      },
     });
 }
 

@@ -16,6 +16,9 @@
 #include "bit_crusher.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +31,18 @@ void registerBitCrusherEffectView()
       .type = Constants::RackEffectType::bitCrusher(),
       .category = PluginCatalog::EffectCategory::Distortion,
       .dialogFile = "BitCrusherDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto bits = effect->parameter(Constants::NahdXml::xmlKeyBitDepth().toStdString());
+          const auto rate = effect->parameter(Constants::NahdXml::xmlKeySampleRate().toStdString());
+          if (bits && rate) {
+              const double hz = ParameterMapper::mapExponential(rate->get().shownValue(), 100.0, 48000.0);
+              return QString { "(%1 %2, %3 kHz)" }
+                .arg(bits->get().xmlValue())
+                .arg(EffectSummary::tr("bits"))
+                .arg(hz / 1000.0, 0, 'f', 1);
+          }
+          return {};
+      },
     });
 }
 

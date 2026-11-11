@@ -16,6 +16,8 @@
 #include "monitor.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,26 @@ void registerMonitorEffectView()
       .type = Constants::RackEffectType::monitor(),
       .category = PluginCatalog::EffectCategory::Utility,
       .dialogFile = "MonitorDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          // Named in full and in capitals: a monitor left folded is the one setting in the rack
+          // that quietly misrepresents everything downstream of it, so it has to be readable
+          // without opening anything.
+          if (const auto mode = effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); mode) {
+              switch (static_cast<Monitor::Mode>(mode->get().xmlValue())) {
+              case Monitor::Mode::Stereo:
+                  return QString { "(%1)" }.arg(EffectSummary::tr("STEREO"));
+              case Monitor::Mode::Mono:
+                  return QString { "(%1)" }.arg(EffectSummary::tr("MONO"));
+              case Monitor::Mode::Left:
+                  return QString { "(%1)" }.arg(EffectSummary::tr("LEFT"));
+              case Monitor::Mode::Right:
+                  return QString { "(%1)" }.arg(EffectSummary::tr("RIGHT"));
+              case Monitor::Mode::Side:
+                  return QString { "(%1)" }.arg(EffectSummary::tr("SIDE"));
+              }
+          }
+          return {};
+      },
     });
 }
 

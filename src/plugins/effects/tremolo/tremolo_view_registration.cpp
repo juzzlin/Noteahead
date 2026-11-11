@@ -16,7 +16,13 @@
 #include "tremolo.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/controllers/knob_controller.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +34,30 @@ void registerTremoloEffectView()
       .type = Constants::RackEffectType::tremolo(),
       .category = PluginCatalog::EffectCategory::Modulation,
       .dialogFile = "TremoloDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
+          const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
+          const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
+          if (sync && intensity && divider) {
+              const auto rateDivider = std::max(1, divider->get().xmlValue());
+              QString rateStr;
+              if (sync->get().shownValue() > 0.5f) {
+                  const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
+                  KnobController knobController;
+                  rateStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
+                  if (rateDivider > 1) {
+                      rateStr += QString { "/%1" }.arg(rateDivider);
+                  }
+              } else {
+                  const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+                  rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+              }
+              return QString { "(rate=%1, depth=%2%)" }
+                .arg(rateStr)
+                .arg(static_cast<int>(std::lround(intensity->get().shownValue() * 100.0)));
+          }
+          return {};
+      },
     });
 }
 

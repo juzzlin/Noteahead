@@ -21,6 +21,8 @@
 #include "../../domain/tracker/parameter_container.hpp"
 #include "automation_refresh_throttle.hpp"
 
+#include "../plugins/plugin_catalog.hpp"
+
 #include <QObject>
 #include <QUrl>
 
@@ -173,15 +175,14 @@ public:
     QString endlessType() const;
     QString gateType() const;
     QString bitCrusherType() const;
-    Q_INVOKABLE int bitCrusherMaxBits() const;
     QString flangerType() const;
-    Q_INVOKABLE int flangerMaxRateDivider() const;
     QString tremoloType() const;
-    Q_INVOKABLE int tremoloMaxRateDivider() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
     Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;
     Q_INVOKABLE float parameterValue(quint32 effectIndex, const QString & paramName) const;
+    //! The top of a discrete parameter's range, such as the most a Rate Divider divides by.
+    Q_INVOKABLE int parameterMaximum(quint32 effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(quint32 effectIndex, const QString & paramName, float value);
 
     //! Remembers an effect's settings as its dialog opens, so that the dialog's Cancel button can
@@ -230,10 +231,6 @@ public:
     Q_INVOKABLE QString effectType(quint32 effectIndex) const;
     //! The id of the effect in @p effectIndex of the current rack, empty for none. See Effect::id().
     Q_INVOKABLE QString effectId(quint32 effectIndex) const;
-
-    Q_INVOKABLE int phaserMaxStages() const;
-    Q_INVOKABLE int phaserMaxRateDivider() const;
-    Q_INVOKABLE int autoPannerMaxRateDivider() const;
 
     //! Shared by every effect whose LFO follows the Synth's shapes and modes.
     Q_INVOKABLE QStringList lfoWaveformNames() const;
@@ -417,6 +414,7 @@ signals:
 private:
     //! The parameter summary of one effect, whichever rack it came from.
     QString summaryFor(const EffectRack::EffectS & effect) const;
+    PluginCatalog::SummaryContext summaryContext() const;
 
     struct EffectTypeInfo
     {

@@ -16,7 +16,11 @@
 #include "dimension.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerDimensionEffectView()
       .type = Constants::RackEffectType::dimension(),
       .category = PluginCatalog::EffectCategory::Modulation,
       .dialogFile = "DimensionDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto detune { effect->parameter(Constants::NahdXml::xmlKeyDetune().toStdString()) };
+          const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+          if (detune && amount) {
+              return QString { "(detune=%1c, amount=%2%)" }
+                .arg(detune->get().shownValue() * 25.0f, 0, 'f', 1)
+                .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

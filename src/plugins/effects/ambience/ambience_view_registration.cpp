@@ -16,7 +16,11 @@
 #include "ambience.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,18 @@ void registerAmbienceEffectView()
       .type = Constants::RackEffectType::ambience(),
       .category = PluginCatalog::EffectCategory::Space,
       .dialogFile = "AmbienceDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          namespace C = Constants::NahdXml;
+          const auto valueOf = [&effect](const QString & key) {
+              const auto p = effect->parameter(key.toStdString());
+              return p ? p->get().shownValue() : 0.0f;
+          };
+          return QString { "(size=%1%, decay=%2s, mix=%3%)" }
+            .arg(static_cast<int>(std::round(valueOf(C::xmlKeySize()) * 100.0f)))
+            .arg(Ambience::decaySeconds(valueOf(C::xmlKeyDecay())), 0, 'f', 2)
+            .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
+          return {};
+      },
     });
 }
 

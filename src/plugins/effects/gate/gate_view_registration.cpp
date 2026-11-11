@@ -16,6 +16,8 @@
 #include "gate.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,19 @@ void registerGateEffectView()
       .type = Constants::RackEffectType::gate(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "GateDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString());
+          const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
+          const auto range = effect->parameter(Constants::NahdXml::xmlKeyRange().toStdString());
+          if (threshold && ratio && range) {
+              const double thresholdDb = -60.0 + static_cast<double>(threshold->get().shownValue()) * 60.0;
+              return QString { "(%1dB, %2:1, %3dB)" }
+                .arg(thresholdDb, 0, 'f', 1)
+                .arg(static_cast<double>(ratio->get().xmlValue()) / ratio->get().xmlScale(), 0, 'f', 1)
+                .arg(-static_cast<double>(range->get().xmlValue()) / range->get().xmlScale(), 0, 'f', 0);
+          }
+          return {};
+      },
     });
 }
 

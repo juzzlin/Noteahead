@@ -15,7 +15,13 @@
 
 #include "all_pass_filter.hpp"
 
+#include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -27,6 +33,19 @@ void registerAllPassFilterEffectView()
       .type = QString::fromStdString(AllPassFilter::typeIdString()),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "AllPassFilterDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto freq = effect->parameter(Constants::NahdXml::xmlKeyFrequency().toStdString());
+          const auto stages = effect->parameter(Constants::NahdXml::xmlKeyStages().toStdString());
+          if (freq && stages) {
+              // In hertz, as the filter runs at it: the stored number is the knob's position
+              // spread linearly over 20 to 20000, not a frequency
+              const auto hz = ParameterMapper::mapLogFrequency(static_cast<double>(freq->get().shownValue()), 20.0, 20000.0);
+              return QString { "(freq=%1Hz, stages=%2)" }
+                .arg(static_cast<int>(std::lround(hz)))
+                .arg(stages->get().xmlValue());
+          }
+          return {};
+      },
     });
 }
 

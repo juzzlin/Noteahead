@@ -104,7 +104,7 @@ EffectDialog {
                         // on its own. Reading the active language makes the dependency explicit.
                         languageService.activeLanguage;
                         const stages = [];
-                        for (let i = 2; i <= effectRackController.phaserMaxStages(); i += 2) {
+                        for (let i = 2; i <= effectRackController.parameterMaximum(root.effectIndex, NahdXml.stages); i += 2) {
                             stages.push(qsTr("%1 stages").arg(i));
                         }
                         return stages;
@@ -195,7 +195,7 @@ EffectDialog {
                     mapping: "integer"
                     suffix: ""
                     from: 1
-                    to: effectRackController.phaserMaxRateDivider()
+                    to: effectRackController.parameterMaximum(root.effectIndex, NahdXml.rateDivider)
                     stepSize: 1
                     value: Math.max(1, root.parameterValue(NahdXml.rateDivider))
                     onMoved: v => root.setParameterValue(NahdXml.rateDivider, Math.round(v))
@@ -245,7 +245,7 @@ EffectDialog {
             }
 
             Label {
-                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.phaserMaxRateDivider())
+                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.parameterMaximum(root.effectIndex, NahdXml.rateDivider))
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
                 color: Theme.textSecondary

@@ -16,7 +16,11 @@
 #include "drive.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerDriveEffectView()
       .type = Constants::RackEffectType::drive(),
       .category = PluginCatalog::EffectCategory::Distortion,
       .dialogFile = "DriveDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
+          const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
+          if (drive && mix) {
+              return QString { "(drive=%1dB, mix=%2%)" }
+                .arg(drive->get().shownValue() * 40.0f, 0, 'f', 1)
+                .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

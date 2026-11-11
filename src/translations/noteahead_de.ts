@@ -3437,6 +3437,129 @@
     </message>
 </context>
 <context>
+    <name>EffectSummary</name>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation>Peak</translation>
+    </message>
+    <message>
+        <source>RMS</source>
+        <translation>RMS</translation>
+    </message>
+    <message>
+        <source>amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">Bell</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">Low Shelf</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">High Shelf</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on</source>
+        <translation>ein</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation>aus</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation>Mitten</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation>Side</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid + Side</source>
+        <translation>Mid + Side</translation>
+    </message>
+    <message>
+        <source>STEREO</source>
+        <translation>STEREO</translation>
+    </message>
+    <message>
+        <source>MONO</source>
+        <translation>MONO</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation>LINKS</translation>
+    </message>
+    <message>
+        <source>RIGHT</source>
+        <translation>RECHTS</translation>
+    </message>
+    <message>
+        <source>SIDE</source>
+        <translation>SIDE</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Links</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Rechts</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bass mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>neutral</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EffectsGalleryDialog</name>
     <message>
         <source>Effects Gallery</source>
@@ -16131,66 +16254,6 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Master-Send-Effekte</translation>
     </message>
     <message>
-        <source>on</source>
-        <translation>ein</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation>aus</translation>
-    </message>
-    <message>
-        <source>STEREO</source>
-        <translation>STEREO</translation>
-    </message>
-    <message>
-        <source>MONO</source>
-        <translation>MONO</translation>
-    </message>
-    <message>
-        <source>LEFT</source>
-        <translation>LINKS</translation>
-    </message>
-    <message>
-        <source>RIGHT</source>
-        <translation>RECHTS</translation>
-    </message>
-    <message>
-        <source>SIDE</source>
-        <translation>SIDE</translation>
-    </message>
-    <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>amount</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Peak</translation>
-    </message>
-    <message>
-        <source>RMS</source>
-        <translation>RMS</translation>
-    </message>
-    <message>
-        <source>Mid + Side</source>
-        <translation>Mid + Side</translation>
-    </message>
-    <message>
-        <source>Mid</source>
-        <translation>Mitten</translation>
-    </message>
-    <message>
-        <source>Side</source>
-        <translation>Side</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
     </message>
@@ -16221,62 +16284,6 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Meters</source>
         <translation>Messgeräte</translation>
-    </message>
-    <message>
-        <source>Linear Phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bell</source>
-        <translation type="unfinished">Bell</translation>
-    </message>
-    <message>
-        <source>Low Shelf</source>
-        <translation type="unfinished">Low Shelf</translation>
-    </message>
-    <message>
-        <source>High Shelf</source>
-        <translation type="unfinished">High Shelf</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sidechain</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Links</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Rechts</translation>
-    </message>
-    <message>
-        <source>Swap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
-    </message>
-    <message>
-        <source>width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>bass mono</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>delay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>neutral</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

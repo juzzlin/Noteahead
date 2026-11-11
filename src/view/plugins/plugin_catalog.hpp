@@ -27,6 +27,8 @@
 namespace noteahead {
 
 class AudioService;
+class Effect;
+class Device;
 class DeviceDialogModel;
 class DeviceService;
 
@@ -63,6 +65,13 @@ public:
         Modulators
     };
 
+    //! What a summary may need beyond the effect itself.
+    struct SummaryContext
+    {
+        //! The device in a slot, for naming a side-chain source. Null for an empty slot.
+        std::function<std::shared_ptr<noteahead::Device>(size_t slot)> device;
+    };
+
     struct Effect
     {
         //! The gallery name. Effect names are not translated.
@@ -73,6 +82,8 @@ public:
         EffectCategory category;
         //! The dialog's file name, beside the other dialogs in the QML module.
         QString dialogFile;
+        //! The one-line parameter summary the rack lists show, or empty when it cannot be made.
+        std::function<QString(const std::shared_ptr<noteahead::Effect> & effect, const SummaryContext & context)> summary {};
     };
 
     using DeviceDialogModelS = std::shared_ptr<DeviceDialogModel>;

@@ -16,7 +16,13 @@
 #include "auto_panner.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/controllers/knob_controller.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +34,33 @@ void registerAutoPannerEffectView()
       .type = Constants::RackEffectType::autoPanner(),
       .category = PluginCatalog::EffectCategory::Modulation,
       .dialogFile = "AutoPannerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
+          const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
+          const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
+          if (sync && intensity) {
+              const auto rateDivider = divider ? std::max(1, divider->get().xmlValue()) : 1;
+              QString rateStr;
+              if (sync->get().shownValue() > 0.5f) {
+                  const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
+                  KnobController knobController;
+                  // A division cannot be divided into a division that has a name, so the
+                  // divider is reported as itself.
+                  rateStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
+                  if (rateDivider > 1) {
+                      rateStr += QString { "/%1" }.arg(rateDivider);
+                  }
+              } else {
+                  const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+                  const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0)) / static_cast<float>(rateDivider);
+                  rateStr = QString { "%1Hz" }.arg(rateHz, 0, 'f', 2);
+              }
+              return QString { "(rate=%1, int=%2%)" }
+                .arg(rateStr)
+                .arg(static_cast<int>(std::round(intensity->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

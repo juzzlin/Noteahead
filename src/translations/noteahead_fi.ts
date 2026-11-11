@@ -3437,6 +3437,129 @@
     </message>
 </context>
 <context>
+    <name>EffectSummary</name>
+    <message>
+        <source>None</source>
+        <translation>Ei mitään</translation>
+    </message>
+    <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation>Peak</translation>
+    </message>
+    <message>
+        <source>RMS</source>
+        <translation>RMS</translation>
+    </message>
+    <message>
+        <source>amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">Kello</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">Alahylly</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">Ylähylly</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on</source>
+        <translation>päällä</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation>pois</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation>Keskialue</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation>Sivu</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid + Side</source>
+        <translation>Mid + Side</translation>
+    </message>
+    <message>
+        <source>STEREO</source>
+        <translation>STEREO</translation>
+    </message>
+    <message>
+        <source>MONO</source>
+        <translation>MONO</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation>VASEN</translation>
+    </message>
+    <message>
+        <source>RIGHT</source>
+        <translation>OIKEA</translation>
+    </message>
+    <message>
+        <source>SIDE</source>
+        <translation>SIVU</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Vasen</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Oikea</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bass mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>neutral</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EffectsGalleryDialog</name>
     <message>
         <source>Effects Gallery</source>
@@ -16131,66 +16254,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Masterin lähtöefektit</translation>
     </message>
     <message>
-        <source>on</source>
-        <translation>päällä</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation>pois</translation>
-    </message>
-    <message>
-        <source>STEREO</source>
-        <translation>STEREO</translation>
-    </message>
-    <message>
-        <source>MONO</source>
-        <translation>MONO</translation>
-    </message>
-    <message>
-        <source>LEFT</source>
-        <translation>VASEN</translation>
-    </message>
-    <message>
-        <source>RIGHT</source>
-        <translation>OIKEA</translation>
-    </message>
-    <message>
-        <source>SIDE</source>
-        <translation>SIVU</translation>
-    </message>
-    <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>amount</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ei mitään</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Peak</translation>
-    </message>
-    <message>
-        <source>RMS</source>
-        <translation>RMS</translation>
-    </message>
-    <message>
-        <source>Mid + Side</source>
-        <translation>Mid + Side</translation>
-    </message>
-    <message>
-        <source>Mid</source>
-        <translation>Keskialue</translation>
-    </message>
-    <message>
-        <source>Side</source>
-        <translation>Sivu</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
     </message>
@@ -16221,62 +16284,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Meters</source>
         <translation>Mittarit</translation>
-    </message>
-    <message>
-        <source>Linear Phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bell</source>
-        <translation type="unfinished">Kello</translation>
-    </message>
-    <message>
-        <source>Low Shelf</source>
-        <translation type="unfinished">Alahylly</translation>
-    </message>
-    <message>
-        <source>High Shelf</source>
-        <translation type="unfinished">Ylähylly</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sidechain</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Vasen</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Oikea</translation>
-    </message>
-    <message>
-        <source>Swap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
-    </message>
-    <message>
-        <source>width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>bass mono</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>delay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>neutral</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

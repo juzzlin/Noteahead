@@ -16,6 +16,9 @@
 #include "auto_ducker.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/devices/device.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +31,23 @@ void registerAutoDuckerEffectView()
       .type = Constants::RackEffectType::autoDucker(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "AutoDuckerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext & context) -> QString {
+          const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+          const auto threshold { effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()) };
+          if (amount && threshold) {
+              QString scName { EffectSummary::tr("None") };
+              if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
+                  if (const auto sourceDevice { context.device(*sourceIndex) }) {
+                      scName = QString::fromStdString(sourceDevice->name());
+                  }
+              }
+              return QString { "(amount=%1dB, thr=%2dB, sidechain=%3)" }
+                .arg(amount->get().xmlValue() / 100.0f, 0, 'f', 1)
+                .arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1)
+                .arg(scName);
+          }
+          return {};
+      },
     });
 }
 

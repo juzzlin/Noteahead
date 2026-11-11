@@ -16,7 +16,11 @@
 #include "compressor_2a.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerCompressor2aEffectView()
       .type = Constants::RackEffectType::compressor2A(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "Compressor2ADialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto peakReduction { effect->parameter(Constants::NahdXml::xmlKeyPeakReduction().toStdString()) };
+          const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) };
+          if (peakReduction && mode) {
+              return QString { "(peak=%1, %2)" }
+                .arg(static_cast<int>(std::round(peakReduction->get().shownValue() * 100.0f)))
+                .arg(mode->get().xmlValue() == static_cast<int>(Compressor2A::Mode::Limit) ? QString { "Limit" } : QString { "Compress" });
+          }
+          return {};
+      },
     });
 }
 

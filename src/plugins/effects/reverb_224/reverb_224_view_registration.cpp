@@ -16,7 +16,11 @@
 #include "reverb_224.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,19 @@ void registerReverb224EffectView()
       .type = Constants::RackEffectType::reverb224(),
       .category = PluginCatalog::EffectCategory::Space,
       .dialogFile = "Reverb224Dialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          namespace C = Constants::NahdXml;
+          const auto valueOf = [&effect](const QString & key) {
+              const auto p = effect->parameter(key.toStdString());
+              return p ? p->get().value() : 0.0f;
+          };
+          return QString { "(mid=%1s, bass=%2s, pre=%3ms, mix=%4%)" }
+            .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyMidDecay())), 0, 'f', 1)
+            .arg(Reverb224::decaySeconds(valueOf(C::xmlKeyBassDecay())), 0, 'f', 1)
+            .arg(static_cast<int>(std::round(Reverb224::preDelayMs(valueOf(C::xmlKeyPreDelay())))))
+            .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
+          return {};
+      },
     });
 }
 

@@ -3438,6 +3438,129 @@
     </message>
 </context>
 <context>
+    <name>EffectSummary</name>
+    <message>
+        <source>None</source>
+        <translation>Brak</translation>
+    </message>
+    <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation>Szczyt</translation>
+    </message>
+    <message>
+        <source>RMS</source>
+        <translation>RMS</translation>
+    </message>
+    <message>
+        <source>amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">Dzwon</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">Półka dolna</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">Półka górna</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on</source>
+        <translation>wł.</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation>wył.</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation>Środek</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation>Side</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid + Side</source>
+        <translation>Mid + Side</translation>
+    </message>
+    <message>
+        <source>STEREO</source>
+        <translation>STEREO</translation>
+    </message>
+    <message>
+        <source>MONO</source>
+        <translation>MONO</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation>LEWY</translation>
+    </message>
+    <message>
+        <source>RIGHT</source>
+        <translation>PRAWY</translation>
+    </message>
+    <message>
+        <source>SIDE</source>
+        <translation>SIDE</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Lewy</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Prawy</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bass mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>neutral</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EffectsGalleryDialog</name>
     <message>
         <source>Effects Gallery</source>
@@ -16133,66 +16256,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Efekty wysyłkowe master</translation>
     </message>
     <message>
-        <source>on</source>
-        <translation>wł.</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation>wył.</translation>
-    </message>
-    <message>
-        <source>STEREO</source>
-        <translation>STEREO</translation>
-    </message>
-    <message>
-        <source>MONO</source>
-        <translation>MONO</translation>
-    </message>
-    <message>
-        <source>LEFT</source>
-        <translation>LEWY</translation>
-    </message>
-    <message>
-        <source>RIGHT</source>
-        <translation>PRAWY</translation>
-    </message>
-    <message>
-        <source>SIDE</source>
-        <translation>SIDE</translation>
-    </message>
-    <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>amount</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Brak</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Szczyt</translation>
-    </message>
-    <message>
-        <source>RMS</source>
-        <translation>RMS</translation>
-    </message>
-    <message>
-        <source>Mid + Side</source>
-        <translation>Mid + Side</translation>
-    </message>
-    <message>
-        <source>Mid</source>
-        <translation>Środek</translation>
-    </message>
-    <message>
-        <source>Side</source>
-        <translation>Side</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
     </message>
@@ -16223,62 +16286,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Meters</source>
         <translation>Mierniki</translation>
-    </message>
-    <message>
-        <source>Linear Phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bell</source>
-        <translation type="unfinished">Dzwon</translation>
-    </message>
-    <message>
-        <source>Low Shelf</source>
-        <translation type="unfinished">Półka dolna</translation>
-    </message>
-    <message>
-        <source>High Shelf</source>
-        <translation type="unfinished">Półka górna</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sidechain</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Lewy</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Prawy</translation>
-    </message>
-    <message>
-        <source>Swap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
-    </message>
-    <message>
-        <source>width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>bass mono</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>delay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>neutral</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

@@ -16,6 +16,8 @@
 #include "clipper.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,12 @@ void registerClipperEffectView()
       .type = Constants::RackEffectType::clipper(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "ClipperDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); threshold) {
+              return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
+          }
+          return {};
+      },
     });
 }
 

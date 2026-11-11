@@ -16,7 +16,11 @@
 #include "analog_fuzz.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerAnalogFuzzEffectView()
       .type = Constants::RackEffectType::analogFuzz(),
       .category = PluginCatalog::EffectCategory::Distortion,
       .dialogFile = "AnalogFuzzDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+          const auto fuzz = effect->parameter(Constants::NahdXml::xmlKeyFuzz().toStdString());
+          if (drive && fuzz) {
+              return QString { "(drive=%1dB, fuzz=%2%)" }
+                .arg(drive->get().shownValue() * 42.0f, 0, 'f', 1)
+                .arg(static_cast<int>(std::round(fuzz->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

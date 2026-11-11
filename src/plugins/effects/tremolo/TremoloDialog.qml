@@ -162,7 +162,7 @@ EffectDialog {
                     mapping: "integer"
                     suffix: ""
                     from: 1
-                    to: effectRackController.tremoloMaxRateDivider()
+                    to: effectRackController.parameterMaximum(root.effectIndex, NahdXml.rateDivider)
                     stepSize: 1
                     value: {
                         effectRackController.revision;
