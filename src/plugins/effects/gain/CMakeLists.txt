@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         gain.cpp
         gain.hpp
+        gain_registration.cpp
+    VIEW_SOURCES
+        gain_view_registration.cpp
     QML_FILES
         GainDialog.qml
 )

@@ -39,8 +39,6 @@
 #include "../../plugins/effects/endless_reverb/endless_reverb.hpp"
 #include "../../plugins/effects/eq_32_band_graphical/eq_32_band_graphical.hpp"
 #include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric.hpp"
-#include "../../plugins/effects/flanger/flanger.hpp"
-#include "../../plugins/effects/gain/gain.hpp"
 #include "../../plugins/effects/gate/gate.hpp"
 #include "../../plugins/effects/limiter/limiter.hpp"
 #include "../../plugins/effects/monitor/monitor.hpp"
@@ -125,6 +123,7 @@ std::shared_ptr<Effect> EffectFactory::createEffect(const std::string & typeId, 
 
 void EffectFactory::init()
 {
+    registerPlugins();
     registerEffect(AirBandEq::typeIdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
     registerEffect(AutoDucker::typeIdString(), []() { return std::make_shared<AutoDucker>(); });
@@ -149,7 +148,6 @@ void EffectFactory::init()
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(Crossfeed::typeIdString(), []() { return std::make_shared<Crossfeed>(); });
     registerEffect(BitCrusher::typeIdString(), []() { return std::make_shared<BitCrusher>(); });
-    registerEffect(Flanger::typeIdString(), []() { return std::make_shared<Flanger>(); });
     registerEffect(Gate::typeIdString(), []() { return std::make_shared<Gate>(); });
     registerEffect(Tremolo::typeIdString(), []() { return std::make_shared<Tremolo>(); });
     registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
@@ -161,7 +159,6 @@ void EffectFactory::init()
     registerEffect(PhaseScope::typeIdString(), []() { return std::make_shared<PhaseScope>(); });
     // The type id it was saved under for the first hour it existed, as Utility
     registerEffect("utility", []() { return std::make_shared<PhaseScope>(); });
-    registerEffect(Gain::typeIdString(), []() { return std::make_shared<Gain>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Phaser::typeIdString(), []() { return std::make_shared<Phaser>(); });
@@ -177,7 +174,6 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::autoDucker().toStdString(), []() { return std::make_shared<AutoDucker>(); });
     registerEffect(Constants::RackEffectType::crossfeed().toStdString(), []() { return std::make_shared<Crossfeed>(); });
     registerEffect(Constants::RackEffectType::bitCrusher().toStdString(), []() { return std::make_shared<BitCrusher>(); });
-    registerEffect(Constants::RackEffectType::flanger().toStdString(), []() { return std::make_shared<Flanger>(); });
     registerEffect(Constants::RackEffectType::gate().toStdString(), []() { return std::make_shared<Gate>(); });
     registerEffect(Constants::RackEffectType::tremolo().toStdString(), []() { return std::make_shared<Tremolo>(); });
     registerEffect(Constants::RackEffectType::reference().toStdString(), []() { return std::make_shared<Reference>(); });
@@ -198,7 +194,6 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::eq32BandGraphical().toStdString(), []() { return std::make_shared<Eq32BandGraphical>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(Constants::RackEffectType::monitor().toStdString(), []() { return std::make_shared<Monitor>(); });
-    registerEffect(Constants::RackEffectType::gain().toStdString(), []() { return std::make_shared<Gain>(); });
     registerEffect(Constants::RackEffectType::multibandCompressor().toStdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Constants::RackEffectType::phaser().toStdString(), []() { return std::make_shared<Phaser>(); });
@@ -223,7 +218,6 @@ void EffectFactory::init()
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
     registerLegacyEffect("cross_feed", []() { return std::make_shared<Crossfeed>(); });
     registerLegacyEffect("bit_crusher", []() { return std::make_shared<BitCrusher>(); });
-    registerLegacyEffect("flanger", []() { return std::make_shared<Flanger>(); });
     registerLegacyEffect("gate", []() { return std::make_shared<Gate>(); });
     registerLegacyEffect("tremolo", []() { return std::make_shared<Tremolo>(); });
     registerLegacyEffect("reference_monitor", []() { return std::make_shared<Reference>(); });
@@ -250,7 +244,6 @@ void EffectFactory::init()
     registerLegacyEffect("eq_32_band_graphical", []() { return std::make_shared<Eq32BandGraphical>(); });
     registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
     registerLegacyEffect("monitor", []() { return std::make_shared<Monitor>(); });
-    registerLegacyEffect("gain", []() { return std::make_shared<Gain>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
     registerLegacyEffect("phaser", []() { return std::make_shared<Phaser>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });

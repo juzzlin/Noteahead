@@ -10,6 +10,7 @@ set(HEADER_FILES
     controllers/knob_controller.hpp
     controllers/performance_panel_controller.hpp
     controllers/song_overview_controller.hpp
+    plugins/plugin_catalog.hpp
     qml/Components/level_meter_renderer.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Components/wave_shape_renderer.hpp
@@ -36,6 +37,7 @@ set(SOURCE_FILES
     controllers/knob_controller.cpp
     controllers/performance_panel_controller.cpp
     controllers/song_overview_controller.cpp
+    plugins/plugin_catalog.cpp
     qml/Components/level_meter_renderer.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Components/wave_shape_renderer.cpp

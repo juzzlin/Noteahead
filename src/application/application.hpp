@@ -45,6 +45,7 @@ class AutomationCurveEditor;
 class AutomationService;
 class ColumnSettingsModel;
 class DataService;
+class DeviceController;
 class DeviceRackController;
 class DeviceService;
 class PresetService;
@@ -55,7 +56,6 @@ class DrumSynthV2Controller;
 class FmDrumsController;
 class LfoController;
 class XyPadController;
-class Kick808Controller;
 class Kick909Controller;
 class KickSynthController;
 class SnareSynthController;
@@ -217,7 +217,8 @@ private:
     std::shared_ptr<PianoSynthV3Controller> m_pianoSynthV3Controller;
     std::shared_ptr<PianoSynthAcousticController> m_pianoSynthAcousticController;
     std::shared_ptr<SynthDController> m_synthDController;
-    std::shared_ptr<Kick808Controller> m_kick808Controller;
+    //! The controllers of the devices that register themselves, in PluginCatalog::devices() order.
+    std::vector<std::shared_ptr<DeviceController>> m_pluginDeviceControllers;
     std::shared_ptr<Kick909Controller> m_kick909Controller;
     std::shared_ptr<KickSynthController> m_kickSynthController;
     std::shared_ptr<SnareSynthController> m_snareSynthController;

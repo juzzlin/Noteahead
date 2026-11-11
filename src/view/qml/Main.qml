@@ -473,10 +473,6 @@ ApplicationWindow {
         id: speechDialog
         anchors.centerIn: parent
     }
-    Kick808Dialog {
-        id: kick808Dialog
-        anchors.centerIn: parent
-    }
     Kick909Dialog {
         id: kick909Dialog
         anchors.centerIn: parent
@@ -540,6 +536,10 @@ ApplicationWindow {
     // one place. Declared beside the effect dialogs below, whose ids it resolves.
     EffectDialogLauncher {
         id: effectDialogLauncher
+    }
+    PluginDialogHost {
+        id: pluginDialogHost
+        dialogParent: mainWindow.contentItem
     }
     // Only for --screenshots: see ScreenshotTour.qml
     Loader {
@@ -691,12 +691,6 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
-    FlangerDialog {
-        id: flangerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
     GateDialog {
         id: gateDialog
         anchors.centerIn: parent
@@ -714,10 +708,6 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
-    }
-    GainDialog {
-        id: gainDialog
-        anchors.centerIn: parent
     }
     BassGrinderDialog {
         id: bassGrinderDialog
@@ -1251,7 +1241,7 @@ ApplicationWindow {
         deviceRackController.pianoSynthAcousticDialogRequested.connect(pianoSynthAcousticDialog.open);
         deviceRackController.synthDDialogRequested.connect(synthDDialog.open);
         deviceRackController.speechDialogRequested.connect(speechDialog.open);
-        deviceRackController.kick808DialogRequested.connect(kick808Dialog.open);
+        deviceRackController.pluginDeviceDialogRequested.connect(dialogFile => pluginDialogHost.open(dialogFile, {}));
         deviceRackController.kick909DialogRequested.connect(kick909Dialog.open);
         deviceRackController.kickSynthDialogRequested.connect(kickSynthDialog.open);
         deviceRackController.snareSynthDialogRequested.connect(snareSynthDialog.open);

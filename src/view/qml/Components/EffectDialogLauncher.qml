@@ -21,12 +21,21 @@ import Noteahead 1.0
 // same wherever the rack lives, and having had a copy per dialog meant a new effect was only ever
 // half added until every copy had been found.
 //
-// The dialogs themselves are instantiated once in Main.qml and are addressed here by their ids, the
-// same way the rack dialogs addressed them when they each held their own copy of this.
+// The dialogs of the effects that register themselves are created by the PluginDialogHost. The rest
+// are instantiated once in Main.qml and are addressed here by their ids, the same way the rack
+// dialogs addressed them when they each held their own copy of this.
 QtObject {
     // Opens the effect in slot index of the current rack. An empty slot, or a type with no dialog of
     // its own, opens the gallery so the slot can be filled instead.
     function open(effectType: string, index: int): void {
+        // An effect that registers itself names its own dialog
+        const dialogFile = effectRackController.effectDialogFile(effectType);
+        if (dialogFile !== "") {
+            pluginDialogHost.open(dialogFile, {
+                "effectIndex": index
+            });
+            return;
+        }
         if (effectType === effectRackController.allPassFilterType) {
             allPassFilterDialog.effectIndex = index;
             allPassFilterDialog.open();
@@ -54,9 +63,6 @@ QtObject {
         } else if (effectType === effectRackController.bitCrusherType) {
             bitCrusherDialog.effectIndex = index;
             bitCrusherDialog.open();
-        } else if (effectType === effectRackController.flangerType) {
-            flangerDialog.effectIndex = index;
-            flangerDialog.open();
         } else if (effectType === effectRackController.gateType) {
             gateDialog.effectIndex = index;
             gateDialog.open();
@@ -66,9 +72,6 @@ QtObject {
         } else if (effectType === effectRackController.referenceType) {
             referenceDialog.effectIndex = index;
             referenceDialog.open();
-        } else if (effectType === effectRackController.gainType) {
-            gainDialog.effectIndex = index;
-            gainDialog.open();
         } else if (effectType === effectRackController.bassGrinderType) {
             bassGrinderDialog.effectIndex = index;
             bassGrinderDialog.open();

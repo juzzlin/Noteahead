@@ -15,6 +15,8 @@
 
 #include "device_rack_controller.hpp"
 
+#include "../plugins/plugin_catalog.hpp"
+
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
@@ -173,7 +175,9 @@ void DeviceRackController::openDevice(const QString & name)
                 // Every device dialog is opened from here, so this is the one place that has to
                 // remember what its Cancel button puts back.
                 device->saveState();
-                if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
+                if (const auto plugin = PluginCatalog::deviceByTypeId(device->typeId()); plugin) {
+                    emit pluginDeviceDialogRequested(plugin->dialogFile);
+                } else if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
                     emit samplerDialogRequested();
                 } else if (typeId == SynthDevice::typeIdString()) {
                     emit synthDialogRequested();
@@ -209,8 +213,6 @@ void DeviceRackController::openDevice(const QString & name)
                     emit pianoSynthV3DialogRequested();
                 } else if (typeId == PianoSynthAcousticDevice::typeIdString()) {
                     emit pianoSynthAcousticDialogRequested();
-                } else if (typeId == Kick808Device::typeIdString()) {
-                    emit kick808DialogRequested();
                 } else if (typeId == Kick909Device::typeIdString()) {
                     emit kick909DialogRequested();
                 } else if (typeId == KickSynthDevice::typeIdString()) {
@@ -653,7 +655,6 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()), keys);
     addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()), keys);
     addDevice("Piano Synth Acoustic", QString::fromStdString(PianoSynthAcousticDevice::typeIdString()), keys);
-    addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()), drums);
     addDevice("Kick 909", QString::fromStdString(Kick909Device::typeIdString()), drums);
     addDevice("Kick Synth", QString::fromStdString(KickSynthDevice::typeIdString()), drums);
     addDevice("Snare Synth", QString::fromStdString(SnareSynthDevice::typeIdString()), drums);
@@ -666,6 +667,36 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()), mixers);
     addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()), modulators);
     addDevice("XY Pad", QString::fromStdString(XyPadDevice::typeIdString()), modulators);
+
+    // The devices that register themselves
+    for (auto && device : PluginCatalog::devices()) {
+        const auto category = [&]() {
+            switch (device.category) {
+            case PluginCatalog::DeviceCategory::Synths:
+                return synths;
+            case PluginCatalog::DeviceCategory::Keys:
+                return keys;
+            case PluginCatalog::DeviceCategory::StringsAndVoice:
+                return stringsAndVoice;
+            case PluginCatalog::DeviceCategory::Drums:
+                return drums;
+            case PluginCatalog::DeviceCategory::Samplers:
+                return samplers;
+            case PluginCatalog::DeviceCategory::Mixers:
+                return mixers;
+            case PluginCatalog::DeviceCategory::Modulators:
+                return modulators;
+            }
+            return synths;
+        }();
+        addDevice(device.name, QString::fromStdString(device.typeId), category);
+    }
+
+    // One flat list read top to bottom, so in the order of the names: a list kept in order by hand
+    // drifts every time a device is added. Case-insensitive, as the effects gallery is.
+    std::ranges::sort(list, [](const QVariant & a, const QVariant & b) {
+        return QString::compare(a.toMap()["name"].toString(), b.toMap()["name"].toString(), Qt::CaseInsensitive) < 0;
+    });
 
     return list;
 }

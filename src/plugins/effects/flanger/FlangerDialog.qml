@@ -23,6 +23,8 @@ import "../Components"
 EffectDialog {
     id: root
     title: "<strong>" + qsTr("Flanger (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    width: parent ? parent.width * Constants.defaultDialogScale : 800
+    height: parent ? parent.height * Constants.defaultDialogScale : 600
     modal: true
     focus: true
 

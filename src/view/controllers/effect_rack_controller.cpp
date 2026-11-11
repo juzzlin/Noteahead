@@ -15,6 +15,8 @@
 
 #include "effect_rack_controller.hpp"
 
+#include "../plugins/plugin_catalog.hpp"
+
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -419,7 +421,6 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Delay", Constants::RackEffectType::delay().toStdString(), space);
     addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString(), stereo);
     addEffect("Bit Crusher", Constants::RackEffectType::bitCrusher().toStdString(), distortion);
-    addEffect("Flanger", Constants::RackEffectType::flanger().toStdString(), modulation);
     addEffect("Gate", Constants::RackEffectType::gate().toStdString(), dynamics);
     addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString(), modulation);
     addEffect("Dynamic EQ", DynamicEq::typeIdString(), eqAndFilter);
@@ -433,7 +434,6 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString(), eqAndFilter);
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString(), eqAndFilter);
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString(), dynamics);
-    addEffect("Gain", Constants::RackEffectType::gain().toStdString(), utility);
     addEffect("Phase Scope", Constants::RackEffectType::phaseScope().toStdString(), meters);
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString(), utility);
     addEffect("Reference", Constants::RackEffectType::reference().toStdString(), utility);
@@ -452,6 +452,32 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString(), stereo);
     addEffect("Stereo Field Meter", Constants::RackEffectType::stereoFieldMeter().toStdString(), meters);
 
+    // The effects that register themselves
+    for (auto && effect : PluginCatalog::effects()) {
+        const auto category = [&]() {
+            switch (effect.category) {
+            case PluginCatalog::EffectCategory::Dynamics:
+                return dynamics;
+            case PluginCatalog::EffectCategory::EqAndFilter:
+                return eqAndFilter;
+            case PluginCatalog::EffectCategory::Distortion:
+                return distortion;
+            case PluginCatalog::EffectCategory::Modulation:
+                return modulation;
+            case PluginCatalog::EffectCategory::Space:
+                return space;
+            case PluginCatalog::EffectCategory::Stereo:
+                return stereo;
+            case PluginCatalog::EffectCategory::Utility:
+                return utility;
+            case PluginCatalog::EffectCategory::Meters:
+                return meters;
+            }
+            return utility;
+        }();
+        addEffect(effect.name, effect.typeId, category);
+    }
+
     // Sorted here rather than by hand at the call sites above: the gallery is one flat list, so the
     // order it is built in is the order the user reads, and a list kept alphabetical by convention
     // alone drifts every time an effect is added. Case-insensitive so that "dBTP Meter" lands with
@@ -461,6 +487,14 @@ QVariantList EffectRackController::availableEffects() const
     });
 
     return list;
+}
+
+QString EffectRackController::effectDialogFile(const QString & effectType) const
+{
+    if (const auto effect = PluginCatalog::effectByType(effectType); effect) {
+        return effect->dialogFile;
+    }
+    return {};
 }
 
 void EffectRackController::copyEffect(int sourceSlot, int targetSlot)

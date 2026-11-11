@@ -21,7 +21,6 @@
 #include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
 #include "../../plugins/devices/ju_synth/ju_synth_device.hpp"
 #include "../../plugins/devices/ju_synth_08/ju_synth_08_device.hpp"
-#include "../../plugins/devices/kick_808/kick_808_device.hpp"
 #include "../../plugins/devices/kick_909/kick_909_device.hpp"
 #include "../../plugins/devices/kick_synth/kick_synth_device.hpp"
 #include "../../plugins/devices/lfo/lfo_device.hpp"
@@ -48,6 +47,7 @@ namespace noteahead {
 
 void DeviceFactory::init()
 {
+    registerPlugins();
     registerDevice(BassSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<BassSynthDevice>(name);
     });
@@ -69,9 +69,6 @@ void DeviceFactory::init()
     });
     registerDevice(JuSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<JuSynthDevice>(name);
-    });
-    registerDevice(Kick808Device::typeIdString(), [](const std::string & name) {
-        return std::make_shared<Kick808Device>(name);
     });
     registerDevice(Kick909Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<Kick909Device>(name);

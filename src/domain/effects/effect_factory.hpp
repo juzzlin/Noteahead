@@ -37,6 +37,9 @@ public:
     //! Every registered type id, legacy types excluded.
     static std::vector<std::string> typeIds();
     static void init();
+    //! Registers every effect that registers itself: one generated call per plugin folder with a
+    //! <folder>_registration.cpp. See src/plugins/CMakeLists.txt.
+    static void registerPlugins();
     static void clear();
 };
 
