@@ -87,6 +87,7 @@ private slots:
     void test_rankModulationParameters_allTaken_shouldFallBackToTheTop();
     void test_rankModulationParameters_groupedKeys_shouldMatchByWhatFollowsThePrefix();
     void test_modulationPriority_everyDevice_shouldNameItsOwnParameters();
+    void test_resetAudio_everyDevice_shouldRenderTheSameAgain();
 };
 
 } // namespace noteahead

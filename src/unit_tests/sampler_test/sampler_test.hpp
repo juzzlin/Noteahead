@@ -102,6 +102,7 @@ private slots:
     void test_deserialize_ontoADeviceWithPads_shouldNotKeepThePadsTheFileDoesNotMention();
     void test_chromaticMode_playbackPosition_shouldFollowAPitchedNote();
     void test_chromaticMode_isFinished_shouldFollowAPitchedNote();
+    void test_chromaticMode_setSampleVolume_shouldReachAPitchedNote();
     void test_midiCcReset_shouldResetInternalValues();
 
     void test_availableMidiCcControllers_shouldListGlobalsAndAllPads();

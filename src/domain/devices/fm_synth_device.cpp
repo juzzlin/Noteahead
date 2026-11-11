@@ -834,6 +834,8 @@ void FmSynthDevice::resetDeviceAudio()
     for (auto && voice : m_voices) {
         voice.reset();
     }
+    m_downsamplerL.reset();
+    m_downsamplerR.reset();
     m_globalLfo.reset();
     m_globalLfo2.reset();
     m_polyNextVoice = 0;
@@ -941,7 +943,17 @@ void FmSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     size_t voiceIndex = m_polyNextVoice;
     bool found = false;
 
+    // A note played again while it still sounds or releases takes its own voice back, as in Dual
+    // mode, rather than stacking a second voice that the first note-off would release together.
     for (size_t i = 0; i < MaxVoices; i++) {
+        if (m_voices.at(i).active && m_voices.at(i).note == note) {
+            voiceIndex = i;
+            found = true;
+            break;
+        }
+    }
+
+    for (size_t i = 0; i < MaxVoices && !found; i++) {
         const size_t idx = (m_polyNextVoice + i) % MaxVoices;
         if (!m_voices.at(idx).active) {
             voiceIndex = idx;

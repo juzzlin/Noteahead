@@ -99,6 +99,7 @@ private slots:
     void test_lfoLed_idle_shouldGoDark();
     void test_lfoLed_renderedSilence_shouldGoDark();
     void test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo();
+    void test_polyMode_repeatedHeldNote_shouldNotStackVoices();
 };
 
 } // namespace noteahead

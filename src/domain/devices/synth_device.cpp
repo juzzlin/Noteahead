@@ -79,6 +79,10 @@ void SynthDevice::Voice::reset()
     lfo.reset();
     lfo2.reset();
     unisonDamp.reset();
+    multi.reset();
+    for (auto && stage : drivenLpf) {
+        stage.reset();
+    }
     glideFrequency = 0.0;
     cancelPendingTrigger();
     active = false;

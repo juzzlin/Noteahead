@@ -1599,6 +1599,19 @@ void SamplerTest::test_chromaticMode_isFinished_shouldFollowAPitchedNote()
     QVERIFY(sampler->isFinished(36));
 }
 
+void SamplerTest::test_chromaticMode_setSampleVolume_shouldReachAPitchedNote()
+{
+    // The pad is set by its root, but its voices play other notes, so a live tweak must find them by
+    // the sample they play
+    const auto sampler = makeChromaticSampler();
+    sampler->processMidiNoteOn(40, 100);
+    const auto before = peak(render(*sampler, 256));
+    QVERIFY(before > 0.0);
+
+    sampler->setSampleVolume(36, 0.0f);
+    QVERIFY(peakFrom(render(*sampler, 4096), 2048) < before * 0.1);
+}
+
 void SamplerTest::test_midiCcReset_shouldResetInternalValues()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };

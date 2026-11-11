@@ -432,9 +432,23 @@ void DrumPadDevice::resetDeviceAudio()
         voice.engine->reset();
         voice.ampEnvelope.reset();
         voice.effectRack.reset();
+        for (auto && filter : { voice.lpf.get(), voice.lpfStage2.get() }) {
+            if (filter) {
+                filter->reset();
+            }
+        }
+        for (auto && filter : { voice.hpf.get(), voice.hpfStage2.get() }) {
+            if (filter) {
+                filter->reset();
+            }
+        }
     }
     m_downsamplerL.reset();
     m_downsamplerR.reset();
+    for (auto && [left, right] : m_sendDecimators) {
+        left.reset();
+        right.reset();
+    }
 }
 
 void DrumPadDevice::serializeToXml(ProjectWriter & writer) const
@@ -474,6 +488,11 @@ void DrumPadDevice::deserializeFromXml(ProjectReader & reader)
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
         restoreLegacyParameters();
         deserializeAttributesFromXml(reader);
+        // A voice without effects is not written, so whatever a voice held before has to go first,
+        // or loading settings into a device would keep the old voice's effects.
+        for (auto && voice : m_voices) {
+            voice.effectRack.clear();
+        }
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();

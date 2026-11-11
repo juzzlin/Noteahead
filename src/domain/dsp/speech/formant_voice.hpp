@@ -339,6 +339,7 @@ private:
     double formantBankOutput(std::array<CascadedSvf, 3> & filters, const FormantTargets & targets, double input);
     //! The fixed upper formants' contribution, continuing the bank's alternating polarity.
     double upperFormantOutput(double input);
+    void tuneUpperFormants();
 
     const PhonemeSpec * m_phoneme { nullptr };
     double m_progress { 0.0 };
@@ -409,6 +410,8 @@ private:
     //! The fixed upper pair. Outside the seam crossfade because their shape never changes, so there
     //! is never a discontinuity in them to cover.
     std::array<CascadedSvf, 2> m_upperFormants;
+    //! Each upper formant's level, which goes with its tuning.
+    std::array<double, 2> m_upperFormantGains {};
     //! How much of a tract shape is being held, smoothed. The upper formants belong to a vocal tract
     //! and not to a hiss, so they fade out over a fricative rather than colouring its noise.
     double m_tractAmount { 0.0 };

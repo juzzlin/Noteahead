@@ -74,6 +74,7 @@ void FormantVoice::setSampleRate(double sampleRate)
     for (auto & filter : m_upperFormants) {
         filter.setSampleRate(sampleRate);
     }
+    tuneUpperFormants();
 
     m_levelCoefficient = smoothingCoefficient(LevelGlideTime, sampleRate);
     m_glideCoefficient = smoothingCoefficient(m_glideTime, sampleRate / ControlBlockFrames);
@@ -203,6 +204,27 @@ void FormantVoice::setGlideTime(double seconds)
 void FormantVoice::setFormantShift(double shift)
 {
     m_formantShift = std::max(0.1, shift);
+    tuneUpperFormants();
+}
+
+void FormantVoice::tuneUpperFormants()
+{
+    if (m_sampleRate <= 0.0) {
+        return;
+    }
+    // Fixed by the shift and the sample rate alone, so tuned when one of them changes rather than once
+    // a sample. Tuned while the tract is closed as well: the filters run on through it, and what they
+    // run with then is what the voice comes back to.
+    const double maxFrequency = std::min(20000.0, m_sampleRate * 0.49);
+    const double range = std::log2(maxFrequency / 20.0);
+    for (size_t i = 0; i < m_upperFormants.size(); i++) {
+        const auto & target = UpperFormants[i];
+        const double frequency = std::min(target.frequency * m_formantShift, maxFrequency);
+        m_upperFormants[i].setCutoff(std::log2(std::max(20.0, frequency) / 20.0) / range);
+        const double q = frequency / target.bandwidth;
+        m_upperFormants[i].setResonance(std::clamp(1.0 - 1.0 / (2.0 * q), 0.0, 0.99));
+        m_upperFormantGains[i] = target.amplitude * (target.bandwidth / frequency);
+    }
 }
 
 void FormantVoice::setSourceRolloff(double frequency)
@@ -365,19 +387,11 @@ double FormantVoice::upperFormantOutput(double input)
         return 0.0;
     }
 
-    const double maxFrequency = std::min(20000.0, m_sampleRate * 0.49);
-    const double range = std::log2(maxFrequency / 20.0);
-
     double sum = 0.0;
     for (size_t i = 0; i < m_upperFormants.size(); i++) {
-        const auto & target = UpperFormants[i];
-        const double frequency = std::min(target.frequency * m_formantShift, maxFrequency);
-        m_upperFormants[i].setCutoff(std::log2(std::max(20.0, frequency) / 20.0) / range);
-        const double q = frequency / target.bandwidth;
-        m_upperFormants[i].setResonance(std::clamp(1.0 - 1.0 / (2.0 * q), 0.0, 0.99));
         // Continues the alternating polarity of the three below: F4 is the fourth, so it is negative.
         const double polarity = (i % 2 == 0) ? -1.0 : 1.0;
-        sum += polarity * target.amplitude * (target.bandwidth / frequency) * m_upperFormants[i].process(input);
+        sum += polarity * m_upperFormantGains[i] * m_upperFormants[i].process(input);
     }
     return sum * m_tractAmount;
 }
