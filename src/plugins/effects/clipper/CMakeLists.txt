@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         clipper.cpp
         clipper.hpp
+        clipper_registration.cpp
+    VIEW_SOURCES
+        clipper_view_registration.cpp
     QML_FILES
         ClipperDialog.qml
 )

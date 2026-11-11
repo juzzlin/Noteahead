@@ -4,9 +4,11 @@ noteahead_add_device(
         synth_d_device.hpp
         synth_d_presets.cpp
         synth_d_presets.hpp
+        synth_d_registration.cpp
     VIEW_SOURCES
         synth_d_controller.cpp
         synth_d_controller.hpp
+        synth_d_view_registration.cpp
     QML_FILES
         SynthDDialog.qml
         SynthDDialog_Analog.qml

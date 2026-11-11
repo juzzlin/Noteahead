@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         stereo_exciter.cpp
         stereo_exciter.hpp
+        stereo_exciter_registration.cpp
+    VIEW_SOURCES
+        stereo_exciter_view_registration.cpp
     QML_FILES
         StereoExciterDialog.qml
 )

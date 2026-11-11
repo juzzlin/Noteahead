@@ -335,24 +335,6 @@ void ApplicationService::requestMasterEffectsDialog()
     emit masterEffectsDialogRequested();
 }
 
-void ApplicationService::requestDrumSynthDialog()
-{
-    juzzlin::L(TAG).info() << "Drum Synth requested";
-    emit drumSynthDialogRequested();
-}
-
-void ApplicationService::requestWavetableSynthDialog()
-{
-    juzzlin::L(TAG).info() << "Wavetable Synth requested";
-    emit wavetableSynthDialogRequested();
-}
-
-void ApplicationService::requestFmSynthDialog()
-{
-    juzzlin::L(TAG).info() << "FM Synth requested";
-    emit fmSynthDialogRequested();
-}
-
 void ApplicationService::requestOpenProject()
 {
     juzzlin::L(TAG).info() << "'Open file' requested";

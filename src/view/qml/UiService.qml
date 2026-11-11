@@ -55,7 +55,6 @@ QtObject {
     signal importEffectRackRequested
     signal importEffectSettingsConfirmationRequested(int slotIndex, url fileUrl, string currentType, string importedType, bool typeMismatch)
     signal importDeviceSettingsConfirmationRequested(int slotIndex, url fileUrl, string currentTypeName, string importedTypeName, bool typeMismatch)
-    signal drumSynthDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
     signal editAutomationDialogByIdRequested(int kind, int automationId)
@@ -92,7 +91,6 @@ QtObject {
     signal presetDeleteConfirmationRequested(var controller, string presetName)
     signal recentFilesDialogRequested
     signal renderProgressDialogRequested
-    signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddParameterAutomationDialogRequested
     signal trackAddParameterAutomationDialogRequested
@@ -137,8 +135,6 @@ QtObject {
 
     Component.onCompleted: {
         applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested);
-        applicationService.samplerDialogRequested.connect(samplerDialogRequested);
-        applicationService.drumSynthDialogRequested.connect(drumSynthDialogRequested);
     }
 
     function activeVelocity(): int {
@@ -293,9 +289,6 @@ QtObject {
     }
     function requestSendChainEffectsDialog(busIndex: int, busLabel: string): void {
         sendChainEffectsDialogRequested(busIndex, busLabel);
-    }
-    function requestDrumSynthDialog(): void {
-        drumSynthDialogRequested();
     }
     function requestDeviceDialog(deviceName: string): void {
         deviceDialogRequested(deviceName);

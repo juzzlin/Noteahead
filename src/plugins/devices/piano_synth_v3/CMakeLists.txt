@@ -2,9 +2,11 @@ noteahead_add_device(
     DOMAIN_SOURCES
         piano_synth_v3_device.cpp
         piano_synth_v3_device.hpp
+        piano_synth_v3_registration.cpp
     VIEW_SOURCES
         piano_synth_v3_controller.cpp
         piano_synth_v3_controller.hpp
+        piano_synth_v3_view_registration.cpp
     QML_FILES
         PianoSynthV3Dialog.qml
         PianoSynthV3Dialog_Global.qml

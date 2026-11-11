@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         auto_panner.cpp
         auto_panner.hpp
+        auto_panner_registration.cpp
+    VIEW_SOURCES
+        auto_panner_view_registration.cpp
     QML_FILES
         AutoPannerDialog.qml
 )

@@ -318,6 +318,10 @@ int DeviceController::scopeSampleRate() const
     return 0;
 }
 
+void DeviceController::retranslate()
+{
+}
+
 void DeviceController::reset()
 {
     if (auto dev = device(); dev) {

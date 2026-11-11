@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         panner.cpp
         panner.hpp
+        panner_registration.cpp
+    VIEW_SOURCES
+        panner_view_registration.cpp
     QML_FILES
         PannerDialog.qml
 )

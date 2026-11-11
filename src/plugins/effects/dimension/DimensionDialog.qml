@@ -23,6 +23,8 @@ import "../Components"
 EffectDialog {
     id: root
     title: "<strong>" + qsTr("Dimension (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    height: parent ? parent.height * Constants.effectDialogScale : 600
+    width: parent ? parent.width * Constants.defaultDialogScale : 800
     modal: true
     focus: true
 

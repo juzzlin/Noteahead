@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         chorus.cpp
         chorus.hpp
+        chorus_registration.cpp
+    VIEW_SOURCES
+        chorus_view_registration.cpp
     QML_FILES
         ChorusDialog.qml
 )

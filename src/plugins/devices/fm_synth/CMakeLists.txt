@@ -4,9 +4,11 @@ noteahead_add_device(
         fm_synth_device.hpp
         fm_synth_presets.cpp
         fm_synth_presets.hpp
+        fm_synth_registration.cpp
     VIEW_SOURCES
         fm_synth_controller.cpp
         fm_synth_controller.hpp
+        fm_synth_view_registration.cpp
     QML_FILES
         FmSynthDialog.qml
         FmSynthDialog_Algorithm.qml

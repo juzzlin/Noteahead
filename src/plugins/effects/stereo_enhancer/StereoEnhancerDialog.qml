@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Stereo Enhancer Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 640
-    height: 600
+    width: parent ? parent.width * Constants.defaultDialogScale : 640
+    height: parent ? parent.height * Constants.defaultDialogScale : 600
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

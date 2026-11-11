@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         stereo_widener.cpp
         stereo_widener.hpp
+        stereo_widener_registration.cpp
+    VIEW_SOURCES
+        stereo_widener_view_registration.cpp
     QML_FILES
         StereoWidenerDialog.qml
 )

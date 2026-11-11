@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         endless_reverb.cpp
         endless_reverb.hpp
+        endless_reverb_registration.cpp
+    VIEW_SOURCES
+        endless_reverb_view_registration.cpp
     QML_FILES
         EndlessReverbDialog.qml
 )

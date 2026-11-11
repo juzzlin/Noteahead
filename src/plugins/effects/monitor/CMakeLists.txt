@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         monitor.cpp
         monitor.hpp
+        monitor_registration.cpp
+    VIEW_SOURCES
+        monitor_view_registration.cpp
     QML_FILES
         MonitorDialog.qml
 )

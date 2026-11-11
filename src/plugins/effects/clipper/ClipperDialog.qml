@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Clipper Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 500
-    height: 400
+    width: parent ? parent.width * Constants.effectDialogScale : 500
+    height: parent ? parent.height * Constants.effectDialogScale : 400
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

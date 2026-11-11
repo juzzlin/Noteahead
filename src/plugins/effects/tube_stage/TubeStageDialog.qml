@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Tube Stage Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 600
-    height: 480
+    width: parent ? parent.width * Constants.defaultDialogScale : 600
+    height: parent ? parent.height * Constants.defaultDialogScale : 480
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

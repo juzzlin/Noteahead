@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         auto_filter.cpp
         auto_filter.hpp
+        auto_filter_registration.cpp
+    VIEW_SOURCES
+        auto_filter_view_registration.cpp
     QML_FILES
         AutoFilterDialog.qml
 )

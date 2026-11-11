@@ -6,9 +6,11 @@ noteahead_add_device(
         synth_oscillator_stage.hpp
         synth_presets.cpp
         synth_presets.hpp
+        synth_registration.cpp
     VIEW_SOURCES
         synth_controller.cpp
         synth_controller.hpp
+        synth_view_registration.cpp
     QML_FILES
         SynthDialog.qml
         SynthDialog_AmpEg.qml

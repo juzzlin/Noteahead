@@ -177,60 +177,6 @@ void DeviceRackController::openDevice(const QString & name)
                 device->saveState();
                 if (const auto plugin = PluginCatalog::deviceByTypeId(device->typeId()); plugin) {
                     emit pluginDeviceDialogRequested(plugin->dialogFile);
-                } else if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
-                    emit samplerDialogRequested();
-                } else if (typeId == SynthDevice::typeIdString()) {
-                    emit synthDialogRequested();
-                } else if (typeId == WavetableSynthDevice::typeIdString()) {
-                    emit wavetableSynthDialogRequested();
-                } else if (typeId == FmSynthDevice::typeIdString()) {
-                    emit fmSynthDialogRequested();
-                } else if (typeId == BassSynthDevice::typeIdString()) {
-                    emit bassSynthDialogRequested();
-                } else if (typeId == ElectricBassDevice::typeIdString()) {
-                    emit electricBassDialogRequested();
-                } else if (typeId == DrumSynthDevice::typeIdString()) {
-                    emit drumSynthDialogRequested();
-                } else if (typeId == DrumSynthV2Device::typeIdString()) {
-                    emit drumSynthV2DialogRequested();
-                } else if (typeId == FmDrumsDevice::typeIdString()) {
-                    emit fmDrumsDialogRequested();
-                } else if (typeId == JuSynthDevice::typeIdString()) {
-                    emit juSynthDialogRequested();
-                } else if (typeId == JuSynth08Device::typeIdString()) {
-                    emit juSynth08DialogRequested();
-                } else if (typeId == SynthDDevice::typeIdString()) {
-                    emit synthDDialogRequested();
-                } else if (typeId == LfoDevice::typeIdString()) {
-                    emit lfoDialogRequested();
-                } else if (typeId == XyPadDevice::typeIdString()) {
-                    emit xyPadDialogRequested();
-                } else if (typeId == PianoSynthDevice::typeIdString()) {
-                    emit pianoSynthDialogRequested();
-                } else if (typeId == PianoSynthV2Device::typeIdString()) {
-                    emit pianoSynthV2DialogRequested();
-                } else if (typeId == PianoSynthV3Device::typeIdString()) {
-                    emit pianoSynthV3DialogRequested();
-                } else if (typeId == PianoSynthAcousticDevice::typeIdString()) {
-                    emit pianoSynthAcousticDialogRequested();
-                } else if (typeId == Kick909Device::typeIdString()) {
-                    emit kick909DialogRequested();
-                } else if (typeId == KickSynthDevice::typeIdString()) {
-                    emit kickSynthDialogRequested();
-                } else if (typeId == SnareSynthDevice::typeIdString()) {
-                    emit snareSynthDialogRequested();
-                } else if (typeId == StringVoiceDevice::typeIdString()) {
-                    emit stringVoiceDialogRequested();
-                } else if (typeId == StringVoiceV2Device::typeIdString()) {
-                    emit stringVoiceV2DialogRequested();
-                } else if (typeId == StringVoiceV3Device::typeIdString()) {
-                    emit stringVoiceV3DialogRequested();
-                } else if (typeId == StringEnsembleDevice::typeIdString()) {
-                    emit stringEnsembleDialogRequested();
-                } else if (typeId == SpeechDevice::typeIdString()) {
-                    emit speechDialogRequested();
-                } else if (typeId == NoiseFxDevice::typeIdString()) {
-                    emit noiseFxDialogRequested();
                 }
                 return;
             }
@@ -639,34 +585,7 @@ QVariantList DeviceRackController::deviceTypes()
         list.append(map);
     };
 
-    addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()), samplers);
-    addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()), synths);
-    addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()), synths);
-    addDevice("FM Synth", QString::fromStdString(FmSynthDevice::typeIdString()), synths);
-    addDevice("JU Synth", QString::fromStdString(JuSynthDevice::typeIdString()), synths);
-    addDevice("JU Synth 08", QString::fromStdString(JuSynth08Device::typeIdString()), synths);
-    addDevice("Synth D", QString::fromStdString(SynthDDevice::typeIdString()), synths);
-    addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()), synths);
-    addDevice("Electric Bass", QString::fromStdString(ElectricBassDevice::typeIdString()), synths);
-    addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()), drums);
-    addDevice("Drum Synth V2", QString::fromStdString(DrumSynthV2Device::typeIdString()), drums);
-    addDevice("FM Drums", QString::fromStdString(FmDrumsDevice::typeIdString()), drums);
-    addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()), keys);
-    addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()), keys);
-    addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()), keys);
-    addDevice("Piano Synth Acoustic", QString::fromStdString(PianoSynthAcousticDevice::typeIdString()), keys);
-    addDevice("Kick 909", QString::fromStdString(Kick909Device::typeIdString()), drums);
-    addDevice("Kick Synth", QString::fromStdString(KickSynthDevice::typeIdString()), drums);
-    addDevice("Snare Synth", QString::fromStdString(SnareSynthDevice::typeIdString()), drums);
-    addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()), stringsAndVoice);
-    addDevice("String & Voice V2", QString::fromStdString(StringVoiceV2Device::typeIdString()), stringsAndVoice);
-    addDevice("String & Voice V3", QString::fromStdString(StringVoiceV3Device::typeIdString()), stringsAndVoice);
-    addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()), stringsAndVoice);
-    addDevice("Speech", QString::fromStdString(SpeechDevice::typeIdString()), stringsAndVoice);
-    addDevice("Noise FX", QString::fromStdString(NoiseFxDevice::typeIdString()), synths);
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()), mixers);
-    addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()), modulators);
-    addDevice("XY Pad", QString::fromStdString(XyPadDevice::typeIdString()), modulators);
 
     // The devices that register themselves
     for (auto && device : PluginCatalog::devices()) {

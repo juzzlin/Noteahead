@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         bass_grinder.cpp
         bass_grinder.hpp
+        bass_grinder_registration.cpp
+    VIEW_SOURCES
+        bass_grinder_view_registration.cpp
     QML_FILES
         BassGrinderDialog.qml
 )

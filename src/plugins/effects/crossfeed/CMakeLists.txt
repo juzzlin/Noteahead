@@ -4,6 +4,9 @@ noteahead_add_effect(
         crossfeed.hpp
         crossfeed_presets.cpp
         crossfeed_presets.hpp
+        crossfeed_registration.cpp
+    VIEW_SOURCES
+        crossfeed_view_registration.cpp
     QML_FILES
         CrossfeedDialog.qml
 )

@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         doubler.cpp
         doubler.hpp
+        doubler_registration.cpp
+    VIEW_SOURCES
+        doubler_view_registration.cpp
     QML_FILES
         DoublerDialog.qml
 )

@@ -4,12 +4,14 @@ noteahead_add_device(
         kick_909_device.hpp
         kick_909_presets.cpp
         kick_909_presets.hpp
+        kick_909_registration.cpp
     APPLICATION_SOURCES
         kick_909_preview.cpp
         kick_909_preview.hpp
     VIEW_SOURCES
         kick_909_controller.cpp
         kick_909_controller.hpp
+        kick_909_view_registration.cpp
     QML_FILES
         Kick909Dialog.qml
         Kick909Dialog_Envelope.qml

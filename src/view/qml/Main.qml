@@ -393,114 +393,6 @@ ApplicationWindow {
             applicationService.cancelRecentFileDialog();
         }
     }
-    SamplerDialog {
-        id: samplerDialog
-        anchors.centerIn: parent
-    }
-    SynthDialog {
-        id: synthDialog
-        anchors.centerIn: parent
-    }
-    WavetableSynthDialog {
-        id: wavetableSynthDialog
-        anchors.centerIn: parent
-    }
-    FmSynthDialog {
-        id: fmSynthDialog
-        anchors.centerIn: parent
-    }
-    BassSynthDialog {
-        id: bassSynthDialog
-        anchors.centerIn: parent
-    }
-    ElectricBassDialog {
-        id: electricBassDialog
-        anchors.centerIn: parent
-    }
-    JuSynthDialog {
-        id: juSynthDialog
-        anchors.centerIn: parent
-    }
-    JuSynth08Dialog {
-        id: juSynth08Dialog
-        anchors.centerIn: parent
-    }
-    DrumSynthDialog {
-        id: drumSynthDialog
-        anchors.centerIn: parent
-    }
-    DrumSynthV2Dialog {
-        id: drumSynthV2Dialog
-        anchors.centerIn: parent
-    }
-    FmDrumsDialog {
-        id: fmDrumsDialog
-        anchors.centerIn: parent
-    }
-    LfoDialog {
-        id: lfoDialog
-        anchors.centerIn: parent
-    }
-    XyPadDialog {
-        id: xyPadDialog
-        anchors.centerIn: parent
-    }
-    NoiseFxDialog {
-        id: noiseFxDialog
-        anchors.centerIn: parent
-    }
-    PianoSynthDialog {
-        id: pianoSynthDialog
-        anchors.centerIn: parent
-    }
-    PianoSynthV2Dialog {
-        id: pianoSynthV2Dialog
-        anchors.centerIn: parent
-    }
-    PianoSynthV3Dialog {
-        id: pianoSynthV3Dialog
-        anchors.centerIn: parent
-    }
-    PianoSynthAcousticDialog {
-        id: pianoSynthAcousticDialog
-        anchors.centerIn: parent
-    }
-    SynthDDialog {
-        id: synthDDialog
-        anchors.centerIn: parent
-    }
-    SpeechDialog {
-        id: speechDialog
-        anchors.centerIn: parent
-    }
-    Kick909Dialog {
-        id: kick909Dialog
-        anchors.centerIn: parent
-    }
-    KickSynthDialog {
-        id: kickSynthDialog
-        anchors.centerIn: parent
-    }
-    SnareSynthDialog {
-        id: snareSynthDialog
-        anchors.centerIn: parent
-    }
-    StringVoiceDialog {
-        id: stringVoiceDialog
-        anchors.centerIn: parent
-    }
-    StringVoiceV2Dialog {
-        id: stringVoiceV2Dialog
-        anchors.centerIn: parent
-    }
-    StringVoiceV3Dialog {
-        id: stringVoiceV3Dialog
-        anchors.centerIn: parent
-    }
-    StringEnsembleDialog {
-        id: stringEnsembleDialog
-        anchors.centerIn: parent
-    }
     DeviceSettingsDialog {
         id: deviceSettingsDialog
         anchors.centerIn: parent
@@ -563,58 +455,8 @@ ApplicationWindow {
         anchors.centerIn: parent
     }
 
-    ReverbDialog {
-        id: reverbDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    EndlessReverbDialog {
-        id: endlessReverbDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
     RtaDialog {
         id: rtaDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    ChorusDialog {
-        id: chorusDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    PannerDialog {
-        id: pannerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
-    }
-    AutoPannerDialog {
-        id: autoPannerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    PhaserDialog {
-        id: phaserDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    AutoFilterDialog {
-        id: autoFilterDialog
-        anchors.centerIn: parent
-        // Four sections of controls rather than the row or two the other effect dialogs hold, so it
-        // is sized like the rack dialogs instead.
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    AllPassFilterDialog {
-        id: allPassFilterDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
@@ -631,194 +473,8 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
-    Compressor2ADialog {
-        id: compressor2ADialog
-        anchors.centerIn: parent
-    }
-    CompressorDialog {
-        id: compressorDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    MultibandCompressorDialog {
-        id: multibandCompressorDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    AutoDuckerDialog {
-        id: autoDuckerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    DelayDialog {
-        id: delayDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    ClipperDialog {
-        id: clipperDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
-    }
-    SaturatorDialog {
-        id: saturatorDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
-    }
-    AnalogFuzzDialog {
-        id: analogFuzzDialog
-        anchors.centerIn: parent
-    }
-    MonitorDialog {
-        id: monitorDialog
-        anchors.centerIn: parent
-    }
-    CrossfeedDialog {
-        id: crossfeedDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    BitCrusherDialog {
-        id: bitCrusherDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    GateDialog {
-        id: gateDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    TremoloDialog {
-        id: tremoloDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    ReferenceDialog {
-        id: referenceDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    BassGrinderDialog {
-        id: bassGrinderDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    TubeStageDialog {
-        id: tubeStageDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    StereoEnhancerDialog {
-        id: stereoEnhancerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    EarlyReflectionsDialog {
-        id: earlyReflectionsDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    DimensionDialog {
-        id: dimensionDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.effectDialogScale
-    }
-    DoublerDialog {
-        id: doublerDialog
-        anchors.centerIn: parent
-    }
-    StereoWidenerDialog {
-        id: stereoWidenerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
     StereoFieldMeterDialog {
         id: stereoFieldMeterDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    StereoExciterDialog {
-        id: stereoExciterDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    WaveDesignerDialog {
-        id: waveDesignerDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    DriveDialog {
-        id: driveDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    LimiterDialog {
-        id: limiterDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
-    }
-    Eq8BandParametricDialog {
-        id: eq8BandParametricDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    VintagePassiveEqDialog {
-        id: vintagePassiveEqDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    Eq32BandGraphicalDialog {
-        id: eq32BandGraphicalDialog
-        anchors.centerIn: parent
-    }
-    AmbienceDialog {
-        id: ambienceDialog
-        anchors.centerIn: parent
-    }
-    Reverb224Dialog {
-        id: reverb224Dialog
-        anchors.centerIn: parent
-    }
-    DynamicEqDialog {
-        id: dynamicEqDialog
-        anchors.centerIn: parent
-    }
-    PhaseScopeDialog {
-        id: phaseScopeDialog
-        anchors.centerIn: parent
-    }
-    AirBandEqDialog {
-        id: airBandEqDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    SimpleEqDialog {
-        id: simpleEqDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
@@ -1225,38 +881,11 @@ ApplicationWindow {
         applicationService.saveAsTemplateDialogRequested.connect(saveAsTemplateDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
-        deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
-        deviceRackController.electricBassDialogRequested.connect(electricBassDialog.open);
-        deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
-        deviceRackController.drumSynthV2DialogRequested.connect(drumSynthV2Dialog.open);
-        deviceRackController.fmDrumsDialogRequested.connect(fmDrumsDialog.open);
-        deviceRackController.juSynthDialogRequested.connect(juSynthDialog.open);
-        deviceRackController.juSynth08DialogRequested.connect(juSynth08Dialog.open);
-        deviceRackController.lfoDialogRequested.connect(lfoDialog.open);
-        deviceRackController.xyPadDialogRequested.connect(xyPadDialog.open);
-        deviceRackController.noiseFxDialogRequested.connect(noiseFxDialog.open);
-        deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
-        deviceRackController.pianoSynthV2DialogRequested.connect(pianoSynthV2Dialog.open);
-        deviceRackController.pianoSynthV3DialogRequested.connect(pianoSynthV3Dialog.open);
-        deviceRackController.pianoSynthAcousticDialogRequested.connect(pianoSynthAcousticDialog.open);
-        deviceRackController.synthDDialogRequested.connect(synthDDialog.open);
-        deviceRackController.speechDialogRequested.connect(speechDialog.open);
         deviceRackController.pluginDeviceDialogRequested.connect(dialogFile => pluginDialogHost.open(dialogFile, {}));
-        deviceRackController.kick909DialogRequested.connect(kick909Dialog.open);
-        deviceRackController.kickSynthDialogRequested.connect(kickSynthDialog.open);
-        deviceRackController.snareSynthDialogRequested.connect(snareSynthDialog.open);
-        deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
-        deviceRackController.stringVoiceV2DialogRequested.connect(stringVoiceV2Dialog.open);
-        deviceRackController.stringVoiceV3DialogRequested.connect(stringVoiceV3Dialog.open);
-        deviceRackController.stringEnsembleDialogRequested.connect(stringEnsembleDialog.open);
         deviceRackController.subMixerDialogRequested.connect(slotIndex => {
             subMixerDialog.slotIndex = slotIndex;
             subMixerDialog.open();
         });
-        deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
-        deviceRackController.synthDialogRequested.connect(synthDialog.open);
-        deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);
-        deviceRackController.fmSynthDialogRequested.connect(fmSynthDialog.open);
         deviceRackController.importSettingsConfirmationRequested.connect(UiService.requestImportDeviceSettingsConfirmation);
         effectRackController.importEffectSettingsConfirmationRequested.connect(UiService.requestImportEffectSettingsConfirmation);
     }
@@ -1392,19 +1021,17 @@ ApplicationWindow {
             }
         });
 
-        UiService.samplerDialogRequested.connect(samplerDialog.open);
-        UiService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.renderProgressDialogRequested.connect(renderProgressDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
             if (deviceService.isInternalDevice(deviceName)) {
                 deviceRackController.openDevice(deviceName);
             } else if (deviceName === applicationService.samplerDeviceName) {
-                samplerDialog.open();
+                pluginDialogHost.open("SamplerDialog.qml", {});
             } else if (deviceName === applicationService.synthDeviceName) {
-                synthDialog.open();
+                pluginDialogHost.open("SynthDialog.qml", {});
             } else if (deviceName === applicationService.drumSynthDeviceName) {
-                drumSynthDialog.open();
+                pluginDialogHost.open("DrumSynthDialog.qml", {});
             }
         });
         UiService.settingsDialogRequested.connect(settingsDialog.open);

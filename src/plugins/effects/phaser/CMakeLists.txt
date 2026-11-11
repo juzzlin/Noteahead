@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         phaser.cpp
         phaser.hpp
+        phaser_registration.cpp
+    VIEW_SOURCES
+        phaser_view_registration.cpp
     QML_FILES
         PhaserDialog.qml
 )

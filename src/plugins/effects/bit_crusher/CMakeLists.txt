@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         bit_crusher.cpp
         bit_crusher.hpp
+        bit_crusher_registration.cpp
+    VIEW_SOURCES
+        bit_crusher_view_registration.cpp
     QML_FILES
         BitCrusherDialog.qml
 )

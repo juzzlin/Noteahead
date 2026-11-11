@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         ambience.cpp
         ambience.hpp
+        ambience_registration.cpp
+    VIEW_SOURCES
+        ambience_view_registration.cpp
     QML_FILES
         AmbienceDialog.qml
 )
