@@ -16,6 +16,7 @@
 #include "effect_rack_controller.hpp"
 
 #include "../plugins/plugin_catalog.hpp"
+#include "effect_dialog_model.hpp"
 
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
@@ -749,40 +750,12 @@ void EffectRackController::clearGainClip(quint32 effectIndex)
     }
 }
 
-float EffectRackController::eq8BandParametricDefaultQ(int bandType) const
-{
-    const auto q = Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(bandType));
-    return q.value_or(-1.0f);
-}
-
 namespace {
 
 //! The frequencies a curve is drawn at, evenly spaced by octave from 20 Hz to 20 kHz.
 //!
 //! The spacing EqCurveRenderer expects, kept in one place so that every curve in every dialog is
 //! sampled the same way.
-std::vector<double> responseFrequencies(int points)
-{
-    std::vector<double> frequencies;
-    if (points <= 1) {
-        return frequencies;
-    }
-    frequencies.reserve(static_cast<size_t>(points));
-    for (int i = 0; i < points; i++) {
-        const double t = static_cast<double>(i) / static_cast<double>(points - 1);
-        frequencies.push_back(20.0 * std::pow(1000.0, t));
-    }
-    return frequencies;
-}
-
-QVariantList sampleResponse(int points, const std::function<double(double)> & magnitudeDbAt)
-{
-    QVariantList response;
-    for (const double hz : responseFrequencies(points)) {
-        response.append(magnitudeDbAt(hz));
-    }
-    return response;
-}
 
 } // namespace
 
@@ -790,34 +763,6 @@ std::shared_ptr<Effect> EffectRackController::effectAt(quint32 effectIndex) cons
 {
     const auto rack = currentRack();
     return rack ? rack->get().effect(static_cast<size_t>(effectIndex)) : nullptr;
-}
-
-void EffectRackController::eq8BandParametricSetBandType(quint32 effectIndex, quint32 bandIndex, int bandType)
-{
-    const auto typeKey = Constants::NahdXml::xmlKeyBandType(bandIndex);
-    if (static_cast<int>(std::round(parameterValue(effectIndex, typeKey))) == bandType) {
-        return;
-    }
-
-    setParameterValue(effectIndex, typeKey, static_cast<float>(bandType));
-
-    if (const auto q = Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(bandType)); q) {
-        setParameterValue(effectIndex, Constants::NahdXml::xmlKeyBandQ(bandIndex), *q);
-    }
-}
-
-QVariantList EffectRackController::eq8BandParametricResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(effectAt(effectIndex));
-    if (!effect) {
-        return {};
-    }
-    QVariantList response;
-    const auto path = effect->isPathBypassed(Eq8BandParametric::Path::Mid) ? Eq8BandParametric::Path::Side : Eq8BandParametric::Path::Mid;
-    for (const double db : effect->magnitudesDbAt(responseFrequencies(points), path)) {
-        response.append(db);
-    }
-    return response;
 }
 
 double EffectRackController::eqAutoGainDb(quint32 effectIndex) const
@@ -841,25 +786,6 @@ double EffectRackController::eqAutoGainDb(quint32 effectIndex) const
     return 0.0;
 }
 
-QVariantList EffectRackController::eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(effectAt(effectIndex));
-    if (!effect) {
-        return {};
-    }
-
-    // Nothing to draw when the equalizer shapes both paths: a second curve lying exactly on the
-    // first says only that there is a second curve.
-    const auto bypassed = effect->isPathBypassed(Eq8BandParametric::Path::Mid)
-      ? Eq8BandParametric::Path::Mid
-      : (effect->isPathBypassed(Eq8BandParametric::Path::Side) ? Eq8BandParametric::Path::Side : std::optional<Eq8BandParametric::Path> {});
-    if (!bypassed) {
-        return {};
-    }
-
-    return sampleResponse(points, [&effect, path = *bypassed](double hz) { return effect->magnitudeDbAt(hz, path); });
-}
-
 QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int points) const
 {
     const auto effect = std::dynamic_pointer_cast<AirBandEq>(effectAt(effectIndex));
@@ -867,7 +793,7 @@ QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int po
         return {};
     }
     QVariantList response;
-    for (const double db : effect->magnitudesDbAt(responseFrequencies(points))) {
+    for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points))) {
         response.append(db);
     }
     return response;
@@ -882,7 +808,7 @@ QVariantList EffectRackController::eq32BandGraphicalResponse(quint32 effectIndex
     // All points at once: the equalizer designs its bands from the parameters for every call, and
     // that is the expensive part
     QVariantList response;
-    for (const double db : effect->magnitudesDbAt(responseFrequencies(points))) {
+    for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points))) {
         response.append(db);
     }
     return response;
@@ -1217,7 +1143,7 @@ QVariantList dynamicEqResponseAt(const std::shared_ptr<DynamicEq> & effect, int 
 {
     QVariantList response;
     if (effect) {
-        for (const double db : effect->magnitudesDbAt(responseFrequencies(points), gainDb)) {
+        for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points), gainDb)) {
             response.append(db);
         }
     }
@@ -1370,19 +1296,6 @@ QString EffectRackController::reverbType() const
 QString EffectRackController::endlessType() const
 {
     return Constants::RackEffectType::endless();
-}
-
-float EffectRackController::compressorReductionDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(effectIndex)) {
-            if (const auto compressor = std::dynamic_pointer_cast<Compressor>(effect)) {
-                return compressor->reductionDb();
-            }
-        }
-    }
-
-    return 0.0f;
 }
 
 float EffectRackController::multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const

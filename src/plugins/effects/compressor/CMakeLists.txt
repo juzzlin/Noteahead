@@ -6,6 +6,8 @@ noteahead_add_effect(
         compressor_presets.hpp
         compressor_registration.cpp
     VIEW_SOURCES
+        compressor_dialog_model.cpp
+        compressor_dialog_model.hpp
         compressor_view_registration.cpp
     QML_FILES
         CompressorDialog.qml

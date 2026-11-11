@@ -11,14 +11,6 @@ class EffectRackControllerTest : public QObject
 
 private slots:
     void test_effectId_shouldNameTheEffectInThatSlot();
-    void test_eq8BandParametricResponse_shouldSpanTheAudibleRange();
-    void test_eq8BandParametricResponse_flatBands_shouldBeFlat();
-    void test_eq8BandParametricResponse_wrongEffect_shouldBeEmpty();
-    void test_eq8BandParametricSetBandType_sameType_shouldKeepTheQ();
-    void test_eq8BandParametricSetBandType_newType_shouldOpenAtThatTypesQ();
-    void test_eq8BandParametricSetBandType_typeWithNoOpinion_shouldKeepTheQ();
-    void test_eq8BandParametricPassThroughResponse_bothPathsShaped_shouldBeEmpty();
-    void test_eq8BandParametricPassThroughResponse_onePathBypassed_shouldBeFlat();
     void test_airBandEqResponse_shouldFollowTheBandThatIsBoosted();
     void test_airBandEqResponse_flatBands_shouldBeFlat();
     void test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer();

@@ -20,7 +20,11 @@
 #include "../../../domain/devices/device.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
+#include "compressor_dialog_model.hpp"
+
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -58,6 +62,7 @@ void registerCompressorEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<CompressorDialogModel>("Noteahead", 1, 0, "CompressorDialogModel"); },
     });
 }
 

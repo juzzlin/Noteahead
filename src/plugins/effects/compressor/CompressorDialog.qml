@@ -310,7 +310,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentReductionDb = effectRackController.compressorReductionDb(root.effectIndex);
+            root.currentReductionDb = dialogModel.reductionDb();
         }
+    }
+
+    CompressorDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

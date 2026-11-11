@@ -18,9 +18,13 @@
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
+#include "eq_8_band_parametric_dialog_model.hpp"
+
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -48,6 +52,7 @@ void registerEq8BandParametricEffectView()
           }
           return QString { "(Parametric, %1)" }.arg(modeName);
       },
+      .registerQmlTypes = [] { qmlRegisterType<Eq8BandParametricDialogModel>("Noteahead", 1, 0, "Eq8BandParametricDialogModel"); },
     });
 }
 

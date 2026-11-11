@@ -4,6 +4,7 @@ set(HEADER_FILES
     controllers/device_dialog_model.hpp
     controllers/device_rack_controller.hpp
     controllers/drum_pad_dialog_model.hpp
+    controllers/effect_dialog_model.hpp
     controllers/effect_rack_controller.hpp
     controllers/fm_drum_operator_controller.hpp
     controllers/fm_operator_controller.hpp
@@ -33,6 +34,7 @@ set(SOURCE_FILES
     controllers/device_dialog_model.cpp
     controllers/device_rack_controller.cpp
     controllers/drum_pad_dialog_model.cpp
+    controllers/effect_dialog_model.cpp
     controllers/effect_rack_controller.cpp
     controllers/fm_drum_operator_controller.cpp
     controllers/fm_operator_controller.cpp
