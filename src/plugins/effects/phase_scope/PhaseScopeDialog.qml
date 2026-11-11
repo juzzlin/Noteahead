@@ -48,7 +48,7 @@ EffectDialog {
     // The scope is gated on the dialog being open, so a Phase Scope left in a rack costs nothing
     onVisibleChanged: {
         if (effectIndex >= 0) {
-            effectRackController.phaseScopeSetActive(effectIndex, visible);
+            dialogModel.setActive(visible);
         }
     }
 
@@ -59,10 +59,10 @@ EffectDialog {
         running: root.visible && root.effectIndex >= 0
         repeat: true
         onTriggered: {
-            const capture = effectRackController.phaseScopeCapture(root.effectIndex, 512);
+            const capture = dialogModel.capture(512);
             scope.reference = capture.reference || [];
             scope.trace = capture.signal || [];
-            root.reading = effectRackController.phaseScopeReading(root.effectIndex);
+            root.reading = dialogModel.reading();
         }
     }
 
@@ -193,14 +193,16 @@ EffectDialog {
                 RowLayout {
                     readonly property int samples: {
                         effectRackController.revision;
-                        return effectRackController.phaseScopeDelaySamples(root.effectIndex);
+                        // The model follows the slot, and this has to follow the model
+                        dialogModel.effectIndex;
+                        return dialogModel.delaySamples();
                     }
                     id: delaySamples
                     AppButton {
                         text: "−1"
                         implicitWidth: 40
                         toolTipText: qsTr("One sample earlier")
-                        onClicked: effectRackController.phaseScopeSetDelaySamples(root.effectIndex, delaySamples.samples - 1)
+                        onClicked: dialogModel.setDelaySamples(delaySamples.samples - 1)
                     }
                     Label {
                         text: qsTr("%1 samples").arg(delaySamples.samples)
@@ -211,7 +213,7 @@ EffectDialog {
                         text: "+1"
                         implicitWidth: 40
                         toolTipText: qsTr("One sample later")
-                        onClicked: effectRackController.phaseScopeSetDelaySamples(root.effectIndex, delaySamples.samples + 1)
+                        onClicked: dialogModel.setDelaySamples(delaySamples.samples + 1)
                     }
                 }
 
@@ -304,5 +306,11 @@ EffectDialog {
                 Layout.fillWidth: true
             }
         }
+    }
+
+    PhaseScopeDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

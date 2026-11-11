@@ -14,11 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "clipper.hpp"
+#include "clipper_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -36,6 +39,7 @@ void registerClipperEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<ClipperDialogModel>("Noteahead", 1, 0, "ClipperDialogModel"); },
     });
 }
 

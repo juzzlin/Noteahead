@@ -180,7 +180,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentShapingDb = effectRackController.waveDesignerShapingDb(root.effectIndex);
+            root.currentShapingDb = dialogModel.shapingDb();
         }
+    }
+
+    WaveDesignerDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

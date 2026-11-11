@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "reverb_224.hpp"
+#include "reverb_224_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
@@ -21,6 +22,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -45,6 +48,7 @@ void registerReverb224EffectView()
             .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<Reverb224DialogModel>("Noteahead", 1, 0, "Reverb224DialogModel"); },
     });
 }
 

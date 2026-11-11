@@ -307,6 +307,26 @@ void EffectRackController::setParameterValue(quint32 effectIndex, const QString 
     }
 }
 
+void EffectRackController::setParameterValues(quint32 effectIndex, const std::vector<std::pair<QString, float>> & values)
+{
+    if (const auto effect = effectAt(effectIndex); effect) {
+        // One revision for the lot rather than one per parameter, each of which would redraw
+        bool changed = false;
+        for (auto && [paramName, value] : values) {
+            if (const auto parameter = effect->parameter(paramName.toStdString()); parameter && parameter->get().update(value)) {
+                changed = true;
+                emit parameterChanged(effectIndex, paramName);
+            }
+        }
+        if (changed) {
+            effect->sync();
+            m_editorService->setIsModified(true);
+            m_revision++;
+            emit revisionChanged();
+        }
+    }
+}
+
 void EffectRackController::setEffect(int slotIndex, const QString & typeId)
 {
     if (const auto effect = EffectFactory::createEffect(typeId.toStdString()); effect) {
@@ -716,40 +736,6 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
     return {};
 }
 
-QStringList EffectRackController::referenceEnvironmentNames() const
-{
-    // Read from the table the effect itself selects with, so the list cannot name a system the
-    // effect does not have or miss one it does.
-    QStringList names;
-    for (auto && environment : referenceEnvironments()) {
-        names << QString::fromStdString(environment.name);
-    }
-    return names;
-}
-
-bool EffectRackController::gainClipped(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
-            if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
-                return gain->clipDetector().clipped();
-            }
-        }
-    }
-    return false;
-}
-
-void EffectRackController::clearGainClip(quint32 effectIndex)
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
-            if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
-                gain->clipDetector().clear();
-            }
-        }
-    }
-}
-
 namespace {
 
 //! The frequencies a curve is drawn at, evenly spaced by octave from 20 Hz to 20 kHz.
@@ -784,76 +770,6 @@ double EffectRackController::eqAutoGainDb(quint32 effectIndex) const
         return eq->autoGainDb();
     }
     return 0.0;
-}
-
-QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<AirBandEq>(effectAt(effectIndex));
-    if (!effect) {
-        return {};
-    }
-    QVariantList response;
-    for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points))) {
-        response.append(db);
-    }
-    return response;
-}
-
-QVariantList EffectRackController::eq32BandGraphicalResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<Eq32BandGraphical>(effectAt(effectIndex));
-    if (!effect) {
-        return {};
-    }
-    // All points at once: the equalizer designs its bands from the parameters for every call, and
-    // that is the expensive part
-    QVariantList response;
-    for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points))) {
-        response.append(db);
-    }
-    return response;
-}
-
-int EffectRackController::eq32BandGraphicalBandCount() const
-{
-    return static_cast<int>(Eq32BandGraphical::BandCount);
-}
-
-QString EffectRackController::eq32BandGraphicalBandLabel(quint32 bandIndex) const
-{
-    return QString::fromStdString(Eq32BandGraphical::nominalLabel(bandIndex));
-}
-
-double EffectRackController::eq32BandGraphicalLinearPhaseLatencyMs(quint32 effectIndex) const
-{
-    const auto effect = effectAt(effectIndex);
-    if (!effect || effect->sampleRate() <= 0.0) {
-        return 0.0;
-    }
-    return static_cast<double>(Eq32BandGraphical::linearPhaseLatencyFrames(effect->sampleRate())) * 1000.0 / effect->sampleRate();
-}
-
-void EffectRackController::eq32BandGraphicalFlatten(quint32 effectIndex)
-{
-    const auto effect = std::dynamic_pointer_cast<Eq32BandGraphical>(effectAt(effectIndex));
-    if (!effect) {
-        return;
-    }
-    // One revision for the lot rather than one per slider, each of which would redraw the curve
-    bool changed = false;
-    for (size_t i = 0; i < Eq32BandGraphical::BandCount; i++) {
-        const auto key = Constants::NahdXml::xmlKeyBandGain(i);
-        if (const auto parameter = effect->parameter(key.toStdString()); parameter && parameter->get().update(Eq32BandGraphical::sliderParameterValue(0.0))) {
-            changed = true;
-            emit parameterChanged(effectIndex, key);
-        }
-    }
-    if (changed) {
-        effect->sync();
-        m_editorService->setIsModified(true);
-        m_revision++;
-        emit revisionChanged();
-    }
 }
 
 QStringList EffectRackController::lfoWaveformNames() const
@@ -1127,145 +1043,14 @@ QString EffectRackController::reverb224Type() const
     return Constants::RackEffectType::reverb224();
 }
 
-bool EffectRackController::reverb224HasEarlyReflections(int program) const
-{
-    return Reverb224::hasEarlyReflections(static_cast<Reverb224::Program>(std::clamp(program, 0, static_cast<int>(Reverb224::ProgramCount) - 1)));
-}
-
 QString EffectRackController::dynamicEqType() const
 {
     return Constants::RackEffectType::dynamicEq();
 }
 
-namespace {
-
-QVariantList dynamicEqResponseAt(const std::shared_ptr<DynamicEq> & effect, int points, double gainDb)
-{
-    QVariantList response;
-    if (effect) {
-        for (const double db : effect->magnitudesDbAt(EffectDialogModel::responseFrequencies(points), gainDb)) {
-            response.append(db);
-        }
-    }
-    return response;
-}
-
-} // namespace
-
-QVariantList EffectRackController::dynamicEqResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
-    return dynamicEqResponseAt(effect, points, effect ? effect->currentGainDb() : 0.0);
-}
-
-QVariantList EffectRackController::dynamicEqRangeResponse(quint32 effectIndex, int points) const
-{
-    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
-    return dynamicEqResponseAt(effect, points, effect ? effect->rangeDb() : 0.0);
-}
-
-float EffectRackController::dynamicEqGainDb(quint32 effectIndex) const
-{
-    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
-    return effect ? effect->currentGainDb() : 0.0f;
-}
-
-float EffectRackController::dynamicEqDetectorLevelDb(quint32 effectIndex) const
-{
-    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
-    return effect ? effect->detectorLevelDb() : -120.0f;
-}
-
-float EffectRackController::dynamicEqRangeDb(quint32 effectIndex) const
-{
-    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
-    return effect ? static_cast<float>(effect->rangeDb()) : 0.0f;
-}
-
-QVariantList EffectRackController::dynamicEqGainHistory(quint32 effectIndex) const
-{
-    QVariantList list;
-    if (const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex)); effect) {
-        for (const float db : effect->gainHistory()) {
-            list.append(db);
-        }
-    }
-    return list;
-}
-
-void EffectRackController::dynamicEqSetActive(quint32 effectIndex, bool active)
-{
-    if (const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex)); effect) {
-        effect->setAnalysisEnabled(active);
-    }
-}
-
 QString EffectRackController::phaseScopeType() const
 {
     return Constants::RackEffectType::phaseScope();
-}
-
-int EffectRackController::phaseScopeDelaySamples(quint32 effectIndex) const
-{
-    const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex));
-    if (!effect) {
-        return 0;
-    }
-    const auto delay = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
-    return delay ? static_cast<int>(PhaseScope::delaySamples(delay->get().shownValue(), effect->sampleRate())) : 0;
-}
-
-void EffectRackController::phaseScopeSetDelaySamples(quint32 effectIndex, int samples)
-{
-    const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex));
-    if (!effect || effect->sampleRate() <= 0.0) {
-        return;
-    }
-    const auto maxSamples = static_cast<int>(PhaseScope::delaySamples(1.0f, effect->sampleRate()));
-    const double ms = static_cast<double>(std::clamp(samples, 0, maxSamples)) * 1000.0 / effect->sampleRate();
-    setParameterValue(effectIndex, Constants::NahdXml::xmlKeyDelayTime(), static_cast<float>(ms / PhaseScope::MaxDelayMs));
-}
-
-void EffectRackController::phaseScopeSetActive(quint32 effectIndex, bool active)
-{
-    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
-        effect->setAnalysisEnabled(active);
-    }
-}
-
-QVariantMap EffectRackController::phaseScopeReading(quint32 effectIndex) const
-{
-    QVariantMap map;
-    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
-        const auto reading = effect->reading();
-        map["hasReference"] = reading.hasReference;
-        map["correlation"] = reading.correlation;
-        map["referenceDb"] = reading.referenceDb;
-        map["signalDb"] = reading.signalDb;
-        map["sumGainDb"] = reading.sumGainDb;
-    }
-    return map;
-}
-
-QVariantMap EffectRackController::phaseScopeCapture(quint32 effectIndex, int maxPoints) const
-{
-    QVariantMap map;
-    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
-        const auto capture = effect->capture();
-        // Every n-th sample, the same n for both, so that the two stay aligned
-        const auto decimate = [](const std::vector<float> & samples, size_t stride) {
-            QVariantList list;
-            for (size_t i = 0; i < samples.size(); i += stride) {
-                list.append(samples[i]);
-            }
-            return list;
-        };
-        const auto length = std::max(capture.reference.size(), capture.signal.size());
-        const auto stride = std::max<size_t>(1, maxPoints > 0 ? (length + static_cast<size_t>(maxPoints) - 1) / static_cast<size_t>(maxPoints) : 1);
-        map["reference"] = decimate(capture.reference, stride);
-        map["signal"] = decimate(capture.signal, stride);
-    }
-    return map;
 }
 
 QString EffectRackController::eq32BandGraphicalType() const
@@ -1296,163 +1081,6 @@ QString EffectRackController::reverbType() const
 QString EffectRackController::endlessType() const
 {
     return Constants::RackEffectType::endless();
-}
-
-float EffectRackController::multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto compressor = std::dynamic_pointer_cast<MultibandCompressor>(effect); compressor) {
-                return compressor->bandReductionDb(bandIndex);
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::stereoWidenerBandCorrelation(quint32 effectIndex, quint32 bandIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto width = std::dynamic_pointer_cast<StereoWidener>(effect); width) {
-                return width->bandCorrelation(bandIndex);
-            }
-        }
-    }
-
-    // Nothing to read is reported as centred, which is where the meter rests.
-    return 1.0f;
-}
-
-float EffectRackController::clipperReductionDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto clipper = std::dynamic_pointer_cast<Clipper>(effect); clipper) {
-                return clipper->reductionDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::limiterReductionDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto limiter = std::dynamic_pointer_cast<Limiter>(effect); limiter) {
-                return limiter->reductionDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::compressor2AReductionDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto compressor = std::dynamic_pointer_cast<Compressor2A>(effect); compressor) {
-                return compressor->reductionDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::autoDuckerGainDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto autoDucker = std::dynamic_pointer_cast<AutoDucker>(effect); autoDucker) {
-                return autoDucker->gainDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::saturatorSaturationDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto saturator = std::dynamic_pointer_cast<Saturator>(effect); saturator) {
-                return saturator->saturationDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::waveDesignerShapingDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto waveDesigner = std::dynamic_pointer_cast<WaveDesigner>(effect); waveDesigner) {
-                return waveDesigner->shapingDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::stereoExciterHarmonicsDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto exciter = std::dynamic_pointer_cast<StereoExciter>(effect); exciter) {
-                return exciter->harmonicsDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::analogFuzzSaturationDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto analogFuzz = std::dynamic_pointer_cast<AnalogFuzz>(effect); analogFuzz) {
-                return analogFuzz->saturationDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::tubeStageSaturationDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto tubeStage = std::dynamic_pointer_cast<TubeStage>(effect); tubeStage) {
-                return tubeStage->saturationDb();
-            }
-        }
-    }
-
-    return 0.0f;
-}
-
-float EffectRackController::bassGrinderSaturationDb(quint32 effectIndex) const
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto bassGrinder = std::dynamic_pointer_cast<BassGrinder>(effect); bassGrinder) {
-                return bassGrinder->saturationDb();
-            }
-        }
-    }
-
-    return 0.0f;
 }
 
 float EffectRackController::lufsMeterMomentary(quint32 effectIndex) const

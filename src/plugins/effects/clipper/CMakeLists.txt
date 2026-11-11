@@ -4,6 +4,8 @@ noteahead_add_effect(
         clipper.hpp
         clipper_registration.cpp
     VIEW_SOURCES
+        clipper_dialog_model.cpp
+        clipper_dialog_model.hpp
         clipper_view_registration.cpp
     QML_FILES
         ClipperDialog.qml

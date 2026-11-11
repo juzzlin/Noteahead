@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "compressor_2a.hpp"
+#include "compressor_2a_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
@@ -21,6 +22,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -42,6 +45,7 @@ void registerCompressor2aEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<Compressor2ADialogModel>("Noteahead", 1, 0, "Compressor2ADialogModel"); },
     });
 }
 

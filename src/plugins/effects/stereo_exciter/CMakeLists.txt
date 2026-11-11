@@ -4,6 +4,8 @@ noteahead_add_effect(
         stereo_exciter.hpp
         stereo_exciter_registration.cpp
     VIEW_SOURCES
+        stereo_exciter_dialog_model.cpp
+        stereo_exciter_dialog_model.hpp
         stereo_exciter_view_registration.cpp
     QML_FILES
         StereoExciterDialog.qml

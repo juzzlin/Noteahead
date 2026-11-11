@@ -4,6 +4,8 @@ noteahead_add_effect(
         wave_designer.hpp
         wave_designer_registration.cpp
     VIEW_SOURCES
+        wave_designer_dialog_model.cpp
+        wave_designer_dialog_model.hpp
         wave_designer_view_registration.cpp
     QML_FILES
         WaveDesignerDialog.qml

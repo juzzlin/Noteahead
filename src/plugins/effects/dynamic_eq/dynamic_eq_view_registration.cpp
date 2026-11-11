@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dynamic_eq.hpp"
+#include "dynamic_eq_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/devices/device.hpp"
@@ -22,6 +23,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -62,6 +65,7 @@ void registerDynamicEqEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<DynamicEqDialogModel>("Noteahead", 1, 0, "DynamicEqDialogModel"); },
     });
 }
 

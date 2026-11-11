@@ -26,7 +26,7 @@ CompressorDialogModel::CompressorDialogModel(QObject * parent)
 
 float CompressorDialogModel::reductionDb() const
 {
-    const auto compressor = std::dynamic_pointer_cast<Compressor>(effect());
+    const auto compressor = std::dynamic_pointer_cast<Compressor>(this->effect());
     return compressor ? compressor->reductionDb() : 0.0f;
 }
 

@@ -187,7 +187,7 @@ EffectDialog {
                         BandSettings {
                             bandIndex: index
                             effectIndex: root.effectIndex
-                            dialogModel: dialogModel
+                            effectModel: dialogModel
                             Layout.fillWidth: true
                         }
                     }
@@ -200,7 +200,7 @@ EffectDialog {
         property int bandIndex: -1
         property int effectIndex: -1
         //! The dialog's, since an inline component cannot see the ids around it
-        property Eq8BandParametricDialogModel dialogModel
+        property Eq8BandParametricDialogModel effectModel
         spacing: 15
         Layout.preferredWidth: 120
 
@@ -228,7 +228,7 @@ EffectDialog {
                     // Q means a different thing to each type, so picking one opens it at the width
                     // that type is reached for at. Which type it already was decides whether that
                     // happens at all, so the controller is asked rather than told.
-                    onActivated: index => dialogModel.setBandType(bandIndex, index)
+                    onActivated: index => effectModel.setBandType(bandIndex, index)
                     Layout.fillWidth: true
                 }
             }

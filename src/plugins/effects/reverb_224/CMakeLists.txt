@@ -4,6 +4,8 @@ noteahead_add_effect(
         reverb_224.hpp
         reverb_224_registration.cpp
     VIEW_SOURCES
+        reverb_224_dialog_model.cpp
+        reverb_224_dialog_model.hpp
         reverb_224_view_registration.cpp
     QML_FILES
         Reverb224Dialog.qml

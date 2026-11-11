@@ -67,17 +67,17 @@ EffectDialog {
         effectRackController.setParameterValue(root.effectIndex, key, value);
     }
 
-    onVisibleChanged: effectRackController.dynamicEqSetActive(root.effectIndex, visible)
+    onVisibleChanged: dialogModel.setActive(visible)
 
     Timer {
         interval: 33
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentGainDb = effectRackController.dynamicEqGainDb(root.effectIndex);
-            root.detectorDb = effectRackController.dynamicEqDetectorLevelDb(root.effectIndex);
-            root.gainHistory = effectRackController.dynamicEqGainHistory(root.effectIndex);
-            root.liveResponse = effectRackController.dynamicEqResponse(root.effectIndex, Math.max(64, Math.round(curve.width / 2)));
+            root.currentGainDb = dialogModel.gainDb();
+            root.detectorDb = dialogModel.detectorLevelDb();
+            root.gainHistory = dialogModel.gainHistory();
+            root.liveResponse = dialogModel.response(Math.max(64, Math.round(curve.width / 2)));
             historyCanvas.requestPaint();
         }
     }
@@ -169,7 +169,9 @@ EffectDialog {
                 response: root.liveResponse
                 secondaryResponse: {
                     effectRackController.revision;
-                    return effectRackController.dynamicEqRangeResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                    // The model follows the slot, and this has to follow the model
+                    dialogModel.effectIndex;
+                    return dialogModel.rangeResponse(Math.max(64, Math.round(width / 2)));
                 }
                 dbRange: 18
                 accentColor: themeService.accentColor
@@ -215,7 +217,7 @@ EffectDialog {
                             const ctx = getContext("2d");
                             ctx.fillStyle = "#111";
                             ctx.fillRect(0, 0, width, height);
-                            const range = effectRackController.dynamicEqRangeDb(root.effectIndex);
+                            const range = dialogModel.rangeDb();
                             const span = Math.max(1, Math.abs(range));
                             // Flat at the top for a cut, at the bottom for a boost
                             const zeroY = range < 0 ? 2 : height - 2;
@@ -508,5 +510,11 @@ EffectDialog {
                 }
             }
         }
+    }
+
+    DynamicEqDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

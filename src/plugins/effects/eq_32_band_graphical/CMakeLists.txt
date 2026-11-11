@@ -6,6 +6,8 @@ noteahead_add_effect(
         eq_32_band_graphical_presets.hpp
         eq_32_band_graphical_registration.cpp
     VIEW_SOURCES
+        eq_32_band_graphical_dialog_model.cpp
+        eq_32_band_graphical_dialog_model.hpp
         eq_32_band_graphical_view_registration.cpp
     QML_FILES
         Eq32BandGraphicalDialog.qml

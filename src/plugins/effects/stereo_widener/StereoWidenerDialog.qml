@@ -271,7 +271,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.bandCorrelation = [effectRackController.stereoWidenerBandCorrelation(root.effectIndex, 0), effectRackController.stereoWidenerBandCorrelation(root.effectIndex, 1), effectRackController.stereoWidenerBandCorrelation(root.effectIndex, 2)];
+            root.bandCorrelation = [dialogModel.bandCorrelation(0), dialogModel.bandCorrelation(1), dialogModel.bandCorrelation(2)];
         }
+    }
+
+    StereoWidenerDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

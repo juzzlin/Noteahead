@@ -4,6 +4,8 @@ noteahead_add_effect(
         saturator.hpp
         saturator_registration.cpp
     VIEW_SOURCES
+        saturator_dialog_model.cpp
+        saturator_dialog_model.hpp
         saturator_view_registration.cpp
     QML_FILES
         SaturatorDialog.qml

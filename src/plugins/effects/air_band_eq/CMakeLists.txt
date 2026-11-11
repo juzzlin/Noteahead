@@ -6,6 +6,8 @@ noteahead_add_effect(
         air_band_eq_presets.hpp
         air_band_eq_registration.cpp
     VIEW_SOURCES
+        air_band_eq_dialog_model.cpp
+        air_band_eq_dialog_model.hpp
         air_band_eq_view_registration.cpp
     QML_FILES
         AirBandEqDialog.qml

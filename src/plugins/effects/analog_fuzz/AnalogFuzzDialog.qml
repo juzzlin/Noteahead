@@ -237,7 +237,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentSaturationDb = effectRackController.analogFuzzSaturationDb(root.effectIndex);
+            root.currentSaturationDb = dialogModel.saturationDb();
         }
+    }
+
+    AnalogFuzzDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

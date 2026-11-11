@@ -398,7 +398,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.bandReductionDb = [effectRackController.multibandCompressorBandReductionDb(root.effectIndex, 0), effectRackController.multibandCompressorBandReductionDb(root.effectIndex, 1), effectRackController.multibandCompressorBandReductionDb(root.effectIndex, 2)];
+            root.bandReductionDb = [dialogModel.bandReductionDb(0), dialogModel.bandReductionDb(1), dialogModel.bandReductionDb(2)];
         }
+    }
+
+    MultibandCompressorDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

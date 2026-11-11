@@ -4,6 +4,8 @@ noteahead_add_effect(
         phase_scope.hpp
         phase_scope_registration.cpp
     VIEW_SOURCES
+        phase_scope_dialog_model.cpp
+        phase_scope_dialog_model.hpp
         phase_scope_renderer.cpp
         phase_scope_renderer.hpp
         phase_scope_view_registration.cpp

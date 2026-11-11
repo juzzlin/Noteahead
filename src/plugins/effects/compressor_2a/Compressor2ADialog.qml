@@ -194,6 +194,12 @@ EffectDialog {
         interval: 33 // ~30 FPS
         running: root.opened
         repeat: true
-        onTriggered: root.currentReductionDb = effectRackController.compressor2AReductionDb(root.effectIndex)
+        onTriggered: root.currentReductionDb = dialogModel.reductionDb()
+    }
+
+    Compressor2ADialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

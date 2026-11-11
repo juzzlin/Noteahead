@@ -22,6 +22,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -70,6 +71,8 @@ protected:
 
     float parameterValue(const QString & key) const;
     void setParameterValue(const QString & key, float value);
+    //! Several at once, with one redraw for all of them.
+    void setParameterValues(const std::vector<std::pair<QString, float>> & values);
 
 private:
     QPointer<EffectRackController> m_rack;

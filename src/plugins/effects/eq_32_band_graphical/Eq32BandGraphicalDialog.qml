@@ -97,12 +97,12 @@ EffectDialog {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 // The same curve either way; what changes is the phase, and the price of it is time
-                ToolTip.text: qsTr("Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.").arg(Math.round(effectRackController.eq32BandGraphicalLinearPhaseLatencyMs(root.effectIndex)))
+                ToolTip.text: qsTr("Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.").arg(Math.round((dialogModel.effectIndex, dialogModel.linearPhaseLatencyMs())))
             }
             AppButton {
                 text: qsTr("Flat")
                 toolTipText: qsTr("Every slider back to 0 dB")
-                onClicked: effectRackController.eq32BandGraphicalFlatten(root.effectIndex)
+                onClicked: dialogModel.flatten()
             }
             Item {
                 Layout.fillWidth: true
@@ -134,7 +134,9 @@ EffectDialog {
             // output gain included
             response: {
                 effectRackController.revision;
-                return effectRackController.eq32BandGraphicalResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                // The model follows the slot, and this has to follow the model
+                dialogModel.effectIndex;
+                return dialogModel.response(Math.max(64, Math.round(width / 2)));
             }
             dbRange: 15
             accentColor: themeService.accentColor
@@ -153,9 +155,10 @@ EffectDialog {
             Layout.minimumHeight: 120
 
             Repeater {
-                model: effectRackController.eq32BandGraphicalBandCount()
+                model: dialogModel.bandCount()
                 delegate: BandSlider {
                     bandIndex: index
+                    effectModel: dialogModel
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.preferredWidth: 0
@@ -167,6 +170,8 @@ EffectDialog {
     component BandSlider: ColumnLayout {
         id: band
         property int bandIndex: -1
+        //! The dialog's, since an inline component cannot see the ids around it
+        property Eq32BandGraphicalDialogModel effectModel
         readonly property string gainKey: NahdXml.bandGain(bandIndex)
         readonly property real gainDb: {
             effectRackController.revision;
@@ -225,15 +230,21 @@ EffectDialog {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: effectRackController.eq32BandGraphicalBandLabel(band.bandIndex) + ": " + band.gainDb.toFixed(1) + " dB"
+            ToolTip.text: (effectModel ? effectModel.bandLabel(band.bandIndex) : "") + ": " + band.gainDb.toFixed(1) + " dB"
         }
         Label {
             // "1.25 kHz" does not fit under a slider this narrow; "1.25k" does
-            text: effectRackController.eq32BandGraphicalBandLabel(band.bandIndex).replace(" kHz", "k").replace(" Hz", "")
+            text: effectModel ? effectModel.bandLabel(band.bandIndex).replace(" kHz", "k").replace(" Hz", "") : ""
             font.pixelSize: 9
             color: Theme.textSecondary
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
         }
+    }
+
+    Eq32BandGraphicalDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

@@ -222,7 +222,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentHarmonicsDb = effectRackController.stereoExciterHarmonicsDb(root.effectIndex);
+            root.currentHarmonicsDb = dialogModel.harmonicsDb();
         }
+    }
+
+    StereoExciterDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

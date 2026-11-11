@@ -218,7 +218,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentReductionDb = effectRackController.limiterReductionDb(root.effectIndex);
+            root.currentReductionDb = dialogModel.reductionDb();
         }
+    }
+
+    LimiterDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

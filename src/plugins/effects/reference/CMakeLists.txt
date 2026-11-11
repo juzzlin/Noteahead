@@ -8,6 +8,8 @@ noteahead_add_effect(
         reference_presets.hpp
         reference_registration.cpp
     VIEW_SOURCES
+        reference_dialog_model.cpp
+        reference_dialog_model.hpp
         reference_view_registration.cpp
     QML_FILES
         ReferenceDialog.qml

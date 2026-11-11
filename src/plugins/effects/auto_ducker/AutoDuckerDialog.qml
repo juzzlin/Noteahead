@@ -293,7 +293,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentGainDb = effectRackController.autoDuckerGainDb(root.effectIndex);
+            root.currentGainDb = dialogModel.gainDb();
         }
+    }
+
+    AutoDuckerDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

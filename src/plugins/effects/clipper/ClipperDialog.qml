@@ -166,7 +166,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentReductionDb = effectRackController.clipperReductionDb(root.effectIndex);
+            root.currentReductionDb = dialogModel.reductionDb();
         }
+    }
+
+    ClipperDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

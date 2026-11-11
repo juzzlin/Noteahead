@@ -4,6 +4,8 @@ noteahead_add_effect(
         gain.hpp
         gain_registration.cpp
     VIEW_SOURCES
+        gain_dialog_model.cpp
+        gain_dialog_model.hpp
         gain_view_registration.cpp
     QML_FILES
         GainDialog.qml

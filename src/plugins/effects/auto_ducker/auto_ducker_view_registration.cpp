@@ -14,12 +14,15 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto_ducker.hpp"
+#include "auto_ducker_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/devices/device.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -48,6 +51,7 @@ void registerAutoDuckerEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<AutoDuckerDialogModel>("Noteahead", 1, 0, "AutoDuckerDialogModel"); },
     });
 }
 

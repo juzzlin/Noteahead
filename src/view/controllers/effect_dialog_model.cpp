@@ -95,4 +95,11 @@ void EffectDialogModel::setParameterValue(const QString & key, float value)
     }
 }
 
+void EffectDialogModel::setParameterValues(const std::vector<std::pair<QString, float>> & values)
+{
+    if (m_rack && m_effectIndex >= 0) {
+        m_rack->setParameterValues(static_cast<quint32>(m_effectIndex), values);
+    }
+}
+
 } // namespace noteahead
