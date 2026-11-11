@@ -824,7 +824,10 @@ void JuSynth08Device::processAudio(AudioContext & context)
             break;
         }
     }
-    if (anyActive || delayMix > 0.01f) {
+    // Replenish only while a voice sounds. Testing the delay level here kept the synth busy forever
+    // whenever its delay was on; a longer echo tail is still rendered, since the engine keeps any
+    // device running for as long as its output is audible.
+    if (anyActive) {
         m_tailFrames = static_cast<size_t>(context.sampleRate * 2.0);
     } else if (m_tailFrames > 0) {
         m_tailFrames = (m_tailFrames > frameCount) ? (m_tailFrames - frameCount) : 0;

@@ -50,6 +50,7 @@ private slots:
     void test_panSpread_changed_shouldMoveTheHeldNote();
     void test_xmlSerialization();
     void test_octave_shouldShiftByItsOwnOctavesOnly();
+    void test_hasActiveAudio_delayOn_shouldGoIdleAfterTheTail();
 };
 
 #endif // UNIT_TESTS_JU_SYNTH_08_TEST_HPP

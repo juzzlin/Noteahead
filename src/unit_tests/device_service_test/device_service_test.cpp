@@ -26,6 +26,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/xy_pad_device.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/gain.hpp"
@@ -1621,6 +1622,54 @@ void DeviceServiceTest::test_modulationPriority_everyDevice_shouldNameItsOwnPara
             QVERIFY2(reached, (device->typeName() + " has no " + entry).c_str());
         }
     }
+}
+
+void DeviceServiceTest::test_resetAudio_everyDevice_shouldRenderTheSameAgain()
+{
+    // A render resets every device first, so whatever was played before it must leave no trace
+    const auto render = [](Device & device, const std::vector<uint8_t> & notes, uint8_t velocity) {
+        std::vector<double> rendered;
+        for (auto && note : notes) {
+            device.processMidiNoteOn(note, velocity);
+            for (int block = 0; block < 8; block++) {
+                std::vector<double> buffer(256 * 2, 0.0);
+                AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+                device.processAudio(context);
+                rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+            }
+            device.processMidiNoteOff(note);
+        }
+        for (int block = 0; block < 8; block++) {
+            std::vector<double> buffer(256 * 2, 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+            device.processAudio(context);
+            rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+        }
+        return rendered;
+    };
+    const std::vector<uint8_t> notes { 36, 38, 42, 60, 64 };
+
+    QStringList mismatches;
+    DeviceFactory::init();
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "Reset");
+        QVERIFY(device);
+        // As in a render, the sample rate is known before the first note
+        render(*device, {}, 0);
+        device->resetAudio();
+        const auto first = render(*device, notes, 100);
+        render(*device, { 37, 40, 46, 67, 71 }, 64);
+        device->resetAudio();
+        const auto second = render(*device, notes, 100);
+        if (first != second) {
+            size_t at = 0;
+            while (at < first.size() && first[at] == second[at]) {
+                at++;
+            }
+            mismatches << QString::fromStdString(device->typeName()) + QString { " at frame %1 (%2 vs %3)" }.arg(at / 2).arg(first[at]).arg(second[at]);
+        }
+    }
+    QVERIFY2(mismatches.isEmpty(), qPrintable(mismatches.join(", ")));
 }
 
 } // namespace noteahead

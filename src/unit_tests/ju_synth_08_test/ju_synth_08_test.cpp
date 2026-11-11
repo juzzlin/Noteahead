@@ -614,4 +614,23 @@ void JuSynth08Test::test_octave_shouldShiftByItsOwnOctavesOnly()
     QVERIFY2(magnitudeAt(440.0) > magnitudeAt(880.0) * 0.3, qPrintable(QString::number(magnitudeAt(440.0)) + " vs " + QString::number(magnitudeAt(880.0))));
 }
 
+void JuSynth08Test::test_hasActiveAudio_delayOn_shouldGoIdleAfterTheTail()
+{
+    // The delay level alone kept the synth busy for good, so it never went idle with the delay on
+    JuSynth08Device synth;
+    synth.setDelayLevel(0.5f);
+    synth.processDeviceMidiNoteOn(60, 100);
+    const auto renderSeconds = [&synth](double seconds) {
+        for (int block = 0; block < static_cast<int>(seconds * 48000 / 256); block++) {
+            std::vector<double> buffer(256 * 2, 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+            synth.processAudio(context);
+        }
+    };
+    renderSeconds(0.5);
+    synth.processDeviceMidiNoteOff(60);
+    renderSeconds(20.0);
+    QVERIFY(!synth.hasActiveAudio());
+}
+
 QTEST_GUILESS_MAIN(JuSynth08Test)

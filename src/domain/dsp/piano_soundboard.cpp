@@ -188,6 +188,7 @@ void PianoSoundboard::reset()
     m_bodyEnergy = 0.0;
     for (auto && comb : m_combs) {
         std::ranges::fill(comb.line, 0.0);
+        comb.write = 0;
         comb.lowpass = 0.0;
         comb.energy = 0.0;
     }

@@ -738,7 +738,7 @@ std::vector<std::string> StringEnsembleDevice::modulationPriority() const
         NahdXml::xmlKeyPhaserColor().toStdString(),
         NahdXml::xmlKeyPhaserRate().toStdString(),
         NahdXml::xmlKeyAttack().toStdString(),
-        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyReleaseTime().toStdString(),
         NahdXml::xmlKeyHpfCutoff().toStdString()
     };
 }

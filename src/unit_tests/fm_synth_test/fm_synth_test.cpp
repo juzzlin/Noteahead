@@ -1241,6 +1241,31 @@ void FmSynthTest::test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo()
     QVERIFY2(std::abs(std::abs(second - first) - 0.5f) < 0.01f || std::abs(std::abs(second - first) - 1.5f) < 0.01f, qPrintable(QString { "%1 -> %2" }.arg(first).arg(second)));
 }
 
+void FmSynthTest::test_polyMode_repeatedHeldNote_shouldNotStackVoices()
+{
+    // A note played again while it sounds takes its own voice back. Stacking a voice per hit made a
+    // repeated note louder with every hit, and the first note-off released all of them at once.
+    const auto peakAfterHits = [](int hits) {
+        FmSynthDevice synth { "Stack" };
+        double peak = 0.0;
+        for (int hit = 0; hit < hits; hit++) {
+            synth.processMidiNoteOn(60, 100);
+            for (int block = 0; block < 8; block++) {
+                std::vector<double> buffer(256 * 2, 0.0);
+                AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+                synth.processAudio(context);
+                for (auto && sample : buffer) {
+                    peak = std::max(peak, std::abs(sample));
+                }
+            }
+        }
+        return peak;
+    };
+    const double single = peakAfterHits(1);
+    QVERIFY(single > 0.0);
+    QVERIFY(peakAfterHits(8) < single * 2.0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::FmSynthTest)

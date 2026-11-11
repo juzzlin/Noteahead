@@ -29,6 +29,14 @@ Bug fixes:
 
 * Wavetable and FM Synth: knob moves no longer race the audio thread
 
+* JU Synth 08 goes idle after its delay tail
+
+* Wavetable and FM Synth: a repeated note no longer stacks voices in Poly mode
+
+* Sampler: pad tweaks reach notes played in chromatic mode
+
+* Devices render the same after a reset, whatever played before
+
 Other:
 
 12.1.0

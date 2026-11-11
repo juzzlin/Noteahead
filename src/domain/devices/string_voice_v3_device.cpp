@@ -81,6 +81,17 @@ double toCutoffPosition(double hz)
     return std::clamp(std::log2(hz / 20.0) / std::log2(20000.0 / 20.0), 0.0, 1.0);
 }
 
+//! Where a voice's PWM, vibrato and drift start. They run on through every note, so a reset has to put
+//! them back, or a render would start them wherever the session left them. Offset by voice, so that
+//! simultaneous notes neither pulse nor vibrate in lockstep.
+template<typename Voice>
+void setStartPhases(Voice & v, int i, int maxVoices)
+{
+    v.pwmPhase = static_cast<double>(i) / static_cast<double>(maxVoices);
+    v.vibratoPhase = static_cast<double>(i) / static_cast<double>(maxVoices);
+    v.driftPhase = static_cast<double>((i * 7) % maxVoices) / static_cast<double>(maxVoices);
+}
+
 } // namespace
 
 void StringVoiceV3Device::Voice::reset()
@@ -93,6 +104,7 @@ void StringVoiceV3Device::Voice::reset()
         // is not a multiple of three. The detuning fans them out within a cycle or two anyway.
         stringOsc[i].sync(0.0);
         stringFundamental[i].sync(0.0);
+        stringDriftPhase[i] = static_cast<double>(u) / StringUnisonCount;
     }
     voiceOsc8.sync(0.0);
     voiceOsc4.sync(0.0);
@@ -180,17 +192,13 @@ StringVoiceV3Device::StringVoiceV3Device(std::string name)
         const double detuneCents { spread * 1.6 };
         v.detuneRatio = std::pow(2.0, detuneCents / 1200.0);
 
-        // Per-voice PWM phase offset so simultaneous notes don't pulse in lockstep.
-        v.pwmPhase = static_cast<double>(i) / static_cast<double>(MaxVoices);
-
         // A choir is not one singer multiplied. Each voice gets its own vibrato phase and a rate a
         // couple of percent off the others, so they never settle into the lockstep a single shared
         // LFO gives them, plus a slow drift of its own that keeps the tuning from sitting perfectly
         // still the way only a synthesiser's does.
-        v.vibratoPhase = static_cast<double>(i) / static_cast<double>(MaxVoices);
         v.vibratoRateRatio = 1.0 + spread * 0.08;
-        v.driftPhase = static_cast<double>((i * 7) % MaxVoices) / static_cast<double>(MaxVoices);
         v.driftRateRatio = 1.0 + spread * 0.55;
+        setStartPhases(v, i, MaxVoices);
     }
 
     syncParameters();
@@ -721,8 +729,12 @@ void StringVoiceV3Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_sustainPedal = false;
-    for (auto & v : m_voices) {
+    m_vocoder.reset();
+    m_nextTriggerId = 1;
+    for (int i { 0 }; i < MaxVoices; ++i) {
+        auto & v { m_voices[static_cast<size_t>(i)] };
         v.reset();
+        setStartPhases(v, i, MaxVoices);
     }
     m_formantFiltersL.reset();
     m_formantFiltersR.reset();

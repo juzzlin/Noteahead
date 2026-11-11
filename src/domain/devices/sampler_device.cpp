@@ -1119,6 +1119,12 @@ void SamplerDevice::resetDeviceAudio()
         for (auto && voice : m_voices) {
             voice.active = false;
         }
+        // A voice is reset at its note-on, but a pad's insert effects carry their tails across renders.
+        for (auto && sample : m_samples) {
+            if (sample && sample->effectRack) {
+                sample->effectRack->reset();
+            }
+        }
     }
 }
 
@@ -1293,8 +1299,9 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
                 p->get().setValue(pan);
                 m_samples.at(note)->pan = p->get().value();
             }
+            // By sample, not by note: in chromatic mode the pad's voices play other notes than its root.
             for (auto && voice : m_voices) {
-                if (voice.active && voice.note == note) {
+                if (voice.active && voice.sample == m_samples.at(note).get()) {
                     updateVoiceEffects(voice);
                 }
             }
@@ -1328,8 +1335,9 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
                 p->get().setValue(volume);
                 m_samples.at(note)->volume = p->get().value();
             }
+            // By sample, not by note: in chromatic mode the pad's voices play other notes than its root.
             for (auto && voice : m_voices) {
-                if (voice.active && voice.note == note) {
+                if (voice.active && voice.sample == m_samples.at(note).get()) {
                     updateVoiceEffects(voice);
                 }
             }
@@ -1363,8 +1371,9 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
                 p->get().setValue(cutoff);
                 m_samples.at(note)->cutoff = p->get().value();
             }
+            // By sample, not by note: in chromatic mode the pad's voices play other notes than its root.
             for (auto && voice : m_voices) {
-                if (voice.active && voice.note == note) {
+                if (voice.active && voice.sample == m_samples.at(note).get()) {
                     updateVoiceEffects(voice);
                 }
             }
@@ -1398,8 +1407,9 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
                 p->get().setValue(cutoff);
                 m_samples.at(note)->hpfCutoff = p->get().value();
             }
+            // By sample, not by note: in chromatic mode the pad's voices play other notes than its root.
             for (auto && voice : m_voices) {
-                if (voice.active && voice.note == note) {
+                if (voice.active && voice.sample == m_samples.at(note).get()) {
                     updateVoiceEffects(voice);
                 }
             }

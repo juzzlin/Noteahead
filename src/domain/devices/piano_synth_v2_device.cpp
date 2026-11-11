@@ -597,7 +597,7 @@ std::vector<std::string> PianoSynthV2Device::modulationPriority() const
         NahdXml::xmlKeyBrightness().toStdString(),
         NahdXml::xmlKeyHardness().toStdString(),
         NahdXml::xmlKeyDecay().toStdString(),
-        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyReleaseTime().toStdString(),
         NahdXml::xmlKeyLpfCutoff().toStdString(),
         NahdXml::xmlKeyHpfCutoff().toStdString(),
         NahdXml::xmlKeyRichness().toStdString(),
