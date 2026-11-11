@@ -39,7 +39,7 @@ Rectangle {
     LineNumberRenderer {
         id: renderer
         anchors.fill: parent
-        visibleLines: settingsService.visibleLines
+        visibleLines: UiService.visibleLines(height)
         currentLineCount: editorService.currentLineCount
         linesPerBeat: editorService.linesPerBeat
         positionBarLine: editorService.positionBarLine()
