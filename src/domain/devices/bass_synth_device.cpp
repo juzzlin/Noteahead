@@ -307,6 +307,11 @@ void BassSynthDevice::processAudio(AudioContext & context)
         m_lastOversampledRate = oversampledRate;
     }
 
+    // The pan holds still for the block
+    const double panAngle = static_cast<double>(panInternal()) * std::numbers::pi * 0.5;
+    const auto panLeft = static_cast<float>(std::cos(panAngle));
+    const auto panRight = static_cast<float>(std::sin(panAngle));
+
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * (m_pitchBendRange / 12.0);
     const double combinedPitchRatio = m_vcoBasePitchRatio * std::exp2(pbOffset);
 
@@ -363,9 +368,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
                 finalSample *= (1.0f + m_accent);
             }
 
-            const double panAngle = static_cast<double>(panInternal()) * std::numbers::pi * 0.5;
-            l[os] = finalSample * static_cast<float>(std::cos(panAngle));
-            r[os] = finalSample * static_cast<float>(std::sin(panAngle));
+            l[os] = finalSample * panLeft;
+            r[os] = finalSample * panRight;
         }
 
         const double outL = m_downsamplerL.process(l, oversampleFactor);

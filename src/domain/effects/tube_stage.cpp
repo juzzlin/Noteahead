@@ -116,7 +116,9 @@ double TubeStage::shape(double v) const
     // Pentode: same ceiling either side, but a knee that stays linear longer before it gives way.
     const double magnitude = std::abs(v);
     const double sign = v >= 0.0 ? 1.0 : -1.0;
-    return sign * magnitude / std::pow(1.0 + std::pow(magnitude, PentodeKnee), 1.0 / PentodeKnee);
+    // The cube root of a knee of three, which is twice as fast as the general power for the same curve
+    static_assert(PentodeKnee == 3.0);
+    return sign * magnitude / std::cbrt(1.0 + magnitude * magnitude * magnitude);
 }
 
 void TubeStage::processSample(double & left, double & right)
@@ -124,8 +126,16 @@ void TubeStage::processSample(double & left, double & right)
     const double baseSampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
-    const double driveLin = static_cast<double>(Utils::Dsp::dbToLinear(m_driveDb));
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double driveLin = m_driveGain;
+    const double outputLin = m_outputGain;
+
+    // Tuned when the rate changes rather than once a sample
+    if (baseSampleRate != m_tunedSampleRate) {
+        m_tiltL.calculate(TiltPivotHz, baseSampleRate);
+        m_tiltR.calculate(TiltPivotHz, baseSampleRate);
+        m_meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+        m_tunedSampleRate = baseSampleRate;
+    }
     const double mix = static_cast<double>(m_mix);
 
     double dryL = left;
@@ -178,8 +188,6 @@ void TubeStage::processSample(double & left, double & right)
     const double tiltAmount = (static_cast<double>(m_tone) - 0.5) * 2.0 * TiltRange;
     const double lowGain = 1.0 - tiltAmount;
     const double highGain = 1.0 + tiltAmount;
-    m_tiltL.calculate(TiltPivotHz, baseSampleRate);
-    m_tiltR.calculate(TiltPivotHz, baseSampleRate);
     m_tiltL.process(wetL);
     m_tiltR.process(wetR);
     wetL = m_tiltL.lowPass() * lowGain + m_tiltL.highPass() * highGain;
@@ -190,7 +198,7 @@ void TubeStage::processSample(double & left, double & right)
         saturationDb = Utils::Dsp::linearToDb(static_cast<float>(peakPost / peakPre));
     }
 
-    const double meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+    const double meterReleaseCoeff = m_meterReleaseCoeff;
     if (saturationDb < m_saturationDb) {
         m_saturationDb = saturationDb;
     } else {
@@ -254,6 +262,8 @@ void TubeStage::syncParameters()
 
     m_biasOffset = (static_cast<double>(m_bias) - 0.5) * 2.0 * BiasRange;
     m_quiescent = shape(m_biasOffset);
+    m_driveGain = static_cast<double>(Utils::Dsp::dbToLinear(m_driveDb));
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
 }
 
 std::vector<std::string> TubeStage::modulationPriority() const

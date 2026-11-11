@@ -448,6 +448,9 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
         voice.damping.calculate(dampingHz, oversampledRate);
     }
 
+    float cachedPan = -1.0f;
+    float panL = 0.0f;
+    float panR = 0.0f;
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
@@ -460,9 +463,13 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
             const float sample = voiceSample * gain;
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
-            const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
-            const float panL = static_cast<float>(std::cos(panAngle));
-            const float panR = static_cast<float>(std::sin(panAngle));
+            // Worked out again only when the pan moves, which without pan modulation is never
+            if (voicePan != cachedPan) {
+                cachedPan = voicePan;
+                const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
+                panL = static_cast<float>(std::cos(panAngle));
+                panR = static_cast<float>(std::sin(panAngle));
+            }
 
             m_oversampledBuffer[(i * oversampleFactor + subSample) * 2] += sample * panL;
             m_oversampledBuffer[(i * oversampleFactor + subSample) * 2 + 1] += sample * panR;

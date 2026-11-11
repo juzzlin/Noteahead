@@ -54,6 +54,8 @@ private:
     Mode m_mode { Mode::Soft };
     float m_thresholdDb { 0.0f };
     float m_gainDb { 0.0f };
+    double m_threshold { 1.0 };
+    double m_gain { 1.0 };
 
     double m_reductionDb { 0.0 };
     double m_meterReleaseCoeff { 0.0 };

@@ -197,11 +197,9 @@ void BassGrinder::processSample(double & left, double & right)
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
     updateSplit(baseSampleRate * static_cast<double>(factor));
 
-    const double driveLin = static_cast<double>(Utils::Dsp::dbToLinear(m_drive * static_cast<float>(MaxDriveDb)));
-    // What the clipper idles at with the bias but no signal. Subtracting it keeps silence silent, so
-    // moving Drive cannot thump the rack.
-    const double quiescent = clip(ClipperBias * driveLin);
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double driveLin = m_driveGain;
+    const double quiescent = m_quiescent;
+    const double outputLin = m_outputGain;
     const double mix = static_cast<double>(m_mix);
 
     m_peakPre = 0.0;
@@ -257,7 +255,12 @@ void BassGrinder::processSample(double & left, double & right)
         saturationDb = Utils::Dsp::linearToDb(static_cast<float>(m_peakPost / m_peakPre));
     }
 
-    const double meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+    // Worked out when the rate changes rather than once a sample
+    if (baseSampleRate != m_meterSampleRate) {
+        m_meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+        m_meterSampleRate = baseSampleRate;
+    }
+    const double meterReleaseCoeff = m_meterReleaseCoeff;
     if (saturationDb < m_saturationDb) {
         m_saturationDb = saturationDb;
     } else {
@@ -375,6 +378,13 @@ void BassGrinder::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_outputDb = static_cast<float>((p->get().value() - 0.5f) * 2.0 * OutputRangeDb);
     }
+
+    // The gains follow the parameters alone, so they are worked out here rather than once a sample
+    m_driveGain = static_cast<double>(Utils::Dsp::dbToLinear(m_drive * static_cast<float>(MaxDriveDb)));
+    // What the clipper idles at with the bias but no signal. Subtracting it keeps silence silent, so
+    // moving Drive cannot thump the rack.
+    m_quiescent = clip(ClipperBias * m_driveGain);
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
 
     m_shouldUpdateToneStack = true;
 }

@@ -97,6 +97,12 @@ private:
     DcBlocker m_dcBlockerR;
 
     double m_saturationDb { 0.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    double m_meterSampleRate { -1.0 };
+    double m_driveGain { 1.0 };
+    double m_outputGain { 1.0 };
+    double m_filterDrive { 1.0 };
+    double m_compensation { 1.0 };
 
     struct Oversampling;
     std::unique_ptr<Oversampling> m_oversampling;

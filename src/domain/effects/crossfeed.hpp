@@ -67,6 +67,9 @@ private:
     float m_delayUs { 270.0f };
     float m_cutoffHz { 700.0f };
     float m_outputDb { 0.0f };
+    double m_outputGain { 1.0 };
+    float m_tunedCutoffHz { -1.0f };
+    double m_tunedSampleRate { -1.0 };
 
     //! One line and one filter, because only the side signal goes through them.
     DelayLine m_delay;

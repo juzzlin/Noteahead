@@ -98,6 +98,8 @@ private:
     double m_releaseTime { 0.1 };
     double m_curve { 0.0 };
     std::optional<double> m_attackCurve;
+    double m_curveScale { 0.0 };
+    double m_attackCurveScale { 0.0 };
 
     double m_currentLevel { 0.0 };
 
@@ -117,7 +119,9 @@ private:
 
     //! Progress 0..1 mapped through the curve, normalised so the segment still lands exactly on its
     //! target: no asymptotic tail that never arrives, and no early cutoff.
-    double shape(double phase, double curve) const;
+    //! The normalisation of a curve's shape: zero when the curve is straight.
+    static double curveScale(double curve);
+    double shape(double phase, double curve, double scale) const;
 
     void updatePhaseStep();
 };

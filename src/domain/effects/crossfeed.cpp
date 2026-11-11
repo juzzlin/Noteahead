@@ -94,6 +94,7 @@ void Crossfeed::syncParameters()
     m_delayUs = static_cast<float>(MinDelayUs + (MaxDelayUs - MinDelayUs) * static_cast<double>(value(C::xmlKeyDelay(), 0.425f)));
     m_cutoffHz = static_cast<float>(ParameterMapper::mapLogFrequency(static_cast<double>(value(C::xmlKeyCutoff(), 0.5f)), MinCutoffHz, MaxCutoffHz));
     m_outputDb = static_cast<float>((value(C::xmlKeyGain(), 0.5f) - 0.5f) * 2.0 * OutputRangeDb);
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
 
     m_shouldSyncParameters = false;
 }
@@ -128,10 +129,15 @@ void Crossfeed::processSample(double & left, double & right)
 
     const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     const double amount = static_cast<double>(m_amount) * MaxAmount;
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double outputLin = m_outputGain;
 
     m_delay.setFractionalDelay(static_cast<double>(m_delayUs) * 1.0e-6 * sampleRate);
-    m_filter.calculate(static_cast<double>(m_cutoffHz), sampleRate);
+    // Tuned when the corner or the rate changes rather than once a sample
+    if (m_cutoffHz != m_tunedCutoffHz || sampleRate != m_tunedSampleRate) {
+        m_filter.calculate(static_cast<double>(m_cutoffHz), sampleRate);
+        m_tunedCutoffHz = m_cutoffHz;
+        m_tunedSampleRate = sampleRate;
+    }
 
     // What separates the two channels, which is the only part a far arrival changes. Read before
     // write, so a sample cannot reach the other ear before it has been heard by this one.

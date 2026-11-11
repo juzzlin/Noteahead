@@ -104,6 +104,7 @@ private:
     //! stay at the rail long enough to reach it -- which is what keeps a thin pulse nasal instead
     //! of piercing.
     OnePoleFilter m_pulseEdge;
+    bool m_pulseFiltersStale { true };
 };
 
 } // namespace noteahead

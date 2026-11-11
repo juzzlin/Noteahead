@@ -164,8 +164,8 @@ void AnalogFuzz::processSample(double & left, double & right)
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
     const double filterSampleRate = baseSampleRate * factor;
 
-    const double driveLin = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(static_cast<double>(m_drive) * MaxDriveDb)));
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double driveLin = m_driveGain;
+    const double outputLin = m_outputGain;
     const double mix = static_cast<double>(m_mix);
 
     // The filter runs inside the oversampled section, so its corner has to be resolved against the
@@ -183,10 +183,8 @@ void AnalogFuzz::processSample(double & left, double & right)
     // what was played.
     m_filterL.setSaturationPerStep(1.0 / factor);
     m_filterR.setSaturationPerStep(1.0 / factor);
-    const double filterDrive = FilterDriveFloor * std::pow(driveLin, FilterDriveExponent);
-    // Drive is a character control, so most of the gain it adds is taken back out here rather than
-    // left for the Output trim to chase.
-    const double compensation = std::pow(driveLin, -LevelCompensationExponent);
+    const double filterDrive = m_filterDrive;
+    const double compensation = m_compensation;
 
     double dryL = left;
     double dryR = right;
@@ -232,7 +230,12 @@ void AnalogFuzz::processSample(double & left, double & right)
         saturationDb = Utils::Dsp::linearToDb(static_cast<float>(peakPost / peakPre));
     }
 
-    const double meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+    // Worked out when the rate changes rather than once a sample
+    if (baseSampleRate != m_meterSampleRate) {
+        m_meterReleaseCoeff = std::exp(-1.0 / (MeterReleaseMs * baseSampleRate / 1000.0));
+        m_meterSampleRate = baseSampleRate;
+    }
+    const double meterReleaseCoeff = m_meterReleaseCoeff;
     if (saturationDb < m_saturationDb) {
         m_saturationDb = saturationDb;
     } else {
@@ -299,6 +302,14 @@ void AnalogFuzz::syncParameters()
 
     m_biasOffset = (static_cast<double>(m_bias) - 0.5) * 2.0 * BiasRange * StageHeadroom;
     m_quiescent = shape(m_biasOffset);
+
+    // The gains follow the parameters alone, so they are worked out here rather than once a sample
+    m_driveGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(static_cast<double>(m_drive) * MaxDriveDb)));
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    m_filterDrive = FilterDriveFloor * std::pow(m_driveGain, FilterDriveExponent);
+    // Drive is a character control, so most of the gain it adds is taken back out rather than left
+    // for the Output trim to chase.
+    m_compensation = std::pow(m_driveGain, -LevelCompensationExponent);
 }
 
 std::vector<std::string> AnalogFuzz::modulationPriority() const

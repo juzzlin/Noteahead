@@ -27,6 +27,7 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <numbers>
@@ -36,9 +37,17 @@ namespace noteahead {
 
 namespace {
 
+//! From a table, because it is asked for every sample of every voice.
 double midiNoteToFreq(uint8_t note)
 {
-    return 440.0 * std::pow(2.0, (static_cast<double>(note) - 69.0) / 12.0);
+    static const auto frequencies = [] {
+        std::array<double, 128> table {};
+        for (size_t i = 0; i < table.size(); i++) {
+            table[i] = 440.0 * std::pow(2.0, (static_cast<double>(i) - 69.0) / 12.0);
+        }
+        return table;
+    }();
+    return frequencies[note & 0x7F];
 }
 
 //! Level of a Strings section that is switched on. The hardware gives no control over it -- the

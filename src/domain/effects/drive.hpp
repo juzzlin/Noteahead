@@ -60,6 +60,8 @@ private:
     float m_drive { 0.5f };
     float m_mix { 1.0f };
     float m_outputDb { 0.0f };
+    double m_driveGain { 1.0 };
+    double m_outputGain { 1.0 };
 
     struct Oversampling;
     std::unique_ptr<Oversampling> m_oversampling;

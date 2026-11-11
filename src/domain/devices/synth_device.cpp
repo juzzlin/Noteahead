@@ -818,6 +818,9 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
 
     const double declickStep = 1.0 / std::max(1.0, declickSeconds * oversampledRate);
 
+    float cachedPan = -1.0f;
+    float panL = 0.0f;
+    float panR = 0.0f;
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t os = 0; os < oversampleFactor; os++) {
             // Ahead of the sample, so the note that is waiting lands on a voice already at zero
@@ -840,9 +843,13 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
             const float finalHighRateSample = voiceSample * gain * static_cast<float>(voice.declickGain);
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
-            const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
-            const float panL = static_cast<float>(std::cos(panAngle));
-            const float panR = static_cast<float>(std::sin(panAngle));
+            // Worked out again only when the pan moves, which without pan modulation is never
+            if (voicePan != cachedPan) {
+                cachedPan = voicePan;
+                const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
+                panL = static_cast<float>(std::cos(panAngle));
+                panR = static_cast<float>(std::sin(panAngle));
+            }
 
             m_oversampledBuffer[(i * oversampleFactor + os) * 2] += finalHighRateSample * panL;
             m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1] += finalHighRateSample * panR;

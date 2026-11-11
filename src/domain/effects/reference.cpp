@@ -79,6 +79,17 @@ double Reference::Reflections::process(double input, const ReferenceEnvironment 
         return 0.0;
     }
 
+    // The corners are tuned when the room or the rate changes rather than once a sample
+    if (dampingHz != tunedDampingHz || sampleRate != tunedSampleRate) {
+        for (size_t i = 0; i < damping.size(); i++) {
+            // The later a reflection is, the more surfaces and air it has been through, so the
+            // darker it comes back: each tap gets its own corner, falling with its delay.
+            damping.at(i).calculate(dampingHz / (1.0 + static_cast<double>(i) * 0.4), sampleRate);
+        }
+        tunedDampingHz = dampingHz;
+        tunedSampleRate = sampleRate;
+    }
+
     buffer[writePos] = input;
 
     double sum = 0.0;
@@ -89,10 +100,7 @@ double Reference::Reflections::process(double input, const ReferenceEnvironment 
             continue;
         }
         const auto readPos = (writePos + buffer.size() - delaySamples) % buffer.size();
-        // The later a reflection is, the more surfaces and air it has been through, so the darker it
-        // comes back: each tap gets its own corner, falling with its delay.
         auto & filter = damping.at(i);
-        filter.calculate(dampingHz / (1.0 + static_cast<double>(i) * 0.4), sampleRate);
         filter.process(buffer.at(readPos));
         sum += filter.lowPass() * tap.gain;
     }
@@ -161,6 +169,8 @@ void Reference::syncParameters()
     m_room = value(C::xmlKeyRoom(), 1.0f);
     m_dynamics = value(C::xmlKeyDynamics(), 1.0f);
     m_outputDb = static_cast<float>((value(C::xmlKeyGain(), 0.5f) - 0.5f) * 2.0 * OutputRangeDb);
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    m_levelGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(environmentAt(m_environmentIndex).levelDb)));
 
     m_shouldSyncParameters = false;
 }
@@ -192,6 +202,7 @@ void Reference::updateFilters()
     for (auto * reflections : { &m_reflectionsL, &m_reflectionsR }) {
         reflections->buffer.assign(bufferSize, 0.0);
         reflections->damping.assign(environment.taps.size(), OnePoleFilter {});
+        reflections->tunedDampingHz = -1.0;
         reflections->reset();
     }
 
@@ -260,15 +271,13 @@ void Reference::processSample(double & left, double & right)
         wetR = std::tanh(wetR * drive) / drive;
     }
 
-    const double levelLin = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(environment.levelDb)));
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
-    wetL *= levelLin;
-    wetR *= levelLin;
+    wetL *= m_levelGain;
+    wetR *= m_levelGain;
 
     // Amount is the journey from this room to that one, so that an environment can be leaned into
     // rather than only switched on.
-    left = (dryL + (wetL - dryL) * amount) * outputLin;
-    right = (dryR + (wetR - dryR) * amount) * outputLin;
+    left = (dryL + (wetL - dryL) * amount) * m_outputGain;
+    right = (dryR + (wetR - dryR) * amount) * m_outputGain;
 }
 
 void Reference::processBlock(AudioContext & context)

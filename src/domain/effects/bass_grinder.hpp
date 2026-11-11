@@ -130,6 +130,11 @@ private:
     double m_peakPre { 0.0 };
     double m_peakPost { 0.0 };
     double m_saturationDb { 0.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    double m_meterSampleRate { -1.0 };
+    double m_driveGain { 1.0 };
+    double m_outputGain { 1.0 };
+    double m_quiescent { 0.0 };
 
     bool m_shouldUpdateToneStack { true };
     double m_lastSampleRate { -1.0 };

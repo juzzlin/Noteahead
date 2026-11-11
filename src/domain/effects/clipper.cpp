@@ -56,8 +56,8 @@ float Clipper::clipSample(float sample, double thresholdLin) const
 
 void Clipper::processSample(double & left, double & right)
 {
-    const auto thresholdLin = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
-    const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
+    const auto thresholdLin = m_threshold;
+    const auto gainLin = m_gain;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
     // Measured around the clipping itself, never across the whole block: the half-band filters are
@@ -152,6 +152,9 @@ void Clipper::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_gainDb = -24.0f + p->get().value() * 48.0f;
     }
+    // The gains follow the parameters alone, so they are worked out here rather than once a sample
+    m_threshold = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
+    m_gain = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
 }
 
 std::string Clipper::typeIdString()
