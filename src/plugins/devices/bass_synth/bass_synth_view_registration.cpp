@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "bass_synth_controller.hpp"
 #include "bass_synth_device.hpp"
+#include "bass_synth_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerBassSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "BassSynthDialog.qml",
       .controllerProperty = "bassSynthController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")); },
-      .registerQmlTypes = [] { qmlRegisterType<BassSynthController>("Noteahead", 1, 0, "BassSynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<BassSynthDialogModel>(std::make_shared<BassSynthDevice>("Default BassSynth")); },
+      .registerQmlTypes = [] { qmlRegisterType<BassSynthDialogModel>("Noteahead", 1, 0, "BassSynthDialogModel"); },
     });
 }
 

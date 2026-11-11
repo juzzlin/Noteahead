@@ -17,8 +17,8 @@
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../common/constants.hpp"
-#include "xy_pad_controller.hpp"
 #include "xy_pad_device.hpp"
+#include "xy_pad_dialog_model.hpp"
 
 #include <cmath>
 
@@ -35,7 +35,7 @@ XyPadDevice::Axis toAxis(int axis)
 
 } // namespace
 
-XyPadPanelController::XyPadPanelController(size_t index, XyPadController & owner)
+XyPadPanelController::XyPadPanelController(size_t index, XyPadDialogModel & owner)
   : QObject { &owner }
   , m_index { index }
   , m_owner { owner }

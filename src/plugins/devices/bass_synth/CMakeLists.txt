@@ -6,8 +6,8 @@ noteahead_add_device(
         bass_synth_presets.hpp
         bass_synth_registration.cpp
     VIEW_SOURCES
-        bass_synth_controller.cpp
-        bass_synth_controller.hpp
+        bass_synth_dialog_model.cpp
+        bass_synth_dialog_model.hpp
         bass_synth_view_registration.cpp
     QML_FILES
         BassSynthDialog.qml

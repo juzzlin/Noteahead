@@ -24,8 +24,8 @@
 #include "../../plugins/devices/drum_synth_v2/drum_synth_v2_device.hpp"
 #include "../../plugins/devices/sampler/sampler_device.hpp"
 #include "../../plugins/devices/sub_mixer/sub_mixer_device.hpp"
-#include "../../plugins/devices/synth/synth_controller.hpp"
 #include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/devices/synth/synth_dialog_model.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -232,7 +232,7 @@ void DeviceOctaveTest::test_loadPreset_shouldLeaveTheOctaveAlone()
 {
     // How the device is being played, not how it sounds: a preset neither carries nor resets it
     const auto synth = std::make_shared<SynthDevice>("Synth");
-    SynthController controller { synth };
+    SynthDialogModel controller { synth };
     synth->setOctave(-2);
     QVERIFY(controller.presetNames().size() > 1);
     controller.loadPreset(1);
@@ -242,8 +242,8 @@ void DeviceOctaveTest::test_loadPreset_shouldLeaveTheOctaveAlone()
 void DeviceOctaveTest::test_controller_octave_shouldReachTheDevice()
 {
     const auto synth = std::make_shared<SynthDevice>("Synth");
-    SynthController controller { synth };
-    QSignalSpy spy { &controller, &DeviceController::octaveChanged };
+    SynthDialogModel controller { synth };
+    QSignalSpy spy { &controller, &DeviceDialogModel::octaveChanged };
     controller.setOctave(1);
     QCOMPARE(synth->octave(), 1);
     QCOMPARE(controller.octave(), 1);

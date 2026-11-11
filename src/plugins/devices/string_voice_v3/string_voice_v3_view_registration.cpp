@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "string_voice_v3_controller.hpp"
 #include "string_voice_v3_device.hpp"
+#include "string_voice_v3_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerStringVoiceV3DeviceView()
       .category = PluginCatalog::DeviceCategory::StringsAndVoice,
       .dialogFile = "StringVoiceV3Dialog.qml",
       .controllerProperty = "stringVoiceV3Controller",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<StringVoiceV3Controller>(std::make_shared<StringVoiceV3Device>("Default StringVoiceV3")); },
-      .registerQmlTypes = [] { qmlRegisterType<StringVoiceV3Controller>("Noteahead", 1, 0, "StringVoiceV3Controller"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<StringVoiceV3DialogModel>(std::make_shared<StringVoiceV3Device>("Default StringVoiceV3")); },
+      .registerQmlTypes = [] { qmlRegisterType<StringVoiceV3DialogModel>("Noteahead", 1, 0, "StringVoiceV3DialogModel"); },
     });
 }
 

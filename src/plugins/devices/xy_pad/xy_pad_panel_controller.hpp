@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-class XyPadController;
+class XyPadDialogModel;
 
 //! One pad of the XY pad device, as its settings dialog sees it: what each axis moves and how far,
 //! and how the pad comes back. Continuous controls are knob positions scaled by
@@ -62,7 +62,7 @@ class XyPadPanelController : public QObject
     Q_PROPERTY(int yMidiMax READ yMidiMax WRITE setYMidiMax NOTIFY changed)
 
 public:
-    XyPadPanelController(size_t index, XyPadController & owner);
+    XyPadPanelController(size_t index, XyPadDialogModel & owner);
 
     int index() const;
 
@@ -113,7 +113,7 @@ private:
     void setMidiEnd(int axis, bool top, int value);
 
     size_t m_index;
-    XyPadController & m_owner;
+    XyPadDialogModel & m_owner;
 };
 
 } // namespace noteahead

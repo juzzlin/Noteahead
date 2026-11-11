@@ -6,8 +6,8 @@ noteahead_add_device(
         fm_drums_presets.hpp
         fm_drums_registration.cpp
     VIEW_SOURCES
-        fm_drums_controller.cpp
-        fm_drums_controller.hpp
+        fm_drums_dialog_model.cpp
+        fm_drums_dialog_model.hpp
         fm_drums_view_registration.cpp
     QML_FILES
         FmDrumsDialog.qml

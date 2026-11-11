@@ -23,45 +23,45 @@
 #include "../../domain/tracker/parameter_modulation.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
-#include "../../plugins/devices/bass_synth/bass_synth_controller.hpp"
 #include "../../plugins/devices/bass_synth/bass_synth_device.hpp"
-#include "../../plugins/devices/drum_synth/drum_synth_controller.hpp"
+#include "../../plugins/devices/bass_synth/bass_synth_dialog_model.hpp"
 #include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
-#include "../../plugins/devices/drum_synth_v2/drum_synth_v2_controller.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_dialog_model.hpp"
 #include "../../plugins/devices/drum_synth_v2/drum_synth_v2_device.hpp"
-#include "../../plugins/devices/fm_drums/fm_drums_controller.hpp"
+#include "../../plugins/devices/drum_synth_v2/drum_synth_v2_dialog_model.hpp"
 #include "../../plugins/devices/fm_drums/fm_drums_device.hpp"
-#include "../../plugins/devices/fm_synth/fm_synth_controller.hpp"
+#include "../../plugins/devices/fm_drums/fm_drums_dialog_model.hpp"
 #include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
-#include "../../plugins/devices/ju_synth/ju_synth_controller.hpp"
+#include "../../plugins/devices/fm_synth/fm_synth_dialog_model.hpp"
 #include "../../plugins/devices/ju_synth/ju_synth_device.hpp"
-#include "../../plugins/devices/kick_808/kick_808_controller.hpp"
+#include "../../plugins/devices/ju_synth/ju_synth_dialog_model.hpp"
 #include "../../plugins/devices/kick_808/kick_808_device.hpp"
-#include "../../plugins/devices/noise_fx/noise_fx_controller.hpp"
+#include "../../plugins/devices/kick_808/kick_808_dialog_model.hpp"
 #include "../../plugins/devices/noise_fx/noise_fx_device.hpp"
-#include "../../plugins/devices/piano_synth/piano_synth_controller.hpp"
+#include "../../plugins/devices/noise_fx/noise_fx_dialog_model.hpp"
 #include "../../plugins/devices/piano_synth/piano_synth_device.hpp"
-#include "../../plugins/devices/piano_synth_v2/piano_synth_v2_controller.hpp"
+#include "../../plugins/devices/piano_synth/piano_synth_dialog_model.hpp"
 #include "../../plugins/devices/piano_synth_v2/piano_synth_v2_device.hpp"
-#include "../../plugins/devices/piano_synth_v3/piano_synth_v3_controller.hpp"
+#include "../../plugins/devices/piano_synth_v2/piano_synth_v2_dialog_model.hpp"
 #include "../../plugins/devices/piano_synth_v3/piano_synth_v3_device.hpp"
+#include "../../plugins/devices/piano_synth_v3/piano_synth_v3_dialog_model.hpp"
 #include "../../plugins/devices/sampler/sampler_device.hpp"
-#include "../../plugins/devices/snare_synth/snare_synth_controller.hpp"
 #include "../../plugins/devices/snare_synth/snare_synth_device.hpp"
-#include "../../plugins/devices/speech/speech_controller.hpp"
+#include "../../plugins/devices/snare_synth/snare_synth_dialog_model.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
-#include "../../plugins/devices/string_ensemble/string_ensemble_controller.hpp"
+#include "../../plugins/devices/speech/speech_dialog_model.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
-#include "../../plugins/devices/string_voice/string_voice_controller.hpp"
+#include "../../plugins/devices/string_ensemble/string_ensemble_dialog_model.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
-#include "../../plugins/devices/string_voice_v2/string_voice_v2_controller.hpp"
+#include "../../plugins/devices/string_voice/string_voice_dialog_model.hpp"
 #include "../../plugins/devices/string_voice_v2/string_voice_v2_device.hpp"
-#include "../../plugins/devices/string_voice_v3/string_voice_v3_controller.hpp"
+#include "../../plugins/devices/string_voice_v2/string_voice_v2_dialog_model.hpp"
 #include "../../plugins/devices/string_voice_v3/string_voice_v3_device.hpp"
-#include "../../plugins/devices/synth/synth_controller.hpp"
+#include "../../plugins/devices/string_voice_v3/string_voice_v3_dialog_model.hpp"
 #include "../../plugins/devices/synth/synth_device.hpp"
-#include "../../plugins/devices/wavetable_synth/wavetable_synth_controller.hpp"
+#include "../../plugins/devices/synth/synth_dialog_model.hpp"
 #include "../../plugins/devices/wavetable_synth/wavetable_synth_device.hpp"
+#include "../../plugins/devices/wavetable_synth/wavetable_synth_dialog_model.hpp"
 #include "../../plugins/effects/auto_filter/auto_filter.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
 
@@ -142,25 +142,25 @@ Case makeDrumCase(const QString & name)
 std::vector<Case> cases()
 {
     return {
-        makeCase<SynthDevice, SynthController>("Synth"),
-        makeCase<WavetableSynthDevice, WavetableSynthController>("Wavetable Synth"),
-        makeCase<FmSynthDevice, FmSynthController>("FM Synth"),
-        makeCase<JuSynthDevice, JuSynthController>("JU Synth"),
-        makeCase<BassSynthDevice, BassSynthController>("Bass Synth"),
-        makeCase<Kick808Device, Kick808Controller>("Kick 808"),
-        makeCase<SnareSynthDevice, SnareSynthController>("Snare Synth"),
-        makeCase<PianoSynthDevice, PianoSynthController>("Piano Synth"),
-        makeCase<PianoSynthV2Device, PianoSynthV2Controller>("Piano Synth V2"),
-        makeCase<PianoSynthV3Device, PianoSynthV3Controller>("Piano Synth V3"),
-        makeCase<NoiseFxDevice, NoiseFxController>("Noise FX"),
-        makeCase<SpeechDevice, SpeechController>("Speech"),
-        makeCase<StringEnsembleDevice, StringEnsembleController>("String Ensemble"),
-        makeCase<StringVoiceDevice, StringVoiceController>("String & Voice"),
-        makeCase<StringVoiceV2Device, StringVoiceV2Controller>("String & Voice V2"),
-        makeCase<StringVoiceV3Device, StringVoiceV3Controller>("String & Voice V3"),
-        makeDrumCase<DrumSynthDevice, DrumSynthController>("Drum Synth"),
-        makeDrumCase<DrumSynthV2Device, DrumSynthV2Controller>("Drum Synth V2"),
-        makeDrumCase<FmDrumsDevice, FmDrumsController>("FM Drums"),
+        makeCase<SynthDevice, SynthDialogModel>("Synth"),
+        makeCase<WavetableSynthDevice, WavetableSynthDialogModel>("Wavetable Synth"),
+        makeCase<FmSynthDevice, FmSynthDialogModel>("FM Synth"),
+        makeCase<JuSynthDevice, JuSynthDialogModel>("JU Synth"),
+        makeCase<BassSynthDevice, BassSynthDialogModel>("Bass Synth"),
+        makeCase<Kick808Device, Kick808DialogModel>("Kick 808"),
+        makeCase<SnareSynthDevice, SnareSynthDialogModel>("Snare Synth"),
+        makeCase<PianoSynthDevice, PianoSynthDialogModel>("Piano Synth"),
+        makeCase<PianoSynthV2Device, PianoSynthV2DialogModel>("Piano Synth V2"),
+        makeCase<PianoSynthV3Device, PianoSynthV3DialogModel>("Piano Synth V3"),
+        makeCase<NoiseFxDevice, NoiseFxDialogModel>("Noise FX"),
+        makeCase<SpeechDevice, SpeechDialogModel>("Speech"),
+        makeCase<StringEnsembleDevice, StringEnsembleDialogModel>("String Ensemble"),
+        makeCase<StringVoiceDevice, StringVoiceDialogModel>("String & Voice"),
+        makeCase<StringVoiceV2Device, StringVoiceV2DialogModel>("String & Voice V2"),
+        makeCase<StringVoiceV3Device, StringVoiceV3DialogModel>("String & Voice V3"),
+        makeDrumCase<DrumSynthDevice, DrumSynthDialogModel>("Drum Synth"),
+        makeDrumCase<DrumSynthV2Device, DrumSynthV2DialogModel>("Drum Synth V2"),
+        makeDrumCase<FmDrumsDevice, FmDrumsDialogModel>("FM Drums"),
     };
 }
 

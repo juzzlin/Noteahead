@@ -7,8 +7,8 @@ noteahead_add_device(
         xy_pad_recording_service.cpp
         xy_pad_recording_service.hpp
     VIEW_SOURCES
-        xy_pad_controller.cpp
-        xy_pad_controller.hpp
+        xy_pad_dialog_model.cpp
+        xy_pad_dialog_model.hpp
         xy_pad_panel_controller.cpp
         xy_pad_panel_controller.hpp
         xy_pad_renderer.cpp

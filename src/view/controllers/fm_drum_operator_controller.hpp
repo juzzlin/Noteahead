@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-class FmDrumsController;
+class FmDrumsDialogModel;
 
 //! One operator of the selected FM Drums pad, as QML sees it.
 //!
@@ -55,7 +55,7 @@ class FmDrumOperatorController : public QObject
     Q_PROPERTY(bool feedbackOperator READ feedbackOperator CONSTANT)
 
 public:
-    FmDrumOperatorController(size_t index, FmDrumsController & owner);
+    FmDrumOperatorController(size_t index, FmDrumsDialogModel & owner);
 
     int index() const;
     QString title() const;
@@ -82,7 +82,7 @@ signals:
 
 private:
     size_t m_index;
-    FmDrumsController & m_owner;
+    FmDrumsDialogModel & m_owner;
 };
 
 } // namespace noteahead

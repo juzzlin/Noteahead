@@ -9,8 +9,8 @@ noteahead_add_device(
         sampler_pad_model.cpp
         sampler_pad_model.hpp
     VIEW_SOURCES
-        sampler_controller.cpp
-        sampler_controller.hpp
+        sampler_dialog_model.cpp
+        sampler_dialog_model.hpp
         sampler_view_registration.cpp
     QML_FILES
         SamplerDialog.qml

@@ -24,8 +24,8 @@
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
 #include "../../domain/utility/stereo_field_meter.hpp"
-#include "../../plugins/devices/xy_pad/xy_pad_controller.hpp"
 #include "../../plugins/devices/xy_pad/xy_pad_device.hpp"
+#include "../../plugins/devices/xy_pad/xy_pad_dialog_model.hpp"
 #include "../qml/Components/level_meter_renderer.hpp"
 #include "../qml/Dialogs/rta_renderer.hpp"
 #include "../qml/Dialogs/stereo_field_renderer.hpp"
@@ -279,7 +279,7 @@ QObject * PerformancePanelController::xyPadController(const QString & sourceId)
     if (!device) {
         return nullptr;
     }
-    auto * controller = new XyPadController { m_deviceService, this };
+    auto * controller = new XyPadDialogModel { m_deviceService, this };
     controller->setDevice(device);
     // Handed to QML, which would otherwise collect it as its own: this controller decides its life
     QQmlEngine::setObjectOwnership(controller, QQmlEngine::CppOwnership);

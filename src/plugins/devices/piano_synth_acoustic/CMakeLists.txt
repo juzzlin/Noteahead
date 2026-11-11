@@ -6,8 +6,8 @@ noteahead_add_device(
         piano_synth_acoustic_presets.hpp
         piano_synth_acoustic_registration.cpp
     VIEW_SOURCES
-        piano_synth_acoustic_controller.cpp
-        piano_synth_acoustic_controller.hpp
+        piano_synth_acoustic_dialog_model.cpp
+        piano_synth_acoustic_dialog_model.hpp
         piano_synth_acoustic_view_registration.cpp
     QML_FILES
         PianoSynthAcousticDialog.qml

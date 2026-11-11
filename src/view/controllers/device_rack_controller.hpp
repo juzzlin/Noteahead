@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-#include "device_controller.hpp"
+#include "device_dialog_model.hpp"
 
 namespace noteahead {
 
@@ -49,15 +49,15 @@ public:
     Q_ENUM(DataRole)
 
     using DeviceServiceS = std::shared_ptr<DeviceService>;
-    using DeviceControllerS = DeviceController::DeviceControllerS;
+    using DeviceDialogModelS = DeviceDialogModel::DeviceDialogModelS;
     using EditorServiceS = std::shared_ptr<EditorService>;
-    using ControllerList = std::vector<DeviceControllerS>;
-    explicit DeviceRackController(DeviceServiceS deviceService, ControllerList controllers, EditorServiceS editorService, QObject * parent = nullptr);
+    using DialogModelList = std::vector<DeviceDialogModelS>;
+    explicit DeviceRackController(DeviceServiceS deviceService, DialogModelList controllers, EditorServiceS editorService, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
     //! Hands the user's preset store to every device controller. Done here rather than one line per
     //! controller in Application, so that a device added later cannot be left out of it.
-    void setPresetService(DeviceController::PresetServiceS presetService);
+    void setPresetService(DeviceDialogModel::PresetServiceS presetService);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
@@ -110,7 +110,7 @@ public:
     //! silently stealing it, and "blocked" for slots that would close a routing loop.
     Q_INVOKABLE QVariantList subMixerCandidates(int subMixerSlot) const;
     //! Mixer values of the device in a slot, in the same 0..uiInternalScaling units
-    //! DeviceController uses.
+    //! DeviceDialogModel uses.
     //!
     //! Devices with a dedicated controller expose these through it; a Sub Mixer has none, so its
     //! dialog reads and writes them by slot instead.
@@ -212,7 +212,7 @@ private:
     void applyMetersActive();
 
     DeviceServiceS m_deviceService;
-    ControllerList m_controllers;
+    DialogModelList m_dialogModels;
     EditorServiceS m_editorService;
 
     QStringList m_devices;

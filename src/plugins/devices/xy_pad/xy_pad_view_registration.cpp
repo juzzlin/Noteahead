@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "xy_pad_controller.hpp"
 #include "xy_pad_device.hpp"
+#include "xy_pad_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,8 +31,8 @@ void registerXyPadDeviceView()
       .category = PluginCatalog::DeviceCategory::Modulators,
       .dialogFile = "XyPadDialog.qml",
       .controllerProperty = "xyPadController",
-      .createController = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<XyPadController>(deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<XyPadController>("Noteahead", 1, 0, "XyPadController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<XyPadDialogModel>(deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<XyPadDialogModel>("Noteahead", 1, 0, "XyPadDialogModel"); },
     });
 }
 

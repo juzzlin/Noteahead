@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "wavetable_synth_controller.hpp"
 #include "wavetable_synth_device.hpp"
+#include "wavetable_synth_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,9 +31,9 @@ void registerWavetableSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "WavetableSynthDialog.qml",
       .controllerProperty = "wavetableSynthController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")); },
-      .connectServices = [](DeviceController & controller, const PluginCatalog::Services & services) { static_cast<WavetableSynthController &>(controller).setDeviceService(services.deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<WavetableSynthController>("Noteahead", 1, 0, "WavetableSynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<WavetableSynthDialogModel>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")); },
+      .connectServices = [](DeviceDialogModel & controller, const PluginCatalog::Services & services) { static_cast<WavetableSynthDialogModel &>(controller).setDeviceService(services.deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<WavetableSynthDialogModel>("Noteahead", 1, 0, "WavetableSynthDialogModel"); },
     });
 }
 

@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "noise_fx_controller.hpp"
 #include "noise_fx_device.hpp"
+#include "noise_fx_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerNoiseFxDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "NoiseFxDialog.qml",
       .controllerProperty = "noiseFxController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<NoiseFxController>(std::make_shared<NoiseFxDevice>("Default Noise FX")); },
-      .registerQmlTypes = [] { qmlRegisterType<NoiseFxController>("Noteahead", 1, 0, "NoiseFxController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<NoiseFxDialogModel>(std::make_shared<NoiseFxDevice>("Default Noise FX")); },
+      .registerQmlTypes = [] { qmlRegisterType<NoiseFxDialogModel>("Noteahead", 1, 0, "NoiseFxDialogModel"); },
     });
 }
 

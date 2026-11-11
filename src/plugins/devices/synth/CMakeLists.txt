@@ -8,8 +8,8 @@ noteahead_add_device(
         synth_presets.hpp
         synth_registration.cpp
     VIEW_SOURCES
-        synth_controller.cpp
-        synth_controller.hpp
+        synth_dialog_model.cpp
+        synth_dialog_model.hpp
         synth_view_registration.cpp
     QML_FILES
         SynthDialog.qml

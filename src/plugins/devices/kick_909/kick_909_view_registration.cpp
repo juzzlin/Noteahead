@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "kick_909_controller.hpp"
 #include "kick_909_device.hpp"
+#include "kick_909_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerKick909DeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "Kick909Dialog.qml",
       .controllerProperty = "kick909Controller",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<Kick909Controller>(std::make_shared<Kick909Device>("Default Kick909")); },
-      .registerQmlTypes = [] { qmlRegisterType<Kick909Controller>("Noteahead", 1, 0, "Kick909Controller"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<Kick909DialogModel>(std::make_shared<Kick909Device>("Default Kick909")); },
+      .registerQmlTypes = [] { qmlRegisterType<Kick909DialogModel>("Noteahead", 1, 0, "Kick909DialogModel"); },
     });
 }
 

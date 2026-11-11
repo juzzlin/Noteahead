@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "string_ensemble_controller.hpp"
 #include "string_ensemble_device.hpp"
+#include "string_ensemble_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerStringEnsembleDeviceView()
       .category = PluginCatalog::DeviceCategory::StringsAndVoice,
       .dialogFile = "StringEnsembleDialog.qml",
       .controllerProperty = "stringEnsembleController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<StringEnsembleController>(std::make_shared<StringEnsembleDevice>("Default StringEnsemble")); },
-      .registerQmlTypes = [] { qmlRegisterType<StringEnsembleController>("Noteahead", 1, 0, "StringEnsembleController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<StringEnsembleDialogModel>(std::make_shared<StringEnsembleDevice>("Default StringEnsemble")); },
+      .registerQmlTypes = [] { qmlRegisterType<StringEnsembleDialogModel>("Noteahead", 1, 0, "StringEnsembleDialogModel"); },
     });
 }
 

@@ -26,7 +26,7 @@ ColumnLayout {
     id: root
 
     property string voiceName: ""
-    //! The DrumPadController of the drum machine this belongs to.
+    //! The DrumPadDialogModel of the drum machine this belongs to.
     required property var controller
 
     Layout.fillWidth: true

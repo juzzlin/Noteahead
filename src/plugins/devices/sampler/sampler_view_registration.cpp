@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "sampler_controller.hpp"
 #include "sampler_device.hpp"
+#include "sampler_dialog_model.hpp"
 
 #include "../../../application/service/audio_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -29,8 +29,8 @@ void registerSamplerDeviceView()
       .category = PluginCatalog::DeviceCategory::Samplers,
       .dialogFile = "SamplerDialog.qml",
       .controllerProperty = "samplerController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")); },
-      .connectServices = [](DeviceController & controller, const PluginCatalog::Services & services) { static_cast<SamplerController &>(controller).setAudioService(services.audioService); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SamplerDialogModel>(std::make_shared<SamplerDevice>("Default Sampler")); },
+      .connectServices = [](DeviceDialogModel & controller, const PluginCatalog::Services & services) { static_cast<SamplerDialogModel &>(controller).setAudioService(services.audioService); },
     });
 }
 

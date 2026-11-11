@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "fm_drums_controller.hpp"
 #include "fm_drums_device.hpp"
+#include "fm_drums_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,8 +31,8 @@ void registerFmDrumsDeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "FmDrumsDialog.qml",
       .controllerProperty = "fmDrumsController",
-      .createController = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<FmDrumsController>(deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<FmDrumsController>("Noteahead", 1, 0, "FmDrumsController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<FmDrumsDialogModel>(deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<FmDrumsDialogModel>("Noteahead", 1, 0, "FmDrumsDialogModel"); },
     });
 }
 

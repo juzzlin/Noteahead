@@ -4,8 +4,8 @@ noteahead_add_device(
         lfo_device.hpp
         lfo_registration.cpp
     VIEW_SOURCES
-        lfo_controller.cpp
-        lfo_controller.hpp
+        lfo_dialog_model.cpp
+        lfo_dialog_model.hpp
         lfo_panel_controller.cpp
         lfo_panel_controller.hpp
         lfo_view_registration.cpp

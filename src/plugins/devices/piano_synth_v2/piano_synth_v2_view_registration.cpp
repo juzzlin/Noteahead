@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "piano_synth_v2_controller.hpp"
 #include "piano_synth_v2_device.hpp"
+#include "piano_synth_v2_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerPianoSynthV2DeviceView()
       .category = PluginCatalog::DeviceCategory::Keys,
       .dialogFile = "PianoSynthV2Dialog.qml",
       .controllerProperty = "pianoSynthV2Controller",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<PianoSynthV2Controller>(std::make_shared<PianoSynthV2Device>("Default PianoSynth V2")); },
-      .registerQmlTypes = [] { qmlRegisterType<PianoSynthV2Controller>("Noteahead", 1, 0, "PianoSynthV2Controller"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<PianoSynthV2DialogModel>(std::make_shared<PianoSynthV2Device>("Default PianoSynth V2")); },
+      .registerQmlTypes = [] { qmlRegisterType<PianoSynthV2DialogModel>("Noteahead", 1, 0, "PianoSynthV2DialogModel"); },
     });
 }
 

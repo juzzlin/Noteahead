@@ -17,8 +17,8 @@
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../common/constants.hpp"
-#include "lfo_controller.hpp"
 #include "lfo_device.hpp"
+#include "lfo_dialog_model.hpp"
 
 #include <cmath>
 
@@ -26,7 +26,7 @@ namespace noteahead {
 
 namespace NahdXml = Constants::NahdXml;
 
-LfoPanelController::LfoPanelController(size_t index, LfoController & owner)
+LfoPanelController::LfoPanelController(size_t index, LfoDialogModel & owner)
   : QObject { &owner }
   , m_index { index }
   , m_owner { owner }

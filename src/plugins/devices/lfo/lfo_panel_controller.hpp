@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-class LfoController;
+class LfoDialogModel;
 
 //! One LFO of the LFO device, as QML sees it: the dialog repeats one panel over four of these.
 //!
@@ -65,7 +65,7 @@ class LfoPanelController : public QObject
     Q_PROPERTY(int midiMax READ midiMax WRITE setMidiMax NOTIFY changed)
 
 public:
-    LfoPanelController(size_t index, LfoController & owner);
+    LfoPanelController(size_t index, LfoDialogModel & owner);
 
     int index() const;
 
@@ -119,7 +119,7 @@ private:
     void setChoice(const QString & key, int value);
 
     size_t m_index;
-    LfoController & m_owner;
+    LfoDialogModel & m_owner;
 };
 
 } // namespace noteahead

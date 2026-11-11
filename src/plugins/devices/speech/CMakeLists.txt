@@ -4,8 +4,8 @@ noteahead_add_device(
         speech_device.hpp
         speech_registration.cpp
     VIEW_SOURCES
-        speech_controller.cpp
-        speech_controller.hpp
+        speech_dialog_model.cpp
+        speech_dialog_model.hpp
         speech_view_registration.cpp
     QML_FILES
         SpeechDialog.qml

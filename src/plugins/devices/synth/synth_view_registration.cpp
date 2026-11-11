@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "synth_controller.hpp"
 #include "synth_device.hpp"
+#include "synth_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,9 +31,9 @@ void registerSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "SynthDialog.qml",
       .controllerProperty = "synthController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")); },
-      .connectServices = [](DeviceController & controller, const PluginCatalog::Services & services) { static_cast<SynthController &>(controller).setDeviceService(services.deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<SynthController>("Noteahead", 1, 0, "SynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SynthDialogModel>(std::make_shared<SynthDevice>("Default Synth")); },
+      .connectServices = [](DeviceDialogModel & controller, const PluginCatalog::Services & services) { static_cast<SynthDialogModel &>(controller).setDeviceService(services.deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<SynthDialogModel>("Noteahead", 1, 0, "SynthDialogModel"); },
     });
 }
 

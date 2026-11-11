@@ -15,7 +15,7 @@
 
 #include "plugin_catalog.hpp"
 
-#include "../controllers/device_controller.hpp"
+#include "../controllers/device_dialog_model.hpp"
 
 #include <algorithm>
 

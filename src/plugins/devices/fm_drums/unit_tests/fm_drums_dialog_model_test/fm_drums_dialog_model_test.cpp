@@ -1,0 +1,190 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "fm_drums_dialog_model_test.hpp"
+
+#include "../../../../../application/service/device_service.hpp"
+#include "../../../../../common/constants.hpp"
+#include "../../../../../infra/audio/audio_engine.hpp"
+#include "../../../../../infra/data_service.hpp"
+#include "../../../../../view/controllers/fm_drum_operator_controller.hpp"
+#include "../../../drum_synth_v2/drum_synth_v2_device.hpp"
+#include "../../fm_drums_device.hpp"
+#include "../../fm_drums_dialog_model.hpp"
+#include "../../fm_drums_presets.hpp"
+
+#include <QSignalSpy>
+#include <QTest>
+
+namespace noteahead {
+
+namespace {
+
+namespace NahdXml = Constants::NahdXml;
+
+constexpr int Kick { static_cast<int>(DrumSynthV2::VoiceIndex::Kick) };
+constexpr int Snare { static_cast<int>(DrumSynthV2::VoiceIndex::Snare) };
+
+struct Fixture
+{
+    std::shared_ptr<DeviceService> deviceService { std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>()) };
+    std::shared_ptr<FmDrumsDevice> device { std::make_shared<FmDrumsDevice>(Constants::fmDrumsDeviceName().toStdString()) };
+    FmDrumsDialogModel controller { deviceService };
+
+    Fixture()
+    {
+        deviceService->setDevice(0, device);
+        controller.setDevice(device);
+    }
+
+    FmDrumOperatorController & op(int index)
+    {
+        return *qobject_cast<FmDrumOperatorController *>(controller.operators().at(index).value<QObject *>());
+    }
+};
+
+} // namespace
+
+void FmDrumsDialogModelTest::test_setDevice_otherDrumMachine_shouldBeRefused()
+{
+    // Both are pad devices, but the FM controls mean nothing on V2's pads
+    FmDrumsDialogModel controller { nullptr };
+
+    QVERIFY(!controller.setDevice(std::make_shared<DrumSynthV2Device>("Drum Synth V2")));
+    QVERIFY(!controller.device());
+    QVERIFY(controller.setDevice(std::make_shared<FmDrumsDevice>("FM Drums")));
+}
+
+void FmDrumsDialogModelTest::test_knob_write_shouldReachTheSelectedPadOnly()
+{
+    Fixture fixture;
+    fixture.controller.setSelectedVoice(Snare);
+    const float kickPitch = fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString());
+
+    fixture.controller.setPitch(250);
+
+    QCOMPARE(fixture.device->voiceParameterValue(Snare, NahdXml::xmlKeyFrequency().toStdString()), 0.25f);
+    QCOMPARE(fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString()), kickPitch);
+    QCOMPARE(fixture.controller.pitch(), 250);
+}
+
+void FmDrumsDialogModelTest::test_choice_write_shouldStoreThePlainIndex()
+{
+    Fixture fixture;
+    fixture.controller.setSelectedVoice(Snare);
+
+    fixture.controller.setNoiseFilterMode(2);
+    fixture.controller.setAlgorithm(6);
+    fixture.controller.setNoiseTarget(3);
+
+    QCOMPARE(fixture.device->voiceParameterValue(Snare, NahdXml::xmlKeyNoiseFilterMode().toStdString()), 2.0f);
+    QCOMPARE(fixture.controller.noiseFilterMode(), 2);
+    QCOMPARE(fixture.controller.algorithm(), 6);
+    QCOMPARE(fixture.controller.noiseTarget(), 3);
+}
+
+void FmDrumsDialogModelTest::test_selectedVoice_change_shouldFollowTheNewPad()
+{
+    Fixture fixture;
+    fixture.controller.setSelectedVoice(Kick);
+    const int kickPitchDepth = fixture.controller.pitchDepth();
+    QSignalSpy padSpy { &fixture.controller, &FmDrumsDialogModel::padChanged };
+
+    fixture.controller.setSelectedVoice(Snare);
+
+    QVERIFY(padSpy.count() > 0);
+    QVERIFY(fixture.controller.pitchDepth() != kickPitchDepth);
+    QCOMPARE(fixture.controller.pitchDepth(), static_cast<int>(std::round(fixture.device->voiceParameterValue(Snare, NahdXml::xmlKeyPitchDepth().toStdString()) * Constants::uiInternalScaling())));
+}
+
+void FmDrumsDialogModelTest::test_operator_write_shouldReachTheSelectedPad()
+{
+    Fixture fixture;
+    fixture.controller.setSelectedVoice(Snare);
+
+    fixture.op(2).setRatio(600);
+    fixture.op(1).setWaveform(5);
+
+    QCOMPARE(fixture.device->voiceParameterValue(Snare, NahdXml::xmlKeyOperatorRatio(2).toStdString()), 0.6f);
+    QCOMPARE(fixture.device->voiceParameterValue(Snare, NahdXml::xmlKeyOperatorWaveform(1).toStdString()), 5.0f);
+    QCOMPARE(fixture.op(2).ratio(), 600);
+    QCOMPARE(fixture.op(1).waveform(), 5);
+}
+
+void FmDrumsDialogModelTest::test_operator_routing_shouldFollowTheAlgorithm()
+{
+    Fixture fixture;
+
+    fixture.controller.setAlgorithm(0); // Serial: 4>3>2>1
+    QVERIFY(fixture.op(0).carrier());
+    QVERIFY(!fixture.op(1).carrier());
+    QCOMPARE(fixture.op(0).modulatedBy(), QVariantList { 2 });
+
+    fixture.controller.setAlgorithm(7); // Additive
+    for (int op = 0; op < 4; op++) {
+        QVERIFY(fixture.op(op).carrier());
+        QVERIFY(fixture.op(op).modulatedBy().isEmpty());
+    }
+    QVERIFY(fixture.op(3).feedbackOperator());
+    QVERIFY(!fixture.op(0).feedbackOperator());
+}
+
+void FmDrumsDialogModelTest::test_deviceChange_shouldNotifyTheOperators()
+{
+    // Automation, MIDI CC and a project load all arrive as a device change, not through a setter
+    Fixture fixture;
+    QSignalSpy operatorSpy { &fixture.op(0), &FmDrumOperatorController::changed };
+
+    fixture.device->updateVoiceParameter(Kick, NahdXml::xmlKeyOperatorDecay(0).toStdString(), 0.1f);
+
+    QVERIFY(operatorSpy.count() > 0);
+    QCOMPARE(fixture.op(0).decay(), 100);
+}
+
+void FmDrumsDialogModelTest::test_presets_kits_shouldBeTheFactoryPresets()
+{
+    Fixture fixture;
+    const auto & kits = FmDrumsPresets::kits();
+    const auto names = fixture.controller.presetNames();
+    QVERIFY(names.size() >= static_cast<qsizetype>(kits.size()));
+    for (size_t kit = 0; kit < kits.size(); kit++) {
+        QVERIFY2(names.at(static_cast<qsizetype>(kit)).contains(QString::fromStdString(kits.at(kit).name)), qPrintable(names.at(static_cast<qsizetype>(kit))));
+    }
+
+    fixture.controller.loadPreset(1);
+
+    FmDrumsDevice expected { "FM Drums" };
+    expected.loadKit(1);
+    QCOMPARE(fixture.controller.currentPresetIndex(), 1);
+    QCOMPARE(fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString()), expected.voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString()));
+}
+
+void FmDrumsDialogModelTest::test_loadPadPreset_shouldLoadOntoTheSelectedPad()
+{
+    Fixture fixture;
+    const auto names = fixture.controller.padPresetNames();
+    const auto cowbell = names.indexOf("Percussion Cowbell");
+    QVERIFY(cowbell >= 0);
+    fixture.controller.setSelectedVoice(Snare);
+
+    fixture.controller.loadPadPreset(static_cast<int>(cowbell));
+
+    QCOMPARE(fixture.controller.algorithm(), 7);
+    QVERIFY(fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyAlgorithm().toStdString()) != 7.0f);
+}
+
+} // namespace noteahead
+
+QTEST_GUILESS_MAIN(noteahead::FmDrumsDialogModelTest)
