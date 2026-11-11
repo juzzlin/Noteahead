@@ -101,10 +101,8 @@ Kick909Device::Kick909Device(std::string name)
     addKnob(Xml::xmlKeyLpfCutoff(), 1.0f);
     addKnob(Xml::xmlKeyHpfCutoff(), 0.0f);
 
-    m_lpfL.setMode(CascadedSvf::Mode::LowPass);
-    m_lpfR.setMode(CascadedSvf::Mode::LowPass);
-    m_hpfL.setMode(CascadedSvf::Mode::HighPass);
-    m_hpfR.setMode(CascadedSvf::Mode::HighPass);
+    m_lpf.setMode(CascadedSvf::Mode::LowPass);
+    m_hpf.setMode(CascadedSvf::Mode::HighPass);
 
     Kick909Device::syncParameters();
 
@@ -245,14 +243,10 @@ void Kick909Device::processAudio(AudioContext & context)
     m_engine.setSampleRate(static_cast<double>(context.sampleRate));
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
-    m_lpfL.setSampleRate(context.sampleRate);
-    m_lpfR.setSampleRate(context.sampleRate);
-    m_hpfL.setSampleRate(context.sampleRate);
-    m_hpfR.setSampleRate(context.sampleRate);
-    m_lpfL.setCutoff(static_cast<double>(m_lpfCutoff));
-    m_lpfR.setCutoff(static_cast<double>(m_lpfCutoff));
-    m_hpfL.setCutoff(static_cast<double>(m_hpfCutoff));
-    m_hpfR.setCutoff(static_cast<double>(m_hpfCutoff));
+    m_lpf.setSampleRate(context.sampleRate);
+    m_hpf.setSampleRate(context.sampleRate);
+    m_lpf.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_hpf.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
     m_ampEnvelope.setSampleRate(static_cast<double>(context.sampleRate));
 
@@ -260,11 +254,9 @@ void Kick909Device::processAudio(AudioContext & context)
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         const double amp = m_ampEnvelopeEnabled ? m_ampEnvelope.nextSample() : 1.0;
-        double sampleL = static_cast<double>(m_engine.nextSample()) * gain * amp;
+        // The drum is mono until the panner, so it is filtered once
+        double sampleL = m_hpf.process(m_lpf.process(static_cast<double>(m_engine.nextSample()) * gain * amp));
         double sampleR = sampleL;
-
-        sampleL = m_hpfL.process(m_lpfL.process(sampleL));
-        sampleR = m_hpfR.process(m_lpfR.process(sampleR));
 
         m_panner.process(sampleL, sampleR);
 
@@ -292,10 +284,8 @@ void Kick909Device::resetDeviceAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();
     m_ampEnvelope.reset();
-    m_lpfL.reset();
-    m_lpfR.reset();
-    m_hpfL.reset();
-    m_hpfR.reset();
+    m_lpf.reset();
+    m_hpf.reset();
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
 }

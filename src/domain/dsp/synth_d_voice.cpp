@@ -265,6 +265,12 @@ double SynthDVoice::Vco::next(Waveform waveform, bool reverse, double increment)
     return 0.0;
 }
 
+SynthDVoice::SynthDVoice()
+{
+    // So that the coefficients worked out from the settings are there before any are given
+    setSettings(m_settings);
+}
+
 void SynthDVoice::setSampleRate(double sampleRate)
 {
     if (sampleRate <= 0.0 || sampleRate == m_sampleRate) {
@@ -284,6 +290,11 @@ void SynthDVoice::setSettings(const Settings & settings)
     m_filterContour.set(settings.filterContour, m_sampleRate);
     m_loudnessContour.set(settings.loudnessContour, m_sampleRate);
     m_glideCoefficient = onePoleCoefficient(glideSeconds(settings.glide), m_sampleRate);
+    // Fixed by the settings and the rate, so worked out here rather than once a sample
+    m_baseCutoffHz = cutoffHz(settings.cutoff);
+    m_lfoHz = lfoHz(settings.lfoRate);
+    m_feedbackCoupling = onePoleCoefficient(1.0 / (2.0 * std::numbers::pi * FeedbackCouplingHz), m_sampleRate * static_cast<double>(Oversampling));
+    m_overloadDecay = 1.0 - onePoleCoefficient(0.1, m_sampleRate);
     m_noise.setColour(settings.noiseColour == NoiseColour::Pink ? 1.0 / 3.0 : 2.0 / 3.0);
     for (auto && filter : m_filters) {
         filter.setMode(settings.filterMode);
@@ -366,14 +377,13 @@ void SynthDVoice::process(double & left, double & right)
     if (s.filterModulation) {
         octaves += modulation * MaxFilterModOctaves;
     }
-    const double cutoff = cutoffHz(s.cutoff) * std::exp2(octaves);
+    const double cutoff = m_baseCutoffHz * std::exp2(octaves);
     for (auto && filter : m_filters) {
         filter.setCutoff(cutoff);
     }
 
     const double vca = loudness * m_velocity;
     const double feedbackGain = s.feedbackOn ? s.feedback * s.feedback * MaxFeedbackGain : 0.0;
-    const double coupling = onePoleCoefficient(1.0 / (2.0 * std::numbers::pi * FeedbackCouplingHz), rate);
     const std::array<double, 3> positions { -s.panSpread, s.panSpread, 0.0 };
     const double noise = (s.noiseOn ? s.noise * MixerLevel : NoiseFloor) * m_noiseValue;
 
@@ -396,7 +406,7 @@ void SynthDVoice::process(double & left, double & right)
             peak = std::max(peak, std::abs(mix));
             const double output = m_filters[side].process(mix) * vca;
             // The output goes back in through a coupling capacitor
-            m_feedbackDc[side] += coupling * (output - m_feedbackDc[side]);
+            m_feedbackDc[side] += m_feedbackCoupling * (output - m_feedbackDc[side]);
             m_feedback[side] = output - m_feedbackDc[side];
             highRate[side][step] = static_cast<float>(output);
         }
@@ -409,7 +419,7 @@ void SynthDVoice::process(double & left, double & right)
     if (peak > OverloadLevel) {
         m_overload = 1.0;
     } else {
-        m_overload *= 1.0 - onePoleCoefficient(0.1, m_sampleRate);
+        m_overload *= m_overloadDecay;
     }
 }
 
@@ -425,7 +435,7 @@ double SynthDVoice::overload() const
 
 void SynthDVoice::advanceLfo(uint32_t frames)
 {
-    m_lfoPhase += static_cast<double>(frames) * lfoHz(m_settings.lfoRate) / m_sampleRate;
+    m_lfoPhase += static_cast<double>(frames) * m_lfoHz / m_sampleRate;
     m_lfoPhase -= std::floor(m_lfoPhase);
     m_lfoValue = m_settings.lfoWaveform == LfoWaveform::Triangle ? 1.0 - 4.0 * std::abs(m_lfoPhase - 0.5) : (m_lfoPhase < 0.5 ? 1.0 : -1.0);
 }

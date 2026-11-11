@@ -63,12 +63,26 @@ void AdsrEnvelope::setReleaseTime(double seconds)
 
 void AdsrEnvelope::setCurve(double curve)
 {
-    m_curve = std::clamp(curve, 0.0, 1.0);
+    // Some devices set their curves every block, so an unchanged one costs nothing
+    const double clamped = std::clamp(curve, 0.0, 1.0);
+    if (clamped == m_curve) {
+        return;
+    }
+    m_curve = clamped;
+    m_curveScale = curveScale(m_curve);
+    if (!m_attackCurve) {
+        m_attackCurveScale = m_curveScale;
+    }
 }
 
 void AdsrEnvelope::setAttackCurve(double curve)
 {
-    m_attackCurve = std::clamp(curve, 0.0, 1.0);
+    const double clamped = std::clamp(curve, 0.0, 1.0);
+    if (m_attackCurve == clamped) {
+        return;
+    }
+    m_attackCurve = clamped;
+    m_attackCurveScale = curveScale(clamped);
 }
 
 void AdsrEnvelope::setSampleRate(double sampleRate)
@@ -136,7 +150,8 @@ double AdsrEnvelope::nextSample()
                 m_currentLevel = 0.0;
             }
         } else {
-            const double shaped = shape(m_phase, m_state == State::Attack ? m_attackCurve.value_or(m_curve) : m_curve);
+            const bool attack = m_state == State::Attack;
+            const double shaped = shape(m_phase, attack ? m_attackCurve.value_or(m_curve) : m_curve, attack ? m_attackCurveScale : m_curveScale);
             // The attack rises into its target and the other two fall away from their start, so the
             // same shaping function bends one concave and the other convex.
             m_currentLevel = m_state == State::Attack
@@ -215,13 +230,20 @@ double AdsrEnvelope::segmentDuration(State state) const
     }
 }
 
-double AdsrEnvelope::shape(double phase, double curve) const
+double AdsrEnvelope::curveScale(double curve)
 {
     const double curvature = curve * MaxCurvature;
-    if (curvature < 1.0e-6) {
+    return curvature < 1.0e-6 ? 0.0 : 1.0 / std::expm1(-curvature);
+}
+
+double AdsrEnvelope::shape(double phase, double curve, double scale) const
+{
+    // A scale of zero is a straight segment. The scale is the curve's own normalisation, worked out
+    // when the curve is set rather than once a sample.
+    if (scale == 0.0) {
         return phase;
     }
-    return std::expm1(-curvature * phase) / std::expm1(-curvature);
+    return std::expm1(-curve * MaxCurvature * phase) * scale;
 }
 
 void AdsrEnvelope::updatePhaseStep()

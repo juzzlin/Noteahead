@@ -90,6 +90,11 @@ private:
     DcBlocker m_dcBlockerR;
 
     double m_saturationDb { 0.0 };
+    //! Worked out with the parameters, and with the sample rate, rather than once a sample.
+    double m_driveGain { 1.0 };
+    double m_outputGain { 1.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    double m_tunedSampleRate { -1.0 };
 
     struct Oversampling;
     std::unique_ptr<Oversampling> m_oversampling;

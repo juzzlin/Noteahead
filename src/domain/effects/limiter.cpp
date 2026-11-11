@@ -94,8 +94,8 @@ void Limiter::applyLimiter(double & left, double & right)
         updateBuffers();
     }
 
-    const double thresholdLin = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
-    const double ceilingLin = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_ceilingDb)));
+    const double thresholdLin = m_threshold;
+    const double ceilingLin = m_ceiling;
 
     // With boost the signal is limited to the threshold and lifted so that the threshold reaches the
     // ceiling (make-up = ceiling / threshold). Without boost it is pure peak limiting, capped at whichever
@@ -186,6 +186,9 @@ void Limiter::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
         m_boost = p->get().value() > 0.5f;
     }
+    // The levels follow the parameters alone, so they are worked out here rather than once a sample
+    m_threshold = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
+    m_ceiling = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_ceilingDb)));
 }
 
 std::string Limiter::typeIdString()

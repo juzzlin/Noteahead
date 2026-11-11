@@ -58,6 +58,7 @@ void PolyBlepOscillator::setSampleRate(double sampleRate)
     }
     DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
+    m_pulseFiltersStale = true;
 }
 
 void PolyBlepOscillator::setFrequency(double frequency)
@@ -83,7 +84,11 @@ void PolyBlepOscillator::setShape(double shape)
 
 void PolyBlepOscillator::setRoundness(double roundness)
 {
-    m_roundness = std::clamp(roundness, 0.0, 1.0);
+    const double clamped = std::clamp(roundness, 0.0, 1.0);
+    if (clamped != m_roundness) {
+        m_roundness = clamped;
+        m_pulseFiltersStale = true;
+    }
 }
 
 double PolyBlepOscillator::nextSample()
@@ -177,15 +182,20 @@ double PolyBlepOscillator::nextSample()
 
 double PolyBlepOscillator::analogPulse(double value)
 {
-    const double sampleRate = m_sampleRate > 0.0 ? m_sampleRate : 48000.0;
+    // Worked out when the rate or the roundness changes rather than once a sample: three
+    // transcendentals a sample of every pulse oscillator, oversampled, for coefficients that hardly
+    // ever move.
+    if (m_pulseFiltersStale) {
+        const double sampleRate = m_sampleRate > 0.0 ? m_sampleRate : 48000.0;
+        m_pulseCoupling.calculate(PulseCouplingHz, sampleRate);
+        // Inverted, so that turning the control up rounds the wave rather than sharpening it.
+        const double edgeHz = ParameterMapper::mapLogFrequency(1.0 - m_roundness, RoundestEdgeHz, SharpestEdgeHz);
+        m_pulseEdge.calculate(edgeHz, sampleRate);
+        m_pulseFiltersStale = false;
+    }
 
-    m_pulseCoupling.calculate(PulseCouplingHz, sampleRate);
     m_pulseCoupling.process(value);
     const double coupled = m_pulseCoupling.highPass();
-
-    // Inverted, so that turning the control up rounds the wave rather than sharpening it.
-    const double edgeHz = ParameterMapper::mapLogFrequency(1.0 - m_roundness, RoundestEdgeHz, SharpestEdgeHz);
-    m_pulseEdge.calculate(edgeHz, sampleRate);
     m_pulseEdge.process(coupled);
     return m_pulseEdge.lowPass();
 }

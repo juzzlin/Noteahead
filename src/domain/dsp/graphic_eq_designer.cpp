@@ -18,8 +18,9 @@
 #include "matched_bell_filter.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
-#include <vector>
+#include <numbers>
 
 namespace noteahead {
 
@@ -38,12 +39,18 @@ constexpr double SmallestMeasuredGainDb { 0.5 };
 //! How near Nyquist a centre may sit.
 constexpr double HighestCentreRatio { 0.49 };
 
-//! Solves the symmetric positive definite system @p matrix x = @p vector in place, by Gaussian
-//! elimination with partial pivoting. The system is never larger than the band count, and the
-//! overlap matrix is well enough conditioned -- around 5 -- that the normal equations lose nothing.
-std::vector<double> solve(std::vector<std::vector<double>> matrix, std::vector<double> vector)
+//! At most one point per band and one between each pair of neighbours.
+constexpr size_t MaxPoints { GraphicEqDesigner::BandCount * 2 - 1 };
+
+using Vector = std::array<double, GraphicEqDesigner::BandCount>;
+using Matrix = std::array<Vector, GraphicEqDesigner::BandCount>;
+
+//! Solves the symmetric positive definite system @p matrix x = @p vector of the first @p size rows in
+//! place, by Gaussian elimination with partial pivoting. The overlap matrix is well enough
+//! conditioned -- around 5 -- that the normal equations lose nothing. Fixed-size storage, because
+//! the design runs on the audio thread whenever a slider is automated.
+Vector solve(Matrix & matrix, Vector & vector, size_t size)
 {
-    const size_t size = vector.size();
     for (size_t column = 0; column < size; column++) {
         size_t pivot = column;
         for (size_t row = column + 1; row < size; row++) {
@@ -61,7 +68,7 @@ std::vector<double> solve(std::vector<std::vector<double>> matrix, std::vector<d
             vector[row] -= factor * vector[column];
         }
     }
-    std::vector<double> result(size, 0.0);
+    Vector result {};
     for (size_t row = size; row-- > 0;) {
         double sum = vector[row];
         for (size_t i = row + 1; i < size; i++) {
@@ -70,6 +77,13 @@ std::vector<double> solve(std::vector<std::vector<double>> matrix, std::vector<d
         result[row] = sum / matrix[row][row];
     }
     return result;
+}
+
+//! A bell's level in decibels at a point given by its phi terms; see MatchedBellFilter::SquaredMagnitude.
+double levelDb(const MatchedBellFilter::SquaredMagnitude & magnitude, const std::array<double, 3> & phi)
+{
+    const auto dot = [&phi](const std::array<double, 3> & terms) { return terms[0] * phi[0] + terms[1] * phi[1] + terms[2] * phi[2]; };
+    return 10.0 * std::log10(dot(magnitude.numerator) / dot(magnitude.denominator));
 }
 
 } // namespace
@@ -98,38 +112,49 @@ GraphicEqDesigner::Gains GraphicEqDesigner::filterGains(const Gains & sliderGain
         return result;
     }
 
-    std::vector<size_t> bands;
+    std::array<size_t, BandCount> bands {};
+    size_t size = 0;
     for (size_t band = 0; band < BandCount; band++) {
         if (isBandUsable(band, sampleRate)) {
-            bands.push_back(band);
+            bands[size++] = band;
         }
     }
-    if (bands.empty()) {
+    if (size == 0) {
         return result;
     }
 
     // Every centre, and the point half way between each pair on a log scale, where the target is
-    // the straight line between the two sliders.
+    // the straight line between the two sliders. Each point keeps the phi terms its frequency gives,
+    // so that a bell is measured there with a few multiplications instead of a complex division.
     struct Point
     {
-        double frequency;
+        std::array<double, 3> phi;
         double targetDb;
         double weight;
     };
 
-    std::vector<Point> points;
-    for (size_t i = 0; i < bands.size(); i++) {
-        points.push_back({ centreFrequency(bands.at(i)), sliderGainsDb.at(bands.at(i)), 1.0 });
-        if (i + 1 < bands.size()) {
-            const double between = std::sqrt(centreFrequency(bands.at(i)) * centreFrequency(bands.at(i + 1)));
-            points.push_back({ between, 0.5 * (sliderGainsDb.at(bands.at(i)) + sliderGainsDb.at(bands.at(i + 1))), MidpointWeight });
+    const auto phiAt = [sampleRate](double frequency) {
+        const double half = std::sin(std::numbers::pi * frequency / sampleRate);
+        const double phi1 = half * half;
+        const double phi0 = 1.0 - phi1;
+        return std::array<double, 3> { phi0, phi1, 4.0 * phi0 * phi1 };
+    };
+
+    std::array<Point, MaxPoints> points {};
+    size_t pointCount = 0;
+    for (size_t i = 0; i < size; i++) {
+        points[pointCount++] = { phiAt(centreFrequency(bands[i])), sliderGainsDb.at(bands[i]), 1.0 };
+        if (i + 1 < size) {
+            const double between = std::sqrt(centreFrequency(bands[i]) * centreFrequency(bands[i + 1]));
+            points[pointCount++] = { phiAt(between), 0.5 * (sliderGainsDb.at(bands[i]) + sliderGainsDb.at(bands[i + 1])), MidpointWeight };
         }
     }
 
-    const size_t size = bands.size();
-    std::vector<double> gains(size, ReferenceGainDb);
-    std::vector<double> measuredAt(size, ReferenceGainDb);
+    Vector gains {};
+    gains.fill(ReferenceGainDb);
+    Vector measuredAt = gains;
     MatchedBellFilter bell;
+    std::array<Vector, MaxPoints> overlap {};
     for (int pass = 0; pass <= RefinementPasses; pass++) {
         if (pass > 0) {
             for (size_t i = 0; i < size; i++) {
@@ -138,18 +163,18 @@ GraphicEqDesigner::Gains GraphicEqDesigner::filterGains(const Gains & sliderGain
         }
 
         // The response of each band per decibel of its gain, at every point, weighted.
-        std::vector<std::vector<double>> overlap(points.size(), std::vector<double>(size, 0.0));
         for (size_t column = 0; column < size; column++) {
-            bell.calculate(centreFrequency(bands.at(column)), sampleRate, bandQ(), measuredAt[column]);
-            for (size_t row = 0; row < points.size(); row++) {
-                overlap[row][column] = points[row].weight * bell.magnitudeDbAt(points[row].frequency, sampleRate) / measuredAt[column];
+            bell.calculate(centreFrequency(bands[column]), sampleRate, bandQ(), measuredAt[column]);
+            const auto magnitude = bell.squaredMagnitude();
+            for (size_t row = 0; row < pointCount; row++) {
+                overlap[row][column] = points[row].weight * levelDb(magnitude, points[row].phi) / measuredAt[column];
             }
         }
 
         // Normal equations of the weighted least-squares fit.
-        std::vector<std::vector<double>> normal(size, std::vector<double>(size, 0.0));
-        std::vector<double> projected(size, 0.0);
-        for (size_t row = 0; row < points.size(); row++) {
+        Matrix normal {};
+        Vector projected {};
+        for (size_t row = 0; row < pointCount; row++) {
             const double target = points[row].weight * points[row].targetDb;
             for (size_t i = 0; i < size; i++) {
                 projected[i] += overlap[row][i] * target;
@@ -158,11 +183,11 @@ GraphicEqDesigner::Gains GraphicEqDesigner::filterGains(const Gains & sliderGain
                 }
             }
         }
-        gains = solve(std::move(normal), std::move(projected));
+        gains = solve(normal, projected, size);
     }
 
     for (size_t i = 0; i < size; i++) {
-        result.at(bands.at(i)) = gains[i];
+        result.at(bands[i]) = gains[i];
     }
     return result;
 }

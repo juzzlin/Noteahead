@@ -100,10 +100,8 @@ private:
     std::string m_name;
     Kick909Engine m_engine {};
 
-    CascadedSvf m_lpfL {};
-    CascadedSvf m_lpfR {};
-    CascadedSvf m_hpfL {};
-    CascadedSvf m_hpfR {};
+    CascadedSvf m_lpf {};
+    CascadedSvf m_hpf {};
 
     TrueStereoPanner m_panner {};
 

@@ -106,9 +106,9 @@ float Drive::processOversampled(Upsampler & upsampler, Decimator & decimator, fl
 
 void Drive::processSample(double & left, double & right)
 {
-    const double driveGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(static_cast<double>(m_drive) * MaxDriveDb)));
+    const double driveGain = m_driveGain;
     const double mix = static_cast<double>(m_mix);
-    const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double outputLin = m_outputGain;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
     const double dryL = left;
@@ -156,6 +156,9 @@ void Drive::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_outputDb = -12.0f + p->get().value() * 24.0f;
     }
+    // The gains follow the parameters alone, so they are worked out here rather than once a sample
+    m_driveGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(static_cast<double>(m_drive) * MaxDriveDb)));
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
 }
 
 std::string Drive::typeIdString()

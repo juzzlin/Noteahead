@@ -605,6 +605,18 @@ void JuSynth08Device::processAudio(AudioContext & context)
     const double instabilityCents = static_cast<double>(m_oscillatorInstability) * MaxInstabilityCents;
     const double tolerance = static_cast<double>(m_voiceTolerance);
 
+    // A voice's high pass and pan position hold still for the whole block, so they are worked out once
+    // per block rather than once a frame of every voice.
+    std::array<double, MaxVoices> panLeft {};
+    std::array<double, MaxVoices> panRight {};
+    for (size_t slot = 0; slot < m_voices.size(); slot++) {
+        auto & voice = m_voices[slot];
+        voice.hpf.calculate(hpfCutoffFreq, oversampledRate);
+        const double pan = 0.5 + 0.5 * voice.panPosition * static_cast<double>(m_panSpread);
+        panLeft[slot] = std::cos(pan * (std::numbers::pi / 2.0));
+        panRight[slot] = std::sin(pan * (std::numbers::pi / 2.0));
+    }
+
     for (size_t frame = 0; frame < frameCount; frame++) {
         // The LFO runs whether or not anything is playing; the delay holds it off for half its time
         // after the first key and then fades it in over the other half.
@@ -694,7 +706,6 @@ void JuSynth08Device::processAudio(AudioContext & context)
             voice.vcf.setCutoff(FilterLowestHz * std::exp2(cutoff * filterOctaves));
             voice.vcf.setResonance(m_lpfResonance);
             voice.vcf.setSlope(vcfSlope);
-            voice.hpf.calculate(hpfCutoffFreq, oversampledRate);
 
             // VCA Stage
             double vcaGain = (m_vcaMode == VcaMode::Gate) ? gateVal : env2;
@@ -708,9 +719,8 @@ void JuSynth08Device::processAudio(AudioContext & context)
             }
 
             // Stereo Panning
-            const double pan = 0.5 + 0.5 * voice.panPosition * static_cast<double>(m_panSpread);
-            const double panL = std::cos(pan * (std::numbers::pi / 2.0)) * vcaGain;
-            const double panR = std::sin(pan * (std::numbers::pi / 2.0)) * vcaGain;
+            const double panL = panLeft[slot] * vcaGain;
+            const double panR = panRight[slot] * vcaGain;
 
             // 2x Oversampled synthesis of VCOs and VCF
             for (size_t os = 0; os < Oversampling; os++) {

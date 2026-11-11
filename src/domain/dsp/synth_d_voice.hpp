@@ -161,6 +161,8 @@ public:
     //! The key OSC 3 is tuned to when the keyboard does not control it
     static constexpr int Osc3FixedNote { 60 };
 
+    SynthDVoice();
+
     void setSampleRate(double sampleRate);
     void setSettings(const Settings & settings);
 
@@ -247,6 +249,10 @@ private:
     double m_note { 60.0 };
     double m_targetNote { 60.0 };
     double m_glideCoefficient { 0.0 };
+    double m_baseCutoffHz { 0.0 };
+    double m_lfoHz { 0.0 };
+    double m_feedbackCoupling { 0.0 };
+    double m_overloadDecay { 1.0 };
     double m_pitchBend { 0.0 };
     double m_velocity { 1.0 };
     double m_overload { 0.0 };

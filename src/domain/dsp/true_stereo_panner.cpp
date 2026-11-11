@@ -22,7 +22,13 @@ namespace noteahead {
 
 void TrueStereoPanner::setPan(double pan)
 {
+    if (pan == m_pan) {
+        return;
+    }
     m_pan = pan;
+    const double angle = m_pan * std::numbers::pi * 0.5;
+    m_leftGain = std::cos(angle);
+    m_rightGain = std::sin(angle);
 }
 
 void TrueStereoPanner::setWidth(double width)
@@ -42,9 +48,8 @@ double TrueStereoPanner::width() const
 
 void TrueStereoPanner::processMono(double mono, double & left, double & right) const
 {
-    const double angle = m_pan * std::numbers::pi * 0.5;
-    left = mono * std::cos(angle);
-    right = mono * std::sin(angle);
+    left = mono * m_leftGain;
+    right = mono * m_rightGain;
 }
 
 void TrueStereoPanner::process(double & left, double & right) const
@@ -54,9 +59,8 @@ void TrueStereoPanner::process(double & left, double & right) const
     left = mid + side * m_width;
     right = mid - side * m_width;
 
-    const double angle = m_pan * std::numbers::pi * 0.5;
-    left *= std::cos(angle);
-    right *= std::sin(angle);
+    left *= m_leftGain;
+    right *= m_rightGain;
 }
 
 } // namespace noteahead

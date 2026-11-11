@@ -641,9 +641,14 @@ void Device::setSendSourceLevel(size_t, size_t, float)
 
 bool Device::hasSendSources() const
 {
+    // Asked once a block, by the drum devices only, of a dozen voices and a couple of buses. Holding
+    // the lock across the scan makes the per-source locks within it cheap re-entries; a cached flag
+    // would have to follow every path that writes a send level, the loading of a project included.
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
     const auto sources = sendSourceCount();
+    const auto buses = m_reverbSends.size();
     for (size_t source = 0; source < sources; source++) {
-        for (size_t bus = 0; bus < reverbSendCount(); bus++) {
+        for (size_t bus = 0; bus < buses; bus++) {
             if (sendSourceLevel(source, bus) > 0.0f) {
                 return true;
             }

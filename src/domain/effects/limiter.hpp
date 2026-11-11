@@ -48,6 +48,8 @@ private:
 
     float m_thresholdDb { 0.0f };
     float m_ceilingDb { -0.3f };
+    double m_threshold { 1.0 };
+    double m_ceiling { 1.0 };
     float m_releaseMs { 100.0f };
     float m_lookaheadMs { 5.0f };
     bool m_boost { false };

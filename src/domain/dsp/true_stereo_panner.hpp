@@ -16,6 +16,8 @@
 #ifndef TRUE_STEREO_PANNER_HPP
 #define TRUE_STEREO_PANNER_HPP
 
+#include <numbers>
+
 namespace noteahead {
 
 class TrueStereoPanner
@@ -33,6 +35,9 @@ public:
 private:
     double m_pan { 0.5 };
     double m_width { 1.0 };
+    //! The constant-power gains of m_pan, worked out when it changes rather than once a sample.
+    double m_leftGain { std::numbers::sqrt2 * 0.5 };
+    double m_rightGain { std::numbers::sqrt2 * 0.5 };
 };
 
 } // namespace noteahead

@@ -73,6 +73,8 @@ private:
         std::vector<double> buffer;
         size_t writePos { 0 };
         std::vector<OnePoleFilter> damping;
+        double tunedDampingHz { -1.0 };
+        double tunedSampleRate { -1.0 };
 
         void reset();
         double process(double input, const ReferenceEnvironment & environment, double sampleRate, double dampingHz);
@@ -94,6 +96,9 @@ private:
     float m_room { 1.0f };
     float m_dynamics { 1.0f };
     float m_outputDb { 0.0f };
+    //! The output and environment levels as gains, worked out with the parameters.
+    double m_outputGain { 1.0 };
+    double m_levelGain { 1.0 };
 
     Voicing m_voicingL;
     Voicing m_voicingR;
