@@ -30,6 +30,7 @@ private slots:
     void test_higherDrive_shouldSaturateMore();
     void test_hardMode_shouldClipToUnity();
     void test_foldMode_shouldStayWithinUnity();
+    void test_foldMode_hugeOrInfiniteInput_shouldReturn();
     void test_distMode_shouldShapeAsymmetrically();
     void test_gain_shouldScaleOutput();
 };

@@ -90,7 +90,7 @@ EarlyReflections::EarlyReflections()
     addParameter(Parameter { Constants::NahdXml::xmlKeyPreDelay().toStdString(), 0.12f, 0, 100, 12, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDamping().toStdString(), 0.4f, 0, 10000, 4000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWidth().toStdString(), 0.5f, 0, 200, 100, 1, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(150.0, minLowCutHz, maxLowCutHz)), 20, 500, 150, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(150.0, minLowCutHz, maxLowCutHz)), 20, 500, 320, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDiffusion().toStdString(), 0.7f, 0, 10000, 7000, 100, Parameter::Type::Continuous });
 
     // The dry has to stay whole: reflections are something a room adds to a sound, not something it

@@ -29,6 +29,8 @@ private slots:
     void test_intensity_shouldScaleModulation();
     void test_setBpm_shouldUpdateLfoFrequencyInSyncMode();
     void test_rateDivider_shouldStretchTheSweep();
+    void test_waveform_everyChoice_shouldSurviveXml();
+    void test_waveform_olderProject_shouldLoadAsItPlayed();
 };
 
 } // namespace noteahead

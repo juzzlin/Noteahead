@@ -55,6 +55,8 @@ public:
 private:
     double quantize(double sample) const;
 
+    //! Set in processBlock(), which is how the engine runs every effect, and not DspComponent's,
+    //! which only the per-sample process() path sets
     double m_sampleRate { 0.0 };
 
     int m_bits { 16 };

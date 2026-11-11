@@ -58,6 +58,8 @@ private:
     Lfo m_lfoLeft;
     Lfo m_lfoRight;
 
+    //! Set in processBlock(), which is how the engine runs every effect, and not DspComponent's,
+    //! which only the per-sample process() path sets
     double m_sampleRate { 0.0 };
 
     double m_rate { 0.5 };

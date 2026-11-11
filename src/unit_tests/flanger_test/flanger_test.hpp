@@ -29,6 +29,8 @@ private slots:
     void test_sweep_shouldCombTheSignal();
     void test_feedback_shouldBeNeutralAtHalfTravel();
     void test_rateDivider_shouldSlowTheSweep();
+    void test_sync_knobMoved_shouldKeepTheDelayLineFull();
+    void test_reset_stereoPhase_shouldKeepTheSidesApart();
 };
 
 } // namespace noteahead

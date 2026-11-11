@@ -30,6 +30,7 @@
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/early_reflections.hpp"
+#include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
@@ -2324,6 +2325,25 @@ void EffectsTest::test_chorusEffect_shouldProcessAudio()
         }
     }
     QVERIFY(signalDetected);
+}
+
+void EffectsTest::test_parameterDefaults_everyEffect_shouldBeWhereTheEffectStarts()
+{
+    // A preset starts by resetting every parameter to its default, so a default that is not where
+    // the effect starts changes whatever the preset does not set
+    EffectFactory::init();
+    QStringList mismatches;
+    for (auto && typeId : EffectFactory::typeIds()) {
+        const auto effect = EffectFactory::createEffect(typeId);
+        QVERIFY(effect);
+        for (auto && [name, parameter] : effect->parameters()) {
+            // In the integer the project saves, so that a default rounded onto it counts as the same
+            if (std::abs(parameter.xmlValue() - parameter.xmlDefault()) > 1) {
+                mismatches << QString::fromStdString(typeId + "." + name) + QString { ": starts at %1, default %2" }.arg(parameter.value()).arg(parameter.defaultValue());
+            }
+        }
+    }
+    QVERIFY2(mismatches.isEmpty(), qPrintable(mismatches.join("\n")));
 }
 
 } // namespace noteahead

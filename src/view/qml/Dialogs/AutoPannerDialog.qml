@@ -66,9 +66,10 @@ EffectDialog {
                         model: [qsTr("Saw"), qsTr("Triangle"), qsTr("Square"), qsTr("Sine")]
                         currentIndex: {
                             effectRackController.revision;
-                            return Math.round(effectRackController.parameterValue(root.effectIndex, "waveform") * 3);
+                            return Math.round(effectRackController.parameterValue(root.effectIndex, "lfoWaveform"));
                         }
-                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, "waveform", index / 3.0)
+                        // The index is the waveform's number, in the order Lfo::Waveform has them
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, "lfoWaveform", index)
                         Layout.fillWidth: true
                     }
                 }

@@ -88,6 +88,16 @@ void EffectFactory::registerEffect(const std::string & typeId, Creator creator)
     registry()[typeId] = std::move(creator);
 }
 
+std::vector<std::string> EffectFactory::typeIds()
+{
+    std::vector<std::string> ids;
+    ids.reserve(registry().size());
+    for (auto && [typeId, creator] : registry()) {
+        ids.push_back(typeId);
+    }
+    return ids;
+}
+
 void EffectFactory::registerLegacyEffect(const std::string & legacyType, Creator creator)
 {
     legacyRegistry()[legacyType] = std::move(creator);

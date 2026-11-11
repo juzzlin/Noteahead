@@ -69,17 +69,13 @@ double Drive::shape(double x) const
     case Mode::Hard:
         return std::clamp(x, -1.0, 1.0);
     case Mode::Fold: {
-        // Triangle wavefolder: reflect the signal back whenever it exceeds the [-1, 1] range. The
-        // drive gain is bounded, so only a handful of reflections are ever needed.
-        double y = x;
-        while (y > 1.0 || y < -1.0) {
-            if (y > 1.0) {
-                y = 2.0 - y;
-            } else {
-                y = -2.0 - y;
-            }
-        }
-        return y;
+        // Triangle wavefolder: the signal reflected back at -1 and 1 as often as it takes, in closed
+        // form. Reflecting it in a loop never ends on an infinite input and runs for ages on a huge
+        // one, both of which a blown-up filter ahead of the effect can hand over. An infinite one
+        // comes out as NaN here rather than hanging the audio thread.
+        const double wrapped = std::fmod(x + 1.0, 4.0);
+        const double phase = wrapped < 0.0 ? wrapped + 4.0 : wrapped;
+        return phase < 2.0 ? phase - 1.0 : 3.0 - phase;
     }
     case Mode::Dist: {
         // Asymmetric, hard-edged clipping reminiscent of an overdriven guitar amp. A small DC bias

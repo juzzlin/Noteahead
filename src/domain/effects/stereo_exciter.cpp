@@ -89,7 +89,7 @@ struct StereoExciter::Oversampling
 StereoExciter::StereoExciter()
   : m_oversampling { std::make_unique<Oversampling>() }
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 700, 8000, 2500, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 700, 8000, 4350, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPeak().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyZeroFill().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTimbre().toStdString(), 0.5f, -5000, 5000, 0, 100, Parameter::Type::Continuous });

@@ -26,12 +26,15 @@ namespace noteahead {
 
 AutoPanner::AutoPanner()
 {
-    addParameter({ Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+    // The waveform's Lfo::Waveform number. Saved as "waveform" before, from a dialog that stored a
+    // third of it, so a project held only 0 or 1 there, and 1 played as Sine: read back as it played.
+    addParameter({ Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete, { Constants::NahdXml::xmlKeyWaveform().toStdString() }, [](float legacy) { return legacy * 3.0f; } });
     addParameter({ Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter({ Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter({ Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
     addParameter({ Constants::NahdXml::xmlKeyRateDivider().toStdString(), 1.0f, 1, maxRateDivider(), 1, 1, Parameter::Type::Discrete });
+    AutoPanner::sync();
 }
 
 int AutoPanner::maxRateDivider()
@@ -77,8 +80,8 @@ void AutoPanner::processBlock(AudioContext & context)
 
 void AutoPanner::sync()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) {
-        m_lfo.setWaveform(static_cast<Lfo::Waveform>(static_cast<int>(p->get().value() * 3.0f + 0.5f)));
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); p) {
+        m_lfo.setWaveform(static_cast<Lfo::Waveform>(std::clamp(p->get().xmlValue(), 0, 3)));
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyIntensity().toStdString()); p) {
         m_intensity = static_cast<double>(p->get().value());
@@ -96,6 +99,12 @@ void AutoPanner::sync()
         m_rateDivider = std::clamp(p->get().xmlValue(), 1, maxRateDivider());
     }
     updateLfoFrequency();
+}
+
+void AutoPanner::reset()
+{
+    Effect::reset();
+    m_lfo.reset();
 }
 
 void AutoPanner::setBpm(float bpm)

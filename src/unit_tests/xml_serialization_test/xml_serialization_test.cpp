@@ -65,6 +65,7 @@
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
+#include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/bit_crusher.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -1547,6 +1548,31 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QCOMPARE(samplerIn->sampleCurve(62), 0.0f);
     QCOMPARE(samplerIn->sampleReverse(62), false);
     QCOMPARE(samplerIn->sampleEndOffset(62), 0.0);
+}
+
+void XmlSerializationTest::test_fromXml_autoPanner_legacyWaveform_shouldPlayAsBefore()
+{
+    // Before the waveform was stored as its number, the Auto Panner saved a third of it, rounded,
+    // as "waveform": a Sine was saved as 1, and 1 is what played as Sine
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto pannerOut = std::make_shared<AutoPanner>();
+    pannerOut->parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString())->get().update(static_cast<float>(Lfo::Waveform::Sine));
+    deviceServiceOut.sendEffectRack().setEffect(0, pannerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    auto xml = editorServiceOut.toXml();
+    QVERIFY(xml.contains(R"(name="lfoWaveform" valueType="int" value="3")"));
+    xml.replace(R"(name="lfoWaveform" valueType="int" value="3")", R"(name="waveform" valueType="int" value="1")");
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto pannerIn = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(pannerIn);
+    QCOMPARE(pannerIn->parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString())->get().xmlValue(), static_cast<int>(Lfo::Waveform::Sine));
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_legacyAttackAndHold_shouldKeepTheirTimes()

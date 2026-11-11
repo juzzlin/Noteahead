@@ -97,6 +97,7 @@ private slots:
     void test_chorusEffect_shouldProcessAudio();
     void test_filterStability_shouldHandleChangingCutoff();
     void test_cascadedSvfStability_shouldHandleRapidParameterChanges();
+    void test_parameterDefaults_everyEffect_shouldBeWhereTheEffectStarts();
 };
 
 } // namespace noteahead

@@ -59,6 +59,8 @@ private:
     //! What the expander asks for at a given detector level, in dB. Never positive.
     double targetGainDb(double detectorDb) const;
 
+    //! Set in processBlock(), which is how the engine runs every effect, and not DspComponent's,
+    //! which only the per-sample process() path sets
     double m_sampleRate { 0.0 };
 
     double m_thresholdDb { -40.0 };

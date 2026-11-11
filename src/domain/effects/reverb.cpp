@@ -42,7 +42,7 @@ Reverb::Reverb()
     addSoloParameter();
 
     addParameter({ Constants::NahdXml::xmlKeyGated().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
-    addParameter({ Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, 0, 10000, 3333, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, 0, 10000, 3330, 100 });
     addParameter({ Constants::NahdXml::xmlKeyAttack().toStdString(), 0.566f, 0, 10000, 5660, 100 });
     addParameter({ Constants::NahdXml::xmlKeyHold().toStdString(), 0.2f, 0, 1000, 200, 1 });
     addParameter({ Constants::NahdXml::xmlKeyRelease().toStdString(), 0.606f, 0, 10000, 6060, 100 });

@@ -165,7 +165,7 @@ Eq8BandParametric::Eq8BandParametric()
 {
     for (int i = 0; i < static_cast<int>(NumBands); i++) {
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandType(i).toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { std::format("eq8BandParametricBand{}Type", i + 1) } });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyBandFreq(i).toStdString(), 0.5f, 20, 20000, 1000, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Freq", i + 1) } });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandFreq(i).toStdString(), 0.5f, 20, 20000, 10010, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Freq", i + 1) } });
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandGain(i).toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Gain", i + 1) } });
         // 0.5753 maps to Q = 1.414, which is a bell exactly one octave wide -- the width a
         // parametric is expected to open at, and the one a musician reads as "a bit either side of

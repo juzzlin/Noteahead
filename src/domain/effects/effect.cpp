@@ -255,7 +255,7 @@ void Effect::resolveSharedParameters()
 
 void Effect::addMixParameter(float defaultValue, MixLaw law, int xmlMin, int xmlMax, int xmlScale, LegacyNameList legacyNames)
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), defaultValue, xmlMin, xmlMax, static_cast<int>(std::lround(static_cast<double>(defaultValue) * xmlScale)), xmlScale, Parameter::Type::Continuous, std::move(legacyNames) });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), defaultValue, xmlMin, xmlMax, Parameter::internalToXmlValue(defaultValue, xmlMin, xmlMax), xmlScale, Parameter::Type::Continuous, std::move(legacyNames) });
     m_mixLaw = law;
     resolveSharedParameters();
 }

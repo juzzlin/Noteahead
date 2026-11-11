@@ -68,11 +68,11 @@ constexpr double OutputRangeDb = 12.0;
 StereoEnhancer::StereoEnhancer()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyBassGain().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyBassFreq().toStdString(), 0.5f, 40, 400, 120, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyBassFreq().toStdString(), 0.5f, 40, 400, 220, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMidGain().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMidQ().toStdString(), 0.5f, 1, 100, 10, 10, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMidQ().toStdString(), 0.5f, 1, 100, 51, 10, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHighGain().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyHighFreq().toStdString(), 0.5f, 1500, 16000, 6000, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHighFreq().toStdString(), 0.5f, 1500, 16000, 8750, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeySpread().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
     addMixParameter(1.0f);

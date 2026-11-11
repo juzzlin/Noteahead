@@ -34,6 +34,7 @@ public:
     void processSample(double & left, double & right) override;
     void processBlock(AudioContext & context) override;
     void sync() override;
+    void reset() override;
     void setBpm(float bpm) override;
 
     //! Largest factor the Rate Divider offers. As the Phaser's, so that the same control means the
