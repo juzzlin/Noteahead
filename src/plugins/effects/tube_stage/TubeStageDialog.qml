@@ -230,7 +230,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentSaturationDb = effectRackController.tubeStageSaturationDb(root.effectIndex);
+            root.currentSaturationDb = dialogModel.saturationDb();
         }
+    }
+
+    TubeStageDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

@@ -14,11 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "reference.hpp"
+#include "reference_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -38,6 +41,7 @@ void registerReferenceEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<ReferenceDialogModel>("Noteahead", 1, 0, "ReferenceDialogModel"); },
     });
 }
 

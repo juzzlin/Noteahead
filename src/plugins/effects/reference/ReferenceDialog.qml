@@ -74,7 +74,7 @@ EffectDialog {
                 ComboBox {
                     id: environmentCombo
                     // Read from the effect's own table, so this cannot name a system it does not have
-                    model: effectRackController.referenceEnvironmentNames()
+                    model: dialogModel.environmentNames()
                     currentIndex: {
                         effectRackController.revision;
                         return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.environment) * (count - 1));
@@ -161,5 +161,11 @@ EffectDialog {
                 }
             }
         }
+    }
+
+    ReferenceDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

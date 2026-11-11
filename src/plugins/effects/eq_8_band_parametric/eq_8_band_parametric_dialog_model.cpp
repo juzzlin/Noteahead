@@ -30,7 +30,7 @@ Eq8BandParametricDialogModel::Eq8BandParametricDialogModel(QObject * parent)
 
 QVariantList Eq8BandParametricDialogModel::response(int points) const
 {
-    const auto equalizer = std::dynamic_pointer_cast<Eq8BandParametric>(effect());
+    const auto equalizer = std::dynamic_pointer_cast<Eq8BandParametric>(this->effect());
     if (!equalizer) {
         return {};
     }
@@ -44,7 +44,7 @@ QVariantList Eq8BandParametricDialogModel::response(int points) const
 
 QVariantList Eq8BandParametricDialogModel::passThroughResponse(int points) const
 {
-    const auto equalizer = std::dynamic_pointer_cast<Eq8BandParametric>(effect());
+    const auto equalizer = std::dynamic_pointer_cast<Eq8BandParametric>(this->effect());
     if (!equalizer) {
         return {};
     }

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "eq_32_band_graphical.hpp"
+#include "eq_32_band_graphical_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
@@ -21,6 +22,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -51,6 +54,7 @@ void registerEq32BandGraphicalEffectView()
           }
           return QString { "(Graphical, %1)" }.arg(modeName);
       },
+      .registerQmlTypes = [] { qmlRegisterType<Eq32BandGraphicalDialogModel>("Noteahead", 1, 0, "Eq32BandGraphicalDialogModel"); },
     });
 }
 

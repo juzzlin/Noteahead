@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "bass_grinder.hpp"
+#include "bass_grinder_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
@@ -21,6 +22,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -42,6 +45,7 @@ void registerBassGrinderEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<BassGrinderDialogModel>("Noteahead", 1, 0, "BassGrinderDialogModel"); },
     });
 }
 

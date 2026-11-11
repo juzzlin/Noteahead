@@ -1,0 +1,39 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "stereo_widener_dialog_model.hpp"
+
+#include "stereo_widener.hpp"
+
+namespace noteahead {
+
+StereoWidenerDialogModel::StereoWidenerDialogModel(QObject * parent)
+  : EffectDialogModel { parent }
+{
+}
+
+float StereoWidenerDialogModel::bandCorrelation(quint32 bandIndex) const
+{
+    if (const auto effect = this->effect(); effect) {
+        if (const auto width = std::dynamic_pointer_cast<StereoWidener>(effect); width) {
+            return width->bandCorrelation(bandIndex);
+        }
+    }
+
+    // Nothing to read is reported as centred, which is where the meter rests.
+    return 1.0f;
+}
+
+} // namespace noteahead

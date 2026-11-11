@@ -197,7 +197,7 @@ EffectDialog {
                     label: qsTr("Depth")
                     suffix: "%"
                     key: NahdXml.depth
-                    enabled: effectRackController.reverb224HasEarlyReflections(root.program)
+                    enabled: dialogModel.hasEarlyReflections(root.program)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -274,5 +274,11 @@ EffectDialog {
                 }
             }
         }
+    }
+
+    Reverb224DialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "stereo_exciter.hpp"
+#include "stereo_exciter_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../common/parameter_mapper.hpp"
@@ -22,6 +23,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -43,6 +46,7 @@ void registerStereoExciterEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<StereoExciterDialogModel>("Noteahead", 1, 0, "StereoExciterDialogModel"); },
     });
 }
 

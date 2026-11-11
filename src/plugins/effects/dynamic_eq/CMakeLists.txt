@@ -4,6 +4,8 @@ noteahead_add_effect(
         dynamic_eq.hpp
         dynamic_eq_registration.cpp
     VIEW_SOURCES
+        dynamic_eq_dialog_model.cpp
+        dynamic_eq_dialog_model.hpp
         dynamic_eq_view_registration.cpp
     QML_FILES
         DynamicEqDialog.qml

@@ -4,6 +4,8 @@ noteahead_add_effect(
         multiband_compressor.hpp
         multiband_compressor_registration.cpp
     VIEW_SOURCES
+        multiband_compressor_dialog_model.cpp
+        multiband_compressor_dialog_model.hpp
         multiband_compressor_view_registration.cpp
     QML_FILES
         MultibandCompressorDialog.qml

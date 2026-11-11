@@ -24,7 +24,10 @@
 #include "../plugins/plugin_catalog.hpp"
 
 #include <QObject>
+
 #include <QUrl>
+#include <utility>
+#include <vector>
 
 #include <functional>
 #include <memory>
@@ -242,71 +245,10 @@ public:
     Q_INVOKABLE QVariantMap stereoFieldMeterReading(quint32 effectIndex) const;
     Q_INVOKABLE void stereoFieldMeterSetActive(quint32 effectIndex, bool active);
 
-    //! Names of the systems the environment parameter numbers, for the dialog's selector.
-    Q_INVOKABLE QStringList referenceEnvironmentNames() const;
-
-    //! Whether the Gain in this slot has seen a full-scale sample since it was last cleared.
-    Q_INVOKABLE bool gainClipped(quint32 effectIndex) const;
-    Q_INVOKABLE void clearGainClip(quint32 effectIndex);
-
     //! What auto gain applies at @p effectIndex, in dB: 0 while it is off, and for an effect
     //! without it.
     Q_INVOKABLE double eqAutoGainDb(quint32 effectIndex) const;
 
-    Q_INVOKABLE QVariantList airBandEqResponse(quint32 effectIndex, int points) const;
-
-    // EQ 32-Band Graphical
-    Q_INVOKABLE QVariantList eq32BandGraphicalResponse(quint32 effectIndex, int points) const;
-    Q_INVOKABLE int eq32BandGraphicalBandCount() const;
-    //! The nominal frequency a slider is labelled with, "31.5 Hz" or "1.25 kHz".
-    Q_INVOKABLE QString eq32BandGraphicalBandLabel(quint32 bandIndex) const;
-    //! How late Linear Phase makes the output at the effect's sample rate, in milliseconds.
-    Q_INVOKABLE double eq32BandGraphicalLinearPhaseLatencyMs(quint32 effectIndex) const;
-    //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
-    //! is how this differs from the Flat preset.
-    Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
-
-    // Reverb 224
-    //! Whether @p program has early reflections for Depth to balance, which the plates do not.
-    Q_INVOKABLE bool reverb224HasEarlyReflections(int program) const;
-
-    // DynamicEq
-    //! The band at its current gain, and at the whole of its Range: where it is and how far it can go.
-    Q_INVOKABLE QVariantList dynamicEqResponse(quint32 effectIndex, int points) const;
-    Q_INVOKABLE QVariantList dynamicEqRangeResponse(quint32 effectIndex, int points) const;
-    Q_INVOKABLE float dynamicEqGainDb(quint32 effectIndex) const;
-    Q_INVOKABLE float dynamicEqRangeDb(quint32 effectIndex) const;
-    //! What the detector hears, in dB, to read against the threshold.
-    Q_INVOKABLE float dynamicEqDetectorLevelDb(quint32 effectIndex) const;
-    //! The band's gain over the last couple of seconds, oldest first.
-    Q_INVOKABLE QVariantList dynamicEqGainHistory(quint32 effectIndex) const;
-    //! The history is kept only while the dialog is open.
-    Q_INVOKABLE void dynamicEqSetActive(quint32 effectIndex, bool active);
-
-    // PhaseScope
-    //! The delay as it is applied, in whole samples at the effect's rate.
-    Q_INVOKABLE int phaseScopeDelaySamples(quint32 effectIndex) const;
-    //! Sets the delay to exactly @p samples at the effect's rate, for nudging a sample at a time.
-    Q_INVOKABLE void phaseScopeSetDelaySamples(quint32 effectIndex, int samples);
-    //! The Phase Scope runs only while its dialog is open.
-    Q_INVOKABLE void phaseScopeSetActive(quint32 effectIndex, bool active);
-    //! hasReference, correlation, referenceDb, signalDb and sumGainDb. Empty for no such effect.
-    Q_INVOKABLE QVariantMap phaseScopeReading(quint32 effectIndex) const;
-    //! The latest hit: reference and signal, each decimated to at most @p maxPoints.
-    Q_INVOKABLE QVariantMap phaseScopeCapture(quint32 effectIndex, int maxPoints) const;
-
-    Q_INVOKABLE float multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const;
-    Q_INVOKABLE float stereoWidenerBandCorrelation(quint32 effectIndex, quint32 bandIndex) const;
-    Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
-    Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
-    Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
-    Q_INVOKABLE float compressor2AReductionDb(quint32 effectIndex) const;
-    Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
-    Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
-    Q_INVOKABLE float analogFuzzSaturationDb(quint32 effectIndex) const;
-    Q_INVOKABLE float bassGrinderSaturationDb(quint32 effectIndex) const;
-    Q_INVOKABLE float waveDesignerShapingDb(quint32 effectIndex) const;
-    Q_INVOKABLE float stereoExciterHarmonicsDb(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterShortTerm(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterIntegrated(quint32 effectIndex) const;
@@ -387,6 +329,8 @@ public:
     //! The effect at @p effectIndex in the rack now shown, or nothing when there is none there.
     //! What an EffectDialogModel reads its effect through.
     std::shared_ptr<Effect> effectAt(quint32 effectIndex) const;
+    //! Sets several parameters of one effect at once, with one revision and one sync for all of them.
+    void setParameterValues(quint32 effectIndex, const std::vector<std::pair<QString, float>> & values);
 
 signals:
     void effectCountChanged();

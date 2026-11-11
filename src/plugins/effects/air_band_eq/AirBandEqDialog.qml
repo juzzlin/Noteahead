@@ -75,9 +75,11 @@ EffectDialog {
                 id: curve
                 response: {
                     effectRackController.revision;
+                    // The model follows the slot, and this has to follow the model
+                    dialogModel.effectIndex;
                     // One point per couple of pixels, so the curve stays smooth at whatever width
                     // the dialog gives it, and re-read when the dialog is resized.
-                    return effectRackController.airBandEqResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                    return dialogModel.response(Math.max(64, Math.round(width / 2)));
                 }
                 // The same range the parametric equalizer draws over, so that a curve read in one
                 // dialog means the same thing in the other. The panel reaches further than this and
@@ -244,5 +246,11 @@ EffectDialog {
             }
             onActivated: index => effectRackController.setParameterValue(root.effectIndex, paramKey, index)
         }
+    }
+
+    AirBandEqDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

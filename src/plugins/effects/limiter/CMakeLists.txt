@@ -4,6 +4,8 @@ noteahead_add_effect(
         limiter.hpp
         limiter_registration.cpp
     VIEW_SOURCES
+        limiter_dialog_model.cpp
+        limiter_dialog_model.hpp
         limiter_view_registration.cpp
     QML_FILES
         LimiterDialog.qml

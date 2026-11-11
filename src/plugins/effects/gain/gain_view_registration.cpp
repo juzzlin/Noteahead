@@ -14,11 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "gain.hpp"
+#include "gain_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -36,6 +39,7 @@ void registerGainEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<GainDialogModel>("Noteahead", 1, 0, "GainDialogModel"); },
     });
 }
 

@@ -83,7 +83,7 @@ EffectDialog {
                         clipped: root.clipped
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: {
-                            effectRackController.clearGainClip(root.effectIndex);
+                            dialogModel.clearClip();
                             root.clipped = false;
                         }
                     }
@@ -120,7 +120,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.clipped = effectRackController.gainClipped(root.effectIndex);
+            root.clipped = dialogModel.clipped();
         }
+    }
+
+    GainDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

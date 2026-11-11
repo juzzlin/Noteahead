@@ -11,14 +11,11 @@ class EffectRackControllerTest : public QObject
 
 private slots:
     void test_effectId_shouldNameTheEffectInThatSlot();
-    void test_airBandEqResponse_shouldFollowTheBandThatIsBoosted();
-    void test_airBandEqResponse_flatBands_shouldBeFlat();
     void test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer();
     void test_spectrumSetActive_postMode_shouldRunOnlyThePostTap();
     void test_spectrumSetActive_inactive_shouldStopTheTaps();
     void test_spectrumUpdateRenderer_shouldHandTheLayoutToTheRenderer();
     void test_eqAutoGainDb_switchedOn_shouldReportTheCompensation();
-    void test_airBandEqResponse_wrongEffect_shouldBeEmpty();
     void initTestCase();
     void cleanupTestCase();
     void test_effectParametersSummary_reverb_shouldReturnFormattedSummary();

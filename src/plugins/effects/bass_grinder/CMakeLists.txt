@@ -4,6 +4,8 @@ noteahead_add_effect(
         bass_grinder.hpp
         bass_grinder_registration.cpp
     VIEW_SOURCES
+        bass_grinder_dialog_model.cpp
+        bass_grinder_dialog_model.hpp
         bass_grinder_view_registration.cpp
     QML_FILES
         BassGrinderDialog.qml

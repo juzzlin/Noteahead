@@ -295,7 +295,13 @@ EffectDialog {
         running: root.opened
         repeat: true
         onTriggered: {
-            root.currentSaturationDb = effectRackController.bassGrinderSaturationDb(root.effectIndex);
+            root.currentSaturationDb = dialogModel.saturationDb();
         }
+    }
+
+    BassGrinderDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

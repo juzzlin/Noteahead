@@ -4,6 +4,8 @@ noteahead_add_effect(
         stereo_widener.hpp
         stereo_widener_registration.cpp
     VIEW_SOURCES
+        stereo_widener_dialog_model.cpp
+        stereo_widener_dialog_model.hpp
         stereo_widener_view_registration.cpp
     QML_FILES
         StereoWidenerDialog.qml

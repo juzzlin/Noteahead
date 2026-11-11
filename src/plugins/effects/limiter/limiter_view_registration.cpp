@@ -14,11 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "limiter.hpp"
+#include "limiter_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -40,6 +43,7 @@ void registerLimiterEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<LimiterDialogModel>("Noteahead", 1, 0, "LimiterDialogModel"); },
     });
 }
 

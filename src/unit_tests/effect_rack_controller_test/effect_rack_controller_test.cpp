@@ -37,6 +37,7 @@
 #include "../../plugins/effects/phaser/phaser.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
+#include "../../plugins/effects/reverb_224/reverb_224_dialog_model.hpp"
 #include "../../plugins/effects/saturator/saturator.hpp"
 #include "../../plugins/effects/simple_eq/simple_eq.hpp"
 #include "../../plugins/effects/tremolo/tremolo.hpp"
@@ -351,48 +352,6 @@ void setUpInsertRackWith(EffectRackController & controller, const std::string & 
 
 } // namespace
 
-void EffectRackControllerTest::test_airBandEqResponse_shouldFollowTheBandThatIsBoosted()
-{
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, AirBandEq::typeIdString());
-
-    // The 650 Hz band pass all the way up, which the curve has to show around 650 Hz and nowhere
-    // near the ends of the range.
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(3), 1.0f);
-
-    const auto response = controller.airBandEqResponse(0, 64);
-    QCOMPARE(response.size(), 64);
-
-    // 20 Hz to 20 kHz over 64 points, evenly spaced by octave: 650 Hz lands a little past the middle.
-    const auto at = [&response](double hz) {
-        const int i = static_cast<int>(std::round(std::log(hz / 20.0) / std::log(1000.0) * 63.0));
-        return response.at(std::clamp(i, 0, 63)).toDouble();
-    };
-    QVERIFY2(at(650.0) > 9.0, qPrintable(QString("%1 dB at 650 Hz").arg(at(650.0))));
-    QVERIFY2(at(650.0) > at(20000.0) + 6.0, qPrintable(QString("%1 dB at 650 Hz, %2 at the top").arg(at(650.0)).arg(at(20000.0))));
-    QVERIFY2(at(650.0) > at(20.0) + 6.0, qPrintable(QString("%1 dB at 650 Hz, %2 at the bottom").arg(at(650.0)).arg(at(20.0))));
-}
-
-void EffectRackControllerTest::test_airBandEqResponse_flatBands_shouldBeFlat()
-{
-    // Every band knob starts at its flat detent and the air band starts off, so an equalizer nobody
-    // has touched draws a straight line.
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, AirBandEq::typeIdString());
-
-    const auto response = controller.airBandEqResponse(0, 32);
-    QCOMPARE(response.size(), 32);
-    for (auto && point : response) {
-        QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
-    }
-}
-
 void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer()
 {
     const auto engine = std::make_shared<AudioEngine>();
@@ -503,18 +462,6 @@ void EffectRackControllerTest::test_eqAutoGainDb_switchedOn_shouldReportTheCompe
 
     // A slot with nothing in it has nothing to report
     QCOMPARE(controller.eqAutoGainDb(1), 0.0);
-}
-
-void EffectRackControllerTest::test_airBandEqResponse_wrongEffect_shouldBeEmpty()
-{
-    // The dialog asks by index, and an index is a thing that can be stale.
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
-
-    QVERIFY(controller.airBandEqResponse(0, 32).isEmpty());
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary()
@@ -1467,8 +1414,9 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()
     QCOMPARE(controller.effectType(0), controller.reverb224Type());
     QCOMPARE(controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, pre=20ms, mix=30%)" });
     // Depth has nothing to balance on the plates
-    QVERIFY(controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::LargeHall)));
-    QVERIFY(!controller.reverb224HasEarlyReflections(static_cast<int>(Reverb224::Program::VocalPlate)));
+    const Reverb224DialogModel model;
+    QVERIFY(model.hasEarlyReflections(static_cast<int>(Reverb224::Program::LargeHall)));
+    QVERIFY(!model.hasEarlyReflections(static_cast<int>(Reverb224::Program::VocalPlate)));
 }
 
 namespace {

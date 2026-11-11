@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "phase_scope.hpp"
+#include "phase_scope_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../domain/effects/effect.hpp"
@@ -21,6 +22,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -61,6 +64,7 @@ void registerPhaseScopeEffectView()
           }
           return items.isEmpty() ? QString { "(%1)" }.arg(EffectSummary::tr("neutral")) : QString { "(%1)" }.arg(items.join(", "));
       },
+      .registerQmlTypes = [] { qmlRegisterType<PhaseScopeDialogModel>("Noteahead", 1, 0, "PhaseScopeDialogModel"); },
     });
 }
 

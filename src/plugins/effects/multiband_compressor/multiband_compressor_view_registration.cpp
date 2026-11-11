@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "multiband_compressor.hpp"
+#include "multiband_compressor_dialog_model.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../common/parameter_mapper.hpp"
@@ -23,6 +24,8 @@
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 #include <cmath>
+
+#include <QQmlEngine>
 
 namespace noteahead {
 
@@ -58,6 +61,7 @@ void registerMultibandCompressorEffectView()
           }
           return {};
       },
+      .registerQmlTypes = [] { qmlRegisterType<MultibandCompressorDialogModel>("Noteahead", 1, 0, "MultibandCompressorDialogModel"); },
     });
 }
 

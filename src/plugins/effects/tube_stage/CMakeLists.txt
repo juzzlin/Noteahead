@@ -4,6 +4,8 @@ noteahead_add_effect(
         tube_stage.hpp
         tube_stage_registration.cpp
     VIEW_SOURCES
+        tube_stage_dialog_model.cpp
+        tube_stage_dialog_model.hpp
         tube_stage_view_registration.cpp
     QML_FILES
         TubeStageDialog.qml

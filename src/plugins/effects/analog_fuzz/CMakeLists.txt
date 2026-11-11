@@ -4,6 +4,8 @@ noteahead_add_effect(
         analog_fuzz.hpp
         analog_fuzz_registration.cpp
     VIEW_SOURCES
+        analog_fuzz_dialog_model.cpp
+        analog_fuzz_dialog_model.hpp
         analog_fuzz_view_registration.cpp
     QML_FILES
         AnalogFuzzDialog.qml
