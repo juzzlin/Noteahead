@@ -72,9 +72,9 @@ EffectDialog {
                             model: [qsTr("Triode"), qsTr("Pentode")]
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageModeKey());
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                             }
-                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageModeKey(), i)
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
                             Layout.fillWidth: true
                         }
                     }
@@ -94,9 +94,9 @@ EffectDialog {
                             to: 48
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageDriveKey()) * 48;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.driveDb) * 48;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageDriveKey(), v / 48)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.driveDb, v / 48)
                             Layout.fillWidth: true
                         }
 
@@ -109,9 +109,9 @@ EffectDialog {
                             to: 100
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageBiasKey()) * 100;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.bias) * 100;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageBiasKey(), v / 100)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bias, v / 100)
                             Layout.fillWidth: true
                         }
 
@@ -124,9 +124,9 @@ EffectDialog {
                             to: 100
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageToneKey()) * 100;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.tone) * 100;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageToneKey(), v / 100)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.tone, v / 100)
                             Layout.fillWidth: true
                         }
 
@@ -139,9 +139,9 @@ EffectDialog {
                             to: 100
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageMixKey()) * 100;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageMixKey(), v / 100)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                             Layout.fillWidth: true
                         }
 
@@ -154,9 +154,9 @@ EffectDialog {
                             to: 12
                             value: {
                                 effectRackController.revision;
-                                return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageGainKey()) * 24;
+                                return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageGainKey(), (v + 12) / 24)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                             Layout.fillWidth: true
                         }
                     }

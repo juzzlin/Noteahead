@@ -69,7 +69,7 @@ EffectDialog {
                     LabeledCombo {
                         label: qsTr("Freq")
                         model: ["20 Hz", "30 Hz", "60 Hz", "100 Hz"]
-                        paramKey: effectRackController.vintagePassiveEqLowFreqKey()
+                        paramKey: NahdXml.lowFreq
                     }
 
                     RowLayout {
@@ -83,9 +83,9 @@ EffectDialog {
                             to: 14
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey()) * 14;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.lowBoost) * 14;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey(), v / 14)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lowBoost, v / 14)
                         }
                         Knob {
                             label: qsTr("Atten")
@@ -94,9 +94,9 @@ EffectDialog {
                             to: 14
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey()) * 14;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.lowAtten) * 14;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey(), v / 14)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lowAtten, v / 14)
                         }
                     }
                 }
@@ -123,7 +123,7 @@ EffectDialog {
                     LabeledCombo {
                         label: qsTr("Boost Freq")
                         model: ["3 kHz", "4 kHz", "5 kHz", "8 kHz", "10 kHz", "12 kHz", "16 kHz"]
-                        paramKey: effectRackController.vintagePassiveEqHighBoostFreqKey()
+                        paramKey: NahdXml.highBoostFreq
                     }
 
                     RowLayout {
@@ -137,9 +137,9 @@ EffectDialog {
                             to: 18
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey()) * 18;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.highBoost) * 18;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey(), v / 18)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.highBoost, v / 18)
                         }
                         Knob {
                             label: qsTr("Bandwidth")
@@ -152,16 +152,16 @@ EffectDialog {
                             to: 1000
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey()) * 1000;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.bandwidth) * 1000;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey(), v / 1000)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bandwidth, v / 1000)
                         }
                     }
 
                     LabeledCombo {
                         label: qsTr("Atten Freq")
                         model: ["5 kHz", "10 kHz", "20 kHz"]
-                        paramKey: effectRackController.vintagePassiveEqHighAttenFreqKey()
+                        paramKey: NahdXml.highAttenFreq
                     }
 
                     Knob {
@@ -172,9 +172,9 @@ EffectDialog {
                         Layout.alignment: Qt.AlignHCenter
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey()) * 18;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.highAtten) * 18;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey(), v / 18)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.highAtten, v / 18)
                     }
                 }
             }

@@ -62,9 +62,9 @@ EffectDialog {
                     model: [qsTr("Soft"), qsTr("Hard"), qsTr("Fold"), qsTr("Dist")]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveModeKey());
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                     }
-                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveModeKey(), i)
+                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
                     Layout.fillWidth: true
                 }
             }
@@ -85,9 +85,9 @@ EffectDialog {
                     to: 40
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveAmountKey()) * 40;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.driveDb) * 40;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveAmountKey(), v / 40)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.driveDb, v / 40)
                     Layout.fillWidth: true
                 }
 
@@ -100,9 +100,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                     Layout.fillWidth: true
                 }
 
@@ -115,9 +115,9 @@ EffectDialog {
                     to: 12
                     value: {
                         effectRackController.revision;
-                        return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.driveGainKey()) * 24;
+                        return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveGainKey(), (v + 12) / 24)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                     Layout.fillWidth: true
                 }
             }

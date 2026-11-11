@@ -60,6 +60,7 @@ class Instrument;
 class JackService;
 class KeyboardService;
 class KnobController;
+class NahdXmlKeys;
 class LanguageService;
 class ManualService;
 class MidiCcAutomationsModel;
@@ -181,6 +182,8 @@ private:
     std::unique_ptr<PerformancePanelModel> m_performancePanelModel;
     std::unique_ptr<PerformancePanelController> m_performancePanelController;
     std::shared_ptr<KnobController> m_knobController;
+    //! The parameter keys, as the NahdXml singleton in QML.
+    std::unique_ptr<NahdXmlKeys> m_nahdXmlKeys;
 
     std::shared_ptr<JackService> m_jackService;
 

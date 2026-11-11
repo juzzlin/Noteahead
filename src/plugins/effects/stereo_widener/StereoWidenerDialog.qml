@@ -67,9 +67,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerCrossoverFreqKey(0)) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.crossoverFreq(0)) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoWidenerCrossoverFreqKey(0), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.crossoverFreq(0), v / 1000)
                 }
 
                 Knob {
@@ -82,9 +82,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerCrossoverFreqKey(1)) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.crossoverFreq(1)) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoWidenerCrossoverFreqKey(1), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.crossoverFreq(1), v / 1000)
                 }
 
                 Knob {
@@ -94,9 +94,9 @@ EffectDialog {
                     to: 12
                     value: {
                         effectRackController.revision;
-                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerGainKey()) - 0.5) * 24;
+                        return (effectRackController.parameterValue(root.effectIndex, NahdXml.gain) - 0.5) * 24;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoWidenerGainKey(), v / 24 + 0.5)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v / 24 + 0.5)
                 }
 
                 Rectangle {
@@ -117,22 +117,22 @@ EffectDialog {
                     to: 1000
                     enabled: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerMonoBassKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.monoBass) > 0.5;
                     }
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerMonoFreqKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.monoFreq) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoWidenerMonoFreqKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.monoFreq, v / 1000)
                 }
 
                 Switch {
                     text: qsTr("Mono Bass")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoWidenerMonoBassKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.monoBass) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoWidenerMonoBassKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.monoBass, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -203,9 +203,9 @@ EffectDialog {
                 to: 200
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(band.effectIndex, effectRackController.stereoWidenerWidthKey(band.bandIndex)) * 200;
+                    return effectRackController.parameterValue(band.effectIndex, NahdXml.bandWidth(band.bandIndex)) * 200;
                 }
-                onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.stereoWidenerWidthKey(band.bandIndex), v / 200)
+                onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandWidth(band.bandIndex), v / 200)
                 Layout.fillWidth: true
             }
 
@@ -213,9 +213,9 @@ EffectDialog {
                 text: qsTr("Solo")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(band.effectIndex, effectRackController.stereoWidenerSoloKey(band.bandIndex)) > 0.5;
+                    return effectRackController.parameterValue(band.effectIndex, NahdXml.bandSolo(band.bandIndex)) > 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(band.effectIndex, effectRackController.stereoWidenerSoloKey(band.bandIndex), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(band.effectIndex, NahdXml.bandSolo(band.bandIndex), checked ? 1 : 0)
                 Layout.alignment: Qt.AlignHCenter
             }
 

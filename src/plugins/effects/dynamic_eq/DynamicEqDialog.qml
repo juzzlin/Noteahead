@@ -41,21 +41,21 @@ EffectDialog {
     readonly property int flatType: 3
     readonly property int bandType: {
         effectRackController.revision;
-        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.dynamicEqTypeKey()));
+        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.filterType));
     }
     readonly property bool externalDetector: {
         effectRackController.revision;
-        return effectRackController.parameterValue(root.effectIndex, effectRackController.dynamicEqDetectorSourceKey()) >= 0.5;
+        return effectRackController.parameterValue(root.effectIndex, NahdXml.detectorSource) >= 0.5;
     }
     readonly property bool bandDetector: {
         effectRackController.revision;
-        return effectRackController.parameterValue(root.effectIndex, effectRackController.dynamicEqDetectorFilterKey()) < 0.5;
+        return effectRackController.parameterValue(root.effectIndex, NahdXml.detectorFilter) < 0.5;
     }
     property real currentGainDb: 0.0
     property real detectorDb: -120.0
     readonly property real thresholdDb: {
         effectRackController.revision;
-        return -60 + root.parameter(effectRackController.dynamicEqThresholdKey()) * 60;
+        return -60 + root.parameter(NahdXml.threshold) * 60;
     }
     property var gainHistory: []
     property var liveResponse: []
@@ -118,9 +118,9 @@ EffectDialog {
                 model: [qsTr("Stereo"), qsTr("Mid"), qsTr("Side")]
                 currentIndex: {
                     effectRackController.revision;
-                    return root.parameter(effectRackController.dynamicEqStereoModeKey());
+                    return root.parameter(NahdXml.stereoMode);
                 }
-                onActivated: index => root.setParameter(effectRackController.dynamicEqStereoModeKey(), index)
+                onActivated: index => root.setParameter(NahdXml.stereoMode, index)
             }
         }
 
@@ -136,7 +136,7 @@ EffectDialog {
                 implicitWidth: 140
                 model: [qsTr("Bell"), qsTr("Low Shelf"), qsTr("High Shelf"), qsTr("Flat")]
                 currentIndex: root.bandType
-                onActivated: index => root.setParameter(effectRackController.dynamicEqTypeKey(), index)
+                onActivated: index => root.setParameter(NahdXml.filterType, index)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
@@ -146,9 +146,9 @@ EffectDialog {
                 text: qsTr("Listen")
                 checked: {
                     effectRackController.revision;
-                    return root.parameter(effectRackController.dynamicEqListenKey()) >= 0.5;
+                    return root.parameter(NahdXml.listen) >= 0.5;
                 }
-                onToggled: root.setParameter(effectRackController.dynamicEqListenKey(), checked ? 1 : 0)
+                onToggled: root.setParameter(NahdXml.listen, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
@@ -314,9 +314,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqFrequencyKey()) * 1000;
+                            return root.parameter(NahdXml.frequency) * 1000;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqFrequencyKey(), v / 1000)
+                        onMoved: v => root.setParameter(NahdXml.frequency, v / 1000)
                         // A flat band has no frequency of its own, but a band detector still listens at one
                         enabled: root.bandType !== root.flatType || root.bandDetector
                         Layout.fillWidth: true
@@ -332,9 +332,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqQKey()) * 1000;
+                            return root.parameter(NahdXml.q) * 1000;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqQKey(), v / 1000)
+                        onMoved: v => root.setParameter(NahdXml.q, v / 1000)
                         enabled: root.bandType !== root.flatType || root.bandDetector
                         Layout.fillWidth: true
                     }
@@ -346,9 +346,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqRangeKey()) * 48 - 24;
+                            return root.parameter(NahdXml.range) * 48 - 24;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqRangeKey(), (v + 24) / 48)
+                        onMoved: v => root.setParameter(NahdXml.range, (v + 24) / 48)
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
@@ -363,9 +363,9 @@ EffectDialog {
                         to: 12
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqGainKey()) * 24 - 12;
+                            return root.parameter(NahdXml.gain) * 24 - 12;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqGainKey(), (v + 12) / 24)
+                        onMoved: v => root.setParameter(NahdXml.gain, (v + 12) / 24)
                         Layout.fillWidth: true
                     }
                     Item {
@@ -378,9 +378,9 @@ EffectDialog {
                         to: 0
                         value: {
                             effectRackController.revision;
-                            return -60 + root.parameter(effectRackController.dynamicEqThresholdKey()) * 60;
+                            return -60 + root.parameter(NahdXml.threshold) * 60;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqThresholdKey(), (v + 60) / 60)
+                        onMoved: v => root.setParameter(NahdXml.threshold, (v + 60) / 60)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -390,9 +390,9 @@ EffectDialog {
                         to: 20
                         value: {
                             effectRackController.revision;
-                            return 1 + root.parameter(effectRackController.dynamicEqRatioKey()) * 19;
+                            return 1 + root.parameter(NahdXml.ratio) * 19;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqRatioKey(), (v - 1) / 19)
+                        onMoved: v => root.setParameter(NahdXml.ratio, (v - 1) / 19)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -402,9 +402,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqKneeKey()) * 24;
+                            return root.parameter(NahdXml.knee) * 24;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqKneeKey(), v / 24)
+                        onMoved: v => root.setParameter(NahdXml.knee, v / 24)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -417,9 +417,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqAttackKey()) * 1000;
+                            return root.parameter(NahdXml.attack) * 1000;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqAttackKey(), v / 1000)
+                        onMoved: v => root.setParameter(NahdXml.attack, v / 1000)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -432,9 +432,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqReleaseKey()) * 1000;
+                            return root.parameter(NahdXml.release) * 1000;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqReleaseKey(), v / 1000)
+                        onMoved: v => root.setParameter(NahdXml.release, v / 1000)
                         Layout.fillWidth: true
                     }
                 }
@@ -451,13 +451,13 @@ EffectDialog {
                         implicitWidth: 130
                         model: [qsTr("Self"), qsTr("Side Chain")]
                         currentIndex: root.externalDetector ? 1 : 0
-                        onActivated: index => root.setParameter(effectRackController.dynamicEqDetectorSourceKey(), index)
+                        onActivated: index => root.setParameter(NahdXml.detectorSource, index)
                     }
                     ComboBox {
                         implicitWidth: 130
                         model: [qsTr("Band only"), qsTr("Full range")]
                         currentIndex: root.bandDetector ? 0 : 1
-                        onActivated: index => root.setParameter(effectRackController.dynamicEqDetectorFilterKey(), index)
+                        onActivated: index => root.setParameter(NahdXml.detectorFilter, index)
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
@@ -487,17 +487,17 @@ EffectDialog {
                         }
                         currentIndex: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqSideChainSourceDeviceKey()) + 1;
+                            return root.parameter(NahdXml.sideChainSourceDevice) + 1;
                         }
-                        onActivated: index => root.setParameter(effectRackController.dynamicEqSideChainSourceDeviceKey(), index - 1)
+                        onActivated: index => root.setParameter(NahdXml.sideChainSourceDevice, index - 1)
                     }
                     FilterKnob {
                         label: qsTr("LPF")
                         value: {
                             effectRackController.revision;
-                            return root.parameter(effectRackController.dynamicEqSideChainLpfKey()) * Constants.uiInternalScaling;
+                            return root.parameter(NahdXml.sideChainLpf) * Constants.uiInternalScaling;
                         }
-                        onMoved: v => root.setParameter(effectRackController.dynamicEqSideChainLpfKey(), v / Constants.uiInternalScaling)
+                        onMoved: v => root.setParameter(NahdXml.sideChainLpf, v / Constants.uiInternalScaling)
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered

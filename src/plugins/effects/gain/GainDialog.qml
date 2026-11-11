@@ -62,9 +62,9 @@ EffectDialog {
                     to: 24
                     value: {
                         effectRackController.revision;
-                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.gainGainKey()) - 0.5) * 48;
+                        return (effectRackController.parameterValue(root.effectIndex, NahdXml.gain) - 0.5) * 48;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.gainGainKey(), v / 48 + 0.5)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v / 48 + 0.5)
                     Layout.fillWidth: true
                 }
 

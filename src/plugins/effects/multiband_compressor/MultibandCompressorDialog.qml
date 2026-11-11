@@ -62,9 +62,9 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.multibandCompressorCrossoverFreqKey(0)) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.crossoverFreq(0)) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.multibandCompressorCrossoverFreqKey(0), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.crossoverFreq(0), v / 1000)
             }
 
             Knob {
@@ -77,9 +77,9 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.multibandCompressorCrossoverFreqKey(1)) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.crossoverFreq(1)) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.multibandCompressorCrossoverFreqKey(1), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.crossoverFreq(1), v / 1000)
             }
 
             Knob {
@@ -89,9 +89,9 @@ EffectDialog {
                 to: 12
                 value: {
                     effectRackController.revision;
-                    return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.multibandCompressorGainKey()) * 24;
+                    return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.multibandCompressorGainKey(), (v + 12) / 24)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
             }
 
             ColumnLayout {
@@ -107,9 +107,9 @@ EffectDialog {
                     model: [qsTr("Peak"), qsTr("RMS")]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.multibandCompressorModeKey());
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.multibandCompressorModeKey(), index)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, index)
                 }
             }
 
@@ -147,9 +147,9 @@ EffectDialog {
                     }
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.multibandCompressorSideChainSourceDeviceKey()) + 1;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.sideChainSourceDevice) + 1;
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.multibandCompressorSideChainSourceDeviceKey(), index - 1)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.sideChainSourceDevice, index - 1)
                 }
             }
         }
@@ -219,9 +219,9 @@ EffectDialog {
                     to: 0
                     value: {
                         effectRackController.revision;
-                        return -60 + effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorThresholdKey(band.bandIndex)) * 60;
+                        return -60 + effectRackController.parameterValue(band.effectIndex, NahdXml.bandThreshold(band.bandIndex)) * 60;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorThresholdKey(band.bandIndex), (v + 60) / 60)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandThreshold(band.bandIndex), (v + 60) / 60)
                     Layout.fillWidth: true
                 }
 
@@ -232,9 +232,9 @@ EffectDialog {
                     to: 20
                     value: {
                         effectRackController.revision;
-                        return 1 + effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorRatioKey(band.bandIndex)) * 19;
+                        return 1 + effectRackController.parameterValue(band.effectIndex, NahdXml.bandRatio(band.bandIndex)) * 19;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorRatioKey(band.bandIndex), (v - 1) / 19)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandRatio(band.bandIndex), (v - 1) / 19)
                     Layout.fillWidth: true
                 }
 
@@ -248,9 +248,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorAttackKey(band.bandIndex)) * 1000;
+                        return effectRackController.parameterValue(band.effectIndex, NahdXml.bandAttack(band.bandIndex)) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorAttackKey(band.bandIndex), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandAttack(band.bandIndex), v / 1000)
                     Layout.fillWidth: true
                 }
 
@@ -264,9 +264,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorReleaseKey(band.bandIndex)) * 1000;
+                        return effectRackController.parameterValue(band.effectIndex, NahdXml.bandRelease(band.bandIndex)) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorReleaseKey(band.bandIndex), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandRelease(band.bandIndex), v / 1000)
                     Layout.fillWidth: true
                 }
 
@@ -277,9 +277,9 @@ EffectDialog {
                     to: 24
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorKneeKey(band.bandIndex)) * 24;
+                        return effectRackController.parameterValue(band.effectIndex, NahdXml.bandKnee(band.bandIndex)) * 24;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorKneeKey(band.bandIndex), v / 24)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandKnee(band.bandIndex), v / 24)
                     Layout.fillWidth: true
                 }
 
@@ -290,9 +290,9 @@ EffectDialog {
                     to: 12
                     value: {
                         effectRackController.revision;
-                        return -12 + effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorMakeupKey(band.bandIndex)) * 24;
+                        return -12 + effectRackController.parameterValue(band.effectIndex, NahdXml.bandMakeup(band.bandIndex)) * 24;
                     }
-                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorMakeupKey(band.bandIndex), (v + 12) / 24)
+                    onMoved: v => effectRackController.setParameterValue(band.effectIndex, NahdXml.bandMakeup(band.bandIndex), (v + 12) / 24)
                     Layout.fillWidth: true
                 }
             }
@@ -305,18 +305,18 @@ EffectDialog {
                     text: qsTr("Bypass")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorBypassKey(band.bandIndex)) > 0.5;
+                        return effectRackController.parameterValue(band.effectIndex, NahdXml.bandBypass(band.bandIndex)) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorBypassKey(band.bandIndex), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(band.effectIndex, NahdXml.bandBypass(band.bandIndex), checked ? 1 : 0)
                 }
 
                 Switch {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(band.effectIndex, effectRackController.multibandCompressorSoloKey(band.bandIndex)) > 0.5;
+                        return effectRackController.parameterValue(band.effectIndex, NahdXml.bandSolo(band.bandIndex)) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(band.effectIndex, effectRackController.multibandCompressorSoloKey(band.bandIndex), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(band.effectIndex, NahdXml.bandSolo(band.bandIndex), checked ? 1 : 0)
                 }
             }
 

@@ -38,6 +38,7 @@
 #include "../view/controllers/device_rack_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
+#include "../view/controllers/nahd_xml_keys.hpp"
 #include "../view/controllers/performance_panel_controller.hpp"
 #include "../view/controllers/song_overview_controller.hpp"
 #include "../view/plugins/plugin_catalog.hpp"
@@ -249,6 +250,8 @@ void Application::registerTypes()
 {
     const int majorVersion = 1;
     const int minorVersion = 0;
+    m_nahdXmlKeys = std::make_unique<NahdXmlKeys>();
+    qmlRegisterSingletonInstance("Noteahead", majorVersion, minorVersion, "NahdXml", m_nahdXmlKeys.get());
 
     qRegisterMetaType<noteahead::Position>("Position");
     qRegisterMetaType<noteahead::InstrumentRequest>("InstrumentRequest");

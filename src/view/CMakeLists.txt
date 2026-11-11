@@ -8,6 +8,7 @@ set(HEADER_FILES
     controllers/fm_drum_operator_controller.hpp
     controllers/fm_operator_controller.hpp
     controllers/knob_controller.hpp
+    controllers/nahd_xml_keys.hpp
     controllers/performance_panel_controller.hpp
     controllers/song_overview_controller.hpp
     plugins/plugin_catalog.hpp
@@ -35,6 +36,7 @@ set(SOURCE_FILES
     controllers/fm_drum_operator_controller.cpp
     controllers/fm_operator_controller.cpp
     controllers/knob_controller.cpp
+    controllers/nahd_xml_keys.cpp
     controllers/performance_panel_controller.cpp
     controllers/song_overview_controller.cpp
     plugins/plugin_catalog.cpp

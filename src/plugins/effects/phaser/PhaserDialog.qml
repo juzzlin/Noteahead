@@ -109,8 +109,8 @@ EffectDialog {
                         }
                         return stages;
                     }
-                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserStagesKey()) / 2) - 1
-                    onActivated: index => root.setParameterValue(effectRackController.phaserStagesKey(), (index + 1) * 2)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.stages) / 2) - 1
+                    onActivated: index => root.setParameterValue(NahdXml.stages, (index + 1) * 2)
                     Layout.fillWidth: true
                 }
 
@@ -120,16 +120,16 @@ EffectDialog {
                     mapping: "exponential"
                     mapMin: 50
                     mapMax: 8000
-                    value: root.parameterValue(effectRackController.phaserFrequencyKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserFrequencyKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.frequency) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.frequency, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
                 Knob {
                     label: qsTr("Depth")
                     suffix: "%"
-                    value: root.parameterValue(effectRackController.phaserDepthKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserDepthKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.depth) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.depth, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -138,8 +138,8 @@ EffectDialog {
                     mapping: "cubicCentered"
                     mapMin: -100
                     mapMax: 100
-                    value: root.parameterValue(effectRackController.phaserFeedbackKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserFeedbackKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.feedback) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.feedback, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -155,37 +155,37 @@ EffectDialog {
                 ComboBoxColumn {
                     label: qsTr("Waveform")
                     model: effectRackController.lfoWaveformNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoWaveformKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.phaserLfoWaveformKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfoWaveform))
+                    onActivated: index => root.setParameterValue(NahdXml.lfoWaveform, index)
                     Layout.fillWidth: true
                 }
 
                 ComboBoxColumn {
                     label: qsTr("Mode")
                     model: effectRackController.lfoModeNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.phaserLfoModeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfoMode))
+                    onActivated: index => root.setParameterValue(NahdXml.lfoMode, index)
                     Layout.fillWidth: true
                 }
 
                 StackLayout {
                     // Only the BPM mode counts in divisions; Normal and One-Shot both run in Hz.
-                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey())) === 1 ? 1 : 0
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfoMode)) === 1 ? 1 : 0
                     Layout.fillWidth: true
 
                     Knob {
                         label: qsTr("Rate")
                         suffix: "Hz"
                         mapping: "lfoFrequency"
-                        value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
-                        onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                        value: root.parameterValue(NahdXml.lfoRate) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(NahdXml.lfoRate, v / Constants.uiInternalScaling)
                         Layout.fillWidth: true
                     }
 
                     SyncSlider {
                         label: qsTr("Rate")
-                        value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
-                        onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                        value: root.parameterValue(NahdXml.lfoRate) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(NahdXml.lfoRate, v / Constants.uiInternalScaling)
                         Layout.fillWidth: true
                     }
                 }
@@ -197,8 +197,8 @@ EffectDialog {
                     from: 1
                     to: effectRackController.phaserMaxRateDivider()
                     stepSize: 1
-                    value: Math.max(1, root.parameterValue(effectRackController.phaserRateDividerKey()))
-                    onMoved: v => root.setParameterValue(effectRackController.phaserRateDividerKey(), Math.round(v))
+                    value: Math.max(1, root.parameterValue(NahdXml.rateDivider))
+                    onMoved: v => root.setParameterValue(NahdXml.rateDivider, Math.round(v))
                     Layout.fillWidth: true
                 }
 
@@ -207,8 +207,8 @@ EffectDialog {
                     suffix: "°"
                     mapMin: 0
                     mapMax: 180
-                    value: root.parameterValue(effectRackController.phaserStereoPhaseKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserStereoPhaseKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.stereoPhase) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.stereoPhase, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -226,16 +226,16 @@ EffectDialog {
                     suffix: "dB"
                     mapMin: -12
                     mapMax: 12
-                    value: root.parameterValue(effectRackController.phaserGainKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserGainKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.gain) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.gain, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
                 Knob {
                     label: qsTr("Mix")
                     suffix: "%"
-                    value: root.parameterValue(effectRackController.phaserMixKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserMixKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.mix) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.mix, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 

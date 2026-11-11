@@ -112,7 +112,7 @@ EffectDialog {
                     LabeledCombo {
                         label: qsTr("Freq")
                         model: [qsTr("Off"), "2.5 kHz", "5 kHz", "10 kHz", "20 kHz", "40 kHz"]
-                        paramKey: effectRackController.airBandEqAirFreqKey()
+                        paramKey: NahdXml.airFreq
                     }
 
                     Knob {
@@ -125,9 +125,9 @@ EffectDialog {
                         Layout.minimumWidth: 120
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey()) * 5;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.airGain) * 5;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey(), v / 5)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.airGain, v / 5)
                     }
                 }
 
@@ -194,9 +194,9 @@ EffectDialog {
                             Layout.fillWidth: true
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey()) * 24 - 12;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24 - 12;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                         }
                     }
                 }
@@ -215,9 +215,9 @@ EffectDialog {
         Layout.fillWidth: true
         value: {
             effectRackController.revision;
-            return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqBandGainKey(bandIndex)) * 10 - 5;
+            return effectRackController.parameterValue(root.effectIndex, NahdXml.bandGain(bandIndex)) * 10 - 5;
         }
-        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqBandGainKey(bandIndex), (v + 5) / 10)
+        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bandGain(bandIndex), (v + 5) / 10)
     }
 
     // A labeled discrete selector bound to an effect parameter that stores the selected index directly.

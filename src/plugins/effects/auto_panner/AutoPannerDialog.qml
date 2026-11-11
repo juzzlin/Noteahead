@@ -147,9 +147,9 @@ EffectDialog {
                     stepSize: 1
                     value: {
                         effectRackController.revision;
-                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, effectRackController.autoPannerRateDividerKey()));
+                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, NahdXml.rateDivider));
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoPannerRateDividerKey(), Math.round(v))
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rateDivider, Math.round(v))
                     Layout.alignment: Qt.AlignTop
                 }
             }

@@ -107,8 +107,8 @@ EffectDialog {
                         }
                         return items;
                     }
-                    currentIndex: root.parameterValue(effectRackController.phaseScopeReferenceKey()) + 1
-                    onActivated: index => root.setParameterValue(effectRackController.phaseScopeReferenceKey(), index - 1)
+                    currentIndex: root.parameterValue(NahdXml.sideChainSourceDevice) + 1
+                    onActivated: index => root.setParameterValue(NahdXml.sideChainSourceDevice, index - 1)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -123,13 +123,13 @@ EffectDialog {
                 RowLayout {
                     CheckBox {
                         text: qsTr("Invert L")
-                        checked: root.parameterValue(effectRackController.phaseScopeInvertLeftKey()) > 0.5
-                        onToggled: root.setParameterValue(effectRackController.phaseScopeInvertLeftKey(), checked ? 1 : 0)
+                        checked: root.parameterValue(NahdXml.invertLeft) > 0.5
+                        onToggled: root.setParameterValue(NahdXml.invertLeft, checked ? 1 : 0)
                     }
                     CheckBox {
                         text: qsTr("Invert R")
-                        checked: root.parameterValue(effectRackController.phaseScopeInvertRightKey()) > 0.5
-                        onToggled: root.setParameterValue(effectRackController.phaseScopeInvertRightKey(), checked ? 1 : 0)
+                        checked: root.parameterValue(NahdXml.invertRight) > 0.5
+                        onToggled: root.setParameterValue(NahdXml.invertRight, checked ? 1 : 0)
                     }
                 }
 
@@ -141,8 +141,8 @@ EffectDialog {
                 ComboBox {
                     Layout.fillWidth: true
                     model: [qsTr("Stereo"), qsTr("Left"), qsTr("Right"), qsTr("Swap"), qsTr("Mono")]
-                    currentIndex: Math.round(root.parameterValue(effectRackController.phaseScopeChannelModeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.phaseScopeChannelModeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.channelMode))
+                    onActivated: index => root.setParameterValue(NahdXml.channelMode, index)
                 }
 
                 Knob {
@@ -152,15 +152,15 @@ EffectDialog {
                     suffix: "%"
                     from: 0
                     to: 200
-                    value: root.parameterValue(effectRackController.phaseScopeWidthKey()) * 200
-                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeWidthKey(), v / 200)
+                    value: root.parameterValue(NahdXml.width) * 200
+                    onMoved: v => root.setParameterValue(NahdXml.width, v / 200)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
                 CheckBox {
                     text: qsTr("Bass Mono")
-                    checked: root.parameterValue(effectRackController.phaseScopeMonoBassKey()) > 0.5
-                    onToggled: root.setParameterValue(effectRackController.phaseScopeMonoBassKey(), checked ? 1 : 0)
+                    checked: root.parameterValue(NahdXml.monoBass) > 0.5
+                    onToggled: root.setParameterValue(NahdXml.monoBass, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -172,9 +172,9 @@ EffectDialog {
                     from: 20
                     to: 500
                     isInteger: true
-                    enabled: root.parameterValue(effectRackController.phaseScopeMonoBassKey()) > 0.5
-                    value: 20 + root.parameterValue(effectRackController.phaseScopeMonoBassFrequencyKey()) * 480
-                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeMonoBassFrequencyKey(), (v - 20) / 480)
+                    enabled: root.parameterValue(NahdXml.monoBass) > 0.5
+                    value: 20 + root.parameterValue(NahdXml.monoBassFrequency) * 480
+                    onMoved: v => root.setParameterValue(NahdXml.monoBassFrequency, (v - 20) / 480)
                     Layout.fillWidth: true
                 }
 
@@ -185,8 +185,8 @@ EffectDialog {
                     from: 0
                     to: 20
                     isInteger: false
-                    value: root.parameterValue(effectRackController.phaseScopeDelayKey()) * 20
-                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeDelayKey(), v / 20)
+                    value: root.parameterValue(NahdXml.delayTime) * 20
+                    onMoved: v => root.setParameterValue(NahdXml.delayTime, v / 20)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
@@ -221,15 +221,15 @@ EffectDialog {
                     from: -24
                     to: 24
                     isInteger: false
-                    value: root.parameterValue(effectRackController.phaseScopeGainKey()) * 48 - 24
-                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeGainKey(), (v + 24) / 48)
+                    value: root.parameterValue(NahdXml.gain) * 48 - 24
+                    onMoved: v => root.setParameterValue(NahdXml.gain, (v + 24) / 48)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
                 CheckBox {
                     text: qsTr("DC Block")
-                    checked: root.parameterValue(effectRackController.phaseScopeDcBlockKey()) > 0.5
-                    onToggled: root.setParameterValue(effectRackController.phaseScopeDcBlockKey(), checked ? 1 : 0)
+                    checked: root.parameterValue(NahdXml.dcBlock) > 0.5
+                    onToggled: root.setParameterValue(NahdXml.dcBlock, checked ? 1 : 0)
                 }
             }
         }

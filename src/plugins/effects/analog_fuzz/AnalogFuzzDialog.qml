@@ -77,9 +77,9 @@ EffectDialog {
                         to: 42
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzDriveKey()) * 42;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.drive) * 42;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzDriveKey(), v / 42)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.drive, v / 42)
                         Layout.fillWidth: true
                     }
 
@@ -90,9 +90,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzFuzzKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.fuzz) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzFuzzKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.fuzz, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -103,9 +103,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzBiasKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.bias) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzBiasKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bias, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -119,9 +119,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzCutoffKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.cutoff) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzCutoffKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.cutoff, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -132,9 +132,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzResonanceKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.resonance) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzResonanceKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.resonance, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -145,9 +145,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzMixKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzMixKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -158,9 +158,9 @@ EffectDialog {
                         to: 12
                         value: {
                             effectRackController.revision;
-                            return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.analogFuzzGainKey()) * 24;
+                            return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.analogFuzzGainKey(), (v + 12) / 24)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                         Layout.fillWidth: true
                     }
                 }

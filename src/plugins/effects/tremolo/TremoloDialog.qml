@@ -92,9 +92,9 @@ EffectDialog {
                     model: effectRackController.lfoWaveformNames()
                     currentIndex: {
                         effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.tremoloWaveformKey()));
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.waveform));
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.tremoloWaveformKey(), index)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.waveform, index)
                     Layout.fillWidth: true
                 }
 
@@ -105,9 +105,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.tremoloIntensityKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.intensity) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tremoloIntensityKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.intensity, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -124,9 +124,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.tremoloStereoPhaseKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.stereoPhase) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tremoloStereoPhaseKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.stereoPhase, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -148,9 +148,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.tremoloRateKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.rate) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tremoloRateKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rate, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -166,9 +166,9 @@ EffectDialog {
                     stepSize: 1
                     value: {
                         effectRackController.revision;
-                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, effectRackController.tremoloRateDividerKey()));
+                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, NahdXml.rateDivider));
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tremoloRateDividerKey(), Math.round(v))
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rateDivider, Math.round(v))
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

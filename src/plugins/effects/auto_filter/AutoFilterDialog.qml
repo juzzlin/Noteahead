@@ -122,16 +122,16 @@ EffectDialog {
                 ComboBoxColumn {
                     label: qsTr("Type")
                     model: [qsTr("Low Pass"), qsTr("High Pass"), qsTr("Band Pass"), qsTr("Notch")]
-                    currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterFilterTypeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterFilterTypeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.filterType))
+                    onActivated: index => root.setParameterValue(NahdXml.filterType, index)
                     Layout.fillWidth: true
                 }
 
                 ComboBoxColumn {
                     label: qsTr("Slope")
                     model: [qsTr("12 dB/oct"), qsTr("24 dB/oct")]
-                    currentIndex: root.parameterValue(effectRackController.autoFilterFilterSlopeKey()) > 0.5 ? 1 : 0
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterFilterSlopeKey(), index)
+                    currentIndex: root.parameterValue(NahdXml.filterSlope) > 0.5 ? 1 : 0
+                    onActivated: index => root.setParameterValue(NahdXml.filterSlope, index)
                     Layout.fillWidth: true
                 }
 
@@ -141,16 +141,16 @@ EffectDialog {
                     mapping: "logFrequency"
                     mapMin: 20
                     mapMax: 20000
-                    value: root.parameterValue(effectRackController.autoFilterCutoffKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterCutoffKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.cutoff) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.cutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
                 Knob {
                     label: qsTr("Resonance")
                     suffix: "%"
-                    value: root.parameterValue(effectRackController.autoFilterResonanceKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterResonanceKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.resonance) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.resonance, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -166,22 +166,22 @@ EffectDialog {
                 ComboBoxColumn {
                     label: qsTr("Waveform")
                     model: effectRackController.lfoWaveformNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfoWaveformKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterLfoWaveformKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfoWaveform))
+                    onActivated: index => root.setParameterValue(NahdXml.lfoWaveform, index)
                     Layout.fillWidth: true
                 }
 
                 ComboBoxColumn {
                     label: qsTr("Mode")
                     model: effectRackController.lfoModeNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfoModeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterLfoModeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfoMode))
+                    onActivated: index => root.setParameterValue(NahdXml.lfoMode, index)
                     Layout.fillWidth: true
                 }
 
                 RateControl {
-                    modeKey: effectRackController.autoFilterLfoModeKey()
-                    rateKey: effectRackController.autoFilterLfoRateKey()
+                    modeKey: NahdXml.lfoMode
+                    rateKey: NahdXml.lfoRate
                     Layout.fillWidth: true
                 }
 
@@ -190,8 +190,8 @@ EffectDialog {
                     mapping: "cubicCentered"
                     mapMin: -100
                     mapMax: 100
-                    value: root.parameterValue(effectRackController.autoFilterLfoIntensityKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterLfoIntensityKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.lfoIntensity) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.lfoIntensity, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -207,22 +207,22 @@ EffectDialog {
                 ComboBoxColumn {
                     label: qsTr("Waveform")
                     model: effectRackController.lfoWaveformNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfo2WaveformKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterLfo2WaveformKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfo2Waveform))
+                    onActivated: index => root.setParameterValue(NahdXml.lfo2Waveform, index)
                     Layout.fillWidth: true
                 }
 
                 ComboBoxColumn {
                     label: qsTr("Mode")
                     model: effectRackController.lfoModeNames()
-                    currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfo2ModeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.autoFilterLfo2ModeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(NahdXml.lfo2Mode))
+                    onActivated: index => root.setParameterValue(NahdXml.lfo2Mode, index)
                     Layout.fillWidth: true
                 }
 
                 RateControl {
-                    modeKey: effectRackController.autoFilterLfo2ModeKey()
-                    rateKey: effectRackController.autoFilterLfo2RateKey()
+                    modeKey: NahdXml.lfo2Mode
+                    rateKey: NahdXml.lfo2Rate
                     Layout.fillWidth: true
                 }
 
@@ -231,8 +231,8 @@ EffectDialog {
                     mapping: "cubicCentered"
                     mapMin: -100
                     mapMax: 100
-                    value: root.parameterValue(effectRackController.autoFilterLfo2IntensityKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterLfo2IntensityKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.lfo2Intensity) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.lfo2Intensity, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -250,8 +250,8 @@ EffectDialog {
                     mapping: "cubicCentered"
                     mapMin: -100
                     mapMax: 100
-                    value: root.parameterValue(effectRackController.autoFilterEnvModKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterEnvModKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.envMod) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.envMod, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -261,8 +261,8 @@ EffectDialog {
                     mapping: "exponential"
                     mapMin: 0.1
                     mapMax: 500
-                    value: root.parameterValue(effectRackController.autoFilterEnvAttackKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterEnvAttackKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.attack) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.attack, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -272,8 +272,8 @@ EffectDialog {
                     mapping: "exponential"
                     mapMin: 1
                     mapMax: 2000
-                    value: root.parameterValue(effectRackController.autoFilterEnvReleaseKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterEnvReleaseKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.release) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.release, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -291,8 +291,8 @@ EffectDialog {
                     suffix: "°"
                     mapMin: 0
                     mapMax: 180
-                    value: root.parameterValue(effectRackController.autoFilterStereoPhaseKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterStereoPhaseKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.stereoPhase) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.stereoPhase, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -301,16 +301,16 @@ EffectDialog {
                     suffix: "dB"
                     mapMin: -12
                     mapMax: 12
-                    value: root.parameterValue(effectRackController.autoFilterGainKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterGainKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.gain) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.gain, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
                 Knob {
                     label: qsTr("Mix")
                     suffix: "%"
-                    value: root.parameterValue(effectRackController.autoFilterMixKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.autoFilterMixKey(), v / Constants.uiInternalScaling)
+                    value: root.parameterValue(NahdXml.mix) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(NahdXml.mix, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
