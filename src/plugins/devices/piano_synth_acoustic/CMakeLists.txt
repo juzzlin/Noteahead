@@ -1,0 +1,17 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        piano_synth_acoustic_device.cpp
+        piano_synth_acoustic_device.hpp
+        piano_synth_acoustic_presets.cpp
+        piano_synth_acoustic_presets.hpp
+    VIEW_SOURCES
+        piano_synth_acoustic_controller.cpp
+        piano_synth_acoustic_controller.hpp
+    QML_FILES
+        PianoSynthAcousticDialog.qml
+        PianoSynthAcousticDialog_Dampers.qml
+        PianoSynthAcousticDialog_Global.qml
+        PianoSynthAcousticDialog_Hammer.qml
+        PianoSynthAcousticDialog_Presets.qml
+        PianoSynthAcousticDialog_String.qml
+)

@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        auto_ducker.cpp
+        auto_ducker.hpp
+        auto_ducker_presets.cpp
+        auto_ducker_presets.hpp
+    QML_FILES
+        AutoDuckerDialog.qml
+)

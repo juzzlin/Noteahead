@@ -15,10 +15,10 @@
 
 #include "gain.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../dsp/audio_context.hpp"
-#include "../tracker/parameter.hpp"
+#include "../../../common/constants.hpp"
+#include "../../../common/utils.hpp"
+#include "../../../domain/dsp/audio_context.hpp"
+#include "../../../domain/tracker/parameter.hpp"
 
 namespace noteahead {
 

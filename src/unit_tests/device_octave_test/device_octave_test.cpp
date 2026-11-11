@@ -18,14 +18,14 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/device_factory.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
-#include "../../domain/devices/drum_synth_v2_device.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../domain/devices/sub_mixer_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
-#include "../../view/controllers/synth_controller.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
+#include "../../plugins/devices/drum_synth_v2/drum_synth_v2_device.hpp"
+#include "../../plugins/devices/sampler/sampler_device.hpp"
+#include "../../plugins/devices/sub_mixer/sub_mixer_device.hpp"
+#include "../../plugins/devices/synth/synth_controller.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

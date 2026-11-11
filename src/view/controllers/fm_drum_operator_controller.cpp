@@ -16,9 +16,9 @@
 #include "fm_drum_operator_controller.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/dsp/drum/fm_drum_engine.hpp"
-#include "fm_drums_controller.hpp"
+#include "../../plugins/devices/fm_drums/fm_drums_controller.hpp"
+#include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
 
 #include <algorithm>
 

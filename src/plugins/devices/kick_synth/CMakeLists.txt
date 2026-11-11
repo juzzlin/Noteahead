@@ -1,0 +1,22 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        kick_synth_device.cpp
+        kick_synth_device.hpp
+        kick_synth_presets.cpp
+        kick_synth_presets.hpp
+    APPLICATION_SOURCES
+        kick_synth_preview.cpp
+        kick_synth_preview.hpp
+    VIEW_SOURCES
+        kick_synth_controller.cpp
+        kick_synth_controller.hpp
+    QML_FILES
+        KickSynthDialog.qml
+        KickSynthDialog_Beater.qml
+        KickSynthDialog_Envelope.qml
+        KickSynthDialog_Front.qml
+        KickSynthDialog_Global.qml
+        KickSynthDialog_Head.qml
+        KickSynthDialog_Presets.qml
+        KickSynthDialog_Waveform.qml
+)

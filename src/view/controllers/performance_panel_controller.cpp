@@ -19,16 +19,16 @@
 #include "../../application/service/device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
 #include "../../domain/utility/stereo_field_meter.hpp"
+#include "../../plugins/devices/xy_pad/xy_pad_controller.hpp"
+#include "../../plugins/devices/xy_pad/xy_pad_device.hpp"
 #include "../qml/Components/level_meter_renderer.hpp"
 #include "../qml/Dialogs/rta_renderer.hpp"
 #include "../qml/Dialogs/stereo_field_renderer.hpp"
-#include "xy_pad_controller.hpp"
 
 #include <QQmlEngine>
 #include <QVariantMap>

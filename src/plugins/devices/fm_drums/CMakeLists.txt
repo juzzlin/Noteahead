@@ -1,0 +1,16 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        fm_drums_device.cpp
+        fm_drums_device.hpp
+        fm_drums_presets.cpp
+        fm_drums_presets.hpp
+    VIEW_SOURCES
+        fm_drums_controller.cpp
+        fm_drums_controller.hpp
+    QML_FILES
+        FmDrumsDialog.qml
+        FmDrumsDialog_Noise.qml
+        FmDrumsDialog_Operator.qml
+        FmDrumsDialog_Presets.qml
+        FmDrumsDialog_Voice.qml
+)

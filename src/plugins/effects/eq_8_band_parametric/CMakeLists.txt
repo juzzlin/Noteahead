@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        eq_8_band_parametric.cpp
+        eq_8_band_parametric.hpp
+        eq_8_band_parametric_presets.cpp
+        eq_8_band_parametric_presets.hpp
+    QML_FILES
+        Eq8BandParametricDialog.qml
+)

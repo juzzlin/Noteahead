@@ -1,0 +1,67 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef SAMPLER_PAD_MODEL_HPP
+#define SAMPLER_PAD_MODEL_HPP
+
+#include <QAbstractListModel>
+#include <memory>
+#include <vector>
+
+#include "sampler_device.hpp"
+
+namespace noteahead {
+
+class SamplerPadModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    enum Roles
+    {
+        Note = Qt::UserRole + 1,
+        NoteName,
+        RangeLabel,
+        FilePath,
+        IsLoaded
+    };
+    Q_ENUM(Roles)
+
+    explicit SamplerPadModel(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
+
+    void setSampler(SamplerDevice::SamplerDeviceS sampler);
+
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
+
+    void updatePad(int padIndex);
+
+    //! Refreshes every tile. What moving a pad needs: it moves a range boundary, so the labels of the
+    //! pads either side of it change too.
+    void updateAllPads();
+
+    // MIDI note a pad maps to. See SamplerDevice::noteForPad() for the layouts.
+    int noteForPad(int padIndex) const;
+
+private:
+    QString chromaticRangeLabel(int padIndex) const;
+
+    SamplerDevice::SamplerDeviceS m_sampler;
+};
+
+} // namespace noteahead
+
+#endif // SAMPLER_PAD_MODEL_HPP

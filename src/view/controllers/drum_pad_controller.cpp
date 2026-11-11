@@ -22,7 +22,7 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_pad_device.hpp"
-#include "../../domain/devices/drum_synth_v2_constants.hpp"
+#include "../../plugins/devices/drum_synth_v2/drum_synth_v2_constants.hpp"
 
 #include <algorithm>
 #include <cmath>

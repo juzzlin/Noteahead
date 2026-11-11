@@ -16,9 +16,9 @@
 #ifndef FLANGER_HPP
 #define FLANGER_HPP
 
-#include "../dsp/delay_line.hpp"
-#include "../dsp/lfo.hpp"
-#include "effect.hpp"
+#include "../../../domain/dsp/delay_line.hpp"
+#include "../../../domain/dsp/lfo.hpp"
+#include "../../../domain/effects/effect.hpp"
 
 namespace noteahead {
 

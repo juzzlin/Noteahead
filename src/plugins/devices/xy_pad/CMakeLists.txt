@@ -1,0 +1,20 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        xy_pad_device.cpp
+        xy_pad_device.hpp
+    APPLICATION_SOURCES
+        xy_pad_recording_service.cpp
+        xy_pad_recording_service.hpp
+    VIEW_SOURCES
+        xy_pad_controller.cpp
+        xy_pad_controller.hpp
+        xy_pad_panel_controller.cpp
+        xy_pad_panel_controller.hpp
+        xy_pad_renderer.cpp
+        xy_pad_renderer.hpp
+        xy_pad_trail.cpp
+        xy_pad_trail.hpp
+    QML_FILES
+        XyPadDialog.qml
+        XyPadDialog_Pad.qml
+)

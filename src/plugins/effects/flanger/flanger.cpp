@@ -15,9 +15,9 @@
 
 #include "flanger.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/parameter_mapper.hpp"
-#include "../dsp/audio_context.hpp"
+#include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

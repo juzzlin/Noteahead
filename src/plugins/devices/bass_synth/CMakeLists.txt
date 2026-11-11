@@ -1,0 +1,17 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        bass_synth_device.cpp
+        bass_synth_device.hpp
+        bass_synth_presets.cpp
+        bass_synth_presets.hpp
+    VIEW_SOURCES
+        bass_synth_controller.cpp
+        bass_synth_controller.hpp
+    QML_FILES
+        BassSynthDialog.qml
+        BassSynthDialog_Distortion.qml
+        BassSynthDialog_Filter.qml
+        BassSynthDialog_Global.qml
+        BassSynthDialog_Oscillator.qml
+        BassSynthDialog_Presets.qml
+)

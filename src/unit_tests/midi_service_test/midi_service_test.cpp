@@ -20,16 +20,16 @@
 #include "../../application/service/midi_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
-#include "../../domain/devices/drum_synth_constants.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_constants.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/effects/auto_filter/auto_filter.hpp"
 
 #include <QTest>
 

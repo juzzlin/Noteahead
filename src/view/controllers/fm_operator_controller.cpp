@@ -16,7 +16,7 @@
 #include "fm_operator_controller.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/devices/fm_synth_device.hpp"
+#include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
 
 #include <QVariantList>
 

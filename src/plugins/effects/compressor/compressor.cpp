@@ -1,0 +1,246 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "compressor.hpp"
+#include "../../../domain/dsp/audio_context.hpp"
+#include "compressor_presets.hpp"
+
+#include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../common/utils.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+namespace noteahead {
+
+Compressor::Compressor()
+{
+    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2040, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 500, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 501 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString(), -1.0f, -1, static_cast<int>(Constants::deviceRackSize()) - 1, -1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySideChainLpf().toStdString(), 1.0f, 0, 1000, 1000, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+
+    m_sideChainLpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_sideChainLpfR.setMode(CascadedSvf::Mode::LowPass);
+
+    syncParameters();
+}
+
+std::optional<size_t> Compressor::sidechainSourceDeviceIndex() const
+{
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        if (const int val = p->get().xmlValue(); val >= 0) {
+            return static_cast<size_t>(val);
+        }
+    }
+    return std::nullopt;
+}
+
+void Compressor::processSample(double & left, double & right)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    updateBuffers();
+
+    m_core.processGainDb(left, right);
+    applyGain(left, right);
+}
+
+void Compressor::processBlock(AudioContext & context)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    updateBuffers();
+
+    const bool hasSidechain = m_sidechainSourceDevice && *m_sidechainSourceDevice < context.deviceOutputBuffers.size();
+    const auto sidechainBuffer = hasSidechain ? context.deviceOutputBuffers[*m_sidechainSourceDevice] : std::span<const double> {};
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        double detectorL = context.buffer[i * 2];
+        double detectorR = context.buffer[i * 2 + 1];
+
+        if (hasSidechain && !sidechainBuffer.empty()) {
+            detectorL = sidechainBuffer[i * 2];
+            detectorR = sidechainBuffer[i * 2 + 1];
+        }
+
+        if (m_sideChainLpfCutoff < 1.0f) {
+            detectorL = m_sideChainLpfL.process(detectorL);
+            detectorR = m_sideChainLpfR.process(detectorR);
+        }
+
+        m_core.processGainDb(detectorL, detectorR);
+        applyGain(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
+}
+
+void Compressor::updateBuffers()
+{
+    m_core.setSampleRate(m_sampleRate);
+
+    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers || m_delayBufferL.empty()) {
+        syncParameters();
+        const uint32_t lookaheadSamples = static_cast<uint32_t>(m_lookaheadMs * m_sampleRate / 1000.0f);
+        const uint32_t bufferSize = std::max(1u, lookaheadSamples + 1);
+        if (bufferSize != m_delayBufferL.size()) {
+            m_delayBufferL.assign(bufferSize, 0.0);
+            m_delayBufferR.assign(bufferSize, 0.0);
+            m_writePos = 0;
+        }
+        m_delaySamples = lookaheadSamples;
+        m_lastSampleRate = static_cast<uint32_t>(m_sampleRate);
+        m_shouldUpdateBuffers = false;
+        m_shouldSyncParameters = false;
+    } else if (m_shouldSyncParameters) {
+        syncParameters();
+        m_shouldSyncParameters = false;
+    }
+}
+
+void Compressor::applyGain(double & left, double & right)
+{
+    if (m_delayBufferL.empty()) {
+        updateBuffers();
+    }
+
+    m_delayBufferL[m_writePos] = left;
+    m_delayBufferR[m_writePos] = right;
+
+    const uint32_t readPos = (m_writePos + m_delayBufferL.size() - m_delaySamples) % m_delayBufferL.size();
+    const double outL = m_delayBufferL[readPos];
+    const double outR = m_delayBufferR[readPos];
+
+    m_writePos = (m_writePos + 1) % m_delayBufferL.size();
+
+    const double totalGainDb = m_core.reductionDb() + static_cast<double>(m_makeup);
+    const double totalGain = Utils::Dsp::dbToLinear(static_cast<float>(totalGainDb));
+
+    left = outL * totalGain;
+    right = outR * totalGain;
+}
+
+void Compressor::reset()
+{
+    m_core.reset();
+    std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
+    std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
+    m_writePos = 0;
+    m_sideChainLpfL.reset();
+    m_sideChainLpfR.reset();
+}
+
+void Compressor::sync()
+{
+    m_shouldUpdateBuffers = true;
+}
+
+float Compressor::reductionDb() const
+{
+    return static_cast<float>(m_core.reductionDb());
+}
+
+bool Compressor::isSettled() const
+{
+    // Same reasoning as AutoDucker: with no reduction left to release there is nothing the frozen
+    // envelope of a skipped device could get wrong.
+    return std::abs(m_core.reductionDb()) < 0.001;
+}
+
+void Compressor::syncParameters()
+{
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        m_core.setThresholdDb(-60.0 + static_cast<double>(p->get().value()) * 60.0);
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
+        m_core.setRatio(1.0 + static_cast<double>(p->get().value()) * 19.0);
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
+        m_core.setAttackMs(ParameterMapper::mapExponential(p->get().value(), 0.1, 500.0));
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
+        m_core.setReleaseMs(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
+        m_core.setKneeDb(static_cast<double>(p->get().value()) * 24.0);
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMakeup().toStdString()); p) {
+        m_makeup = -12.0f + p->get().value() * 24.0f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLookahead().toStdString()); p) {
+        m_lookaheadMs = p->get().value() * 10.0f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        if (const int val = p->get().xmlValue(); val >= 0) {
+            m_sidechainSourceDevice = static_cast<size_t>(val);
+        } else {
+            m_sidechainSourceDevice = std::nullopt;
+        }
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
+        m_sideChainLpfCutoff = p->get().value();
+        m_sideChainLpfL.setSampleRate(m_sampleRate > 0 ? m_sampleRate : 48000.0);
+        m_sideChainLpfR.setSampleRate(m_sampleRate > 0 ? m_sampleRate : 48000.0);
+        m_sideChainLpfL.setCutoff(m_sideChainLpfCutoff);
+        m_sideChainLpfR.setCutoff(m_sideChainLpfCutoff);
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        m_core.setDetectorMode(p->get().value() > 0.5f ? DetectorMode::Rms : DetectorMode::Peak);
+    }
+}
+
+const EffectPresetList & Compressor::factoryPresets() const
+{
+    return CompressorPresets::presets();
+}
+
+std::string Compressor::typeIdString()
+{
+    return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d";
+}
+
+std::string Compressor::type() const
+{
+    return Constants::RackEffectType::compressor().toStdString();
+}
+
+std::string Compressor::typeId() const
+{
+    return typeIdString();
+}
+
+std::vector<std::string> Compressor::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyThreshold().toStdString(),
+        NahdXml::xmlKeyRatio().toStdString(),
+        NahdXml::xmlKeyAttack().toStdString(),
+        NahdXml::xmlKeyRelease().toStdString(),
+        NahdXml::xmlKeyMakeup().toStdString()
+    };
+}
+
+} // namespace noteahead

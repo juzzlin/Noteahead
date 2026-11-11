@@ -1,0 +1,863 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef SYNTH_DEVICE_HPP
+#define SYNTH_DEVICE_HPP
+
+#include "synth_oscillator_stage.hpp"
+
+#include "../../../domain/devices/device.hpp"
+#include "../../../domain/dsp/adsr_envelope.hpp"
+#include "../../../domain/dsp/analog_drift.hpp"
+#include "../../../domain/dsp/cascaded_svf.hpp"
+#include "../../../domain/dsp/dc_blocker.hpp"
+#include "../../../domain/dsp/lfo.hpp"
+#include "../../../domain/dsp/multi_engine.hpp"
+#include "../../../domain/dsp/one_pole_filter.hpp"
+#include "../../../domain/dsp/poly_blep_oscillator.hpp"
+#include "../../../domain/dsp/saturating_svf.hpp"
+#include "../../../domain/dsp/upsampler.hpp"
+#include "../../effects/chorus/chorus.hpp"
+#include "../../effects/delay/delay.hpp"
+#include "synth_presets.hpp"
+
+#include <array>
+#include <mutex>
+#include <optional>
+#include <random>
+#include <vector>
+
+namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
+
+class SynthDevice : public Device
+{
+public:
+    static constexpr int MaxVoices = 6;
+
+    //! Oscillators in a voice. Named so the per-oscillator arrays and the loops over them agree.
+    static constexpr size_t VcoCount = 4;
+
+    //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
+    //! the voice mode of every project saved before the change.
+    enum class VoiceMode
+    {
+        Poly,
+        Unison,
+        Dual,
+        //! JP-8000 style: unevenly spaced detune around a centre voice held at full level, so the
+        //! stack keeps a solid core pitch instead of six equal voices smearing it.
+        Supersaw,
+        //! No fixed detune at all. Each voice wanders at its own slow rate, so no pair ever settles
+        //! into a steady beat and the comb pattern that makes plain unison harsh never forms.
+        Drift,
+        //! Poly with a single voice: notes glide into each other instead of stacking. Appended last
+        //! because the ordinal is persisted, so it cannot sit next to Poly where it belongs.
+        Mono
+    };
+
+    //! Voice modes that spend every voice on a single note.
+    static bool isStacked(VoiceMode mode);
+
+    //! Serialized as a raw ordinal, exactly like LfoTarget below, so this is append-only too:
+    //! inserting a value would silently repoint the Mod EG of every project saved before the
+    //! change. The order below is therefore the order things were added in rather than the order
+    //! they belong in.
+    enum class ModTarget
+    {
+        Pitch1,
+        Pitch2,
+        Pitch3,
+        Cutoff,
+        //! Appended to bring the Mod EG up to the same destinations the LFOs reach.
+        Pitch,
+        Shape,
+        Volume,
+        Resonance,
+        Pan,
+        HpfCutoff,
+        //! Appended with the fourth oscillator, for the same reason everything else here is.
+        Pitch4,
+        //! Appended with the per-oscillator filter sections. In VCO order, low pass then high
+        //! pass, so a target can be turned into a VCO index arithmetically.
+        Vco1Lpf,
+        Vco1Hpf,
+        Vco2Lpf,
+        Vco2Hpf,
+        Vco3Lpf,
+        Vco3Hpf,
+        Vco4Lpf,
+        Vco4Hpf,
+        //! Appended with the multi engine's filter section, which continues the same pattern as the
+        //! fifth source after the four VCOs.
+        MultiLpf,
+        MultiHpf
+    };
+
+    //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
+    //! the LFO destination of every project saved before the change.
+    enum class LfoTarget
+    {
+        //! All VCOs at once.
+        Pitch,
+        Shape,
+        Cutoff,
+        Volume,
+        Resonance,
+        Pan,
+        //! Single-VCO pitch. Appended after Pan because the ordinal is persisted, so these cannot sit
+        //! next to Pitch where they belong.
+        Pitch1,
+        Pitch2,
+        Pitch3,
+        //! Sweeping the high pass alongside the low pass is what moves a band through the spectrum
+        //! rather than merely opening one end of it.
+        HpfCutoff,
+        //! Appended with the fourth oscillator, for the same reason everything else here is.
+        Pitch4,
+        //! Appended with the per-oscillator filter sections. In VCO order, low pass then high
+        //! pass, so a target can be turned into a VCO index arithmetically.
+        Vco1Lpf,
+        Vco1Hpf,
+        Vco2Lpf,
+        Vco2Hpf,
+        Vco3Lpf,
+        Vco3Hpf,
+        Vco4Lpf,
+        Vco4Hpf,
+        //! Appended with the multi engine's filter section, which continues the same pattern as the
+        //! fifth source after the four VCOs.
+        MultiLpf,
+        MultiHpf,
+        //! The delay's feedback filters. The delay is shared by every voice, so these are moved by
+        //! a device-wide copy of the LFO rather than by the voices' own.
+        DelayLpf,
+        DelayHpf
+    };
+
+    explicit SynthDevice(std::string name);
+    ~SynthDevice() override;
+
+    std::string name() const override;
+    std::string category() const override;
+    std::string typeName() const override;
+    std::string typeId() const override;
+    std::vector<std::string> modulationPriority() const override;
+    std::vector<std::string> modulationWheelTargets() const override;
+
+    std::vector<MidiCcController> deviceMidiCcControllers() const override;
+
+    static std::string typeIdString();
+
+    void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) override;
+    void processDeviceMidiNoteOff(uint8_t note) override;
+    void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processMidiPitchBend(uint16_t value, uint8_t channel) override;
+    void processMidiProgramChange(uint8_t program, uint8_t channel) override;
+    void processMidiAllNotesOff() override;
+
+    void processAudio(AudioContext & context) override;
+    bool hasActiveAudio() const override;
+    void advanceIdle(const AudioContext & context) override;
+
+    //! Whether the given oscillator's own filter section does anything at all: a control off its
+    //! neutral end, or a modulation source pointing at one of its two corners.
+    //!
+    //! The audio path asks once per block and skips both filters when it is false, so an oscillator
+    //! nobody has filtered costs nothing. The dialog asks so that it can mark the tab those controls
+    //! live behind -- otherwise a closed filter is invisible from the oscillator's other page.
+    bool vcoFilterEngaged(size_t vcoIndex) const;
+
+    //! The per-oscillator filter sections, addressed by VCO index. Indexed rather than spelled out
+    //! four times over: there is nothing to say about VCO3's low pass that is not also true of
+    //! VCO1's, and twenty named pairs would say it twenty times.
+    float vcoLpfCutoff(size_t vcoIndex) const;
+    void setVcoLpfCutoff(size_t vcoIndex, float cutoff);
+    float vcoLpfResonance(size_t vcoIndex) const;
+    void setVcoLpfResonance(size_t vcoIndex, float resonance);
+    int vcoLpfSlope(size_t vcoIndex) const;
+    void setVcoLpfSlope(size_t vcoIndex, int slope);
+    float vcoHpfCutoff(size_t vcoIndex) const;
+    void setVcoHpfCutoff(size_t vcoIndex, float cutoff);
+    int vcoHpfSlope(size_t vcoIndex) const;
+    void setVcoHpfSlope(size_t vcoIndex, int slope);
+
+    void setBpm(float bpm) override;
+
+    void reset() override;
+    void resetDeviceAudio() override;
+
+    double voiceGlideFrequency(size_t index) const;
+    //! Level weighting the current voice mode gives this voice. Only Supersaw uses anything but
+    //! unity, where the centre voice is held up and the outer ones give way.
+    float voiceLevel(size_t index) const;
+
+    //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
+
+    int lpfSlope() const;
+    void setLpfSlope(int slope);
+    int hpfSlope() const;
+    void setHpfSlope(int slope);
+
+    void serializeToXml(ProjectWriter & writer) const override;
+    void deserializeFromXml(ProjectReader & reader) override;
+
+    // Parameter accessors (VCO1)
+    PolyBlepOscillator::Waveform vco1Waveform() const;
+    void setVco1Waveform(PolyBlepOscillator::Waveform wave);
+    int vco1Octave() const;
+    void setVco1Octave(int octave);
+    float vco1Pitch() const;
+    void setVco1Pitch(float pitch);
+    float vco1Shape() const;
+    void setVco1Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco1Roundness() const;
+    void setVco1Roundness(float roundness);
+    bool vco1Sync() const;
+    void setVco1Sync(bool sync);
+
+    //! How random the voices' starting phases are while Phase Sync is off: 1 is a fresh random
+    //! phase for every voice of every note, as there always was; 0 is the same fixed spread for
+    //! every note, so each one starts as loud as the next. See startPhase().
+    float phaseRandomness() const;
+    void setPhaseRandomness(float randomness);
+
+    // Parameter accessors (VCO2)
+    PolyBlepOscillator::Waveform vco2Waveform() const;
+    void setVco2Waveform(PolyBlepOscillator::Waveform wave);
+    int vco2Octave() const;
+    void setVco2Octave(int octave);
+    float vco2Pitch() const;
+    void setVco2Pitch(float pitch);
+    float vco2Shape() const;
+    void setVco2Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco2Roundness() const;
+    void setVco2Roundness(float roundness);
+    bool vco2Sync() const;
+    void setVco2Sync(bool sync);
+    //! Ring modulation: VCO2 sounds as its product with VCO1, at VCO2's level.
+    bool vco2Ring() const;
+    void setVco2Ring(bool ring);
+
+    //! What the given VCO (0 to 3) plays, as @p points values from -1 to 1: two cycles, of the VCO it
+    //! is synced or ring modulated to when it is, since that is the period the coupled wave repeats
+    //! at. Run through the voices' own oscillator stage, without modulation, as if the VCO's level
+    //! were up: a muted VCO still shows what raising it would give.
+    std::vector<float> oscillatorPreview(size_t vco, size_t points) const;
+    //! What the VPM oscillator plays, as @p points values from -1 to 1: two cycles, 20 ms into a
+    //! note so that a type with an envelope shows its onset. Empty while the engine plays noise,
+    //! which has no cycle to draw.
+    std::vector<float> multiPreview(size_t points) const;
+
+    // Parameter accessors (VCO3)
+    PolyBlepOscillator::Waveform vco3Waveform() const;
+    void setVco3Waveform(PolyBlepOscillator::Waveform wave);
+    int vco3Octave() const;
+    void setVco3Octave(int octave);
+    float vco3Pitch() const;
+    void setVco3Pitch(float pitch);
+    float vco3Shape() const;
+    void setVco3Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco3Roundness() const;
+    void setVco3Roundness(float roundness);
+    bool vco3Sync() const;
+    void setVco3Sync(bool sync);
+    PolyBlepOscillator::Waveform vco4Waveform() const;
+    void setVco4Waveform(PolyBlepOscillator::Waveform wave);
+    int vco4Octave() const;
+    void setVco4Octave(int octave);
+    float vco4Pitch() const;
+    void setVco4Pitch(float pitch);
+    float vco4Shape() const;
+    void setVco4Shape(float shape);
+    float vco4Roundness() const;
+    void setVco4Roundness(float roundness);
+    bool vco4Sync() const;
+    void setVco4Sync(bool sync);
+
+    // Multi Engine
+    MultiEngine::Type multiType() const;
+    void setMultiType(MultiEngine::Type type);
+    float multiShape() const;
+    void setMultiShape(float shape);
+    float multiLevel() const;
+    void setMultiLevel(float level);
+    float multiKeyTrack() const;
+    void setMultiKeyTrack(float keyTrack);
+
+    //! Noise or VPM. Each remembers its own type, as on the Minilogue XD.
+    MultiEngine::Engine multiEngine() const;
+    void setMultiEngine(MultiEngine::Engine engine);
+    //! 16', 8', 4' or 2', as 0..3. 8' plays the note.
+    int multiOctave() const;
+    void setMultiOctave(int octave);
+    MultiEngine::VpmType vpmType() const;
+    void setVpmType(MultiEngine::VpmType type);
+    //! An index into MultiEngine::vpmRatioOffsets().
+    int vpmRatioOffset() const;
+    void setVpmRatioOffset(int index);
+    //! The six VPM parameters, 0..1 centred at 0.5, which leaves the type as designed.
+    float vpmFeedback() const;
+    void setVpmFeedback(float value);
+    float vpmNoiseDepth() const;
+    void setVpmNoiseDepth(float value);
+    float vpmShapeModInt() const;
+    void setVpmShapeModInt(float value);
+    float vpmModAttack() const;
+    void setVpmModAttack(float value);
+    float vpmModDecay() const;
+    void setVpmModDecay(float value);
+    float vpmModKeyTrack() const;
+    void setVpmModKeyTrack(float value);
+
+    //! The multi engine's own filter section, the same as each oscillator's.
+    float multiLpfCutoff() const;
+    void setMultiLpfCutoff(float cutoff);
+    float multiLpfResonance() const;
+    void setMultiLpfResonance(float resonance);
+    int multiLpfSlope() const;
+    void setMultiLpfSlope(int slope);
+    float multiHpfCutoff() const;
+    void setMultiHpfCutoff(float cutoff);
+    int multiHpfSlope() const;
+    void setMultiHpfSlope(int slope);
+    bool multiFilterEngaged() const;
+
+    // Mixer
+    float mixVco1() const;
+    void setMixVco1(float level);
+    float mixVco2() const;
+    void setMixVco2(float level);
+    float mixVco3() const;
+    void setMixVco3(float level);
+    float mixVco4() const;
+    void setMixVco4(float level);
+
+    // Filter
+    float lpfCutoff() const;
+    void setLpfCutoff(float cutoff);
+    float lpfResonance() const;
+    void setLpfResonance(float resonance);
+    float hpfCutoff() const;
+    void setHpfCutoff(float cutoff);
+    float filterKeyTrack() const;
+    void setFilterKeyTrack(float track);
+
+    // Amp EG
+    float ampAttack() const;
+    void setAmpAttack(float a);
+    float ampDecay() const;
+    void setAmpDecay(float d);
+    float ampSustain() const;
+    void setAmpSustain(float s);
+    float ampRelease() const;
+    void setAmpRelease(float r);
+    float ampVelocitySensitivity() const;
+    void setAmpVelocitySensitivity(float sensitivity);
+    float ampCurve() const;
+    void setAmpCurve(float curve);
+
+    // Mod EG
+    float modAttack() const;
+    void setModAttack(float a);
+    float modDecay() const;
+    void setModDecay(float d);
+    float modSustain() const;
+    void setModSustain(float sustain);
+    float modInt() const;
+    void setModInt(float intensity);
+    ModTarget modTarget() const;
+    void setModTarget(ModTarget target);
+    float modCurve() const;
+    void setModCurve(float curve);
+
+    // Lfo
+    Lfo::Waveform lfoWaveform() const;
+    void setLfoWaveform(Lfo::Waveform wave);
+    Lfo::Mode lfoMode() const;
+    void setLfoMode(Lfo::Mode mode);
+    float lfoRate() const;
+    void setLfoRate(float rate);
+    float lfoInt() const;
+    void setLfoInt(float intensity);
+    LfoTarget lfoTarget() const;
+    void setLfoTarget(LfoTarget target);
+    //! How long after a note the LFO waits before it engages, and how long it then takes to reach
+    //! full depth. Both zero, the default, engage it on the note at full depth.
+    float lfoDelay() const;
+    void setLfoDelay(float delay);
+    float lfoFade() const;
+    void setLfoFade(float fade);
+
+    // Lfo 2
+    Lfo::Waveform lfo2Waveform() const;
+    void setLfo2Waveform(Lfo::Waveform wave);
+    Lfo::Mode lfo2Mode() const;
+    void setLfo2Mode(Lfo::Mode mode);
+    float lfo2Rate() const;
+    void setLfo2Rate(float rate);
+    float lfo2Int() const;
+    void setLfo2Int(float intensity);
+    LfoTarget lfo2Target() const;
+    void setLfo2Target(LfoTarget target);
+    float lfo2Delay() const;
+    void setLfo2Delay(float delay);
+    float lfo2Fade() const;
+    void setLfo2Fade(float fade);
+    //! How many times slower than its Rate each LFO runs, 1 to Lfo::MaxRateDivider.
+    int lfoRateDivider() const;
+    void setLfoRateDivider(int divider);
+    int lfo2RateDivider() const;
+    void setLfo2RateDivider(int divider);
+    //! Whether the LFO is one for the whole device that runs on regardless of the notes, rather than
+    //! one per voice restarted by every note. Its delay and fade restart on the first note after
+    //! silence.
+    bool lfoFreeRun() const;
+    void setLfoFreeRun(bool freeRun);
+    bool lfo2FreeRun() const;
+    void setLfo2FreeRun(bool freeRun);
+
+    // Voice / Global
+    VoiceMode voiceMode() const;
+    void setVoiceMode(VoiceMode mode);
+    float voiceDepth() const;
+    void setVoiceDepth(float depth);
+    float portamento() const;
+    void setPortamento(float p);
+    float panSpread() const;
+    void setPanSpread(float spread);
+    int pitchBendRange() const;
+    void setPitchBendRange(int range);
+    float currentPitchBendOffset() const;
+    void setPan(float pan) override;
+    void setVolume(float vol) override;
+    float gain() const;
+    void setGain(float gain) override;
+
+    // Oscillator drift
+    float oscillatorDrift() const;
+    void setOscillatorDrift(float drift);
+
+    //! How far each oscillator wanders on its own, as opposed to the whole voice wandering together.
+    float oscillatorInstability() const;
+    void setOscillatorInstability(float instability);
+
+    //! How hard the low pass is driven into its own ceiling. Zero is the linear filter the synth has
+    //! always had, and is what every patch made before this sits at.
+    float filterDrive() const;
+    void setFilterDrive(float drive);
+
+    // Cross modulation (VCO1 -> VCO2 audio-rate FM)
+    float crossModDepth() const;
+    void setCrossModDepth(float depth);
+
+    // Chorus parameters, in knob travel: the Chorus effect maps them to Hz and ms
+    float chorusRate() const;
+    void setChorusRate(float rate);
+    float chorusDepth() const;
+    void setChorusDepth(float depth);
+    float chorusDelay() const;
+    void setChorusDelay(float delay);
+    float chorusWidth() const;
+    void setChorusWidth(float width);
+    float chorusMix() const;
+    void setChorusMix(float mix);
+
+    // Delay parameters
+    Delay::Type delayType() const;
+    void setDelayType(Delay::Type type);
+    //! The longest delay, at the top of the Time knob.
+    static constexpr float MaxDelaySeconds { 10.0f };
+    //! The Time knob's position, 0 to 1 of MaxDelaySeconds, as setDelayTime() takes it.
+    float delayTime() const;
+    void setDelayTime(float time);
+    float delayFeedback() const;
+    void setDelayFeedback(float fb);
+    float delayDepth() const;
+    void setDelayDepth(float depth);
+    float delayMix() const;
+    void setDelayMix(float mix);
+    bool delaySync() const;
+    void setDelaySync(bool sync);
+    float delaySyncDivision() const;
+    void setDelaySyncDivision(float division);
+    float delayFeedbackLpf() const;
+    void setFeedbackLpf(float cutoff);
+    float delayFeedbackHpf() const;
+    void setFeedbackHpf(float cutoff);
+
+    //! Loads a preset as the user's own choice: it becomes the patch, and it is what gets saved.
+    void loadPreset(int index);
+
+private:
+    //! The sources with a filter section of their own: the four VCOs, then the multi engine.
+    static constexpr size_t MultiFilterIndex = VcoCount;
+    static constexpr size_t SourceFilterCount = VcoCount + 1;
+
+    bool sourceFilterEngaged(size_t sourceIndex) const;
+
+    //! Everything a note-on hands to a voice. Passed whole so the deferred path below can hold on to
+    //! it for a millisecond and apply exactly what the immediate path would have.
+    struct Trigger
+    {
+        uint8_t note { 0 };
+        uint64_t triggerId { 0 };
+        double frequency { 0.0 };
+        float pan { 0.5f };
+        float velocity { 1.0f };
+        //! Whether the oscillators jump to the new pitch or glide to it from wherever the last note
+        //! left them.
+        bool resetGlide { true };
+    };
+
+    struct Voice
+    {
+        //! Starting phase of each oscillator, in VCO order.
+        using Phases = std::array<double, VcoCount>;
+
+        PolyBlepOscillator vco1;
+        PolyBlepOscillator vco2;
+        PolyBlepOscillator vco3;
+        PolyBlepOscillator vco4;
+        MultiEngine multi;
+        CascadedSvf lpf;
+        CascadedSvf hpf;
+        //! The low pass again, saturating, for when Drive is up. A second filter rather than a mode
+        //! of the first: the linear one has to keep behaving exactly as it did, down to the sample,
+        //! for every patch that leaves Drive alone.
+        std::array<SaturatingSvf, 2> drivenLpf;
+        //! A low pass and a high pass of its own for each VCO and the multi engine, ahead of the mix.
+        //! Indexed in VCO order with the multi engine last, and skipped altogether while a pair sits at the ends of its travel -- which is
+        //! where they start, so a patch that does not reach for them costs nothing.
+        std::array<CascadedSvf, SourceFilterCount> sourceLpf;
+        std::array<CascadedSvf, SourceFilterCount> sourceHpf;
+        AdsrEnvelope ampEg;
+        AdsrEnvelope modEg;
+        Lfo lfo;
+        Lfo lfo2;
+
+        uint8_t note { 0 };
+        uint64_t triggerId { 0 };
+        double frequency { 0.0 };
+        double glideFrequency { 0.0 };
+        bool active { false };
+        float pan { 0.5f };
+        float velocity { 1.0f };
+        double driftPhase { 0.0 };
+        double driftRate { 0.2 };
+        //! The same wander again, once per oscillator instead of once per voice. What makes two VCOs
+        //! at the same pitch beat against each other: the voice-wide drift above moves all four by
+        //! the very same ratio, which leaves their relative tuning exactly as steady as it was.
+        std::array<AnalogDrift, VcoCount> oscDrifts;
+        //! Rolls the top off the outer voices of a stacked mode, where the beating is roughest.
+        OnePoleFilter unisonDamp;
+
+        //! A note waiting for the voice to fade out before it resets anything under it. Set only by
+        //! the synced path, and only when there is something to fade.
+        std::optional<Trigger> pendingTrigger;
+        //! Level of that fade, 1 down to 0 while a pending trigger waits.
+        double declickGain { 1.0 };
+
+        void reset();
+
+        //! Phase Sync on: the note starts from a known oscillator phase and its own attack, every
+        //! time. A voice that is still sounding is faded out first and the note applied at the
+        //! bottom of that fade — resetting phase and envelopes under a signal that is not at zero is
+        //! a click, and skipping the reset on such voices is what made the sync fire on some notes
+        //! and not on others.
+        void triggerSynced(const Trigger & trigger);
+
+        //! Phase Sync off: a voice that had fallen silent starts from a random phase so a stack does
+        //! not stand still, and one that is still producing audio is left running and simply
+        //! re-attacked from where it is.
+        void triggerFree(const Trigger & trigger, double randomPhase);
+
+        void applyTrigger(const Trigger & trigger, std::optional<Phases> phases, bool restartEnvelopes);
+        void cancelPendingTrigger();
+        void release();
+    };
+
+    std::vector<Voice> m_voices;
+    size_t m_polyNextVoice = 0;
+    size_t m_dualNextPair { 0 };
+    //! Pan-spread slot of the note Mono is currently sounding. Unset until the first note, so the
+    //! line starts at the same position a poly patch would.
+    std::optional<size_t> m_monoPanSlot;
+
+    //! Fixed so a render is reproducible: re-seeded in resetAudio(), which every render
+    //! start runs, rather than carrying state over from earlier playback.
+    static constexpr uint32_t RngSeed { 2001 };
+    mutable std::mt19937 m_rng { RngSeed };
+    mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };
+
+    // Internal parameter storage
+    PolyBlepOscillator::Waveform m_vco1Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco1Octave { 0 };
+    float m_vco1Pitch { 0.5f };
+    float m_vco1Shape { 0.0f };
+    float m_vco1Roundness { 0.5f };
+    bool m_vco1Sync { false };
+    float m_phaseRandomness { 1.0f };
+
+    PolyBlepOscillator::Waveform m_vco2Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco2Octave { 0 };
+    float m_vco2Pitch { 0.5f };
+    float m_vco2Shape { 0.0f };
+    float m_vco2Roundness { 0.5f };
+    bool m_vco2Sync { false };
+    bool m_vco2Ring { false };
+
+    PolyBlepOscillator::Waveform m_vco3Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco3Octave { 0 };
+    float m_vco3Pitch { 0.5f };
+    float m_vco3Shape { 0.0f };
+    float m_vco3Roundness { 0.5f };
+    bool m_vco3Sync { false };
+    PolyBlepOscillator::Waveform m_vco4Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco4Octave { 0 };
+    float m_vco4Pitch { 0.5f };
+    float m_vco4Shape { 0.0f };
+    float m_vco4Roundness { 0.5f };
+    bool m_vco4Sync { false };
+
+    MultiEngine::Type m_multiType { MultiEngine::Type::Low };
+    float m_multiShape { 0.5f };
+    float m_multiLevel { 0.0f };
+    float m_multiKeyTrack { 0.0f };
+    MultiEngine::Engine m_multiEngine { MultiEngine::Engine::Noise };
+    int m_multiOctave { 1 };
+    MultiEngine::VpmType m_vpmType { MultiEngine::VpmType::Sin1 };
+    int m_vpmRatioOffset { static_cast<int>(MultiEngine::VpmRatioOffsetUnity) };
+    float m_vpmFeedback { 0.5f };
+    float m_vpmNoiseDepth { 0.5f };
+    float m_vpmShapeModInt { 0.5f };
+    float m_vpmModAttack { 0.5f };
+    float m_vpmModDecay { 0.5f };
+    float m_vpmModKeyTrack { 0.5f };
+
+    float m_mixVco1 { 1.0f };
+    float m_mixVco2 { 0.0f };
+    float m_mixVco3 { 0.0f };
+    float m_mixVco4 { 0.0f };
+
+    //! The per-source filter sections, in VCO order with the multi engine last. Open at both ends and flat by default, so
+    //! a project saved before they existed sounds exactly as it did.
+    std::array<float, SourceFilterCount> m_sourceLpfCutoff { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+    std::array<float, SourceFilterCount> m_sourceLpfResonance {};
+    std::array<float, SourceFilterCount> m_sourceHpfCutoff {};
+    //! Zero is twelve decibels an octave, one is twenty-four, as in the voice's own filter.
+    std::array<float, SourceFilterCount> m_sourceLpfSlope {};
+    std::array<float, SourceFilterCount> m_sourceHpfSlope {};
+    //! sourceFilterEngaged() as it stood when the block started, so the answer cannot change under the
+    //! voices halfway through one.
+    std::array<bool, SourceFilterCount> m_sourceFilterEngagedThisBlock {};
+    //! The oscillator stage's controls, likewise taken once a block.
+    SynthOscillatorStage::Settings m_oscillatorSettingsThisBlock;
+    std::array<bool, SynthOscillatorStage::VcoCount> m_oscillatorsRunningThisBlock {};
+    SynthOscillatorStage::Settings oscillatorSettings() const;
+
+    float m_lpfCutoff { 1.0f };
+    float m_lpfResonance { 0.0f };
+    //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
+    float m_lpfSlope { 1.0f };
+    float m_hpfSlope { 1.0f };
+    float m_hpfCutoff { 0.0f };
+    float m_filterKeyTrack { 0.0f };
+
+    float m_ampAttack { 0.1f };
+    float m_ampDecay { 0.2f };
+    float m_ampSustain { 1.0f };
+    float m_ampRelease { 0.2f };
+    float m_ampVelocitySensitivity { 1.0f };
+    float m_ampCurve { 0.0f };
+
+    float m_modAttack { 0.1f };
+    float m_modDecay { 0.2f };
+    float m_modSustain { 0.0f };
+    float m_modInt { 0.0f };
+    ModTarget m_modTarget { ModTarget::Cutoff };
+    float m_modCurve { 0.0f };
+
+    Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
+    Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
+    float m_lfoRate { 0.5f };
+    float m_lfoInt { 0.0f };
+    LfoTarget m_lfoTarget { LfoTarget::Pitch };
+    float m_lfoDelay { 0.0f };
+    float m_lfoFade { 0.0f };
+
+    Lfo::Waveform m_lfo2Waveform { Lfo::Waveform::Triangle };
+    Lfo::Mode m_lfo2Mode { Lfo::Mode::Normal };
+    float m_lfo2Rate { 0.5f };
+    float m_lfo2Int { 0.0f };
+    LfoTarget m_lfo2Target { LfoTarget::Pitch };
+    float m_lfo2Delay { 0.0f };
+    float m_lfo2Fade { 0.0f };
+    int m_lfoRateDivider { 1 };
+    int m_lfo2RateDivider { 1 };
+    bool m_lfoFreeRun { false };
+    bool m_lfo2FreeRun { false };
+    //! Device-wide LFO 1 and 2. What the voices read in Free Run; otherwise restarted by every note,
+    //! like the newest voice's own, and only shown on the phase LEDs.
+    Lfo m_globalLfo;
+    Lfo m_globalLfo2;
+    //! This block's values of the device-wide LFOs, one per frame.
+    std::vector<double> m_globalLfoBlock;
+    std::vector<double> m_globalLfo2Block;
+
+    VoiceMode m_voiceMode { VoiceMode::Poly };
+    uint64_t m_nextTriggerId { 1 };
+    float m_voiceDepth { 0.0f };
+    float m_portamento { 0.0f };
+    float m_panSpread { 0.0f };
+    int m_pitchBendRange { 2 };
+    uint16_t m_pitchBend { 8192 };
+
+    // Manual settings for CC reset
+
+    float m_oscillatorDrift { 0.0f };
+    float m_oscillatorInstability { 0.0f };
+    float m_filterDrive { 0.0f };
+    float m_crossModDepth { 0.0f };
+
+    //! The rack Chorus, ahead of the delay so that the echoes repeat the chorused sound.
+    Chorus m_chorus;
+    float m_chorusMix { 0.0f };
+    //! Whether the chorus ran on the last sample, so that it starts from silence when Mix comes up
+    //! from zero instead of replaying what was in its delay line when it stopped.
+    bool m_chorusRunning { false };
+
+    Delay m_delay;
+    //! Device-wide copies of LFO 1 and 2 for the targets the voices share, the delay's filters. They
+    //! restart with the first note after silence, the way a held chord's LFOs would.
+    Lfo m_delayLfo;
+    Lfo m_delayLfo2;
+    Delay::Type m_delayType { Delay::Type::Stereo };
+    float m_delayTime { 0.5f };
+    float m_delayFeedback { 0.3f };
+    float m_delayDepth { 0.5f };
+    float m_delayMix { 0.0f };
+    bool m_delaySync { false };
+    float m_delaySyncDivision { 0.25f };
+
+    //! Oversampling factor of the block being rendered, so voices can compensate their noise.
+    uint8_t m_oversampleFactor { 1 };
+    Decimator m_downsamplerL;
+    Decimator m_downsamplerR;
+
+    //! Hard sync resets VCO2 mid-ramp, and cross mod moves the reset point every sample, so the
+    //! truncated ramp has a mean that is both non-zero and wandering. Nothing downstream is
+    //! guaranteed to remove it: the HPF is bypassed at cutoff zero.
+    DcBlocker m_dcBlockerL;
+    DcBlocker m_dcBlockerR;
+
+    std::vector<float> m_oversampledBuffer;
+
+    double m_vco1BasePitchRatio { 1.0 };
+    double m_vco2BasePitchRatio { 1.0 };
+    double m_vco3BasePitchRatio { 1.0 };
+    double m_vco4BasePitchRatio { 1.0 };
+
+    void handleNoteOn(uint8_t note, uint8_t velocity);
+    //! Starts a note on the given voice through whichever path the Phase Sync switch selects.
+    void startVoice(Voice & voice, const Trigger & trigger, size_t stackIndex);
+    //! The phase a voice that starts from silence is given while Phase Sync is off. @p stackIndex is
+    //! the voice's place among the voices playing its note: 0 or 1 in a Dual pair, whichever pair
+    //! that is, so that every note starts alike.
+    double startPhase(size_t stackIndex) const;
+    //! Mono voice allocation: one voice, envelopes retriggered per note, pitch and phase carried over.
+    void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
+    void handleNoteOff(uint8_t note);
+    double midiNoteToFreq(uint8_t note) const;
+    //! \param authored Whether the preset is the user's choice or a program change from a song.
+    //! A program change writes the live layer only, so stopping playback brings the patch back.
+    void applyPreset(int index, bool authored);
+
+    void syncParameters() override;
+
+    //! Puts every voice's free-running drift oscillator back to its starting rate and phase.
+    void initializeVoiceDrift();
+
+    //! The low pass with its integrators saturating, which is the path Drive takes. Kept out of
+    //! generateVoiceSample() so the clean path there stays the two lines it always was.
+    double drivenLowPass(Voice & voice, double input, double cutoff, double resonance, uint32_t oversampledRate) const;
+
+    struct ModulationValues
+    {
+        double ampEnvelope { 0.0 };
+        double modEnvelope { 0.0 };
+        double lfoValue { 0.0 };
+        double cutoffMod { 0.0 };
+        double hpfCutoffMod { 0.0 };
+        double shapeMod { 0.0 };
+        double vco1PitchMod { 0.0 };
+        double vco2PitchMod { 0.0 };
+        double vco3PitchMod { 0.0 };
+        double vco4PitchMod { 0.0 };
+        //! The pitch modulation that reaches every source, which the multi engine follows.
+        double multiPitchMod { 0.0 };
+        double resonanceMod { 0.0 };
+        double panMod { 0.0 };
+        double volumeMod { 0.0 };
+        //! Per-source filter modulation, in VCO order with the multi engine last. Summed from
+        //! whichever of the Mod EG and the two LFOs point at that source's filters.
+        std::array<double, SourceFilterCount> sourceLpfCutoffMod {};
+        std::array<double, SourceFilterCount> sourceHpfCutoffMod {};
+    };
+
+    ModulationValues calculateModulation(Voice & voice, uint32_t frame) const;
+    float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
+
+    void prepareForProcessing(AudioContext & context);
+    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index);
+    //! Voices the current voice mode spends on a single note. Poly plays one, dual pairs two and
+    //! unison stacks the lot.
+    int voicesPerNote() const;
+
+    //! Detune of the given voice in semitones, for the current voice mode. Both the note-on and
+    //! the per-block parameter update read it from here so the two can never disagree.
+    double voiceDetuneSemitones(size_t index) const;
+    //! Per-voice gain that keeps one note at the same level in every voice mode.
+    float voiceStackNormalization() const;
+    //! Position in the stereo field of the given pan-spread slot. Slots alternate sides and close in
+    //! towards the centre, so a stack stays balanced however many of them are sounding.
+    float voiceSpreadPan(size_t slot) const;
+    //! Corner for the voice's damping filter, or 0 when the mode damps nothing.
+    double voiceDampingHz(size_t index) const;
+
+    void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
+    void applyGlobalEffects(AudioContext & context);
+    void configureLfo1(Lfo & lfo) const;
+    void configureLfo2(Lfo & lfo) const;
+    //! Steps the device-wide LFOs through the block and publishes them to the phase LEDs.
+    void renderGlobalLfos(const AudioContext & context);
+    void publishLfoLeds();
+    //! Offset an LFO pointing at \a target adds to the delay's feedback filter, at this sample.
+    double delayFilterModulation(LfoTarget target, double lfoValue, double lfo2Value) const;
+
+    std::string m_name;
+};
+
+} // namespace noteahead
+
+#endif // SYNTH_DEVICE_HPP

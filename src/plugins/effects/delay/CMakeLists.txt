@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        delay.cpp
+        delay.hpp
+        delay_presets.cpp
+        delay_presets.hpp
+    QML_FILES
+        DelayDialog.qml
+)

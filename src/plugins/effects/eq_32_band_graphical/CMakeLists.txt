@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        eq_32_band_graphical.cpp
+        eq_32_band_graphical.hpp
+        eq_32_band_graphical_presets.cpp
+        eq_32_band_graphical_presets.hpp
+    QML_FILES
+        Eq32BandGraphicalDialog.qml
+)

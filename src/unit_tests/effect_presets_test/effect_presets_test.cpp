@@ -17,16 +17,16 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../domain/effects/auto_ducker.hpp"
-#include "../../domain/effects/auto_ducker_presets.hpp"
-#include "../../domain/effects/compressor.hpp"
-#include "../../domain/effects/compressor_presets.hpp"
-#include "../../domain/effects/delay.hpp"
-#include "../../domain/effects/delay_presets.hpp"
-#include "../../domain/effects/reverb.hpp"
-#include "../../domain/effects/reverb_presets.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/effects/auto_ducker/auto_ducker.hpp"
+#include "../../plugins/effects/auto_ducker/auto_ducker_presets.hpp"
+#include "../../plugins/effects/compressor/compressor.hpp"
+#include "../../plugins/effects/compressor/compressor_presets.hpp"
+#include "../../plugins/effects/delay/delay.hpp"
+#include "../../plugins/effects/delay/delay_presets.hpp"
+#include "../../plugins/effects/reverb/reverb.hpp"
+#include "../../plugins/effects/reverb/reverb_presets.hpp"
 
 #include <QBuffer>
 #include <QTest>

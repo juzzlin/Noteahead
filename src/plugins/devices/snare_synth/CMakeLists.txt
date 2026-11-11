@@ -1,0 +1,22 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        snare_synth_device.cpp
+        snare_synth_device.hpp
+        snare_synth_presets.cpp
+        snare_synth_presets.hpp
+    APPLICATION_SOURCES
+        snare_synth_preview.cpp
+        snare_synth_preview.hpp
+    VIEW_SOURCES
+        snare_synth_controller.cpp
+        snare_synth_controller.hpp
+    QML_FILES
+        SnareSynthDialog.qml
+        SnareSynthDialog_Envelope.qml
+        SnareSynthDialog_Global.qml
+        SnareSynthDialog_Head.qml
+        SnareSynthDialog_Presets.qml
+        SnareSynthDialog_Snares.qml
+        SnareSynthDialog_Strike.qml
+        SnareSynthDialog_Waveform.qml
+)

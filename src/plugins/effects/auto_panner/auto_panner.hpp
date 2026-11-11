@@ -1,0 +1,58 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef AUTO_PANNER_HPP
+#define AUTO_PANNER_HPP
+
+#include "../../../domain/dsp/lfo.hpp"
+#include "../../../domain/effects/effect.hpp"
+
+namespace noteahead {
+
+class AutoPanner : public Effect
+{
+public:
+    AutoPanner();
+
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
+    std::vector<std::string> modulationPriority() const override;
+
+    void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
+    void sync() override;
+    void reset() override;
+    void setBpm(float bpm) override;
+
+    //! Largest factor the Rate Divider offers. As the Phaser's, so that the same control means the
+    //! same thing on both.
+    static int maxRateDivider();
+
+private:
+    Lfo m_lfo;
+    double m_intensity { 1.0 };
+    double m_rate { 0.5 };
+    double m_syncDivision { 0.25 };
+    //! One, so a project saved before this sweeps exactly as fast as it always did.
+    int m_rateDivider { 1 };
+    bool m_sync { false };
+
+    void updateLfoFrequency();
+};
+
+} // namespace noteahead
+
+#endif // AUTO_PANNER_HPP

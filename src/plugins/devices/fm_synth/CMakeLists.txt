@@ -1,0 +1,25 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        fm_synth_device.cpp
+        fm_synth_device.hpp
+        fm_synth_presets.cpp
+        fm_synth_presets.hpp
+    VIEW_SOURCES
+        fm_synth_controller.cpp
+        fm_synth_controller.hpp
+    QML_FILES
+        FmSynthDialog.qml
+        FmSynthDialog_Algorithm.qml
+        FmSynthDialog_AmpEg.qml
+        FmSynthDialog_Delay.qml
+        FmSynthDialog_Filter.qml
+        FmSynthDialog_Global.qml
+        FmSynthDialog_Lfo1.qml
+        FmSynthDialog_Lfo2.qml
+        FmSynthDialog_ModEg.qml
+        FmSynthDialog_Operator.qml
+        FmSynthDialog_Presets.qml
+        FmSynthDialog_Tab1.qml
+        FmSynthDialog_Tab2.qml
+        FmSynthDialog_Tab3.qml
+)

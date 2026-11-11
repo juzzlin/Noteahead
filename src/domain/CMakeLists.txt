@@ -1,55 +1,10 @@
 set(HEADER_FILES
-    devices/bass_synth_device.hpp
-    devices/bass_synth_presets.hpp
     devices/device.hpp
     devices/device_parameter_display.hpp
     devices/device_factory.hpp
     devices/drum_pad_device.hpp
-    devices/drum_synth_constants.hpp
-    devices/drum_synth_device.hpp
-    devices/drum_synth_v2_constants.hpp
-    devices/drum_synth_v2_device.hpp
     devices/drum_voice_parameter_display.hpp
-    devices/electric_bass_device.hpp
-    devices/electric_bass_presets.hpp
-    devices/fm_drums_device.hpp
-    devices/fm_drums_presets.hpp
-    devices/fm_synth_device.hpp
-    devices/fm_synth_presets.hpp
-    devices/ju_synth_device.hpp
-    devices/ju_synth_presets.hpp
-    devices/ju_synth_08_device.hpp
-    devices/ju_synth_08_presets.hpp
-    devices/kick_808_device.hpp
-    devices/kick_909_device.hpp
-    devices/kick_909_presets.hpp
-    devices/kick_synth_device.hpp
-    devices/kick_synth_presets.hpp
-    devices/lfo_device.hpp
     devices/modulation_source.hpp
-    devices/noise_fx_device.hpp
-    devices/noise_fx_presets.hpp
-    devices/snare_synth_device.hpp
-    devices/snare_synth_presets.hpp
-    devices/piano_synth_device.hpp
-    devices/piano_synth_v2_device.hpp
-    devices/piano_synth_acoustic_device.hpp
-    devices/piano_synth_acoustic_presets.hpp
-    devices/piano_synth_v3_device.hpp
-    devices/sampler_device.hpp
-    devices/string_ensemble_device.hpp
-    devices/string_voice_v2_device.hpp
-    devices/string_voice_v3_device.hpp
-    devices/speech_device.hpp
-    devices/sub_mixer_device.hpp
-    devices/synth_d_device.hpp
-    devices/synth_d_presets.hpp
-    devices/synth_device.hpp
-    devices/synth_oscillator_stage.hpp
-    devices/synth_presets.hpp
-    devices/wavetable_synth_device.hpp
-    devices/wavetable_synth_presets.hpp
-    devices/xy_pad_device.hpp
     dsp/adsr_envelope.hpp
     dsp/analog_drift.hpp
     dsp/all_pass_chain.hpp
@@ -117,64 +72,11 @@ set(HEADER_FILES
     dsp/volume.hpp
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
-    effects/air_band_eq.hpp
-    effects/air_band_eq_presets.hpp
-    effects/all_pass_filter.hpp
-    effects/ambience.hpp
-    effects/analog_fuzz.hpp
-    effects/auto_ducker.hpp
-    effects/auto_ducker_presets.hpp
-    effects/auto_filter.hpp
-    effects/auto_panner.hpp
-    effects/bass_grinder.hpp
-    effects/bit_crusher.hpp
-    effects/clipper.hpp
-    effects/compressor.hpp
-    effects/compressor_2a.hpp
-    effects/compressor_presets.hpp
-    effects/crossfeed.hpp
-    effects/crossfeed_presets.hpp
-    effects/delay.hpp
-    effects/delay_presets.hpp
-    effects/dimension.hpp
-    effects/doubler.hpp
-    effects/dynamic_eq.hpp
-    effects/early_reflections.hpp
-    effects/drive.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
     effects/effect_presets.hpp
     effects/effect_rack.hpp
-    effects/endless_reverb.hpp
-    effects/eq_32_band_graphical.hpp
-    effects/eq_32_band_graphical_presets.hpp
-    effects/eq_8_band_parametric.hpp
-    effects/eq_8_band_parametric_presets.hpp
-    effects/flanger.hpp
-    effects/gain.hpp
-    effects/gate.hpp
-    effects/limiter.hpp
-    effects/monitor.hpp
-    effects/multiband_compressor.hpp
-    effects/panner.hpp
-    effects/phaser.hpp
-    effects/reference.hpp
-    effects/reference_environments.hpp
-    effects/reference_presets.hpp
-    effects/reverb.hpp
-    effects/reverb_224.hpp
-    effects/reverb_presets.hpp
-    effects/saturator.hpp
-    effects/tremolo.hpp
-    effects/tube_stage.hpp
-    effects/phase_scope.hpp
-    effects/simple_eq.hpp
-    effects/vintage_passive_eq.hpp
     effects/spectrum_source.hpp
-    effects/stereo_enhancer.hpp
-    effects/stereo_exciter.hpp
-    effects/stereo_widener.hpp
-    effects/wave_designer.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
     midi/midi_cc_data.hpp
@@ -239,59 +141,13 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    devices/bass_synth_device.cpp
-    devices/bass_synth_presets.cpp
     devices/device.cpp
     devices/device_parameter_display.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
     devices/drum_pad_device.cpp
-    devices/drum_synth_constants.cpp
-    devices/drum_synth_device.cpp
-    devices/drum_synth_v2_constants.cpp
-    devices/drum_synth_v2_device.cpp
     devices/drum_voice_parameter_display.cpp
-    devices/electric_bass_device.cpp
-    devices/electric_bass_presets.cpp
-    devices/fm_drums_device.cpp
-    devices/fm_drums_presets.cpp
-    devices/fm_synth_device.cpp
-    devices/fm_synth_presets.cpp
-    devices/ju_synth_device.cpp
-    devices/ju_synth_presets.cpp
-    devices/ju_synth_08_device.cpp
-    devices/ju_synth_08_presets.cpp
-    devices/kick_808_device.cpp
-    devices/kick_909_device.cpp
-    devices/kick_909_presets.cpp
-    devices/kick_synth_device.cpp
-    devices/kick_synth_presets.cpp
-    devices/lfo_device.cpp
     devices/modulation_source.cpp
-    devices/noise_fx_device.cpp
-    devices/noise_fx_presets.cpp
-    devices/snare_synth_device.cpp
-    devices/snare_synth_presets.cpp
-    devices/piano_synth_device.cpp
-    devices/piano_synth_v2_device.cpp
-    devices/piano_synth_acoustic_device.cpp
-    devices/piano_synth_acoustic_presets.cpp
-    devices/piano_synth_v3_device.cpp
-    devices/sampler_device.cpp
-    devices/string_ensemble_device.cpp
-    devices/string_voice_device.cpp
-    devices/string_voice_v2_device.cpp
-    devices/string_voice_v3_device.cpp
-    devices/speech_device.cpp
-    devices/sub_mixer_device.cpp
-    devices/synth_d_device.cpp
-    devices/synth_d_presets.cpp
-    devices/synth_device.cpp
-    devices/synth_oscillator_stage.cpp
-    devices/synth_presets.cpp
-    devices/wavetable_synth_device.cpp
-    devices/wavetable_synth_presets.cpp
-    devices/xy_pad_device.cpp
     dsp/adsr_envelope.cpp
     dsp/analog_drift.cpp
     dsp/all_pass_chain.cpp
@@ -360,63 +216,9 @@ set(SOURCE_FILES
     dsp/waveguide_string.cpp
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
-    effects/air_band_eq.cpp
-    effects/air_band_eq_presets.cpp
-    effects/all_pass_filter.cpp
-    effects/ambience.cpp
-    effects/analog_fuzz.cpp
-    effects/auto_ducker.cpp
-    effects/auto_ducker_presets.cpp
-    effects/auto_filter.cpp
-    effects/auto_panner.cpp
-    effects/bass_grinder.cpp
-    effects/bit_crusher.cpp
-    effects/chorus.cpp
-    effects/clipper.cpp
-    effects/compressor.cpp
-    effects/compressor_2a.cpp
-    effects/compressor_presets.cpp
-    effects/crossfeed.cpp
-    effects/crossfeed_presets.cpp
-    effects/delay.cpp
-    effects/delay_presets.cpp
-    effects/dimension.cpp
-    effects/doubler.cpp
-    effects/dynamic_eq.cpp
-    effects/early_reflections.cpp
-    effects/drive.cpp
     effects/effect.cpp
     effects/effect_factory.cpp
     effects/effect_rack.cpp
-    effects/endless_reverb.cpp
-    effects/eq_32_band_graphical.cpp
-    effects/eq_32_band_graphical_presets.cpp
-    effects/eq_8_band_parametric.cpp
-    effects/eq_8_band_parametric_presets.cpp
-    effects/flanger.cpp
-    effects/gain.cpp
-    effects/gate.cpp
-    effects/limiter.cpp
-    effects/monitor.cpp
-    effects/multiband_compressor.cpp
-    effects/panner.cpp
-    effects/phaser.cpp
-    effects/reference.cpp
-    effects/reference_environments.cpp
-    effects/reference_presets.cpp
-    effects/reverb.cpp
-    effects/reverb_224.cpp
-    effects/reverb_presets.cpp
-    effects/saturator.cpp
-    effects/tremolo.cpp
-    effects/tube_stage.cpp
-    effects/phase_scope.cpp
-    effects/simple_eq.cpp
-    effects/vintage_passive_eq.cpp
-    effects/stereo_enhancer.cpp
-    effects/stereo_exciter.cpp
-    effects/stereo_widener.cpp
-    effects/wave_designer.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp
