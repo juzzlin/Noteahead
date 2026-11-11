@@ -2,9 +2,11 @@ noteahead_add_device(
     DOMAIN_SOURCES
         kick_808_device.cpp
         kick_808_device.hpp
+        kick_808_registration.cpp
     VIEW_SOURCES
         kick_808_controller.cpp
         kick_808_controller.hpp
+        kick_808_view_registration.cpp
     QML_FILES
         Kick808Dialog.qml
         Kick808Dialog_Global.qml

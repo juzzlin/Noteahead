@@ -469,36 +469,43 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 29);
-    QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
-    QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
-    QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
-    QCOMPARE(list.at(3).toMap()["name"].toString(), QString("FM Synth"));
-    QCOMPARE(list.at(4).toMap()["name"].toString(), QString("JU Synth"));
-    QCOMPARE(list.at(5).toMap()["name"].toString(), QString("JU Synth 08"));
-    QCOMPARE(list.at(6).toMap()["name"].toString(), QString("Synth D"));
-    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("Bass Synth"));
-    QCOMPARE(list.at(8).toMap()["name"].toString(), QString("Electric Bass"));
-    QCOMPARE(list.at(9).toMap()["name"].toString(), QString("Drum Synth"));
-    QCOMPARE(list.at(10).toMap()["name"].toString(), QString("Drum Synth V2"));
-    QCOMPARE(list.at(11).toMap()["name"].toString(), QString("FM Drums"));
-    QCOMPARE(list.at(12).toMap()["name"].toString(), QString("Piano Synth"));
-    QCOMPARE(list.at(13).toMap()["name"].toString(), QString("Piano Synth V2"));
-    QCOMPARE(list.at(14).toMap()["name"].toString(), QString("Piano Synth V3"));
-    QCOMPARE(list.at(15).toMap()["name"].toString(), QString("Piano Synth Acoustic"));
-    QCOMPARE(list.at(16).toMap()["name"].toString(), QString("Kick 808"));
-    QCOMPARE(list.at(17).toMap()["name"].toString(), QString("Kick 909"));
-    QCOMPARE(list.at(18).toMap()["name"].toString(), QString("Kick Synth"));
-    QCOMPARE(list.at(19).toMap()["name"].toString(), QString("Snare Synth"));
-    QCOMPARE(list.at(20).toMap()["name"].toString(), QString("String & Voice"));
-    QCOMPARE(list.at(21).toMap()["name"].toString(), QString("String & Voice V2"));
-    QCOMPARE(list.at(22).toMap()["name"].toString(), QString("String & Voice V3"));
-    QCOMPARE(list.at(23).toMap()["name"].toString(), QString("String Ensemble"));
-    QCOMPARE(list.at(24).toMap()["name"].toString(), QString("Speech"));
-    QCOMPARE(list.at(25).toMap()["name"].toString(), QString("Noise FX"));
-    QCOMPARE(list.at(26).toMap()["name"].toString(), QString("Sub Mixer"));
-    QCOMPARE(list.at(27).toMap()["name"].toString(), QString("LFO"));
-    QCOMPARE(list.at(28).toMap()["name"].toString(), QString("XY Pad"));
+    // In the order of the names, the devices that register themselves among the rest
+    const QStringList expected {
+        "Bass Synth",
+        "Drum Synth",
+        "Drum Synth V2",
+        "Electric Bass",
+        "FM Drums",
+        "FM Synth",
+        "JU Synth",
+        "JU Synth 08",
+        "Kick 808",
+        "Kick 909",
+        "Kick Synth",
+        "LFO",
+        "Noise FX",
+        "Piano Synth",
+        "Piano Synth Acoustic",
+        "Piano Synth V2",
+        "Piano Synth V3",
+        "Sampler",
+        "Snare Synth",
+        "Speech",
+        "String & Voice",
+        "String & Voice V2",
+        "String & Voice V3",
+        "String Ensemble",
+        "Sub Mixer",
+        "Synth",
+        "Synth D",
+        "Wavetable Synth",
+        "XY Pad",
+    };
+    QStringList names;
+    for (auto && entry : list) {
+        names << entry.toMap()["name"].toString();
+    }
+    QCOMPARE(names, expected);
 }
 
 void DeviceRackControllerTest::test_availableDevices_shouldHaveCategories()
@@ -510,8 +517,18 @@ void DeviceRackControllerTest::test_availableDevices_shouldHaveCategories()
         const auto map = entry.toMap();
         QVERIFY2(!map["category"].toString().isEmpty(), qPrintable(map["name"].toString()));
     }
-    QCOMPARE(controller.availableDevices().at(0).toMap()["category"].toString(), QString { "Samplers" });
-    QCOMPARE(controller.availableDevices().at(1).toMap()["category"].toString(), QString { "Synths" });
+    const auto categoryOf = [&controller](const QString & name) {
+        for (auto && entry : controller.availableDevices()) {
+            if (const auto map = entry.toMap(); map["name"].toString() == name) {
+                return map["category"].toString();
+            }
+        }
+        return QString {};
+    };
+    QCOMPARE(categoryOf("Sampler"), QString { "Samplers" });
+    QCOMPARE(categoryOf("Synth"), QString { "Synths" });
+    // From its PluginCatalog entry
+    QCOMPARE(categoryOf("Kick 808"), QString { "Drums" });
 }
 
 void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()

@@ -244,6 +244,8 @@ public:
     Q_INVOKABLE void importSettings(const QUrl & fileUrl);
     bool importSettings(ProjectReader & reader);
     Q_INVOKABLE QVariantList availableEffects() const;
+    //! The dialog file of an effect type that registers itself, or empty for one that does not yet.
+    Q_INVOKABLE QString effectDialogFile(const QString & effectType) const;
 
     Q_INVOKABLE bool isEffectEnabled(quint32 effectIndex) const;
     Q_INVOKABLE void setIsEffectEnabled(quint32 effectIndex, bool enabled);

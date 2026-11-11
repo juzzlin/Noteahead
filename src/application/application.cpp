@@ -44,8 +44,6 @@
 #include "../plugins/devices/ju_synth/ju_synth_device.hpp"
 #include "../plugins/devices/ju_synth_08/ju_synth_08_controller.hpp"
 #include "../plugins/devices/ju_synth_08/ju_synth_08_device.hpp"
-#include "../plugins/devices/kick_808/kick_808_controller.hpp"
-#include "../plugins/devices/kick_808/kick_808_device.hpp"
 #include "../plugins/devices/kick_909/kick_909_controller.hpp"
 #include "../plugins/devices/kick_909/kick_909_device.hpp"
 #include "../plugins/devices/kick_synth/kick_synth_controller.hpp"
@@ -92,6 +90,7 @@
 #include "../view/controllers/knob_controller.hpp"
 #include "../view/controllers/performance_panel_controller.hpp"
 #include "../view/controllers/song_overview_controller.hpp"
+#include "../view/plugins/plugin_catalog.hpp"
 #include "../view/qml/Components/level_meter_renderer.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Components/wave_shape_renderer.hpp"
@@ -164,6 +163,26 @@ Q_DECLARE_METATYPE(noteahead::Position)
 
 namespace noteahead {
 
+namespace {
+
+//! One controller per device type that registers itself, made from its PluginCatalog entry
+std::vector<std::shared_ptr<DeviceController>> createPluginDeviceControllers()
+{
+    std::vector<std::shared_ptr<DeviceController>> controllers;
+    for (auto && device : PluginCatalog::devices()) {
+        controllers.push_back(device.createController());
+    }
+    return controllers;
+}
+
+DeviceRackController::ControllerList withPluginControllers(DeviceRackController::ControllerList controllers, const std::vector<std::shared_ptr<DeviceController>> & pluginControllers)
+{
+    controllers.insert(controllers.end(), pluginControllers.begin(), pluginControllers.end());
+    return controllers;
+}
+
+} // namespace
+
 static const auto TAG = "Application";
 
 Application::Application(int & argc, char ** argv)
@@ -202,7 +221,7 @@ Application::Application(int & argc, char ** argv)
   , m_pianoSynthV3Controller { std::make_shared<PianoSynthV3Controller>(std::make_shared<PianoSynthV3Device>("Default PianoSynth V3")) }
   , m_pianoSynthAcousticController { std::make_shared<PianoSynthAcousticController>(std::make_shared<PianoSynthAcousticDevice>("Default PianoSynth Acoustic")) }
   , m_synthDController { std::make_shared<SynthDController>(std::make_shared<SynthDDevice>("Default Synth D")) }
-  , m_kick808Controller { std::make_shared<Kick808Controller>(std::make_shared<Kick808Device>("Default Kick808")) }
+  , m_pluginDeviceControllers { createPluginDeviceControllers() }
   , m_kick909Controller { std::make_shared<Kick909Controller>(std::make_shared<Kick909Device>("Default Kick909")) }
   , m_kickSynthController { std::make_shared<KickSynthController>(std::make_shared<KickSynthDevice>("Default KickSynth")) }
   , m_snareSynthController { std::make_shared<SnareSynthController>(std::make_shared<SnareSynthDevice>("Default SnareSynth")) }
@@ -215,7 +234,7 @@ Application::Application(int & argc, char ** argv)
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_juSynth08Controller, m_synthDController, m_bassSynthController, m_electricBassController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_pianoSynthAcousticController, m_kick808Controller, m_kick909Controller, m_kickSynthController, m_snareSynthController, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_noiseFxController, m_lfoController, m_xyPadController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginControllers(std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_juSynth08Controller, m_synthDController, m_bassSynthController, m_electricBassController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_pianoSynthAcousticController, m_kick909Controller, m_kickSynthController, m_snareSynthController, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_noiseFxController, m_lfoController, m_xyPadController }, m_pluginDeviceControllers), m_editorService) }
   , m_performancePanelModel { std::make_unique<PerformancePanelModel>() }
   , m_performancePanelController { std::make_unique<PerformancePanelController>(m_deviceService, *m_performancePanelModel) }
   , m_knobController { std::make_shared<KnobController>() }
@@ -366,7 +385,6 @@ void Application::registerTypes()
     qmlRegisterType<PianoSynthV3Controller>("Noteahead", majorVersion, minorVersion, "PianoSynthV3Controller");
     qmlRegisterType<PianoSynthAcousticController>("Noteahead", majorVersion, minorVersion, "PianoSynthAcousticController");
     qmlRegisterType<SynthDController>("Noteahead", majorVersion, minorVersion, "SynthDController");
-    qmlRegisterType<Kick808Controller>("Noteahead", majorVersion, minorVersion, "Kick808Controller");
     qmlRegisterType<Kick909Controller>("Noteahead", majorVersion, minorVersion, "Kick909Controller");
     qmlRegisterType<KickSynthController>("Noteahead", majorVersion, minorVersion, "KickSynthController");
     qmlRegisterType<SnareSynthController>("Noteahead", majorVersion, minorVersion, "SnareSynthController");
@@ -426,8 +444,15 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("pianoSynthV3Controller", m_pianoSynthV3Controller.get());
     m_engine->rootContext()->setContextProperty("pianoSynthAcousticController", m_pianoSynthAcousticController.get());
     m_engine->rootContext()->setContextProperty("synthDController", m_synthDController.get());
-    m_engine->rootContext()->setContextProperty("kick808Controller", m_kick808Controller.get());
     m_engine->rootContext()->setContextProperty("kick909Controller", m_kick909Controller.get());
+    // The devices that register themselves: their controllers, by the names their dialogs use
+    const auto & pluginDevices = PluginCatalog::devices();
+    for (size_t i = 0; i < pluginDevices.size(); i++) {
+        if (pluginDevices.at(i).registerQmlTypes) {
+            pluginDevices.at(i).registerQmlTypes();
+        }
+        m_engine->rootContext()->setContextProperty(pluginDevices.at(i).controllerProperty, m_pluginDeviceControllers.at(i).get());
+    }
     m_engine->rootContext()->setContextProperty("kickSynthController", m_kickSynthController.get());
     m_engine->rootContext()->setContextProperty("snareSynthController", m_snareSynthController.get());
     m_engine->rootContext()->setContextProperty("stringVoiceController", m_stringVoiceController.get());

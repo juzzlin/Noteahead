@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         flanger.cpp
         flanger.hpp
+        flanger_registration.cpp
+    VIEW_SOURCES
+        flanger_view_registration.cpp
     QML_FILES
         FlangerDialog.qml
 )

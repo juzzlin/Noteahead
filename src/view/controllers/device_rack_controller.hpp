@@ -196,6 +196,8 @@ signals:
     void deviceSettingsImported(int slotIndex);
     //! A CC came in from the controller keyboard, for a mapping that is learning its controller.
     void controllerCcReceived(int controller);
+    //! A device that registers itself asks for its dialog by file name. See PluginCatalog.
+    void pluginDeviceDialogRequested(QString dialogFile);
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();
@@ -214,7 +216,6 @@ signals:
     void pianoSynthV3DialogRequested();
     void pianoSynthAcousticDialogRequested();
     void synthDDialogRequested();
-    void kick808DialogRequested();
     void kick909DialogRequested();
     void kickSynthDialogRequested();
     void snareSynthDialogRequested();
