@@ -84,6 +84,8 @@ public:
         QString dialogFile;
         //! The one-line parameter summary the rack lists show, or empty when it cannot be made.
         std::function<QString(const std::shared_ptr<noteahead::Effect> & effect, const SummaryContext & context)> summary {};
+        //! Registers the effect's own QML types, such as its EffectDialogModel, if it has any.
+        std::function<void()> registerQmlTypes {};
     };
 
     using DeviceDialogModelS = std::shared_ptr<DeviceDialogModel>;

@@ -326,6 +326,12 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("performancePanelController", m_performancePanelController.get());
     m_engine->rootContext()->setContextProperty("xyPadRecordingService", m_xyPadRecordingService.get());
     m_engine->rootContext()->setContextProperty("sessionTimerService", m_sessionTimerService.get());
+    // The effects that register themselves: their own QML types
+    for (auto && effect : PluginCatalog::effects()) {
+        if (effect.registerQmlTypes) {
+            effect.registerQmlTypes();
+        }
+    }
     // The devices that register themselves: their controllers, by the names their dialogs use
     const auto & pluginDevices = PluginCatalog::devices();
     for (size_t i = 0; i < pluginDevices.size(); i++) {

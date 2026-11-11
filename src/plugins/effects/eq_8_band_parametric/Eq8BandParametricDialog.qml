@@ -122,17 +122,21 @@ EffectDialog {
                 // bumped by every parameter change, which is what makes it follow a knob.
                 response: {
                     effectRackController.revision;
+                    // The model follows the slot, and the curve has to follow the model
+                    dialogModel.effectIndex;
                     // One point per couple of pixels, so the curve stays smooth at whatever width
                     // the dialog gives it. Depending on the width here is also what re-reads it when
                     // the dialog is resized.
-                    return effectRackController.eq8BandParametricResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                    return dialogModel.response(Math.max(64, Math.round(width / 2)));
                 }
                 // Flat, and drawn only when the stereo mode above leaves one path unshaped. Without
                 // it a Mid or Side cut looks exactly like one taken across the whole image, which is
                 // the one thing about those modes worth seeing.
                 secondaryResponse: {
                     effectRackController.revision;
-                    return effectRackController.eq8BandParametricPassThroughResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                    // The model follows the slot, and the curve has to follow the model
+                    dialogModel.effectIndex;
+                    return dialogModel.passThroughResponse(Math.max(64, Math.round(width / 2)));
                 }
                 dbRange: 18
                 accentColor: themeService.accentColor
@@ -183,6 +187,7 @@ EffectDialog {
                         BandSettings {
                             bandIndex: index
                             effectIndex: root.effectIndex
+                            dialogModel: dialogModel
                             Layout.fillWidth: true
                         }
                     }
@@ -194,6 +199,8 @@ EffectDialog {
     component BandSettings: ColumnLayout {
         property int bandIndex: -1
         property int effectIndex: -1
+        //! The dialog's, since an inline component cannot see the ids around it
+        property Eq8BandParametricDialogModel dialogModel
         spacing: 15
         Layout.preferredWidth: 120
 
@@ -221,7 +228,7 @@ EffectDialog {
                     // Q means a different thing to each type, so picking one opens it at the width
                     // that type is reached for at. Which type it already was decides whether that
                     // happens at all, so the controller is asked rather than told.
-                    onActivated: index => effectRackController.eq8BandParametricSetBandType(effectIndex, bandIndex, index)
+                    onActivated: index => dialogModel.setBandType(bandIndex, index)
                     Layout.fillWidth: true
                 }
             }
@@ -299,5 +306,11 @@ EffectDialog {
             enabled: typeCombo.currentIndex !== 0
         }
 
+    }
+
+    Eq8BandParametricDialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
     }
 }

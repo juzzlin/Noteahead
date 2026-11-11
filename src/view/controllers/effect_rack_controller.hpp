@@ -249,20 +249,6 @@ public:
     Q_INVOKABLE bool gainClipped(quint32 effectIndex) const;
     Q_INVOKABLE void clearGainClip(quint32 effectIndex);
 
-    //! The Q a band opens at when the user picks @p bandType, or -1 for a type that has no sensible
-    //! one. Applied on the user's action so that loading a project cannot overwrite a saved Q.
-    Q_INVOKABLE float eq8BandParametricDefaultQ(int bandType) const;
-    //! Sets a band's type, opening it at the Q that type is reached for at.
-    //!
-    //! A no-op when the band is already that type, because a combo box reports the user picking the
-    //! item that was already current and a Q the user set is not something to throw away for that.
-    Q_INVOKABLE void eq8BandParametricSetBandType(quint32 effectIndex, quint32 bandIndex, int bandType);
-    //! The equalizer's response over the audible range, in dB, as @p points evenly spaced on a log
-    //! frequency scale from 20 Hz to 20 kHz -- the scale the curve is drawn on.
-    Q_INVOKABLE QVariantList eq8BandParametricResponse(quint32 effectIndex, int points) const;
-    //! The curve of the path the equalizer leaves unshaped, or an empty list when it shapes both.
-    Q_INVOKABLE QVariantList eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const;
-
     //! What auto gain applies at @p effectIndex, in dB: 0 while it is off, and for an effect
     //! without it.
     Q_INVOKABLE double eqAutoGainDb(quint32 effectIndex) const;
@@ -309,7 +295,6 @@ public:
     //! The latest hit: reference and signal, each decimated to at most @p maxPoints.
     Q_INVOKABLE QVariantMap phaseScopeCapture(quint32 effectIndex, int maxPoints) const;
 
-    Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const;
     Q_INVOKABLE float stereoWidenerBandCorrelation(quint32 effectIndex, quint32 bandIndex) const;
     Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
@@ -399,6 +384,10 @@ public:
     //! What effectParametersSummary() gives for the current rack, for a master send bus instead.
     Q_INVOKABLE QString masterSendParametersSummary(quint32 busIndex) const;
 
+    //! The effect at @p effectIndex in the rack now shown, or nothing when there is none there.
+    //! What an EffectDialogModel reads its effect through.
+    std::shared_ptr<Effect> effectAt(quint32 effectIndex) const;
+
 signals:
     void effectCountChanged();
     void revisionChanged();
@@ -453,9 +442,6 @@ private:
     //! on the chain behind one of the send buses.
     bool isMasterSendRack() const;
     EffectRackOpt currentRack() const;
-
-    //! The effect at @p effectIndex in the rack now shown, or nothing when there is none there.
-    std::shared_ptr<Effect> effectAt(quint32 effectIndex) const;
 
     DeviceServiceS m_deviceService;
     EditorServiceS m_editorService;
