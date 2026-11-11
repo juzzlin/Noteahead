@@ -7,6 +7,14 @@ New features:
 
 Bug fixes:
 
+* Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
+
+* Auto Panner keeps its waveform when a project is reloaded
+
+* Drive: Fold no longer hangs on an extreme input
+
+* Effect and device parameter defaults match the values they start at
+
 Other:
 
 12.1.0

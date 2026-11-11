@@ -18,6 +18,8 @@
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/auto_panner.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
 
@@ -129,6 +131,47 @@ void AutoPannerTest::test_rateDivider_shouldStretchTheSweep()
 
     const double ratio = static_cast<double>(divided) / static_cast<double>(plain);
     QVERIFY2(std::abs(ratio - 4.0) < 0.05, qPrintable(QString::number(ratio) + " instead of 4"));
+}
+
+namespace {
+
+int waveformAfterLoading(const QString & xml)
+{
+    AutoPanner effect;
+    NahdXmlReader reader { xml };
+    reader.readNextStartElement();
+    effect.deserializeParametersFromXml(reader);
+    return effect.parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString())->get().xmlValue();
+}
+
+} // namespace
+
+void AutoPannerTest::test_waveform_everyChoice_shouldSurviveXml()
+{
+    for (int waveform = 0; waveform <= 3; waveform++) {
+        AutoPanner effect;
+        effect.parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString())->get().update(static_cast<float>(waveform));
+        QString xml;
+        {
+            NahdXmlWriter writer { xml };
+            writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+            effect.serializeParametersToXml(writer);
+            writer.writeEndElement();
+        }
+        QCOMPARE(waveformAfterLoading(xml), waveform);
+    }
+}
+
+void AutoPannerTest::test_waveform_olderProject_shouldLoadAsItPlayed()
+{
+    // Older projects held a third of the waveform's number, rounded: 1 played as Sine
+    const auto legacy = [](int value) {
+        return QString { "<%1><%2 %3=\"waveform\" %4=\"%5\" %6=\"%7\"/></%1>" }
+          .arg(Constants::NahdXml::xmlKeyParameters(), Constants::NahdXml::xmlKeyParameter(), Constants::NahdXml::xmlKeyName(), Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt(), Constants::NahdXml::xmlKeyValue())
+          .arg(value);
+    };
+    QCOMPARE(waveformAfterLoading(legacy(0)), static_cast<int>(Lfo::Waveform::Saw));
+    QCOMPARE(waveformAfterLoading(legacy(1)), static_cast<int>(Lfo::Waveform::Sine));
 }
 
 } // namespace noteahead

@@ -150,8 +150,12 @@ void Flanger::sync()
 
     m_lfoLeft.setWaveform(Lfo::Waveform::Triangle);
     m_lfoRight.setWaveform(Lfo::Waveform::Triangle);
-    m_lfoRight.setPhase(m_stereoPhase / 360.0);
+    // Ahead of the left one by the Stereo Phase, from wherever the left one has got to: a knob move
+    // must not throw the right sweep back to a fixed point
+    m_lfoRight.setPhase(m_lfoLeft.phase() + m_stereoPhase / 360.0);
     updateLfoFrequency();
+    // Only sizes the delay lines when the sample rate is new: sync() runs on every knob move and
+    // automation step, and resizing empties them, which would be heard as a dropout each time
     updateSampleRateDependents();
 }
 
@@ -168,6 +172,7 @@ void Flanger::reset()
     m_delayRight.reset();
     m_lfoLeft.reset();
     m_lfoRight.reset();
+    m_lfoRight.setPhase(m_stereoPhase / 360.0);
     m_feedbackLeft = 0.0;
     m_feedbackRight = 0.0;
 }
@@ -190,9 +195,12 @@ void Flanger::updateSampleRateDependents()
     m_lfoLeft.setSampleRate(rate);
     m_lfoRight.setSampleRate(rate);
 
-    const auto maxSamples = static_cast<size_t>(MaxDelaySeconds * rate) + 4;
-    m_delayLeft.setMaxDelay(maxSamples);
-    m_delayRight.setMaxDelay(maxSamples);
+    if (rate != m_delaySampleRate) {
+        m_delaySampleRate = rate;
+        const auto maxSamples = static_cast<size_t>(MaxDelaySeconds * rate) + 4;
+        m_delayLeft.setMaxDelay(maxSamples);
+        m_delayRight.setMaxDelay(maxSamples);
+    }
 }
 
 std::vector<std::string> Flanger::modulationPriority() const

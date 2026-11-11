@@ -33,7 +33,7 @@ Delay::Delay()
     m_fbHpfR.setMode(CascadedSvf::Mode::HighPass);
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.05f, 0, 10000, 500 }); // 500 ms of ten seconds
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });

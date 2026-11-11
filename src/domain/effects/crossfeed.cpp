@@ -55,7 +55,7 @@ Crossfeed::Crossfeed()
 
     addParameter(Parameter { C::xmlKeyAmount().toStdString(), 0.6f, 0, 10000, 6000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { C::xmlKeyDelay().toStdString(), static_cast<float>((270.0 - MinDelayUs) / (MaxDelayUs - MinDelayUs)), static_cast<int>(MinDelayUs), static_cast<int>(MaxDelayUs), 270, 1, Parameter::Type::Continuous });
-    addParameter(Parameter { C::xmlKeyCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(700.0, MinCutoffHz, MaxCutoffHz)), static_cast<int>(MinCutoffHz), static_cast<int>(MaxCutoffHz), 700, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { C::xmlKeyCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(700.0, MinCutoffHz, MaxCutoffHz)), static_cast<int>(MinCutoffHz), static_cast<int>(MaxCutoffHz), 932, 1, Parameter::Type::Continuous });
     addParameter(Parameter { C::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
 
     syncParameters();

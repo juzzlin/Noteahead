@@ -85,6 +85,7 @@ private slots:
     void test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack();
     void test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice();
     void test_fromXml_samplerDevice_legacyAttackAndHold_shouldKeepTheirTimes();
+    void test_fromXml_autoPanner_legacyWaveform_shouldPlayAsBefore();
     void test_toXmlFromXml_samplerDevice_padEffectRack_shouldRoundTrip();
     void test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvelope_shouldRoundTrip();
     void test_toXmlFromXml_samplerDevice_padLoopAndChokeGroup_shouldRoundTrip();

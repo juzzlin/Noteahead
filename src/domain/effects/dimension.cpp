@@ -45,7 +45,7 @@ Dimension::Dimension()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyDetune().toStdString(), 0.28f, 0, 2500, 700, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmount().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(120.0, minLowCutHz, maxLowCutHz)), 20, 500, 120, 1, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(120.0, minLowCutHz, maxLowCutHz)), 20, 500, 287, 1, Parameter::Type::Continuous });
 
     // What this adds is a side signal and nothing else, so solo has something exact to isolate.
     addSoloParameter();

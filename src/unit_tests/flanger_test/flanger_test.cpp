@@ -148,6 +148,38 @@ void FlangerTest::test_rateDivider_shouldSlowTheSweep()
     QVERIFY2(movement(1.0f) > movement(32.0f) * 1.5, "the divider did not slow the sweep");
 }
 
+void FlangerTest::test_sync_knobMoved_shouldKeepTheDelayLineFull()
+{
+    Flanger effect;
+    setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
+    // The longest delay, ten milliseconds: an emptied line would be silent for that long
+    setParameter(effect, Constants::NahdXml::xmlKeyDelay(), 1.0f);
+    render(effect, tone(1000.0, 0.5, 4800));
+
+    setParameter(effect, Constants::NahdXml::xmlKeyDepth(), 0.7f);
+    const auto output = render(effect, tone(1000.0, 0.5, 400));
+    QVERIFY2(peak(output) > 0.2, qPrintable(QString::number(peak(output))));
+}
+
+void FlangerTest::test_reset_stereoPhase_shouldKeepTheSidesApart()
+{
+    Flanger effect;
+    setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDepth(), 1.0f);
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyStereoPhase().toStdString()); p) {
+        p->get().setFromXml(180);
+    }
+    effect.sync();
+    effect.reset();
+
+    const auto output = render(effect, tone(1000.0, 0.5, static_cast<size_t>(SampleRate) / 2));
+    double difference = 0.0;
+    for (size_t i = 0; i < output.size() / 2; i++) {
+        difference = std::max(difference, std::abs(output[i * 2] - output[i * 2 + 1]));
+    }
+    QVERIFY2(difference > 0.1, qPrintable(QString::number(difference)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::FlangerTest)

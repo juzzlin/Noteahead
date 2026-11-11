@@ -155,6 +155,8 @@ public:
     //! and freezing it half way leaves the next note starting on stale gain reduction. Such an
     //! effect reports itself unsettled until its envelope has released, and the engine keeps the
     //! device running until then. True unless overridden: most effects have nothing to settle.
+    //! A reverb or delay tail is not one of them: the engine keeps a device running for as long as
+    //! its output, inserts included, had signal in the block before, so a tail is never cut.
     virtual bool isSettled() const;
 
     //! Whether Solo is registered and engaged. Public for the engine: on a send bus the effect

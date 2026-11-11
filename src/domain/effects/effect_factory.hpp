@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -33,6 +34,8 @@ public:
     static void registerLegacyEffect(const std::string & legacyType, Creator creator);
     static std::shared_ptr<Effect> createEffect(const std::string & typeId);
     static std::shared_ptr<Effect> createEffect(const std::string & typeId, const std::string & legacyType);
+    //! Every registered type id, legacy types excluded.
+    static std::vector<std::string> typeIds();
     static void init();
     static void clear();
 };

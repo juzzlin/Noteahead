@@ -42,6 +42,9 @@ public:
     //! Move the effect in sourceIndex to targetIndex, shifting the slots in between by one so that
     //! the relative order of the other effects is preserved. Repeated swaps in one go.
     void moveEffect(size_t sourceIndex, size_t targetIndex);
+    //! Takes the slot out of the rack, shifting the ones after it down and leaving the rack one
+    //! slot shorter. Nothing in the application calls it, which clears a slot with setEffect(index,
+    //! nullptr) instead.
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
     std::vector<EffectS> effects() const;
@@ -61,6 +64,10 @@ public:
     bool enabled() const;
     void setEnabled(bool enabled);
 
+    //! Runs one effect a sample at a time over @p sendBus and adds only what it changes to the
+    //! output. Not the engine's path: the engine runs racks through processInPlace() and its own
+    //! send buses, so the per-block sync() and per-sample processing here cost nothing in playback.
+    //! Kept for the tests that exercise an effect on its own.
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     //! Whether every enabled effect in the rack is back at rest. The engine uses this to decide

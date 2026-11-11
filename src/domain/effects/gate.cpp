@@ -54,7 +54,7 @@ double coefficientFor(double milliseconds, double sampleRate)
 
 Gate::Gate()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, -6000, 0, -4000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, -6000, 0, -4002, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRatio().toStdString(), 0.0707f, 100, 10000, 800, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRange().toStdString(), 0.6667f, 0, 9000, 6000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 1000, 200 });

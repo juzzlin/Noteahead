@@ -20,6 +20,7 @@
 #include <QTest>
 
 #include <cmath>
+#include <limits>
 
 namespace noteahead {
 
@@ -112,6 +113,28 @@ void DriveTest::test_foldMode_shouldStayWithinUnity()
         double r = input;
         effect.process(l, r);
         QVERIFY(l <= 1.0 + 1e-9 && l >= -1.0 - 1e-9);
+    }
+}
+
+void DriveTest::test_foldMode_hugeOrInfiniteInput_shouldReturn()
+{
+    // A reflection loop never ended on an infinite input and took ages on a huge one: the fold has
+    // to come back, inside unity for anything finite
+    Drive effect;
+    setParameter(effect, Constants::NahdXml::xmlKeyMode(), 2.0f); // Fold
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 1.0f);
+    setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
+
+    for (const double input : { 1.0e12, -1.0e12, 1.0e300 }) {
+        double l = input;
+        double r = input;
+        effect.process(l, r);
+        QVERIFY2(std::abs(l) <= 1.0 + 1e-9 && std::abs(r) <= 1.0 + 1e-9, qPrintable(QString::number(input) + " -> " + QString::number(l)));
+    }
+    for (const double input : { std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() }) {
+        double l = input;
+        double r = input;
+        effect.process(l, r);
     }
 }
 

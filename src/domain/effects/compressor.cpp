@@ -28,10 +28,10 @@ namespace noteahead {
 
 Compressor::Compressor()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2040, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 500, 10 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 500, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 501 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
