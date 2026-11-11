@@ -114,7 +114,7 @@ Item {
         id: rendererComponent
         NoteColumnRenderer {
             anchors.fill: parent
-            visibleLines: settingsService.visibleLines
+            visibleLines: UiService.visibleLines(height)
             automationDisplayMode: settingsService.automationDisplayMode
             automationCurveThicknessTenths: settingsService.automationCurveThicknessTenths
             cursorColor: themeService.cursorColor
@@ -170,7 +170,7 @@ Item {
             }
         }
         onClicked: mouse => {
-            const rowHeight = height / settingsService.visibleLines;
+            const rowHeight = height / UiService.visibleLines(height);
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
@@ -198,7 +198,7 @@ Item {
             }
         }
         onPressed: mouse => {
-            const rowHeight = height / settingsService.visibleLines;
+            const rowHeight = height / UiService.visibleLines(height);
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
@@ -216,7 +216,7 @@ Item {
         }
         onReleased: mouse => {
             _updateCurveHover();
-            const rowHeight = height / settingsService.visibleLines;
+            const rowHeight = height / UiService.visibleLines(height);
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
@@ -236,7 +236,7 @@ Item {
             if (!pressed || _isCurvePress()) {
                 return;
             }
-            const rowHeight = height / settingsService.visibleLines;
+            const rowHeight = height / UiService.visibleLines(height);
             const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
             const effectiveLineIndex = _getEffectiveLine(rowIndex);
             const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));

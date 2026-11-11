@@ -100,6 +100,11 @@ ApplicationWindow {
             id: editorView
         }
     }
+    Binding {
+        target: UiService
+        property: "performancePanelHeight"
+        value: performancePanel.height
+    }
     PerformancePanel {
         id: performancePanel
         height: settingsService.performancePanelEnabled ? panelHeight : 0

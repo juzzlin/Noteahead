@@ -562,6 +562,20 @@ QtObject {
         uiLogger.info("UiService", "Confirming unused pattern deletion");
         deleteUnusedPatternsConfirmed();
     }
+    // The height the performance panel takes from the editor. The editor shows fewer lines while it
+    // is open rather than squeezing the same lines into less room, which would shrink the text.
+    property real performancePanelHeight: 0
+    // The lines a row area of the given height shows: Visible Lines over the area the editor has
+    // with the panel closed, so a row keeps its height whether or not the panel is open. Never fewer
+    // than the cursor line needs to stay in view.
+    function visibleLines(rowAreaHeight: real): int {
+        const lines = settingsService.visibleLines;
+        if (performancePanelHeight <= 0 || rowAreaHeight <= 0) {
+            return lines;
+        }
+        const fewest = Math.min(lines, editorService.positionBarLine() + 2);
+        return Math.max(fewest, Math.round(lines * rowAreaHeight / (rowAreaHeight + performancePanelHeight)));
+    }
     property int interpolationStartLine: 0
     property int interpolationEndLine: 0
     property int interpolationStartValue: 0

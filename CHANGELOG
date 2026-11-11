@@ -37,6 +37,8 @@ Bug fixes:
 
 * Devices render the same after a reset, whatever played before
 
+* Opening the performance panel no longer shrinks the editor's text; fewer lines are shown instead
+
 Other:
 
 * Less work per sample in several devices and effects
