@@ -11,6 +11,7 @@ set(HEADER_FILES
     controllers/nahd_xml_keys.hpp
     controllers/performance_panel_controller.hpp
     controllers/song_overview_controller.hpp
+    plugins/effect_summary.hpp
     plugins/plugin_catalog.hpp
     qml/Components/level_meter_renderer.hpp
     qml/Components/oscilloscope_renderer.hpp
@@ -39,6 +40,7 @@ set(SOURCE_FILES
     controllers/nahd_xml_keys.cpp
     controllers/performance_panel_controller.cpp
     controllers/song_overview_controller.cpp
+    plugins/effect_summary.cpp
     plugins/plugin_catalog.cpp
     qml/Components/level_meter_renderer.cpp
     qml/Components/oscilloscope_renderer.cpp

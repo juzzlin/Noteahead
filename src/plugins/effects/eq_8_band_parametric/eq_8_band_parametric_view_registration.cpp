@@ -16,7 +16,11 @@
 #include "eq_8_band_parametric.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,22 @@ void registerEq8BandParametricEffectView()
       .type = Constants::RackEffectType::eq8BandParametric(),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "Eq8BandParametricDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          QString modeName { EffectSummary::tr("Mid + Side") };
+          if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
+              switch (static_cast<Eq8BandParametric::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().shownValue())), 0, 2))) {
+              case Eq8BandParametric::StereoMode::Mid:
+                  modeName = EffectSummary::tr("Mid");
+                  break;
+              case Eq8BandParametric::StereoMode::Side:
+                  modeName = EffectSummary::tr("Side");
+                  break;
+              case Eq8BandParametric::StereoMode::MidSide:
+                  break;
+              }
+          }
+          return QString { "(Parametric, %1)" }.arg(modeName);
+      },
     });
 }
 

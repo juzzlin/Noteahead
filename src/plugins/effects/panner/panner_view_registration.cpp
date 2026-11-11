@@ -16,7 +16,11 @@
 #include "panner.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerPannerEffectView()
       .type = Constants::RackEffectType::panner(),
       .category = PluginCatalog::EffectCategory::Stereo,
       .dialogFile = "PannerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
+          const auto width = effect->parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
+          if (pan && width) {
+              return QString { "(pan=%1%, width=%2%)" }
+                .arg(static_cast<int>(std::round(pan->get().shownValue() * 100.0f)))
+                .arg(static_cast<int>(std::round(width->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

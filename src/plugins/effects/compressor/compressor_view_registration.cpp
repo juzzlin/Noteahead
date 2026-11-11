@@ -16,6 +16,10 @@
 #include "compressor.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/devices/device.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +32,32 @@ void registerCompressorEffectView()
       .type = Constants::RackEffectType::compressor(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "CompressorDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext & context) -> QString {
+          const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
+          const auto ratio { effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString()) };
+          if (attack && ratio) {
+              const float attackMs { static_cast<float>(ParameterMapper::mapExponential(attack->get().shownValue(), 0.1, 500.0)) };
+              const float ratioValue { static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale()) };
+              QString scName { EffectSummary::tr("None") };
+              if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
+                  if (const auto sourceDevice { context.device(*sourceIndex) }) {
+                      scName = QString::fromStdString(sourceDevice->name());
+                  }
+              }
+              QString modeName { EffectSummary::tr("Peak") };
+              if (const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) }; mode) {
+                  if (mode->get().shownValue() > 0.5f) {
+                      modeName = EffectSummary::tr("RMS");
+                  }
+              }
+              return QString { "(%1, attack=%2ms, ratio=%3:1, sidechain=%4)" }
+                .arg(modeName)
+                .arg(attackMs, 0, 'f', 1)
+                .arg(ratioValue, 0, 'g', 3)
+                .arg(scName);
+          }
+          return {};
+      },
     });
 }
 

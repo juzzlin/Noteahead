@@ -16,6 +16,8 @@
 #include "wave_designer.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,16 @@ void registerWaveDesignerEffectView()
       .type = Constants::RackEffectType::waveDesigner(),
       .category = PluginCatalog::EffectCategory::Dynamics,
       .dialogFile = "WaveDesignerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
+          const auto sustain = effect->parameter(Constants::NahdXml::xmlKeySustain().toStdString());
+          if (attack && sustain) {
+              return QString { "(attack=%1, sustain=%2)" }
+                .arg((attack->get().shownValue() - 0.5f) * 2.0f, 0, 'f', 2)
+                .arg((sustain->get().shownValue() - 0.5f) * 2.0f, 0, 'f', 2);
+          }
+          return {};
+      },
     });
 }
 

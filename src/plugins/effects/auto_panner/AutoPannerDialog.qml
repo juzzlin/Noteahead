@@ -143,7 +143,7 @@ EffectDialog {
                     mapping: "integer"
                     suffix: ""
                     from: 1
-                    to: effectRackController.autoPannerMaxRateDivider()
+                    to: effectRackController.parameterMaximum(root.effectIndex, NahdXml.rateDivider)
                     stepSize: 1
                     value: {
                         effectRackController.revision;
@@ -155,7 +155,7 @@ EffectDialog {
             }
 
             Label {
-                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.autoPannerMaxRateDivider())
+                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.parameterMaximum(root.effectIndex, NahdXml.rateDivider))
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
                 color: Theme.textSecondary

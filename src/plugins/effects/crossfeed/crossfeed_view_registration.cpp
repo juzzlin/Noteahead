@@ -16,6 +16,8 @@
 #include "crossfeed.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,12 @@ void registerCrossfeedEffectView()
       .type = Constants::RackEffectType::crossfeed(),
       .category = PluginCatalog::EffectCategory::Stereo,
       .dialogFile = "CrossfeedDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
+              return QString { "(%1 %2%)" }.arg(EffectSummary::tr("amount")).arg(amount->get().xmlValue() / 100);
+          }
+          return {};
+      },
     });
 }
 

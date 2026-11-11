@@ -3436,6 +3436,129 @@
     </message>
 </context>
 <context>
+    <name>EffectSummary</name>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation>峰值</translation>
+    </message>
+    <message>
+        <source>RMS</source>
+        <translation>RMS</translation>
+    </message>
+    <message>
+        <source>amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">钟形</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">低架</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">高架</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation>关</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">立体声</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation>中频</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation>侧向</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid + Side</source>
+        <translation>中置 + 侧向</translation>
+    </message>
+    <message>
+        <source>STEREO</source>
+        <translation>立体声</translation>
+    </message>
+    <message>
+        <source>MONO</source>
+        <translation>单声道</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation>左</translation>
+    </message>
+    <message>
+        <source>RIGHT</source>
+        <translation>右</translation>
+    </message>
+    <message>
+        <source>SIDE</source>
+        <translation>侧向</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">左</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">右</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">单声道</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bass mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>neutral</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EffectsGalleryDialog</name>
     <message>
         <source>Effects Gallery</source>
@@ -16129,66 +16252,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>主发送效果</translation>
     </message>
     <message>
-        <source>on</source>
-        <translation>开</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation>关</translation>
-    </message>
-    <message>
-        <source>STEREO</source>
-        <translation>立体声</translation>
-    </message>
-    <message>
-        <source>MONO</source>
-        <translation>单声道</translation>
-    </message>
-    <message>
-        <source>LEFT</source>
-        <translation>左</translation>
-    </message>
-    <message>
-        <source>RIGHT</source>
-        <translation>右</translation>
-    </message>
-    <message>
-        <source>SIDE</source>
-        <translation>侧向</translation>
-    </message>
-    <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>amount</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>峰值</translation>
-    </message>
-    <message>
-        <source>RMS</source>
-        <translation>RMS</translation>
-    </message>
-    <message>
-        <source>Mid + Side</source>
-        <translation>中置 + 侧向</translation>
-    </message>
-    <message>
-        <source>Mid</source>
-        <translation>中频</translation>
-    </message>
-    <message>
-        <source>Side</source>
-        <translation>侧向</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">立体声</translation>
     </message>
@@ -16219,62 +16282,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Meters</source>
         <translation>仪表</translation>
-    </message>
-    <message>
-        <source>Linear Phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bell</source>
-        <translation type="unfinished">钟形</translation>
-    </message>
-    <message>
-        <source>Low Shelf</source>
-        <translation type="unfinished">低架</translation>
-    </message>
-    <message>
-        <source>High Shelf</source>
-        <translation type="unfinished">高架</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sidechain</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">左</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">右</translation>
-    </message>
-    <message>
-        <source>Swap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation type="unfinished">单声道</translation>
-    </message>
-    <message>
-        <source>width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>bass mono</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>delay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>neutral</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

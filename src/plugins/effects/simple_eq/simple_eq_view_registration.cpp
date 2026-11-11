@@ -16,7 +16,11 @@
 #include "simple_eq.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,12 @@ void registerSimpleEqEffectView()
       .type = Constants::RackEffectType::simpleEq(),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "SimpleEqDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
+              return QString { "(%1%)" }.arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

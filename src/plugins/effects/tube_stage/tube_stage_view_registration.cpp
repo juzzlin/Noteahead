@@ -16,7 +16,11 @@
 #include "tube_stage.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerTubeStageEffectView()
       .type = Constants::RackEffectType::tubeStage(),
       .category = PluginCatalog::EffectCategory::Distortion,
       .dialogFile = "TubeStageDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
+          const auto bias = effect->parameter(Constants::NahdXml::xmlKeyBias().toStdString());
+          if (drive && bias) {
+              return QString { "(drive=%1dB, bias=%2%)" }
+                .arg(drive->get().shownValue() * 48.0f, 0, 'f', 1)
+                .arg(static_cast<int>(std::round(bias->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

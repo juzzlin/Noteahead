@@ -16,7 +16,12 @@
 #include "delay.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/controllers/knob_controller.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +33,25 @@ void registerDelayEffectView()
       .type = Constants::RackEffectType::delay(),
       .category = PluginCatalog::EffectCategory::Space,
       .dialogFile = "DelayDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto sync = effect->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString());
+          const auto feedback = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString());
+          if (sync && feedback) {
+              QString timeStr;
+              if (sync->get().shownValue() > 0.5f) {
+                  const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
+                  KnobController knobController;
+                  timeStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
+              } else {
+                  const auto time = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
+                  timeStr = QString { "%1ms" }.arg(static_cast<int>(std::round(time->get().shownValue() * 10000.0f)));
+              }
+              return QString { "(time=%1, fb=%2%)" }
+                .arg(timeStr)
+                .arg(static_cast<int>(std::round(feedback->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

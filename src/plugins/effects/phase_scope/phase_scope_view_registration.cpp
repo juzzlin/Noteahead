@@ -16,7 +16,11 @@
 #include "phase_scope.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,35 @@ void registerPhaseScopeEffectView()
       .type = QString::fromStdString(PhaseScope::typeIdString()),
       .category = PluginCatalog::EffectCategory::Meters,
       .dialogFile = "PhaseScopeDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          // Only what is set away from neutral, which is what tells two of them apart
+          namespace C = Constants::NahdXml;
+          const auto valueOf = [&effect](const QString & key) {
+              const auto p = effect->parameter(key.toStdString());
+              return p ? p->get().shownValue() : 0.0f;
+          };
+          QStringList items;
+          if (valueOf(C::xmlKeyInvertLeft()) > 0.5f || valueOf(C::xmlKeyInvertRight()) > 0.5f) {
+              items << QString { "\u00d8 %1%2" }.arg(valueOf(C::xmlKeyInvertLeft()) > 0.5f ? "L" : "").arg(valueOf(C::xmlKeyInvertRight()) > 0.5f ? "R" : "");
+          }
+          const QStringList modes { {}, EffectSummary::tr("Left"), EffectSummary::tr("Right"), EffectSummary::tr("Swap"), EffectSummary::tr("Mono") };
+          if (const auto mode = static_cast<int>(std::lround(valueOf(C::xmlKeyChannelMode()))); mode > 0 && mode < modes.size()) {
+              items << modes.at(mode);
+          }
+          if (const auto width = static_cast<int>(std::lround(valueOf(C::xmlKeyWidth()) * 200.0f)); width != 100) {
+              items << QString { "%1 %2%" }.arg(EffectSummary::tr("width")).arg(width);
+          }
+          if (valueOf(C::xmlKeyMonoBass()) > 0.5f) {
+              items << EffectSummary::tr("bass mono");
+          }
+          if (const auto ms = valueOf(C::xmlKeyDelayTime()) * PhaseScope::MaxDelayMs; ms > 0.0) {
+              items << QString { "%1 %2 ms" }.arg(EffectSummary::tr("delay")).arg(ms, 0, 'f', 2);
+          }
+          if (const auto db = (valueOf(C::xmlKeyGain()) * 2.0 - 1.0) * PhaseScope::MaxGainDb; std::abs(db) >= 0.05) {
+              items << QString { "%1%2 dB" }.arg(db > 0 ? "+" : "").arg(db, 0, 'f', 1);
+          }
+          return items.isEmpty() ? QString { "(%1)" }.arg(EffectSummary::tr("neutral")) : QString { "(%1)" }.arg(items.join(", "));
+      },
     });
 }
 

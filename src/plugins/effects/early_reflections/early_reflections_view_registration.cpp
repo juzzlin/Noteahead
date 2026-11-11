@@ -16,7 +16,11 @@
 #include "early_reflections.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,18 @@ void registerEarlyReflectionsEffectView()
       .type = Constants::RackEffectType::earlyReflections(),
       .category = PluginCatalog::EffectCategory::Space,
       .dialogFile = "EarlyReflectionsDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto size { effect->parameter(Constants::NahdXml::xmlKeySize().toStdString()) };
+          const auto preDelay { effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()) };
+          const auto mix { effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString()) };
+          if (size && preDelay && mix) {
+              return QString { "(size=%1%, pre=%2ms, mix=%3%)" }
+                .arg(static_cast<int>(std::round(size->get().shownValue() * 100.0f)))
+                .arg(static_cast<int>(std::round(preDelay->get().shownValue() * 100.0f)))
+                .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

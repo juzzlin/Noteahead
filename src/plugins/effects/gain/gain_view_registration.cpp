@@ -16,6 +16,8 @@
 #include "gain.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,12 @@ void registerGainEffectView()
       .type = Constants::RackEffectType::gain(),
       .category = PluginCatalog::EffectCategory::Utility,
       .dialogFile = "GainDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
+              return QString { "(%1%2dB)" }.arg(gain->gainDb() >= 0.0f ? "+" : "").arg(gain->gainDb(), 0, 'f', 1);
+          }
+          return {};
+      },
     });
 }
 

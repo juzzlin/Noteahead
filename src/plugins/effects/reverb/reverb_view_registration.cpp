@@ -16,6 +16,8 @@
 #include "reverb.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,16 @@ void registerReverbEffectView()
       .type = Constants::RackEffectType::reverb(),
       .category = PluginCatalog::EffectCategory::Space,
       .dialogFile = "ReverbDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString());
+          const auto decay = effect->parameter(Constants::NahdXml::xmlKeyDecay().toStdString());
+          if (preDelay && decay) {
+              return QString { "(pre=%1ms, decay=%2ms)" }
+                .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
+                .arg(decay->get().xmlValue() / decay->get().xmlScale());
+          }
+          return {};
+      },
     });
 }
 

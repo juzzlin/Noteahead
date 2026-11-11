@@ -16,7 +16,11 @@
 #include "stereo_enhancer.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,18 @@ void registerStereoEnhancerEffectView()
       .type = Constants::RackEffectType::stereoEnhancer(),
       .category = PluginCatalog::EffectCategory::Stereo,
       .dialogFile = "StereoEnhancerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto bass = effect->parameter(Constants::NahdXml::xmlKeyBassGain().toStdString());
+          const auto high = effect->parameter(Constants::NahdXml::xmlKeyHighGain().toStdString());
+          const auto spread = effect->parameter(Constants::NahdXml::xmlKeySpread().toStdString());
+          if (bass && high && spread) {
+              return QString { "(bass=%1%, hi=%2%, spread=%3%)" }
+                .arg(static_cast<int>(std::round(bass->get().shownValue() * 100.0f)))
+                .arg(static_cast<int>(std::round(high->get().shownValue() * 100.0f)))
+                .arg(static_cast<int>(std::round(spread->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

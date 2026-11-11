@@ -72,7 +72,7 @@ EffectDialog {
                     mapping: "integer"
                     suffix: " bits"
                     from: 1
-                    to: effectRackController.bitCrusherMaxBits()
+                    to: effectRackController.parameterMaximum(root.effectIndex, NahdXml.bitDepth)
                     stepSize: 1
                     value: {
                         effectRackController.revision;

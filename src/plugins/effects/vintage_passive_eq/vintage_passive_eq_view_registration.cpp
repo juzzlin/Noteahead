@@ -16,6 +16,8 @@
 #include "vintage_passive_eq.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,9 @@ void registerVintagePassiveEqEffectView()
       .type = Constants::RackEffectType::vintagePassiveEq(),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "VintagePassiveEqDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> &, const PluginCatalog::SummaryContext &) -> QString {
+          return "(Passive)";
+      },
     });
 }
 

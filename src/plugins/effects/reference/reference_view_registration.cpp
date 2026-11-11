@@ -16,6 +16,8 @@
 #include "reference.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,14 @@ void registerReferenceEffectView()
       .type = Constants::RackEffectType::reference(),
       .category = PluginCatalog::EffectCategory::Utility,
       .dialogFile = "ReferenceDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          // The system being checked against, named: like the monitor's fold, a reference left
+          // on is a setting that misrepresents everything downstream of it.
+          if (const auto reference = std::dynamic_pointer_cast<Reference>(effect); reference) {
+              return QString { "(%1)" }.arg(QString::fromStdString(reference->environment().name).toUpper());
+          }
+          return {};
+      },
     });
 }
 

@@ -16,7 +16,11 @@
 #include "bass_grinder.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerBassGrinderEffectView()
       .type = Constants::RackEffectType::bassGrinder(),
       .category = PluginCatalog::EffectCategory::Distortion,
       .dialogFile = "BassGrinderDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+          const auto blend = effect->parameter(Constants::NahdXml::xmlKeyBlend().toStdString());
+          if (drive && blend) {
+              return QString { "(drive=%1dB, blend=%2%)" }
+                .arg(drive->get().shownValue() * 40.0f, 0, 'f', 1)
+                .arg(static_cast<int>(std::round(blend->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

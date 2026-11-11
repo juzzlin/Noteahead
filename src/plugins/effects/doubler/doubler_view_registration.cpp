@@ -16,7 +16,11 @@
 #include "doubler.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +32,16 @@ void registerDoublerEffectView()
       .type = Constants::RackEffectType::doubler(),
       .category = PluginCatalog::EffectCategory::Stereo,
       .dialogFile = "DoublerDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto time { effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()) };
+          const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+          if (time && amount) {
+              return QString { "(time=%1ms, amount=%2%)" }
+                .arg(Doubler::timeMs(time->get().shownValue()), 0, 'f', 1)
+                .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 

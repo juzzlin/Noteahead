@@ -16,6 +16,8 @@
 #include "air_band_eq.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
 
 namespace noteahead {
@@ -28,6 +30,9 @@ void registerAirBandEqEffectView()
       .type = Constants::RackEffectType::airBandEq(),
       .category = PluginCatalog::EffectCategory::EqAndFilter,
       .dialogFile = "AirBandEqDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> &, const PluginCatalog::SummaryContext &) -> QString {
+          return "(Air)";
+      },
     });
 }
 

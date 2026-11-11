@@ -16,7 +16,12 @@
 #include "stereo_exciter.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../view/plugins/effect_summary.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -28,6 +33,16 @@ void registerStereoExciterEffectView()
       .type = Constants::RackEffectType::stereoExciter(),
       .category = PluginCatalog::EffectCategory::Stereo,
       .dialogFile = "StereoExciterDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          const auto tune = effect->parameter(Constants::NahdXml::xmlKeyTune().toStdString());
+          const auto harmonics = effect->parameter(Constants::NahdXml::xmlKeyHarmonics().toStdString());
+          if (tune && harmonics) {
+              return QString { "(tune=%1Hz, harmonics=%2%)" }
+                .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(tune->get().shownValue(), 700.0, 8000.0))))
+                .arg(static_cast<int>(std::round(harmonics->get().shownValue() * 100.0f)));
+          }
+          return {};
+      },
     });
 }
 
