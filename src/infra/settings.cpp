@@ -1018,7 +1018,7 @@ bool columnFlashEnabled()
 {
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
-    const auto enabled = settings.value(columnFlashEnabledKey, false).toBool();
+    const auto enabled = settings.value(columnFlashEnabledKey, true).toBool();
     settings.endGroup();
     return enabled;
 }
