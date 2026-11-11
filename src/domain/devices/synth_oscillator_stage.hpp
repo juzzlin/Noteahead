@@ -47,7 +47,8 @@ public:
     };
 
     //! Which oscillators have to run for the sound: a muted one is skipped unless another one
-    //! listens to it. A muted VCO1 still runs for Cross Mod and Ring.
+    //! listens to it. A muted VCO1 still runs for Cross Mod and Ring, and a muted one runs as the
+    //! master of a running one synced to it.
     static std::array<bool, VcoCount> running(const Settings & settings);
 
     //! Advances the oscillators by one sample at the given frequencies. Returns each oscillator's

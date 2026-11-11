@@ -96,6 +96,9 @@ private:
 
     float value(const QString & key) const;
     void damp(Voice & voice);
+    //! Lets the pedal up, releasing the notes it was holding: for a pedal-up and for Reset All
+    //! Controllers alike, so that a reset never leaves held notes ringing.
+    void liftSustainPedal();
     int findVoice(uint8_t note) const;
     int allocateVoice();
     void updateOpenStrings();

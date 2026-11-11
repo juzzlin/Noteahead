@@ -41,6 +41,7 @@ private slots:
     void test_keyboard_shouldHoldLevel_acrossRegisters();
     void test_keyboard_shouldFollowReferenceDecay_acrossRegisters();
     void test_keyboard_shouldReportMeasurements_againstReference();
+    void test_resetAllControllers_everyPiano_shouldLetGoOfThePedal();
 };
 
 } // namespace noteahead

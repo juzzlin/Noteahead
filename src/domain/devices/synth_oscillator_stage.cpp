@@ -32,13 +32,15 @@ bool isAudible(double value)
 
 std::array<bool, SynthOscillatorStage::VcoCount> SynthOscillatorStage::running(const Settings & settings)
 {
+    // Muted ones are skipped to save the work, but a sync master has to run for whatever syncs to
+    // it, heard or not: muting the master and hearing only the synced one is how sync is played.
+    // So each one runs when it is heard or when the one after it runs and syncs to it.
+    const bool vco4 = isAudible(settings.levels.at(3));
+    const bool vco3 = isAudible(settings.levels.at(2)) || (vco4 && settings.syncs.at(3));
+    const bool vco2 = isAudible(settings.levels.at(1)) || (vco3 && settings.syncs.at(2));
     const bool ring = settings.vco2Ring && isAudible(settings.levels.at(1));
-    return {
-        isAudible(settings.levels.at(0)) || isAudible(settings.crossModDepth) || ring,
-        isAudible(settings.levels.at(1)),
-        isAudible(settings.levels.at(2)),
-        isAudible(settings.levels.at(3)),
-    };
+    const bool vco1 = isAudible(settings.levels.at(0)) || isAudible(settings.crossModDepth) || ring || (vco2 && settings.syncs.at(1));
+    return { vco1, vco2, vco3, vco4 };
 }
 
 SynthOscillatorStage::Values SynthOscillatorStage::process(const Oscillators & oscillators, Values frequencies, const std::array<bool, VcoCount> & running, const Settings & settings, double shapeMod, double sampleRate)

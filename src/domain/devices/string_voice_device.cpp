@@ -283,6 +283,7 @@ void StringVoiceDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     v.note = note;
     v.velocity = static_cast<float>(velocity) / 127.0f;
     v.active = true;
+    v.sustained = false;
     v.triggerFrame = 0;
     const float side { (idx % 2 == 0) ? -1.0f : 1.0f };
     v.pan = 0.5 + (side * m_panSpread * 0.5);
@@ -294,17 +295,34 @@ void StringVoiceDevice::processDeviceMidiNoteOff(uint8_t note)
 
     juzzlin::L("StringVoiceDevice").trace() << "Note Off: " << int(note);
 
-    const double strReleaseSec { ParameterMapper::mapExponential(m_stringsRelease, 0.005, 10.0) };
-    const double vocReleaseSec { ParameterMapper::mapExponential(m_voiceRelease, 0.005, 10.0) };
-
     for (auto & v : m_voices) {
-        if (v.active && v.note == note) {
-            v.stringEg.setReleaseTime(strReleaseSec);
-            v.voiceEg.setReleaseTime(vocReleaseSec);
-            v.stringEg.release();
-            v.voiceEg.release();
+        if (v.active && v.note == note && !v.sustained) {
+            if (m_sustainPedal) {
+                v.sustained = true;
+            } else {
+                releaseVoice(v);
+            }
         }
     }
+}
+
+void StringVoiceDevice::releaseVoice(Voice & voice) const
+{
+    voice.stringEg.setReleaseTime(ParameterMapper::mapExponential(m_stringsRelease, 0.005, 10.0));
+    voice.voiceEg.setReleaseTime(ParameterMapper::mapExponential(m_voiceRelease, 0.005, 10.0));
+    voice.stringEg.release();
+    voice.voiceEg.release();
+}
+
+void StringVoiceDevice::liftSustainPedal()
+{
+    for (auto & v : m_voices) {
+        if (v.active && v.sustained) {
+            v.sustained = false;
+            releaseVoice(v);
+        }
+    }
+    m_sustainPedal = false;
 }
 
 void StringVoiceDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
@@ -317,6 +335,13 @@ void StringVoiceDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, u
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
+            liftSustainPedal();
+        } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {
+            if (value >= 64) {
+                m_sustainPedal = true;
+            } else {
+                liftSustainPedal();
+            }
         } else {
             const float val { static_cast<float>(value) / 127.0f };
             if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
@@ -337,6 +362,7 @@ void StringVoiceDevice::processMidiAllNotesOff()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto & v : m_voices) {
         if (v.active) {
+            v.sustained = false;
             v.stringEg.release();
             v.voiceEg.release();
         }
@@ -568,6 +594,7 @@ void StringVoiceDevice::reset()
 void StringVoiceDevice::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_sustainPedal = false;
     for (auto & v : m_voices) {
         v.reset();
     }

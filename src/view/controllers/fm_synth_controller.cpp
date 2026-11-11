@@ -27,6 +27,11 @@
 
 namespace noteahead {
 
+namespace {
+//! The Time knob reads in milliseconds
+constexpr float MaxDelayMs { FmSynthDevice::MaxDelaySeconds * 1000.0f };
+} // namespace
+
 FmSynthController::FmSynthController(std::shared_ptr<FmSynthDevice> synth, QObject * parent)
   : DeviceController { parent }
   , m_synth { std::move(synth) }
@@ -770,13 +775,13 @@ void FmSynthController::setDelayType(int value)
 
 int FmSynthController::delayTime() const
 {
-    return m_synth ? static_cast<int>(std::round(m_synth->delayTime() * Constants::uiInternalScaling())) : 0;
+    return m_synth ? static_cast<int>(std::round(m_synth->delayTime() * MaxDelayMs)) : 0;
 }
 
 void FmSynthController::setDelayTime(int value)
 {
     if (m_synth) {
-        m_synth->setDelayTime(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_synth->setDelayTime(static_cast<float>(value) / MaxDelayMs);
     }
 }
 

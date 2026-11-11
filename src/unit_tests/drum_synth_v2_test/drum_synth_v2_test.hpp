@@ -62,6 +62,7 @@ private slots:
     void test_applyParameterAutomation_voiceKey_shouldReachOnlyThatVoice();
     void test_voiceLevel_default_shouldBeUnity();
     void test_applyParameterAutomation_legacyLevelKey_shouldMoveTheFaderToTheSameGain();
+    void test_closedHatNoteOff_shouldNotChokeALaterOpenHat();
 };
 
 } // namespace noteahead

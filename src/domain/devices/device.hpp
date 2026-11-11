@@ -420,6 +420,9 @@ public:
     ClipDetector & clipDetector();
     const ClipDetector & clipDetector() const;
 
+    //! Whether the device has voices sounding. A tail its own chorus, delay or ensemble is still
+    //! letting out need not be counted here: the engine also keeps running a device for as long as
+    //! its output, after the inserts, had any signal in the block before (see AudioEngine).
     virtual bool hasActiveAudio() const
     {
         return true;
@@ -438,6 +441,8 @@ public:
     //! An LED with no LFO behind it to show, as the bottom of the shape.
     static constexpr double LfoLedDark { -1.0 };
 
+    //! Tells the device the tempo. An override need not pass it on to Device::setBpm() for the
+    //! insert rack's sake: every effect also takes the tempo from each block's AudioContext.
     virtual void setBpm(float bpm);
 
     virtual void reset() override;

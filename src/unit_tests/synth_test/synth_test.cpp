@@ -19,6 +19,7 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/synth_oscillator_stage.hpp"
 #include "../../domain/devices/synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
@@ -4387,6 +4388,19 @@ void SynthTest::test_oscillatorPreview_mutedVco1_shouldStillDriveRing()
 
     QCOMPARE(muted, ringPreview(1.0f));
     QVERIFY(std::ranges::any_of(muted, [](float value) { return std::abs(value) > 0.1f; }));
+}
+
+void SynthTest::test_oscillatorStage_mutedSyncMaster_shouldStillRun()
+{
+    // Only VCO3 is heard, synced to VCO2, which is synced to VCO1: both masters have to run
+    SynthOscillatorStage::Settings settings;
+    settings.levels = { 0.0, 0.0, 1.0, 0.0 };
+    settings.syncs = { false, true, true, false };
+    QCOMPARE(SynthOscillatorStage::running(settings), (std::array<bool, SynthOscillatorStage::VcoCount> { true, true, true, false }));
+
+    // Without sync the muted ones are skipped as before
+    settings.syncs = {};
+    QCOMPARE(SynthOscillatorStage::running(settings), (std::array<bool, SynthOscillatorStage::VcoCount> { false, false, true, false }));
 }
 
 } // namespace noteahead

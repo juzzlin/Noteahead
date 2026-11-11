@@ -136,6 +136,18 @@ void PianoSynthV2Device::processDeviceMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
+void PianoSynthV2Device::liftSustainPedal()
+{
+    if (m_sustainPedal) {
+        for (auto & v : m_voices) {
+            if (v.active && v.pendingRelease) {
+                releaseVoice(v);
+            }
+        }
+    }
+    m_sustainPedal = false;
+}
+
 void PianoSynthV2Device::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
@@ -146,7 +158,7 @@ void PianoSynthV2Device::processDeviceMidiCc(uint8_t controller, uint8_t value, 
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
-            m_sustainPedal = false;
+            liftSustainPedal();
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -155,15 +167,11 @@ void PianoSynthV2Device::processDeviceMidiCc(uint8_t controller, uint8_t value, 
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {
-                const bool pedalOn = value >= 64;
-                if (m_sustainPedal && !pedalOn) {
-                    for (auto & v : m_voices) {
-                        if (v.active && v.pendingRelease) {
-                            releaseVoice(v);
-                        }
-                    }
+                if (value >= 64) {
+                    m_sustainPedal = true;
+                } else {
+                    liftSustainPedal();
                 }
-                m_sustainPedal = pedalOn;
             }
         }
     }

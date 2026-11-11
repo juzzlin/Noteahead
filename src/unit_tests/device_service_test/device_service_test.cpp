@@ -1279,6 +1279,24 @@ void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
     QCOMPARE(dev2->reverbSend(2), 0.75f);
 }
 
+void DeviceServiceTest::test_parameterDefaults_everyDevice_shouldBeWhereTheDeviceStarts()
+{
+    // Reset All Controllers puts automated parameters back to their defaults, so a default that is
+    // not where the device starts moves a knob nobody touched
+    QStringList mismatches;
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "Defaults");
+        QVERIFY(device);
+        for (auto && [name, parameter] : device->parameters()) {
+            // In the integer the project saves, so that a default rounded onto it counts as the same
+            if (std::abs(parameter.xmlValue() - parameter.xmlDefault()) > 1) {
+                mismatches << QString::fromStdString(device->typeName() + "." + name) + QString { ": starts at %1, default %2" }.arg(parameter.value()).arg(parameter.defaultValue());
+            }
+        }
+    }
+    QVERIFY2(mismatches.isEmpty(), qPrintable(mismatches.join("\n")));
+}
+
 void DeviceServiceTest::test_reverbSends_decimalValueOfOlderProjects_shouldStillLoad()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

@@ -70,6 +70,7 @@ private slots:
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
     void test_reverbSends_shouldSaveAndLoadCorrectly();
     void test_reverbSends_decimalValueOfOlderProjects_shouldStillLoad();
+    void test_parameterDefaults_everyDevice_shouldBeWhereTheDeviceStarts();
     void test_partSends_shouldSaveAndLoadCorrectly();
     void test_partSends_projectWithoutThem_shouldLoadAsUnrouted();
     void test_masterRackEnabled_shouldSaveAndLoadCorrectly();

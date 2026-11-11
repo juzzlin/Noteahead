@@ -15,6 +15,20 @@ Bug fixes:
 
 * Effect and device parameter defaults match the values they start at
 
+* FM Synth: the delay's Time spans ten seconds, as its knob shows
+
+* Synth: hard sync works with the sync master muted
+
+* JU Synth 08: the device's octave is applied once, not twice
+
+* Drum Synths: a closed hi-hat's note-off no longer chokes a later open hi-hat
+
+* Pianos let go of pedal-held notes on Reset All Controllers
+
+* String & Voice: the sustain pedal holds notes
+
+* Wavetable and FM Synth: knob moves no longer race the audio thread
+
 Other:
 
 12.1.0

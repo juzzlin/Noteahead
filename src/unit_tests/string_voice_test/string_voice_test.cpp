@@ -17,7 +17,11 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/string_voice_v2_device.hpp"
+#include "../../domain/devices/string_voice_v3_device.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/formant_filter_bank.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -640,6 +644,67 @@ void StringVoiceTest::test_panSpread_shouldCreateStereoSeparation()
     }
     QVERIFY(peakL > 0.001);
     QCOMPARE(peakR, 0.0);
+}
+
+namespace {
+
+//! The level a second after the key is let go, with the pedal down or up, and what is left once
+//! the pedal has been held through that and then let go by @p liftController
+template<typename DeviceT>
+std::array<double, 3> levelsAfterKeyUp(uint8_t liftController, uint8_t liftValue)
+{
+    using MidiCcMapping::Controller;
+    const auto levelAfter = [](DeviceT & device, size_t blocks) {
+        std::vector<double> buffer(512 * 2, 0.0);
+        double sum = 0.0;
+        for (size_t block = 0; block < blocks; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+            device.processAudio(context);
+            if (block + 4 >= blocks) {
+                for (auto && sample : buffer) {
+                    sum += sample * sample;
+                }
+            }
+        }
+        return std::sqrt(sum);
+    };
+    const auto play = [&](bool pedal) {
+        auto device = std::make_unique<DeviceT>("Strings");
+        if (pedal) {
+            device->processMidiCc(static_cast<uint8_t>(Controller::SustainPedal), 127, 0);
+        }
+        device->processMidiNoteOn(60, 100);
+        levelAfter(*device, 20);
+        device->processMidiNoteOff(60);
+        return device;
+    };
+    auto free = play(false);
+    auto held = play(true);
+    const double freeLevel = levelAfter(*free, 200);
+    const double heldLevel = levelAfter(*held, 200);
+    held->processMidiCc(liftController, liftValue, 0);
+    return { freeLevel, heldLevel, levelAfter(*held, 400) };
+}
+
+template<typename DeviceT>
+void checkSustainPedal()
+{
+    using MidiCcMapping::Controller;
+    for (const auto controller : { Controller::SustainPedal, Controller::ResetAllControllers }) {
+        const auto [freeLevel, heldLevel, liftedLevel] = levelsAfterKeyUp<DeviceT>(static_cast<uint8_t>(controller), 0);
+        QVERIFY2(heldLevel > freeLevel * 10.0 && heldLevel > 0.01, qPrintable(QString::number(freeLevel) + " vs " + QString::number(heldLevel)));
+        QVERIFY2(liftedLevel < heldLevel * 0.1, qPrintable(QString::number(heldLevel) + " then " + QString::number(liftedLevel)));
+    }
+}
+
+} // namespace
+
+void StringVoiceTest::test_sustainPedal_everyVersion_shouldHoldNotesUntilLifted()
+{
+    checkSustainPedal<StringVoiceDevice>();
+    checkSustainPedal<StringVoiceV2Device>();
+    checkSustainPedal<StringVoiceV3Device>();
 }
 
 } // namespace noteahead

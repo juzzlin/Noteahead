@@ -582,4 +582,36 @@ void JuSynth08Test::test_xmlSerialization()
     QCOMPARE(restored.voiceTolerance(), 0.55f);
 }
 
+void JuSynth08Test::test_octave_shouldShiftByItsOwnOctavesOnly()
+{
+    // The Device shifts the note before the synth sees it, so an octave up plays A3 as A4
+    JuSynth08Device synth;
+    synth.setOctave(1);
+    constexpr uint32_t sampleRate { 48000 };
+    constexpr size_t block { 256 };
+    std::vector<double> mono;
+    std::vector<double> buffer(block * 2);
+    synth.processMidiNoteOn(57, 100);
+    for (size_t i = 0; i < 64; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { .buffer = buffer, .frameCount = block, .sampleRate = sampleRate };
+        synth.processAudio(context);
+        for (size_t frame = 0; frame < block; frame++) {
+            mono.push_back(0.5 * (buffer[frame * 2] + buffer[frame * 2 + 1]));
+        }
+    }
+    const auto magnitudeAt = [&mono](double hz) {
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = mono.size() / 2; i < mono.size(); i++) {
+            const double phase = 2.0 * M_PI * hz * static_cast<double>(i) / sampleRate;
+            re += mono[i] * std::cos(phase);
+            im += mono[i] * std::sin(phase);
+        }
+        return std::hypot(re, im);
+    };
+    // A4's fundamental is there: with the octave applied twice the lowest partial is at 880 Hz
+    QVERIFY2(magnitudeAt(440.0) > magnitudeAt(880.0) * 0.3, qPrintable(QString::number(magnitudeAt(440.0)) + " vs " + QString::number(magnitudeAt(880.0))));
+}
+
 QTEST_GUILESS_MAIN(JuSynth08Test)

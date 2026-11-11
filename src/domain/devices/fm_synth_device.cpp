@@ -236,7 +236,7 @@ FmSynthDevice::FmSynthDevice(std::string name)
     addParameter(Parameter { NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
+    addParameter(Parameter { NahdXml::xmlKeyDelayTime().toStdString(), 0.05f, 0, 10000, 500 }); // 500 ms of ten seconds
     addParameter(Parameter { NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -740,6 +740,8 @@ void FmSynthDevice::processDeviceMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
+//! No mod wheel (CC 1) here: Device::processMidiCc() takes it to modulationWheelTargets() and
+//! never passes it on.
 void FmSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
@@ -760,12 +762,6 @@ void FmSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8
                     changed = true;
                 }
             }
-        } else if (controller == 1) { // LFO intensity (temporary, not saved to param)
-            // The wheel rests at zero and only adds modulation as it is pushed up, the way it does
-            // on the Synth: the intensity knob is the one that is bipolar. It sets the depth alone,
-            // so the knob in the dialog stays where the patch left it.
-            m_lfoDepth = static_cast<double>(val);
-            changed = true;
         } else if (controller == 7) {
             changed = updateVolumeParameter(faderPositionFromMidiCc(value), false);
         } else if (controller == 10) {
@@ -1179,7 +1175,10 @@ void FmSynthDevice::syncParameters()
     updateDiscreteParam(NahdXml::xmlKeyPitchBendRange(), m_pitchBendRange);
 
     updateDiscreteParam(NahdXml::xmlKeyDelayType(), m_delayType);
-    updateParam(NahdXml::xmlKeyDelayTime(), m_delayTime);
+    // The knob spans ten seconds, as the Synth's does
+    if (const auto p = parameter(NahdXml::xmlKeyDelayTime().toStdString()); p) {
+        m_delayTime = p->get().value() * MaxDelaySeconds;
+    }
     updateParam(NahdXml::xmlKeyDelayFeedback(), m_delayFeedback);
     updateParam(NahdXml::xmlKeyDelayDepth(), m_delayDepth);
     updateParam(NahdXml::xmlKeyDelayMix(), m_delayMix);
@@ -1285,11 +1284,7 @@ FmOperator::Waveform FmSynthDevice::operatorWaveform(size_t index) const
 
 void FmSynthDevice::setOperatorWaveform(size_t index, FmOperator::Waveform value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorWaveform(index).toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyOperatorWaveform(index).toStdString(), static_cast<int>(value));
 }
 
 int FmSynthDevice::operatorRatio(size_t index) const
@@ -1299,11 +1294,7 @@ int FmSynthDevice::operatorRatio(size_t index) const
 
 void FmSynthDevice::setOperatorRatio(size_t index, int value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorRatio(index).toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyOperatorRatio(index).toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::operatorDetune(size_t index) const
@@ -1313,11 +1304,7 @@ float FmSynthDevice::operatorDetune(size_t index) const
 
 void FmSynthDevice::setOperatorDetune(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorDetune(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorDetune(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorLevel(size_t index) const
@@ -1327,11 +1314,7 @@ float FmSynthDevice::operatorLevel(size_t index) const
 
 void FmSynthDevice::setOperatorLevel(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorLevel(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorLevel(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorVelocitySensitivity(size_t index) const
@@ -1341,11 +1324,7 @@ float FmSynthDevice::operatorVelocitySensitivity(size_t index) const
 
 void FmSynthDevice::setOperatorVelocitySensitivity(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorVelocitySensitivity(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorVelocitySensitivity(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorKeyScale(size_t index) const
@@ -1355,11 +1334,7 @@ float FmSynthDevice::operatorKeyScale(size_t index) const
 
 void FmSynthDevice::setOperatorKeyScale(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorKeyScale(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorKeyScale(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorAttack(size_t index) const
@@ -1369,11 +1344,7 @@ float FmSynthDevice::operatorAttack(size_t index) const
 
 void FmSynthDevice::setOperatorAttack(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorAttack(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorAttack(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorDecay(size_t index) const
@@ -1383,11 +1354,7 @@ float FmSynthDevice::operatorDecay(size_t index) const
 
 void FmSynthDevice::setOperatorDecay(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorDecay(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorDecay(index).toStdString(), value);
 }
 
 float FmSynthDevice::operatorSustain(size_t index) const
@@ -1397,11 +1364,7 @@ float FmSynthDevice::operatorSustain(size_t index) const
 
 void FmSynthDevice::setOperatorSustain(size_t index, float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyOperatorSustain(index).toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOperatorSustain(index).toStdString(), value);
 }
 
 // Global accessors
@@ -1413,11 +1376,7 @@ int FmSynthDevice::algorithm() const
 
 void FmSynthDevice::setAlgorithm(int value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAlgorithm().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyAlgorithm().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::feedback() const
@@ -1427,11 +1386,7 @@ float FmSynthDevice::feedback() const
 
 void FmSynthDevice::setFeedback(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyFeedback().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyFeedback().toStdString(), value);
 }
 
 float FmSynthDevice::lpfCutoff() const
@@ -1441,11 +1396,7 @@ float FmSynthDevice::lpfCutoff() const
 
 void FmSynthDevice::setLpfCutoff(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), value);
 }
 
 float FmSynthDevice::lpfResonance() const
@@ -1455,11 +1406,7 @@ float FmSynthDevice::lpfResonance() const
 
 void FmSynthDevice::setLpfResonance(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), value);
 }
 
 float FmSynthDevice::hpfCutoff() const
@@ -1469,11 +1416,7 @@ float FmSynthDevice::hpfCutoff() const
 
 void FmSynthDevice::setHpfCutoff(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), value);
 }
 
 float FmSynthDevice::ampAttack() const
@@ -1483,11 +1426,7 @@ float FmSynthDevice::ampAttack() const
 
 void FmSynthDevice::setAmpAttack(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpAttack().toStdString(), value);
 }
 
 float FmSynthDevice::ampDecay() const
@@ -1497,11 +1436,7 @@ float FmSynthDevice::ampDecay() const
 
 void FmSynthDevice::setAmpDecay(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpDecay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpDecay().toStdString(), value);
 }
 
 float FmSynthDevice::ampSustain() const
@@ -1511,11 +1446,7 @@ float FmSynthDevice::ampSustain() const
 
 void FmSynthDevice::setAmpSustain(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpSustain().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpSustain().toStdString(), value);
 }
 
 float FmSynthDevice::ampRelease() const
@@ -1525,11 +1456,7 @@ float FmSynthDevice::ampRelease() const
 
 void FmSynthDevice::setAmpRelease(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpRelease().toStdString(), value);
 }
 
 float FmSynthDevice::ampCurve() const
@@ -1539,11 +1466,7 @@ float FmSynthDevice::ampCurve() const
 
 void FmSynthDevice::setAmpCurve(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpCurve().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpCurve().toStdString(), value);
 }
 
 float FmSynthDevice::ampVelocitySensitivity() const
@@ -1553,11 +1476,7 @@ float FmSynthDevice::ampVelocitySensitivity() const
 
 void FmSynthDevice::setAmpVelocitySensitivity(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), value);
 }
 
 float FmSynthDevice::modAttack() const
@@ -1567,11 +1486,7 @@ float FmSynthDevice::modAttack() const
 
 void FmSynthDevice::setModAttack(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModAttack().toStdString(), value);
 }
 
 float FmSynthDevice::modDecay() const
@@ -1581,11 +1496,7 @@ float FmSynthDevice::modDecay() const
 
 void FmSynthDevice::setModDecay(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModDecay().toStdString(), value);
 }
 
 float FmSynthDevice::modSustain() const
@@ -1595,11 +1506,7 @@ float FmSynthDevice::modSustain() const
 
 void FmSynthDevice::setModSustain(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModSustain().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModSustain().toStdString(), value);
 }
 
 float FmSynthDevice::modInt() const
@@ -1609,11 +1516,7 @@ float FmSynthDevice::modInt() const
 
 void FmSynthDevice::setModInt(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModIntensity().toStdString(), value);
 }
 
 FmSynthDevice::ModTarget FmSynthDevice::modTarget() const
@@ -1623,11 +1526,7 @@ FmSynthDevice::ModTarget FmSynthDevice::modTarget() const
 
 void FmSynthDevice::setModTarget(FmSynthDevice::ModTarget value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyModTarget().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::modCurve() const
@@ -1637,11 +1536,7 @@ float FmSynthDevice::modCurve() const
 
 void FmSynthDevice::setModCurve(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModCurve().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModCurve().toStdString(), value);
 }
 
 Lfo::Waveform FmSynthDevice::lfoWaveform() const
@@ -1651,11 +1546,7 @@ Lfo::Waveform FmSynthDevice::lfoWaveform() const
 
 void FmSynthDevice::setLfoWaveform(Lfo::Waveform value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), static_cast<int>(value));
 }
 
 Lfo::Mode FmSynthDevice::lfoMode() const
@@ -1665,11 +1556,7 @@ Lfo::Mode FmSynthDevice::lfoMode() const
 
 void FmSynthDevice::setLfoMode(Lfo::Mode value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoMode().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::lfoRate() const
@@ -1679,11 +1566,7 @@ float FmSynthDevice::lfoRate() const
 
 void FmSynthDevice::setLfoRate(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoRate().toStdString(), value);
 }
 
 float FmSynthDevice::lfoInt() const
@@ -1693,11 +1576,7 @@ float FmSynthDevice::lfoInt() const
 
 void FmSynthDevice::setLfoInt(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), value);
 }
 
 FmSynthDevice::LfoTarget FmSynthDevice::lfoTarget() const
@@ -1712,11 +1591,7 @@ float FmSynthDevice::lfoDelay() const
 
 void FmSynthDevice::setLfoDelay(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoDelay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoDelay().toStdString(), value);
 }
 
 float FmSynthDevice::lfoFade() const
@@ -1726,20 +1601,12 @@ float FmSynthDevice::lfoFade() const
 
 void FmSynthDevice::setLfoFade(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoFade().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFade().toStdString(), value);
 }
 
 void FmSynthDevice::setLfoTarget(FmSynthDevice::LfoTarget value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoTarget().toStdString(), static_cast<int>(value));
 }
 
 Lfo::Waveform FmSynthDevice::lfo2Waveform() const
@@ -1749,11 +1616,7 @@ Lfo::Waveform FmSynthDevice::lfo2Waveform() const
 
 void FmSynthDevice::setLfo2Waveform(Lfo::Waveform value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), static_cast<int>(value));
 }
 
 Lfo::Mode FmSynthDevice::lfo2Mode() const
@@ -1763,11 +1626,7 @@ Lfo::Mode FmSynthDevice::lfo2Mode() const
 
 void FmSynthDevice::setLfo2Mode(Lfo::Mode value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::lfo2Rate() const
@@ -1777,11 +1636,7 @@ float FmSynthDevice::lfo2Rate() const
 
 void FmSynthDevice::setLfo2Rate(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), value);
 }
 
 float FmSynthDevice::lfo2Int() const
@@ -1791,11 +1646,7 @@ float FmSynthDevice::lfo2Int() const
 
 void FmSynthDevice::setLfo2Int(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), value);
 }
 
 FmSynthDevice::LfoTarget FmSynthDevice::lfo2Target() const
@@ -1810,11 +1661,7 @@ float FmSynthDevice::lfo2Delay() const
 
 void FmSynthDevice::setLfo2Delay(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Delay().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), value);
 }
 
 float FmSynthDevice::lfo2Fade() const
@@ -1824,11 +1671,7 @@ float FmSynthDevice::lfo2Fade() const
 
 void FmSynthDevice::setLfo2Fade(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Fade().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), value);
 }
 
 int FmSynthDevice::lfoRateDivider() const
@@ -1873,11 +1716,7 @@ void FmSynthDevice::setLfo2FreeRun(bool freeRun)
 
 void FmSynthDevice::setLfo2Target(FmSynthDevice::LfoTarget value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Target().toStdString(), static_cast<int>(value));
 }
 
 FmSynthDevice::VoiceMode FmSynthDevice::voiceMode() const
@@ -1887,11 +1726,7 @@ FmSynthDevice::VoiceMode FmSynthDevice::voiceMode() const
 
 void FmSynthDevice::setVoiceMode(FmSynthDevice::VoiceMode value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceMode().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::voiceDepth() const
@@ -1901,11 +1736,7 @@ float FmSynthDevice::voiceDepth() const
 
 void FmSynthDevice::setVoiceDepth(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), value);
 }
 
 float FmSynthDevice::phaseRandomness() const
@@ -1925,11 +1756,7 @@ float FmSynthDevice::panSpread() const
 
 void FmSynthDevice::setPanSpread(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), value);
 }
 
 float FmSynthDevice::portamento() const
@@ -1939,11 +1766,7 @@ float FmSynthDevice::portamento() const
 
 void FmSynthDevice::setPortamento(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPortamento().toStdString(), value);
 }
 
 int FmSynthDevice::pitchBendRange() const
@@ -1953,11 +1776,7 @@ int FmSynthDevice::pitchBendRange() const
 
 void FmSynthDevice::setPitchBendRange(int value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), static_cast<int>(value));
 }
 
 Delay::Type FmSynthDevice::delayType() const
@@ -1967,25 +1786,17 @@ Delay::Type FmSynthDevice::delayType() const
 
 void FmSynthDevice::setDelayType(Delay::Type value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(static_cast<int>(value));
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyDelayType().toStdString(), static_cast<int>(value));
 }
 
 float FmSynthDevice::delayTime() const
 {
-    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime);
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime / MaxDelaySeconds);
 }
 
 void FmSynthDevice::setDelayTime(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayTime().toStdString(), value);
 }
 
 float FmSynthDevice::delayFeedback() const
@@ -1995,11 +1806,7 @@ float FmSynthDevice::delayFeedback() const
 
 void FmSynthDevice::setDelayFeedback(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), value);
 }
 
 float FmSynthDevice::delayDepth() const
@@ -2009,11 +1816,7 @@ float FmSynthDevice::delayDepth() const
 
 void FmSynthDevice::setDelayDepth(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayDepth().toStdString(), value);
 }
 
 float FmSynthDevice::delayMix() const
@@ -2023,11 +1826,7 @@ float FmSynthDevice::delayMix() const
 
 void FmSynthDevice::setDelayMix(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayMix().toStdString(), value);
 }
 
 bool FmSynthDevice::delaySync() const
@@ -2037,11 +1836,7 @@ bool FmSynthDevice::delaySync() const
 
 void FmSynthDevice::setDelaySync(bool value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); synthParameter) {
-        synthParameter->get().setFromXml(value ? 1 : 0);
-        syncParameters();
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyDelaySync().toStdString(), value ? 1 : 0);
 }
 
 float FmSynthDevice::delaySyncDivision() const
@@ -2051,11 +1846,7 @@ float FmSynthDevice::delaySyncDivision() const
 
 void FmSynthDevice::setDelaySyncDivision(float value)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); synthParameter) {
-        synthParameter->get().setValue(value);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), value);
 }
 
 float FmSynthDevice::delayFeedbackLpf() const
@@ -2065,11 +1856,7 @@ float FmSynthDevice::delayFeedbackLpf() const
 
 void FmSynthDevice::setDelayFeedbackLpf(float cutoff)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); synthParameter) {
-        synthParameter->get().setValue(cutoff);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), cutoff);
 }
 
 float FmSynthDevice::delayFeedbackHpf() const
@@ -2079,11 +1866,7 @@ float FmSynthDevice::delayFeedbackHpf() const
 
 void FmSynthDevice::setDelayFeedbackHpf(float cutoff)
 {
-    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); synthParameter) {
-        synthParameter->get().setValue(cutoff);
-        syncParameters();
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), cutoff);
 }
 
 std::vector<std::string> FmSynthDevice::modulationPriority() const

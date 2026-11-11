@@ -191,6 +191,19 @@ void PianoSynthAcousticDevice::processDeviceMidiNoteOff(uint8_t note)
     m_openStringsDirty = true;
 }
 
+void PianoSynthAcousticDevice::liftSustainPedal()
+{
+    if (m_sustainPedal) {
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.pendingRelease) {
+                damp(voice);
+            }
+        }
+    }
+    m_sustainPedal = false;
+    m_openStringsDirty = true;
+}
+
 void PianoSynthAcousticDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
@@ -202,17 +215,14 @@ void PianoSynthAcousticDevice::processDeviceMidiCc(uint8_t controller, uint8_t v
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
             m_softPedal = false;
+            liftSustainPedal();
         } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {
-            const bool down = value >= 64;
-            if (m_sustainPedal && !down) {
-                for (auto && voice : m_voices) {
-                    if (voice.active && voice.pendingRelease) {
-                        damp(voice);
-                    }
-                }
+            if (value >= 64) {
+                m_sustainPedal = true;
+                m_openStringsDirty = true;
+            } else {
+                liftSustainPedal();
             }
-            m_sustainPedal = down;
-            m_openStringsDirty = true;
         } else if (controller == static_cast<uint8_t>(Controller::SoftPedal)) {
             m_softPedal = value >= 64;
         } else {

@@ -161,12 +161,9 @@ void DrumPadDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    using enum DrumSynthV2::MidiNote;
-
-    // Closed Hat choke logic: smoothly stop Open Hat on CHH/Pedal release
-    if (note == static_cast<uint8_t>(ClosedHiHat) || note == static_cast<uint8_t>(PedalHiHat)) {
-        m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->stop();
-    }
+    // No hi-hat choke here: the closed and pedal hats choke the open one when they are struck, in
+    // processDeviceMidiNoteOn(). A note-off can arrive after a new open hat has been struck, from
+    // another column or a later line, and would cut that one short.
 
     // A drum is struck rather than held, so this does nothing at all unless the voice has been
     // given a sustain to be let go of: the release falls away from wherever the level stands, and
