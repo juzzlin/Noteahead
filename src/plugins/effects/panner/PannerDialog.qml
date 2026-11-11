@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Panner Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 400
-    height: 300
+    width: parent ? parent.width * Constants.effectDialogScale : 400
+    height: parent ? parent.height * Constants.effectDialogScale : 300
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

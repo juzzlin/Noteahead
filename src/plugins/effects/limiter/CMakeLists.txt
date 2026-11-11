@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         limiter.cpp
         limiter.hpp
+        limiter_registration.cpp
+    VIEW_SOURCES
+        limiter_view_registration.cpp
     QML_FILES
         LimiterDialog.qml
 )

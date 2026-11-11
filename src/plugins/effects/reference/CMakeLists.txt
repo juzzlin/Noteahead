@@ -6,6 +6,9 @@ noteahead_add_effect(
         reference_environments.hpp
         reference_presets.cpp
         reference_presets.hpp
+        reference_registration.cpp
+    VIEW_SOURCES
+        reference_view_registration.cpp
     QML_FILES
         ReferenceDialog.qml
 )

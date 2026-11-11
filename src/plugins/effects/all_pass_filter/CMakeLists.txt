@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         all_pass_filter.cpp
         all_pass_filter.hpp
+        all_pass_filter_registration.cpp
+    VIEW_SOURCES
+        all_pass_filter_view_registration.cpp
     QML_FILES
         AllPassFilterDialog.qml
 )

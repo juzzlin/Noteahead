@@ -4,6 +4,9 @@ noteahead_add_effect(
         auto_ducker.hpp
         auto_ducker_presets.cpp
         auto_ducker_presets.hpp
+        auto_ducker_registration.cpp
+    VIEW_SOURCES
+        auto_ducker_view_registration.cpp
     QML_FILES
         AutoDuckerDialog.qml
 )

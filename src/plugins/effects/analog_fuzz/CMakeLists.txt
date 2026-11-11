@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         analog_fuzz.cpp
         analog_fuzz.hpp
+        analog_fuzz_registration.cpp
+    VIEW_SOURCES
+        analog_fuzz_view_registration.cpp
     QML_FILES
         AnalogFuzzDialog.qml
 )

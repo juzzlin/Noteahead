@@ -26,8 +26,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Bass Grinder Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 700
-    height: 560
+    width: parent ? parent.width * Constants.defaultDialogScale : 700
+    height: parent ? parent.height * Constants.defaultDialogScale : 560
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

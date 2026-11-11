@@ -4,6 +4,9 @@ noteahead_add_effect(
         eq_8_band_parametric.hpp
         eq_8_band_parametric_presets.cpp
         eq_8_band_parametric_presets.hpp
+        eq_8_band_parametric_registration.cpp
+    VIEW_SOURCES
+        eq_8_band_parametric_view_registration.cpp
     QML_FILES
         Eq8BandParametricDialog.qml
 )

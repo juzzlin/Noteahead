@@ -114,6 +114,10 @@ public:
     //! Deletes the selected preset. A no-op unless the selected one is the user's own.
     Q_INVOKABLE bool deleteCurrentUserPreset();
 
+    //! Re-emits the notifications of everything holding translated strings, for a controller whose
+    //! lists are built with tr(). Nothing by default.
+    virtual void retranslate();
+
     Q_INVOKABLE virtual void reset();
     Q_INVOKABLE virtual void requestSettings() = 0;
     Q_INVOKABLE virtual void accept();

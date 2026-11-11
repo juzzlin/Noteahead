@@ -2,6 +2,7 @@ noteahead_add_device(
     DOMAIN_SOURCES
         sampler_device.cpp
         sampler_device.hpp
+        sampler_registration.cpp
     APPLICATION_SOURCES
         sampler_model.cpp
         sampler_model.hpp
@@ -10,6 +11,7 @@ noteahead_add_device(
     VIEW_SOURCES
         sampler_controller.cpp
         sampler_controller.hpp
+        sampler_view_registration.cpp
     QML_FILES
         SamplerDialog.qml
         SamplerDialog_Global.qml

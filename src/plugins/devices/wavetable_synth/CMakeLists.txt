@@ -4,9 +4,11 @@ noteahead_add_device(
         wavetable_synth_device.hpp
         wavetable_synth_presets.cpp
         wavetable_synth_presets.hpp
+        wavetable_synth_registration.cpp
     VIEW_SOURCES
         wavetable_synth_controller.cpp
         wavetable_synth_controller.hpp
+        wavetable_synth_view_registration.cpp
     QML_FILES
         WavetableSynthDialog.qml
         WavetableSynthDialog_AmpEg.qml

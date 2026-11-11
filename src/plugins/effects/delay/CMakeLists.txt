@@ -4,6 +4,9 @@ noteahead_add_effect(
         delay.hpp
         delay_presets.cpp
         delay_presets.hpp
+        delay_registration.cpp
+    VIEW_SOURCES
+        delay_view_registration.cpp
     QML_FILES
         DelayDialog.qml
 )

@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("All-Pass Filter Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 450
-    height: 300
+    width: parent ? parent.width * Constants.defaultDialogScale : 450
+    height: parent ? parent.height * Constants.defaultDialogScale : 300
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

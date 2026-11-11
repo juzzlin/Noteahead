@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         reverb_224.cpp
         reverb_224.hpp
+        reverb_224_registration.cpp
+    VIEW_SOURCES
+        reverb_224_view_registration.cpp
     QML_FILES
         Reverb224Dialog.qml
 )

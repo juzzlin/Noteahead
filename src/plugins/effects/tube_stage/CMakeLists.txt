@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         tube_stage.cpp
         tube_stage.hpp
+        tube_stage_registration.cpp
+    VIEW_SOURCES
+        tube_stage_view_registration.cpp
     QML_FILES
         TubeStageDialog.qml
 )

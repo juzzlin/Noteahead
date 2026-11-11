@@ -4,9 +4,11 @@ noteahead_add_device(
         ju_synth_08_device.hpp
         ju_synth_08_presets.cpp
         ju_synth_08_presets.hpp
+        ju_synth_08_registration.cpp
     VIEW_SOURCES
         ju_synth_08_controller.cpp
         ju_synth_08_controller.hpp
+        ju_synth_08_view_registration.cpp
     QML_FILES
         JuSynth08Dialog.qml
         JuSynth08Dialog_Analog.qml

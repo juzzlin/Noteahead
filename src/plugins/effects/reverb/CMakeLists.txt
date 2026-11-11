@@ -4,6 +4,9 @@ noteahead_add_effect(
         reverb.hpp
         reverb_presets.cpp
         reverb_presets.hpp
+        reverb_registration.cpp
+    VIEW_SOURCES
+        reverb_view_registration.cpp
     QML_FILES
         ReverbDialog.qml
 )

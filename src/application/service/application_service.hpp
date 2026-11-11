@@ -179,9 +179,6 @@ public:
     Q_INVOKABLE void requestRecentFilesDialog();
     Q_INVOKABLE void requestDeviceRackDialog();
     Q_INVOKABLE void requestMasterEffectsDialog();
-    Q_INVOKABLE void requestDrumSynthDialog();
-    Q_INVOKABLE void requestWavetableSynthDialog();
-    Q_INVOKABLE void requestFmSynthDialog();
     Q_INVOKABLE void requestSaveProject();
     Q_INVOKABLE void requestSaveProjectAs();
     Q_INVOKABLE void requestSaveProjectAsTemplate();
@@ -247,11 +244,6 @@ signals:
     void recentFilesDialogRequested();
     void deviceRackDialogRequested();
     void masterEffectsDialogRequested();
-    void samplerDialogRequested();
-    void synthDialogRequested();
-    void wavetableSynthDialogRequested();
-    void fmSynthDialogRequested();
-    void drumSynthDialogRequested();
 
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();

@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         dimension.cpp
         dimension.hpp
+        dimension_registration.cpp
+    VIEW_SOURCES
+        dimension_view_registration.cpp
     QML_FILES
         DimensionDialog.qml
 )

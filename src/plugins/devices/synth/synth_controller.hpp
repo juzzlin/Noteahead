@@ -222,7 +222,7 @@ public:
 
     //! Re-emits the notifications for everything holding translated strings. The lists below are
     //! built with tr() and QML binds them once, so a language change is invisible without this.
-    void retranslate();
+    void retranslate() override;
 
     DeviceS device() const override;
     bool setDevice(DeviceS device) override;

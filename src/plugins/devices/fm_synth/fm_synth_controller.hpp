@@ -107,7 +107,7 @@ public:
     ~FmSynthController() override;
 
     //! Re-emits the notifications for everything holding translated strings.
-    void retranslate();
+    void retranslate() override;
 
     DeviceS device() const override;
     bool setDevice(DeviceS device) override;

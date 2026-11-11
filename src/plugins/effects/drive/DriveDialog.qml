@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Drive Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 550
-    height: 450
+    width: parent ? parent.width * Constants.defaultDialogScale : 550
+    height: parent ? parent.height * Constants.defaultDialogScale : 450
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

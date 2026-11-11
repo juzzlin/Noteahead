@@ -30,7 +30,7 @@ void registerKick808DeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "Kick808Dialog.qml",
       .controllerProperty = "kick808Controller",
-      .createController = [] { return std::make_shared<Kick808Controller>(std::make_shared<Kick808Device>("Default Kick808")); },
+      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<Kick808Controller>(std::make_shared<Kick808Device>("Default Kick808")); },
       .registerQmlTypes = [] { qmlRegisterType<Kick808Controller>("Noteahead", 1, 0, "Kick808Controller"); },
     });
 }

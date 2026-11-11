@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         simple_eq.cpp
         simple_eq.hpp
+        simple_eq_registration.cpp
+    VIEW_SOURCES
+        simple_eq_view_registration.cpp
     QML_FILES
         SimpleEqDialog.qml
 )

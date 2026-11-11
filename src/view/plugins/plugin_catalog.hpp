@@ -26,7 +26,9 @@
 
 namespace noteahead {
 
+class AudioService;
 class DeviceController;
+class DeviceService;
 
 //! What the UI knows of each effect and device that registers itself: its gallery entry, its dialog
 //! and, for a device, the controller its dialog binds to.
@@ -74,6 +76,14 @@ public:
     };
 
     using DeviceControllerS = std::shared_ptr<DeviceController>;
+    using DeviceServiceS = std::shared_ptr<DeviceService>;
+
+    //! What a controller may need once the application is up, given to Device::connectServices.
+    struct Services
+    {
+        DeviceServiceS deviceService;
+        std::shared_ptr<AudioService> audioService;
+    };
 
     struct Device
     {
@@ -86,9 +96,11 @@ public:
         //! The context property the dialog reaches its controller by.
         QString controllerProperty;
         //! Makes the one controller the device type's dialogs share.
-        std::function<DeviceControllerS()> createController;
+        std::function<DeviceControllerS(const DeviceServiceS & deviceService)> createController;
+        //! Hands the controller the services that do not exist yet when it is made, if it needs any.
+        std::function<void(DeviceController & controller, const Services & services)> connectServices {};
         //! Registers the device's own QML types, if it has any.
-        std::function<void()> registerQmlTypes;
+        std::function<void()> registerQmlTypes {};
     };
 
     static void addEffect(Effect effect);

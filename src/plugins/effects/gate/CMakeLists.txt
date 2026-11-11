@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         gate.cpp
         gate.hpp
+        gate_registration.cpp
+    VIEW_SOURCES
+        gate_view_registration.cpp
     QML_FILES
         GateDialog.qml
 )

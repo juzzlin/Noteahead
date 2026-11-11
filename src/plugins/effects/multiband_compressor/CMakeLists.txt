@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         multiband_compressor.cpp
         multiband_compressor.hpp
+        multiband_compressor_registration.cpp
+    VIEW_SOURCES
+        multiband_compressor_view_registration.cpp
     QML_FILES
         MultibandCompressorDialog.qml
 )

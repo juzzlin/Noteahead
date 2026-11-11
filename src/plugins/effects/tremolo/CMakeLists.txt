@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         tremolo.cpp
         tremolo.hpp
+        tremolo_registration.cpp
+    VIEW_SOURCES
+        tremolo_view_registration.cpp
     QML_FILES
         TremoloDialog.qml
 )

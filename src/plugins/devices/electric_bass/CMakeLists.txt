@@ -4,12 +4,14 @@ noteahead_add_device(
         electric_bass_device.hpp
         electric_bass_presets.cpp
         electric_bass_presets.hpp
+        electric_bass_registration.cpp
     APPLICATION_SOURCES
         electric_bass_preview.cpp
         electric_bass_preview.hpp
     VIEW_SOURCES
         electric_bass_controller.cpp
         electric_bass_controller.hpp
+        electric_bass_view_registration.cpp
     QML_FILES
         ElectricBassDialog.qml
         ElectricBassDialog_Global.qml

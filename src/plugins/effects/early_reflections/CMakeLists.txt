@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         early_reflections.cpp
         early_reflections.hpp
+        early_reflections_registration.cpp
+    VIEW_SOURCES
+        early_reflections_view_registration.cpp
     QML_FILES
         EarlyReflectionsDialog.qml
 )

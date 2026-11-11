@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         wave_designer.cpp
         wave_designer.hpp
+        wave_designer_registration.cpp
+    VIEW_SOURCES
+        wave_designer_view_registration.cpp
     QML_FILES
         WaveDesignerDialog.qml
 )

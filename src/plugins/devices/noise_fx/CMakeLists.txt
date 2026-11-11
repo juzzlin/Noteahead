@@ -4,11 +4,13 @@ noteahead_add_device(
         noise_fx_device.hpp
         noise_fx_presets.cpp
         noise_fx_presets.hpp
+        noise_fx_registration.cpp
     VIEW_SOURCES
         noise_fx_controller.cpp
         noise_fx_controller.hpp
         noise_fx_sweep_controller.cpp
         noise_fx_sweep_controller.hpp
+        noise_fx_view_registration.cpp
     QML_FILES
         NoiseFxDialog.qml
         NoiseFxDialog_Amp.qml

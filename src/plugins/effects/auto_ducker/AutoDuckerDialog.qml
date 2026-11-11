@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Auto Ducker Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 650
-    height: 550
+    width: parent ? parent.width * Constants.defaultDialogScale : 650
+    height: parent ? parent.height * Constants.defaultDialogScale : 550
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

@@ -4,12 +4,14 @@ noteahead_add_device(
         snare_synth_device.hpp
         snare_synth_presets.cpp
         snare_synth_presets.hpp
+        snare_synth_registration.cpp
     APPLICATION_SOURCES
         snare_synth_preview.cpp
         snare_synth_preview.hpp
     VIEW_SOURCES
         snare_synth_controller.cpp
         snare_synth_controller.hpp
+        snare_synth_view_registration.cpp
     QML_FILES
         SnareSynthDialog.qml
         SnareSynthDialog_Envelope.qml

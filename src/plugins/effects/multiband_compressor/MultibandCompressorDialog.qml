@@ -24,6 +24,8 @@ EffectDialog {
     id: root
     property var bandReductionDb: [0.0, 0.0, 0.0]
     title: "<strong>" + qsTr("Multiband Compressor (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    height: parent ? parent.height * Constants.defaultDialogScale : 600
+    width: parent ? parent.width * Constants.defaultDialogScale : 800
     modal: true
     focus: true
 

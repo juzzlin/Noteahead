@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         drive.cpp
         drive.hpp
+        drive_registration.cpp
+    VIEW_SOURCES
+        drive_view_registration.cpp
     QML_FILES
         DriveDialog.qml
 )

@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         compressor_2a.cpp
         compressor_2a.hpp
+        compressor_2a_registration.cpp
+    VIEW_SOURCES
+        compressor_2a_view_registration.cpp
     QML_FILES
         Compressor2ADialog.qml
 )

@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         dynamic_eq.cpp
         dynamic_eq.hpp
+        dynamic_eq_registration.cpp
+    VIEW_SOURCES
+        dynamic_eq_view_registration.cpp
     QML_FILES
         DynamicEqDialog.qml
 )

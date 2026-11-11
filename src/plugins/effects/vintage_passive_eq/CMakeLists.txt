@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         vintage_passive_eq.cpp
         vintage_passive_eq.hpp
+        vintage_passive_eq_registration.cpp
+    VIEW_SOURCES
+        vintage_passive_eq_view_registration.cpp
     QML_FILES
         VintagePassiveEqDialog.qml
 )

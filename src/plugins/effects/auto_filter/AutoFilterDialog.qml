@@ -24,6 +24,10 @@ EffectDialog {
     id: root
 
     title: "<strong>" + qsTr("Auto Filter Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    height: parent ? parent.height * Constants.defaultDialogScale : 600
+    // Four sections of controls rather than the row or two the other effect dialogs hold, so it
+    // is sized like the rack dialogs instead.
+    width: parent ? parent.width * Constants.defaultDialogScale : 800
     modal: true
     focus: true
 

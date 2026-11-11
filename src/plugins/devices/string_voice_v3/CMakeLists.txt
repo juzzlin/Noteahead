@@ -2,9 +2,11 @@ noteahead_add_device(
     DOMAIN_SOURCES
         string_voice_v3_device.cpp
         string_voice_v3_device.hpp
+        string_voice_v3_registration.cpp
     VIEW_SOURCES
         string_voice_v3_controller.cpp
         string_voice_v3_controller.hpp
+        string_voice_v3_view_registration.cpp
     QML_FILES
         StringVoiceV3Dialog.qml
         StringVoiceV3Dialog_Balance.qml

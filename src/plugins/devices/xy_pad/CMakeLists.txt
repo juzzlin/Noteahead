@@ -2,6 +2,7 @@ noteahead_add_device(
     DOMAIN_SOURCES
         xy_pad_device.cpp
         xy_pad_device.hpp
+        xy_pad_registration.cpp
     APPLICATION_SOURCES
         xy_pad_recording_service.cpp
         xy_pad_recording_service.hpp
@@ -14,6 +15,7 @@ noteahead_add_device(
         xy_pad_renderer.hpp
         xy_pad_trail.cpp
         xy_pad_trail.hpp
+        xy_pad_view_registration.cpp
     QML_FILES
         XyPadDialog.qml
         XyPadDialog_Pad.qml

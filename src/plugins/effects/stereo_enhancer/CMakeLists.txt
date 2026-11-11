@@ -2,6 +2,9 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         stereo_enhancer.cpp
         stereo_enhancer.hpp
+        stereo_enhancer_registration.cpp
+    VIEW_SOURCES
+        stereo_enhancer_view_registration.cpp
     QML_FILES
         StereoEnhancerDialog.qml
 )
