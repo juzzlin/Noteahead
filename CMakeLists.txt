@@ -87,11 +87,16 @@ message(STATUS "Qt version found  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT
 
 add_definitions(-DVERSION="${VERSION}")
 
-add_subdirectory(src)
-
-# Enable CMake's unit test framework
+# Enable CMake's unit test framework. Before src/, because the plugins there add the tests in their
+# own unit_tests/ folders as they are read.
 if(BUILD_TESTS)
     enable_testing()
+    set(UNIT_TEST_BASE_DIR ${CMAKE_BINARY_DIR}/unit_tests)
+endif()
+
+add_subdirectory(src)
+
+if(BUILD_TESTS)
     add_subdirectory(src/unit_tests)
 endif()
 

@@ -1,0 +1,22 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        ju_synth_device.cpp
+        ju_synth_device.hpp
+        ju_synth_presets.cpp
+        ju_synth_presets.hpp
+    VIEW_SOURCES
+        ju_synth_controller.cpp
+        ju_synth_controller.hpp
+    QML_FILES
+        JuSynthDialog.qml
+        JuSynthDialog_Analog.qml
+        JuSynthDialog_Chorus.qml
+        JuSynthDialog_Dco.qml
+        JuSynthDialog_Env.qml
+        JuSynthDialog_Global.qml
+        JuSynthDialog_Hpf.qml
+        JuSynthDialog_Lfo.qml
+        JuSynthDialog_Presets.qml
+        JuSynthDialog_Vca.qml
+        JuSynthDialog_Vcf.qml
+)

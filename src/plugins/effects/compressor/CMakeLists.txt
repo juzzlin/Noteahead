@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        compressor.cpp
+        compressor.hpp
+        compressor_presets.cpp
+        compressor_presets.hpp
+    QML_FILES
+        CompressorDialog.qml
+)

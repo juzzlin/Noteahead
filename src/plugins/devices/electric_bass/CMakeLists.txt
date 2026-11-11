@@ -1,0 +1,21 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        electric_bass_device.cpp
+        electric_bass_device.hpp
+        electric_bass_presets.cpp
+        electric_bass_presets.hpp
+    APPLICATION_SOURCES
+        electric_bass_preview.cpp
+        electric_bass_preview.hpp
+    VIEW_SOURCES
+        electric_bass_controller.cpp
+        electric_bass_controller.hpp
+    QML_FILES
+        ElectricBassDialog.qml
+        ElectricBassDialog_Global.qml
+        ElectricBassDialog_Pickups.qml
+        ElectricBassDialog_Pluck.qml
+        ElectricBassDialog_Presets.qml
+        ElectricBassDialog_String.qml
+        ElectricBassDialog_Waveform.qml
+)

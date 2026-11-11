@@ -1,0 +1,10 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        phase_scope.cpp
+        phase_scope.hpp
+    VIEW_SOURCES
+        phase_scope_renderer.cpp
+        phase_scope_renderer.hpp
+    QML_FILES
+        PhaseScopeDialog.qml
+)

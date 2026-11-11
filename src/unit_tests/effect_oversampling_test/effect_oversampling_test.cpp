@@ -15,13 +15,13 @@
 
 #include "effect_oversampling_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/effects/analog_fuzz.hpp"
-#include "../../domain/effects/bass_grinder.hpp"
-#include "../../domain/effects/clipper.hpp"
-#include "../../domain/effects/drive.hpp"
-#include "../../domain/effects/saturator.hpp"
-#include "../../domain/effects/stereo_exciter.hpp"
-#include "../../domain/effects/tube_stage.hpp"
+#include "../../plugins/effects/analog_fuzz/analog_fuzz.hpp"
+#include "../../plugins/effects/bass_grinder/bass_grinder.hpp"
+#include "../../plugins/effects/clipper/clipper.hpp"
+#include "../../plugins/effects/drive/drive.hpp"
+#include "../../plugins/effects/saturator/saturator.hpp"
+#include "../../plugins/effects/stereo_exciter/stereo_exciter.hpp"
+#include "../../plugins/effects/tube_stage/tube_stage.hpp"
 
 #include <QTest>
 

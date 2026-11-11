@@ -16,8 +16,8 @@
 #ifndef GAIN_HPP
 #define GAIN_HPP
 
-#include "../utility/clip_detector.hpp"
-#include "effect.hpp"
+#include "../../../domain/effects/effect.hpp"
+#include "../../../domain/utility/clip_detector.hpp"
 
 namespace noteahead {
 

@@ -16,10 +16,10 @@
 #include "property_service.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/effects/effect.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
 #include "../note_converter.hpp"
 #include "device_service.hpp"
 

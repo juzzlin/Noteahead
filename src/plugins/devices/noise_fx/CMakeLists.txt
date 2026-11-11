@@ -1,0 +1,23 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        noise_fx_device.cpp
+        noise_fx_device.hpp
+        noise_fx_presets.cpp
+        noise_fx_presets.hpp
+    VIEW_SOURCES
+        noise_fx_controller.cpp
+        noise_fx_controller.hpp
+        noise_fx_sweep_controller.cpp
+        noise_fx_sweep_controller.hpp
+    QML_FILES
+        NoiseFxDialog.qml
+        NoiseFxDialog_Amp.qml
+        NoiseFxDialog_Filter.qml
+        NoiseFxDialog_Gate.qml
+        NoiseFxDialog_Global.qml
+        NoiseFxDialog_Lfo.qml
+        NoiseFxDialog_Noise.qml
+        NoiseFxDialog_Route.qml
+        NoiseFxDialog_Sweep.qml
+        NoiseFxDialog_Tone.qml
+)

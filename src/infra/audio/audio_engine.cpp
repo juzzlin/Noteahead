@@ -19,8 +19,8 @@
 #include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/reverb.hpp"
 #include "../../domain/tracker/parameter_automation_target.hpp"
+#include "../../plugins/effects/reverb/reverb.hpp"
 #include "real_time_worker_pool.hpp"
 
 #include <algorithm>

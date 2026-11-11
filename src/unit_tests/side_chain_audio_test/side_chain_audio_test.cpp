@@ -18,16 +18,16 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/dsp/volume.hpp"
-#include "../../domain/effects/ambience.hpp"
-#include "../../domain/effects/auto_ducker.hpp"
-#include "../../domain/effects/compressor.hpp"
-#include "../../domain/effects/delay.hpp"
-#include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/utility/rta.hpp"
 #include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/effects/ambience/ambience.hpp"
+#include "../../plugins/effects/auto_ducker/auto_ducker.hpp"
+#include "../../plugins/effects/compressor/compressor.hpp"
+#include "../../plugins/effects/delay/delay.hpp"
+#include "../../plugins/effects/dynamic_eq/dynamic_eq.hpp"
 
 #include <QByteArray>
 #include <QTest>

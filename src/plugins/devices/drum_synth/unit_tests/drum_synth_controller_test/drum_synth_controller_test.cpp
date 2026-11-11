@@ -1,0 +1,238 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+#include "drum_synth_controller_test.hpp"
+#include "../../../../../application/service/device_service.hpp"
+#include "../../../../../common/constants.hpp"
+#include "../../../../../infra/audio/audio_engine.hpp"
+#include "../../../../../infra/data_service.hpp"
+#include "../../../drum_synth_v2/drum_synth_v2_controller.hpp"
+#include "../../../drum_synth_v2/drum_synth_v2_device.hpp"
+#include "../../drum_synth_controller.hpp"
+#include "../../drum_synth_device.hpp"
+
+#include <QElapsedTimer>
+#include <QSignalSpy>
+#include <QTest>
+
+namespace noteahead {
+
+void DrumSynthControllerTest::test_waveform_voiceChange_shouldNotRenderInTheCall()
+{
+    // A pad both selects a voice and plays it, in that order. Rendering the picture inside the
+    // selection left the drum silent until it was finished, which for a crash is a third of a
+    // second: the redraw has to be asked for and then got out of the way of.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(4000));
+    spy.clear();
+
+    // The crash, which is far and away the slowest of them to render.
+    QElapsedTimer timer;
+    timer.start();
+    controller.setSelectedVoice(8);
+    const auto elapsed = timer.elapsed();
+
+    QCOMPARE(spy.count(), 0);
+    QVERIFY2(elapsed < 50, qPrintable(QString { "selecting a voice took %1 ms" }.arg(elapsed)));
+
+    // And the picture follows on the next turn of the event loop rather than being dropped.
+    QVERIFY(spy.wait(4000));
+    QCOMPARE(spy.count(), 1);
+}
+
+void DrumSynthControllerTest::test_waveform_rapidChanges_shouldRenderOnce()
+{
+    // Rendering a drum voice costs tens of milliseconds, and a knob drag emits a change per pixel
+    // of travel. Without the wait every one of those would pay for a render; with it a whole drag
+    // collapses into the single redraw the user is actually waiting to see.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(2000));
+    spy.clear();
+
+    // A drag's worth of changes, far faster than the wait.
+    for (int step = 0; step < 20; step++) {
+        controller.setVoiceDecay(step * 100);
+    }
+    QCOMPARE(spy.count(), 0);
+
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!controller.waveformData().isEmpty());
+}
+
+void DrumSynthControllerTest::test_waveform_whileHidden_shouldNotRender()
+{
+    // A knob turned with the dialog shut costs nothing at all.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, false);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    controller.setVoiceDecay(5000);
+    QTest::qWait(600);
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(controller.waveformData().isEmpty());
+}
+
+void DrumSynthControllerTest::test_waveform_envelopeDrag_shouldMoveTheOverlayOnlyWhenSettled()
+{
+    // The overlay is drawn on the picture, so it waits for the picture: following the knob live it
+    // ran ahead of a waveform still showing the old envelope for the whole of the drag.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(2000));
+    spy.clear();
+    const double attackBefore = controller.waveformEnvelopeAttack();
+    const double sustainBefore = controller.waveformEnvelopeSustain();
+
+    for (int step = 1; step <= 10; step++) {
+        controller.setVoiceAmpAttack(step * 50);
+        controller.setVoiceAmpSustain(1000 - step * 50);
+    }
+    QCOMPARE(controller.waveformEnvelopeAttack(), attackBefore);
+    QCOMPARE(controller.waveformEnvelopeSustain(), sustainBefore);
+
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(controller.waveformEnvelopeAttack() > attackBefore);
+    QVERIFY(std::abs(controller.waveformEnvelopeSustain() - 0.5) < 1e-9);
+}
+
+void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthController controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
+    deviceService->setDevice(0, device);
+
+    controller.setDevice(Constants::drumSynthDeviceName());
+
+    // Initially sample rate should be default
+    QCOMPARE(controller.sampleRate(), static_cast<uint32_t>(Constants::defaultSampleRate()));
+
+    controller.setSelectedVoice(0);
+    controller.setVoiceLpfCutoff(500);
+    const auto initialHz = controller.cutoffToHz(controller.voiceLpfCutoff());
+    QVERIFY(initialHz > 0.0f);
+
+    QSignalSpy propSpy { &controller, &DrumSynthController::voiceLpfCutoffChanged };
+    QSignalSpy srSpy { &controller, &DrumSynthController::sampleRateChanged };
+
+    // Change sample rate to something lower so maxFreq is affected (min(20000, sr*0.49))
+    device->setSampleRate(32000);
+
+    QCOMPARE(srSpy.count(), 1);
+    QVERIFY(propSpy.count() >= 1);
+
+    const auto newHz = controller.cutoffToHz(controller.voiceLpfCutoff());
+    const auto expectedHz = initialHz * ((32000.0f * 0.49f) / 20000.0f);
+    QVERIFY2(std::abs(newHz - expectedHz) < 1.0f,
+             QString("newHz: %1, initialHz: %2, expectedHz: %3").arg(newHz).arg(initialHz).arg(expectedHz).toUtf8().constData());
+}
+
+void DrumSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthController controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthDeviceName());
+
+    // Common properties
+    {
+        QSignalSpy spy { &controller, &DrumSynthController::volumeChanged };
+        controller.setVolume(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.volume(), 800);
+    }
+
+    // Voice specific
+    controller.setSelectedVoice(0); // Kick
+    {
+        QSignalSpy spy { &controller, &DrumSynthController::voiceLevelChanged };
+        controller.setVoiceLevel(700);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.voiceLevel(), 700);
+    }
+}
+
+void DrumSynthControllerTest::test_reset_shouldRestoreDefaultValues()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthController controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthDeviceName());
+
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &DrumSynthController::volumeChanged };
+    controller.reset();
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
+}
+
+void DrumSynthControllerTest::test_presets_init_shouldResetTheKit()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+
+    QVERIFY(controller.presetNames().first().contains("Init"));
+
+    const auto defaultTune = controller.voiceTune();
+    controller.setVoiceTune(defaultTune + 200);
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::voiceTuneChanged };
+
+    controller.loadPreset(0);
+
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.currentPresetIndex(), 0);
+    QCOMPARE(controller.voiceTune(), defaultTune);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
+}
+
+} // namespace noteahead
+
+QTEST_GUILESS_MAIN(noteahead::DrumSynthControllerTest)

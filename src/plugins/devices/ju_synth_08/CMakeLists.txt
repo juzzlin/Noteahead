@@ -1,0 +1,29 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        ju_synth_08_device.cpp
+        ju_synth_08_device.hpp
+        ju_synth_08_presets.cpp
+        ju_synth_08_presets.hpp
+    VIEW_SOURCES
+        ju_synth_08_controller.cpp
+        ju_synth_08_controller.hpp
+    QML_FILES
+        JuSynth08Dialog.qml
+        JuSynth08Dialog_Analog.qml
+        JuSynth08Dialog_Delay.qml
+        JuSynth08Dialog_Env1.qml
+        JuSynth08Dialog_Env2.qml
+        JuSynth08Dialog_Global.qml
+        JuSynth08Dialog_Hpf.qml
+        JuSynth08Dialog_Lfo.qml
+        JuSynth08Dialog_Presets.qml
+        JuSynth08Dialog_Tab1.qml
+        JuSynth08Dialog_Tab2.qml
+        JuSynth08Dialog_Tab3.qml
+        JuSynth08Dialog_Tab4.qml
+        JuSynth08Dialog_Vca.qml
+        JuSynth08Dialog_Vcf.qml
+        JuSynth08Dialog_Vco1.qml
+        JuSynth08Dialog_Vco2.qml
+        JuSynth08Dialog_VcoMod.qml
+)

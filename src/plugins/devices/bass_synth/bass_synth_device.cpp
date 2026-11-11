@@ -1,0 +1,764 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "bass_synth_device.hpp"
+
+#include "../../../domain/devices/device_parameter_display.hpp"
+#include <QtGlobal>
+
+#include "bass_synth_presets.hpp"
+
+#include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
+#include "../../../common/utils.hpp"
+#include "../../../common/xml/project_reader.hpp"
+#include "../../../common/xml/project_writer.hpp"
+#include "../../../infra/midi/midi_cc_mapping.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <numbers>
+
+namespace noteahead {
+
+void BassSynthDevice::Voice::reset()
+{
+    active = false;
+    // The sub is a pulse, so its stage carries filter state of its own. Clearing the phase alone
+    // would leave a reset voice starting from wherever the last note left that state.
+    vco.reset();
+    sub.reset();
+    lpf.reset();
+    hpf.reset();
+    filterEg.reset();
+    ampEg.reset();
+    glideFrequency = 0.0;
+}
+
+void BassSynthDevice::Voice::trigger(uint8_t n, double freq, float vel, bool hasAccent, bool phaseSync)
+{
+    note = n;
+    frequency = freq;
+    velocity = vel;
+    accent = hasAccent;
+    if (glideFrequency == 0.0) {
+        glideFrequency = freq;
+    }
+    active = true;
+
+    if (phaseSync) {
+        vco.sync(0.0);
+        sub.sync(0.0);
+    }
+    lpf.reset();
+    hpf.reset();
+    filterEg.reset();
+    ampEg.reset();
+    filterEg.trigger();
+    ampEg.trigger();
+}
+
+void BassSynthDevice::Voice::release()
+{
+    filterEg.release();
+    ampEg.release();
+}
+
+BassSynthDevice::BassSynthDevice(std::string name)
+  : m_name { std::move(name) }
+{
+    // Initialize Parameters
+    addParameter(Parameter(Constants::NahdXml::xmlKeyWaveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -1200, 1200, 0));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySubLevel().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySubOctave().toStdString(), 1.0f, 1, 2, 1, 1, Parameter::Type::Discrete));
+
+    addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
+
+    addParameter(Parameter(Constants::NahdXml::xmlKeyAccent().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySlide().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete));
+
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistTone().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString(), 1.0f, 0, 10000, 10000, 100));
+
+    m_voice.vco.setWaveform(PolyBlepOscillator::Waveform::Saw);
+    m_voice.sub.setWaveform(PolyBlepOscillator::Waveform::Square);
+
+    m_voice.hpf.setMode(CascadedSvf::Mode::HighPass);
+
+    m_voice.filterEg.setSustainLevel(0.0);
+    m_voice.ampEg.setSustainLevel(0.0);
+    m_voice.ampEg.setAttackTime(0.005); // Snappy but no click
+    m_voice.filterEg.setAttackTime(0.005);
+
+    BassSynthDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyPitch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tuning"), 1200.0);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyEnvMod(), QT_TRANSLATE_NOOP("ParameterDisplay", "Env Mod"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyAccent(), QT_TRANSLATE_NOOP("ParameterDisplay", "Accent"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeySlide(), QT_TRANSLATE_NOOP("ParameterDisplay", "Slide"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeySubLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Sub Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Drive"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistTone(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Tone"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Level"));
+}
+
+BassSynthDevice::~BassSynthDevice() = default;
+
+std::string BassSynthDevice::name() const
+{
+    return m_name;
+}
+
+std::string BassSynthDevice::category() const
+{
+    return Constants::NahdXml::xmlValueSynths().toStdString();
+}
+
+std::string BassSynthDevice::typeName() const
+{
+    return Constants::bassSynthDeviceName().toStdString();
+}
+
+std::string BassSynthDevice::typeIdString()
+{
+    return "7d9c1e4b-2f3a-4b5c-8d6e-9f0a1b2c3d4e";
+}
+
+std::string BassSynthDevice::typeId() const
+{
+    return typeIdString();
+}
+
+std::vector<MidiCcController> BassSynthDevice::deviceMidiCcControllers() const
+{
+    using namespace MidiCcMapping;
+    return {
+        faderMidiCcController(),
+        { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
+        { static_cast<uint8_t>(Controller::SoundController5), "LPF" },
+        { static_cast<uint8_t>(Controller::GeneralPurpose6), "HPF" }
+    };
+}
+
+void BassSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    handleNoteOn(note, velocity);
+}
+
+void BassSynthDevice::processDeviceMidiNoteOff(uint8_t note)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    handleNoteOff(note);
+}
+
+void BassSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
+{
+    using namespace MidiCcMapping;
+
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
+            changed |= clearAutomationInternal();
+        } else {
+            const float val = static_cast<float>(value) / 127.0f;
+
+            if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
+                changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
+            } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
+                changed |= updatePanParameter(val, false);
+            } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
+                m_lpfCutoff = val;
+                if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
+                    p->get().setAutomationValue(val);
+                    syncParameters();
+                    changed = true;
+                }
+            } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
+                m_hpfCutoff = val;
+                if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
+                    p->get().setAutomationValue(val);
+                    syncParameters();
+                    changed = true;
+                }
+            }
+        }
+    }
+
+    if (changed) {
+        emit parametersChanged();
+    }
+}
+
+void BassSynthDevice::processMidiPitchBend(uint16_t value, uint8_t)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_pitchBend = value;
+}
+
+void BassSynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
+{
+    // Transport traffic: a program change in a song may move the whole panel, but the patch the
+    // user saved has to still be there when playback stops.
+    applyPreset(program, false);
+}
+
+void BassSynthDevice::loadPreset(int index)
+{
+    applyPreset(index, true);
+}
+
+void BassSynthDevice::applyPreset(int index, bool authored)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        const auto & presets = BassSynthPresets::presets();
+        if (index < 0 || index >= static_cast<int>(presets.size())) {
+            return;
+        }
+
+        // A preset is the whole panel, so everything it does not name goes back to its default
+        // first -- on the same layer the preset itself is about to be written to.
+        if (authored) {
+            reset();
+        } else {
+            for (auto && [name, p] : parameters()) {
+                p.setAutomationValue(p.defaultValue());
+            }
+        }
+
+        for (auto && [name, value] : presets[index].parameters) {
+            if (const auto p = parameter(name); p) {
+                if (authored) {
+                    p->get().setValue(value);
+                } else {
+                    p->get().setAutomationValue(value);
+                }
+            }
+        }
+
+        syncParameters();
+    }
+
+    if (authored) {
+        emit dataChanged();
+    } else {
+        emit parametersChanged();
+    }
+}
+
+void BassSynthDevice::processMidiAllNotesOff()
+{
+    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    if (m_voice.active) {
+        m_voice.release();
+    }
+}
+
+void BassSynthDevice::processAudio(AudioContext & context)
+{
+    setSampleRate(context.sampleRate);
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+    if (!m_voice.active)
+        return;
+
+    m_voice.vco.setSampleRate(oversampledRate);
+    m_voice.sub.setSampleRate(oversampledRate);
+    m_voice.lpf.setSampleRate(oversampledRate);
+    m_voice.hpf.setSampleRate(oversampledRate);
+    m_voice.filterEg.setSampleRate(oversampledRate);
+    m_voice.ampEg.setSampleRate(oversampledRate);
+
+    m_voice.lpf.setResonance(m_voice.accent ? std::clamp(m_lpfResonance + m_accent * 0.2f, 0.0f, 1.0f) : m_lpfResonance);
+    m_voice.lpf.setDrive(m_distDrive);
+
+    // Slide constant
+    if (oversampledRate != m_lastOversampledRate) {
+        m_slideCoeff = m_slide > 0 ? 1.0 - std::pow(0.001, 1.0 / (ParameterMapper::mapExponential(m_slide, 0.01, 2.0) * oversampledRate)) : 1.0;
+        m_lastOversampledRate = oversampledRate;
+    }
+
+    // The pan holds still for the block
+    const double panAngle = static_cast<double>(panInternal()) * std::numbers::pi * 0.5;
+    const auto panLeft = static_cast<float>(std::cos(panAngle));
+    const auto panRight = static_cast<float>(std::sin(panAngle));
+
+    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * (m_pitchBendRange / 12.0);
+    const double combinedPitchRatio = m_vcoBasePitchRatio * std::exp2(pbOffset);
+
+    m_dcBlockerL.setSampleRate(context.sampleRate);
+    m_dcBlockerR.setSampleRate(context.sampleRate);
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        float l[4] { 0.0f, 0.0f, 0.0f, 0.0f };
+        float r[4] { 0.0f, 0.0f, 0.0f, 0.0f };
+
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
+            m_voice.glideFrequency += (m_voice.frequency - m_voice.glideFrequency) * m_slideCoeff;
+
+            const double vcoFreq = m_voice.glideFrequency * combinedPitchRatio;
+            m_voice.vco.setFrequency(vcoFreq);
+
+            double subVal = 0.0;
+            if (m_subLevel >= 0.001f) {
+                m_voice.sub.setFrequency(vcoFreq * m_subBasePitchRatio);
+                subVal = m_voice.sub.nextSample() * m_subLevel;
+            }
+
+            const double filterEnv = m_voice.filterEg.nextSample();
+            const double ampEnv = m_voice.ampEg.nextSample();
+
+            const double vcoVal = m_voice.vco.nextSample();
+
+            const double mix = vcoVal + subVal;
+
+            // Filter
+            double cutoffMod = filterEnv * m_envMod;
+            if (m_voice.accent) {
+                cutoffMod += m_accent * filterEnv * 0.5; // Accent boosts filter env effect
+            }
+
+            m_voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
+            m_voice.hpf.setCutoff(m_hpfCutoff);
+
+            float filtered = m_voice.hpf.process(m_voice.lpf.process(static_cast<float>(mix)));
+
+            // Distortion
+            if (m_distDrive > 0.0f) {
+                float drive = 1.0f + m_distDrive * 10.0f;
+                // Asymmetric distortion for more character
+                filtered = (std::tanh(filtered * drive) + 0.1f * std::tanh(filtered * drive * 2.0f)) * m_distLevel;
+                // Simple tone control (LPF)
+                float alpha = 0.1f + m_distTone * 0.8f;
+                m_distLpState += alpha * (filtered - m_distLpState);
+                filtered = m_distLpState;
+            }
+
+            float finalSample = filtered * static_cast<float>(ampEnv) * linearGainInternal() * m_voice.velocity;
+            if (m_voice.accent) {
+                finalSample *= (1.0f + m_accent);
+            }
+
+            l[os] = finalSample * panLeft;
+            r[os] = finalSample * panRight;
+        }
+
+        const double outL = m_downsamplerL.process(l, oversampleFactor);
+        const double outR = m_downsamplerR.process(r, oversampleFactor);
+
+        context.buffer[i * 2] += m_dcBlockerL.process(outL);
+        context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
+    }
+
+    if (m_voice.ampEg.isSilent()) {
+        m_voice.active = false;
+    }
+}
+
+bool BassSynthDevice::hasActiveAudio() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_voice.active;
+}
+
+void BassSynthDevice::reset()
+{
+    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    Device::reset();
+    resetAudio();
+    syncParameters();
+}
+
+void BassSynthDevice::resetDeviceAudio()
+{
+    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    m_voice.reset();
+    m_downsamplerL.reset();
+    m_downsamplerR.reset();
+    m_distLpState = 0.0f;
+    m_dcBlockerL.reset();
+    m_dcBlockerR.reset();
+}
+
+void BassSynthDevice::serializeToXml(ProjectWriter & writer) const
+{
+    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
+    serializeAttributesToXml(writer);
+    serializeMidiMappingsToXml(writer);
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    insertEffectRack().serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+    serializeParametersToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeEndElement();
+}
+
+void BassSynthDevice::deserializeFromXml(ProjectReader & reader)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock(mutex());
+        deserializeAttributesFromXml(reader);
+
+        while (!reader.atEnd() && !reader.hasError()) {
+            const auto token = reader.readNext();
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                break;
+            }
+
+            if (token == ProjectReader::TokenType::StartElement) {
+                if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
+                    deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyMidiMappings()) {
+                    deserializeMidiMappingsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                    insertEffectRack().deserializeEffectsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                    deserializeParameter(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
+            }
+        }
+
+        syncParameters();
+    }
+    emit dataChanged();
+}
+
+void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
+{
+    double freq = midiNoteToFreq(note);
+    bool hasAccent = velocity > 100;
+    float vel = static_cast<float>(velocity) / 127.0f;
+
+    if (m_voice.active) {
+        // Legato / Slide
+        m_voice.frequency = freq;
+        m_voice.note = note;
+        m_voice.velocity = vel;
+        m_voice.accent = hasAccent;
+        // Always trigger envelopes to ensure the attack/decay cycle starts again.
+        // For slides, we don't reset to zero to keep it smooth, but we still trigger the attack phase.
+        // If slide is 0, we reset the filter envelope for a snappy start, but not the amplitude to avoid clicks.
+        if (m_slide == 0.0f || hasAccent) {
+            m_voice.filterEg.reset();
+        }
+
+        if (hasAccent) {
+            // Real 303 accent: decay is shorter
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
+        } else {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
+        }
+
+        m_voice.filterEg.trigger();
+        m_voice.ampEg.trigger();
+    } else {
+        m_distLpState = 0.0f;
+        m_downsamplerL.reset();
+        m_downsamplerR.reset();
+        if (hasAccent) {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
+        } else {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
+        }
+        m_voice.trigger(note, freq, vel, hasAccent, true);
+    }
+}
+
+void BassSynthDevice::handleNoteOff(uint8_t note)
+{
+    if (m_voice.active && m_voice.note == note) {
+        m_voice.release();
+    }
+}
+
+double BassSynthDevice::midiNoteToFreq(uint8_t note) const
+{
+    return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+}
+
+void BassSynthDevice::syncParameters()
+{
+    Device::syncParameters();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p)
+        m_waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p)
+        m_tuning = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p)
+        m_subLevel = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p)
+        m_subOctave = static_cast<int>(p->get().xmlValue());
+
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
+        m_lpfCutoff = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p)
+        m_lpfResonance = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
+        m_hpfCutoff = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p)
+        m_envMod = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p)
+        m_decay = p->get().value();
+
+    if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p)
+        m_accent = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p)
+        m_slide = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p)
+        m_pitchBendRange = static_cast<int>(p->get().xmlValue());
+
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p)
+        m_distDrive = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p)
+        m_distTone = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p)
+        m_distLevel = p->get().value();
+
+    const double tuningOffset = ParameterMapper::mapCubicCentered(m_tuning * 2.0 - 1.0, -1200, 1200);
+    m_vcoBasePitchRatio = std::exp2(tuningOffset / 1200.0);
+    m_subBasePitchRatio = 1.0 / std::exp2(static_cast<double>(m_subOctave));
+
+    m_lastOversampledRate = 0; // Force update of slideCoeff in processAudio
+
+    m_voice.vco.setWaveform(m_waveform);
+    const float decayTime = ParameterMapper::mapExponential(m_decay, 0.1, 10.0);
+    m_voice.filterEg.setDecayTime(m_voice.accent ? decayTime * 0.5 : decayTime);
+    m_voice.filterEg.setReleaseTime(0.005);
+    m_voice.ampEg.setDecayTime(decayTime);
+    m_voice.ampEg.setReleaseTime(0.005);
+}
+
+PolyBlepOscillator::Waveform BassSynthDevice::waveform() const
+{
+    return m_waveform;
+}
+
+void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyWaveform().toStdString(), static_cast<int>(wave));
+}
+
+float BassSynthDevice::tuning() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyPitch(), m_tuning);
+}
+
+void BassSynthDevice::setTuning(float tuning)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPitch().toStdString(), tuning);
+}
+
+float BassSynthDevice::subLevel() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeySubLevel(), m_subLevel);
+}
+
+void BassSynthDevice::setSubLevel(float level)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeySubLevel().toStdString(), level);
+}
+
+int BassSynthDevice::subOctave() const
+{
+    return m_subOctave;
+}
+
+void BassSynthDevice::setSubOctave(int octave)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeySubOctave().toStdString(), octave);
+}
+
+float BassSynthDevice::lpfCutoff() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
+}
+
+void BassSynthDevice::setLpfCutoff(float cutoff)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
+            p->get().setValue(cutoff);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float BassSynthDevice::lpfResonance() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
+}
+
+void BassSynthDevice::setLpfResonance(float resonance)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), resonance);
+}
+
+float BassSynthDevice::hpfCutoff() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
+}
+
+void BassSynthDevice::setHpfCutoff(float cutoff)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
+            p->get().setValue(cutoff);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float BassSynthDevice::envMod() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyEnvMod(), m_envMod);
+}
+
+void BassSynthDevice::setEnvMod(float mod)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyEnvMod().toStdString(), mod);
+}
+
+float BassSynthDevice::decay() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyDecay(), m_decay);
+}
+
+void BassSynthDevice::setDecay(float decay)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDecay().toStdString(), decay);
+}
+
+float BassSynthDevice::accent() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyAccent(), m_accent);
+}
+
+void BassSynthDevice::setAccent(float accent)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAccent().toStdString(), accent);
+}
+
+float BassSynthDevice::slide() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeySlide(), m_slide);
+}
+
+void BassSynthDevice::setSlide(float slide)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeySlide().toStdString(), slide);
+}
+
+int BassSynthDevice::pitchBendRange() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_pitchBendRange;
+}
+
+void BassSynthDevice::setPitchBendRange(int range)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
+}
+
+float BassSynthDevice::currentPitchBendOffset() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return (static_cast<float>(m_pitchBend) - 8192.0f) / 8192.0f * static_cast<float>(m_pitchBendRange);
+}
+
+float BassSynthDevice::distDrive() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistDrive(), m_distDrive);
+}
+
+void BassSynthDevice::setDistDrive(float drive)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistDrive().toStdString(), drive);
+}
+
+float BassSynthDevice::distTone() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistTone(), m_distTone);
+}
+
+void BassSynthDevice::setDistTone(float tone)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistTone().toStdString(), tone);
+}
+
+float BassSynthDevice::distLevel() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistLevel(), m_distLevel);
+}
+
+void BassSynthDevice::setDistLevel(float level)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistLevel().toStdString(), level);
+}
+
+std::vector<std::string> BassSynthDevice::modulationPriority() const
+{
+    namespace NahdXml = Constants::NahdXml;
+    return {
+        NahdXml::xmlKeyLpfCutoff().toStdString(),
+        NahdXml::xmlKeyLpfResonance().toStdString(),
+        NahdXml::xmlKeyEnvMod().toStdString(),
+        NahdXml::xmlKeyDecay().toStdString(),
+        NahdXml::xmlKeyAccent().toStdString(),
+        NahdXml::xmlKeyDistDrive().toStdString(),
+        NahdXml::xmlKeySlide().toStdString(),
+        NahdXml::xmlKeySubLevel().toStdString(),
+        NahdXml::xmlKeyHpfCutoff().toStdString()
+    };
+}
+
+std::vector<std::string> BassSynthDevice::modulationWheelTargets() const
+{
+    return { Constants::NahdXml::xmlKeyLpfCutoff().toStdString() };
+}
+
+} // namespace noteahead

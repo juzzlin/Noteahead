@@ -17,12 +17,12 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
-#include "../../domain/effects/air_band_eq.hpp"
-#include "../../domain/effects/dynamic_eq.hpp"
-#include "../../domain/effects/eq_32_band_graphical.hpp"
-#include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/utility/rta_core.hpp"
 #include "../../domain/utility/spectrum_taps.hpp"
+#include "../../plugins/effects/air_band_eq/air_band_eq.hpp"
+#include "../../plugins/effects/dynamic_eq/dynamic_eq.hpp"
+#include "../../plugins/effects/eq_32_band_graphical/eq_32_band_graphical.hpp"
+#include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric.hpp"
 
 #include <QTest>
 

@@ -1,0 +1,16 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        string_voice_device.cpp
+        string_voice_device.hpp
+    VIEW_SOURCES
+        string_voice_controller.cpp
+        string_voice_controller.hpp
+    QML_FILES
+        StringVoiceDialog.qml
+        StringVoiceDialog_Balance.qml
+        StringVoiceDialog_Ensemble.qml
+        StringVoiceDialog_Global.qml
+        StringVoiceDialog_Strings.qml
+        StringVoiceDialog_Vocoder.qml
+        StringVoiceDialog_Voice.qml
+)

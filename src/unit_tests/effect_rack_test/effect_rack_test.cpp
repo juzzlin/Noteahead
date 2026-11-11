@@ -19,13 +19,13 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/volume.hpp"
-#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/gain.hpp"
-#include "../../domain/effects/reverb.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/effects/drive/drive.hpp"
+#include "../../plugins/effects/gain/gain.hpp"
+#include "../../plugins/effects/reverb/reverb.hpp"
 
 #include <QTest>
 

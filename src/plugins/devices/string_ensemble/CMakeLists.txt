@@ -1,0 +1,13 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        string_ensemble_device.cpp
+        string_ensemble_device.hpp
+    VIEW_SOURCES
+        string_ensemble_controller.cpp
+        string_ensemble_controller.hpp
+    QML_FILES
+        StringEnsembleDialog.qml
+        StringEnsembleDialog_Envelope.qml
+        StringEnsembleDialog_Global.qml
+        StringEnsembleDialog_Registers.qml
+)

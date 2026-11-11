@@ -1,52 +1,19 @@
 set(HEADER_FILES
     controllers/audio_analysis_controller.hpp
     controllers/automation_refresh_throttle.hpp
-    controllers/bass_synth_controller.hpp
     controllers/device_controller.hpp
     controllers/device_rack_controller.hpp
     controllers/drum_pad_controller.hpp
-    controllers/drum_synth_controller.hpp
-    controllers/drum_synth_v2_controller.hpp
     controllers/effect_rack_controller.hpp
-    controllers/electric_bass_controller.hpp
     controllers/fm_drum_operator_controller.hpp
-    controllers/fm_drums_controller.hpp
     controllers/fm_operator_controller.hpp
-    controllers/fm_synth_controller.hpp
-    controllers/ju_synth_controller.hpp
-    controllers/ju_synth_08_controller.hpp
     controllers/knob_controller.hpp
-    controllers/kick_808_controller.hpp
-    controllers/kick_909_controller.hpp
-    controllers/kick_synth_controller.hpp
-    controllers/lfo_controller.hpp
-    controllers/lfo_panel_controller.hpp
-    controllers/noise_fx_controller.hpp
-    controllers/noise_fx_sweep_controller.hpp
     controllers/performance_panel_controller.hpp
-    controllers/piano_synth_acoustic_controller.hpp
-    controllers/piano_synth_controller.hpp
-    controllers/piano_synth_v2_controller.hpp
-    controllers/piano_synth_v3_controller.hpp
-    controllers/sampler_controller.hpp
-    controllers/snare_synth_controller.hpp
-    controllers/string_ensemble_controller.hpp
-    controllers/string_voice_v2_controller.hpp
-    controllers/string_voice_v3_controller.hpp
     controllers/song_overview_controller.hpp
-    controllers/speech_controller.hpp
-    controllers/synth_controller.hpp
-    controllers/synth_d_controller.hpp
-    controllers/wavetable_synth_controller.hpp
-    controllers/xy_pad_controller.hpp
-    controllers/xy_pad_panel_controller.hpp
     qml/Components/level_meter_renderer.hpp
     qml/Components/oscilloscope_renderer.hpp
-    qml/Components/phase_scope_renderer.hpp
     qml/Components/wave_shape_renderer.hpp
     qml/Components/waveform_renderer.hpp
-    qml/Components/xy_pad_renderer.hpp
-    qml/Components/xy_pad_trail.hpp
     qml/Dialogs/automation_curve_renderer.hpp
     qml/Dialogs/eq_curve_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
@@ -60,53 +27,19 @@ set(HEADER_FILES
 set(SOURCE_FILES
     controllers/audio_analysis_controller.cpp
     controllers/automation_refresh_throttle.cpp
-    controllers/bass_synth_controller.cpp
     controllers/device_controller.cpp
     controllers/device_rack_controller.cpp
     controllers/drum_pad_controller.cpp
-    controllers/drum_synth_controller.cpp
-    controllers/drum_synth_v2_controller.cpp
     controllers/effect_rack_controller.cpp
-    controllers/electric_bass_controller.cpp
     controllers/fm_drum_operator_controller.cpp
-    controllers/fm_drums_controller.cpp
     controllers/fm_operator_controller.cpp
-    controllers/fm_synth_controller.cpp
-    controllers/ju_synth_controller.cpp
-    controllers/ju_synth_08_controller.cpp
     controllers/knob_controller.cpp
-    controllers/kick_808_controller.cpp
-    controllers/kick_909_controller.cpp
-    controllers/kick_synth_controller.cpp
-    controllers/lfo_controller.cpp
-    controllers/lfo_panel_controller.cpp
-    controllers/noise_fx_controller.cpp
-    controllers/noise_fx_sweep_controller.cpp
     controllers/performance_panel_controller.cpp
-    controllers/piano_synth_acoustic_controller.cpp
-    controllers/piano_synth_controller.cpp
-    controllers/piano_synth_v2_controller.cpp
-    controllers/piano_synth_v3_controller.cpp
-    controllers/sampler_controller.cpp
-    controllers/snare_synth_controller.cpp
-    controllers/string_ensemble_controller.cpp
-    controllers/string_voice_controller.cpp
-    controllers/string_voice_v2_controller.cpp
-    controllers/string_voice_v3_controller.cpp
     controllers/song_overview_controller.cpp
-    controllers/speech_controller.cpp
-    controllers/synth_controller.cpp
-    controllers/synth_d_controller.cpp
-    controllers/wavetable_synth_controller.cpp
-    controllers/xy_pad_controller.cpp
-    controllers/xy_pad_panel_controller.cpp
     qml/Components/level_meter_renderer.cpp
     qml/Components/oscilloscope_renderer.cpp
-    qml/Components/phase_scope_renderer.cpp
     qml/Components/wave_shape_renderer.cpp
     qml/Components/waveform_renderer.cpp
-    qml/Components/xy_pad_renderer.cpp
-    qml/Components/xy_pad_trail.cpp
     qml/Dialogs/automation_curve_renderer.cpp
     qml/Dialogs/eq_curve_renderer.cpp
     qml/Dialogs/rta_renderer.cpp

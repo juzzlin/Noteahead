@@ -1,0 +1,11 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        reference.cpp
+        reference.hpp
+        reference_environments.cpp
+        reference_environments.hpp
+        reference_presets.cpp
+        reference_presets.hpp
+    QML_FILES
+        ReferenceDialog.qml
+)

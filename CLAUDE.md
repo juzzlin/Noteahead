@@ -23,8 +23,8 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 ### `src/domain/` — Pure business logic, no Qt/UI dependencies
 
 - **`tracker/`** — Core data model: `Song` → `Track` → `Pattern` → `Column` → `Line` → `NoteData`. Also: `Event`, `ColumnSettings`, `Instrument`, `InstrumentSettings`, `Interpolator`, `PlayOrder`, `Arpeggiator`.
-- **`devices/`** — Internal virtual instruments (`SynthDevice`, `BassSynthDevice`, `DrumSynthDevice`, `WavetableSynthDevice`, `SamplerDevice`, `PianoSynthDevice`). Registered via `DeviceFactory`.
-- **`effects/`** — Base `Effect`/`EffectRack` plus simple rack effects (panner, volume, delay, HPF/LPF, auto-panner). Registered via `EffectFactory`.
+- **`devices/`** — The `Device` base, `DrumPadDevice` and `DeviceFactory`. The devices themselves are plugins; see `src/plugins/`.
+- **`effects/`** — The `Effect` base, `EffectRack` and `EffectFactory`. The effects themselves are plugins; see `src/plugins/`.
 - **`dsp/`** — Heavy DSP components (chorus, clipper, compressor, EQ, reverb, ADSR, LFO, filters, oscillators).
 - **`midi/`** — MIDI data types (`MidiCcData`, `PitchBendData`, `MidiNoteData`).
 
@@ -44,6 +44,12 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 - **`controllers/`** — Thin `QObject` bridges exposing domain services to QML via `Q_INVOKABLE` and `Q_PROPERTY` (e.g., `EffectRackController`, `DeviceRackController`, `SynthController`). Logic stays in services; controllers only translate.
 - **`qml/`** — All QML. `Main.qml` is the root. `UiService.qml` is a QML singleton that orchestrates dialog visibility via signals — all dialog open requests flow through it. Dialogs live in `qml/Dialogs/`. The tracker editor lives in `qml/Editor/`.
+
+### `src/plugins/` — Effects and devices in folders of their own
+
+- **`effects/<name>/`** and **`devices/<name>/`** — Everything one effect or device consists of: its domain C++ (presets and helpers included), any application or view C++ of its own (a device's controller, a preview, a renderer), its `<Name>Dialog.qml` with section files, and its tests, one folder each in `unit_tests/`.
+- Each file is still built into the library of its layer, so the layer rules above apply inside a folder as well. The folder's `CMakeLists.txt` is one `noteahead_add_effect()` or `noteahead_add_device()` call listing `DOMAIN_SOURCES`, `APPLICATION_SOURCES`, `VIEW_SOURCES` and `QML_FILES`; the functions are in `src/plugins/CMakeLists.txt`.
+- What several effects or devices share stays in its layer: `Effect`, `EffectRack`, `Device`, `DrumPadDevice`, the factories and all of `dsp/`.
 
 ### `src/common/` — Shared constants and utilities
 
@@ -66,26 +72,26 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## Adding a New Rack Effect (checklist)
 
-1. Create `src/domain/effects/<name>.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `processSample(double&, double&)` (protected), `sync()` and `reset()`; override `processBlock(AudioContext&)` only for work that cannot be done a frame at a time (lookahead, side-chains, transforms). `Effect::process()` is not virtual: it applies Mix, Solo, bypass and send mode around the effect's own work. Register `Parameter` objects in the constructor, Mix through `addMixParameter(default, MixLaw)` and Solo through `addSoloParameter()`. `Gain` is the smallest template.
-2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go there too; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
+1. Create `src/plugins/effects/<name>/<name>.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `processSample(double&, double&)` (protected), `sync()` and `reset()`; override `processBlock(AudioContext&)` only for work that cannot be done a frame at a time (lookahead, side-chains, transforms). `Effect::process()` is not virtual: it applies Mix, Solo, bypass and send mode around the effect's own work. Register `Parameter` objects in the constructor, Mix through `addMixParameter(default, MixLaw)` and Solo through `addSoloParameter()`. `Gain` is the smallest template.
+2. Add `src/plugins/effects/<name>/CMakeLists.txt` with `noteahead_add_effect(DOMAIN_SOURCES <name>.cpp <name>.hpp QML_FILES <Name>Dialog.qml)`, and `add_subdirectory(effects/<name>)` to `src/plugins/CMakeLists.txt` (alphabetical). New `dsp/` sources go in `src/domain/CMakeLists.txt`; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
 3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`. Reuse existing generic keys where they fit — e.g. `xmlKeyBandGain(i)`, `xmlKeyGain()`.
 4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp` by `typeIdString()`. The type-string and `registerLegacyEffect()` registrations of older effects exist only for projects saved before type ids; a new effect has none.
 5. Add `Q_PROPERTY` type string, `Q_INVOKABLE` parameter-key methods, an `addEffect(...)` line in `availableEffects()`, and an `effectParametersSummary()` branch to `EffectRackController`.
-6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` following the *Dialog sizing* rules below, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the branch to `EffectDialogLauncher.qml` — the single place a type is mapped to its dialog.
-7. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
+6. Add `<Name>Dialog.qml` to the effect's folder following the *Dialog sizing* rules below (it is listed in step 2's `QML_FILES`), instantiate it in `Main.qml`, and add the branch to `EffectDialogLauncher.qml` — the single place a type is mapped to its dialog.
+7. Add the effect's tests in `unit_tests/<name>_test/` in its folder, with their own `CMakeLists.txt`. `noteahead_add_effect()` adds every such folder.
 8. Add a round-trip case to `xml_serialization_test`, a gallery case to `effect_rack_controller_test`, and a `CHANGELOG` entry under *New features*.
 
 ## Adding a New Device (checklist)
 
-1. Create `src/domain/devices/<name>_device.hpp/.cpp` inheriting from `Device`. Implement `name()`, `category()`, `typeName()`, `typeId()`, `typeIdString()` (static), the `processMidi*` methods (MIDI CC arrives through `processDeviceMidiCc()`, not `processMidiCc()`, which `Device` owns so that no device can miss the CCs every device has; advertise the device's own CCs from `deviceMidiCcControllers()`), `processAudio(AudioContext &)`, `hasActiveAudio()`, `reset()`/`resetDeviceAudio()` (the device's own state; `Device::resetAudio()` resets the insert rack and then calls it, so no device can leave its inserts out of a render's reset), `serializeToXml()`/`deserializeFromXml()` (including `serializeMidiMappingsToXml()` and the `<MidiMappings>` branch) and `syncParameters()`. Register `Parameter` objects in the constructor. `PianoSynthDevice` is the smallest complete template.
-2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go there too; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
+1. Create `src/plugins/devices/<name>/<name>_device.hpp/.cpp` inheriting from `Device`. Implement `name()`, `category()`, `typeName()`, `typeId()`, `typeIdString()` (static), the `processMidi*` methods (MIDI CC arrives through `processDeviceMidiCc()`, not `processMidiCc()`, which `Device` owns so that no device can miss the CCs every device has; advertise the device's own CCs from `deviceMidiCcControllers()`), `processAudio(AudioContext &)`, `hasActiveAudio()`, `reset()`/`resetDeviceAudio()` (the device's own state; `Device::resetAudio()` resets the insert rack and then calls it, so no device can leave its inserts out of a render's reset), `serializeToXml()`/`deserializeFromXml()` (including `serializeMidiMappingsToXml()` and the `<MidiMappings>` branch) and `syncParameters()`. Register `Parameter` objects in the constructor. `PianoSynthDevice` is the smallest complete template.
+2. Add `src/plugins/devices/<name>/CMakeLists.txt` with a `noteahead_add_device()` call listing the folder's files under `DOMAIN_SOURCES`, `VIEW_SOURCES` and `QML_FILES`, and `add_subdirectory(devices/<name>)` to `src/plugins/CMakeLists.txt` (alphabetical). New `dsp/` sources go in `src/domain/CMakeLists.txt`; `src/domain/dsp/CMakeLists.txt` builds a library nothing links.
 3. Add `<name>DeviceName()` and any new `Constants::NahdXml` keys to `src/common/constants.hpp/.cpp`. Reuse existing generic keys where they fit.
 4. Register the device in `DeviceFactory::init()` in `src/domain/devices/device_registration.cpp`.
-5. Add `src/view/controllers/<name>_controller.hpp/.cpp` (one `Q_PROPERTY` per parameter; `int` scaled by `Constants::uiInternalScaling()` for continuous, `bool` for switches) and both files to `src/view/CMakeLists.txt`.
+5. Add `<name>_controller.hpp/.cpp` to the device's folder (one `Q_PROPERTY` per parameter; `int` scaled by `Constants::uiInternalScaling()` for continuous, `bool` for switches), listed under `VIEW_SOURCES`.
 6. In `DeviceRackController`: add a `<name>DialogRequested` signal, a branch in `openDevice()`, and an `addDevice(...)` line in `availableDevices()` — which feeds `DeviceGalleryDialog.qml` and is asserted by `device_rack_controller_test`.
 7. In `Application`: add the controller member, add it to the `DeviceRackController` controller vector, `qmlRegisterType` it, and expose it as a context property. The dialog takes its title from `<name>Controller.displayName`; the `<name>DeviceName` properties on `ApplicationService` are only for older dialogs.
-8. Add `src/view/qml/Dialogs/<Name>Dialog.qml` plus its section files, following the *Dialog sizing* rules below, register them in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate the dialog in `Main.qml` and connect the request signal in the same `Component.onCompleted` block.
-9. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
+8. Add `<Name>Dialog.qml` plus its section files to the device's folder, following the *Dialog sizing* rules below, list them under `QML_FILES`, instantiate the dialog in `Main.qml` and connect the request signal in the same `Component.onCompleted` block.
+9. Add the device's tests in `unit_tests/<name>_test/` in its folder, with their own `CMakeLists.txt`.
 10. Add a project-level round-trip case to `xml_serialization_test` (it covers the factory registration too) and a `CHANGELOG` entry under *New features*.
 
 ## Translations
@@ -134,7 +140,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## Unit Tests
 
-- Each test in its own subdirectory under `src/unit_tests/` with its own `CMakeLists.txt`.
+- Each test in its own subdirectory with its own `CMakeLists.txt`: under the plugin's `unit_tests/` for an effect's or device's own tests, under `src/unit_tests/` for everything else.
 - Test headers (`.hpp`): include `<QObject>` only — never `QtTest`.
 - Test sources (`.cpp`): use `#include <QTest>` (not `<QtTest>`); add specific headers like `<QSignalSpy>` as needed.
 - Do not manually include `.moc` files; rely on CMake's automatic MOC.
@@ -146,7 +152,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 ## QML Dialog Pattern
 
 All dialogs follow the same pattern:
-1. Dialog QML file in `src/view/qml/Dialogs/`.
+1. Dialog QML file in `src/view/qml/Dialogs/`, or in its plugin folder for an effect or device.
 2. Instantiated (lazily or eagerly) in `Main.qml`.
 3. Opened by connecting to a signal on `UiService.qml` (the singleton).
 4. `UiService` exposes `Q_INVOKABLE` request methods called from controllers or other QML.

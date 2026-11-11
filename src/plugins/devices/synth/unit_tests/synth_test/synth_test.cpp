@@ -1,0 +1,4408 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "synth_test.hpp"
+
+#include "../../../../../common/constants.hpp"
+#include "../../../../../common/parameter_mapper.hpp"
+#include "../../../../../common/utils.hpp"
+#include "../../../../../domain/dsp/lfo.hpp"
+#include "../../../../../domain/tracker/parameter_automation.hpp"
+#include "../../../../../infra/audio/backend/sndfile_reader.hpp"
+#include "../../../../../infra/xml/nahd_xml_reader.hpp"
+#include "../../../../../infra/xml/nahd_xml_writer.hpp"
+#include "../../synth_device.hpp"
+#include "../../synth_oscillator_stage.hpp"
+#include "../../synth_presets.hpp"
+
+#include <QBuffer>
+#include <QFile>
+#include <QRegularExpression>
+#include <QSignalSpy>
+#include <QTest>
+
+#include <algorithm>
+#include <cmath>
+#include <format>
+#include <map>
+#include <memory>
+#include <numeric>
+#include <optional>
+#include <ranges>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace noteahead {
+
+namespace {
+
+//! Reaches the protected setter that syncs the whole parameter set, which is how a loaded patch
+//! takes effect on a device. A test is not a project, so it needs a way in.
+class PatchableSynth : public SynthDevice
+{
+public:
+    using SynthDevice::SynthDevice;
+
+    void applyPatch()
+    {
+        updatePanParameter(0.5f, true);
+    }
+};
+
+} // namespace
+
+namespace {
+
+//! Renders a note and hands back the interleaved output, past the attack.
+std::vector<double> renderSynth(SynthDevice & synth, uint8_t note = 60)
+{
+    synth.processMidiNoteOn(note, 127);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> warmUp(2048 * 2, 0.0);
+    AudioContext warmUpContext { std::span(warmUp.data(), warmUp.size()), 2048, rate };
+    synth.processAudio(warmUpContext);
+
+    std::vector<double> buffer(8192 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 8192, rate };
+    synth.processAudio(context);
+    return buffer;
+}
+
+//! Magnitude at one frequency in an interleaved buffer, by correlation.
+double magnitudeAt(const std::vector<double> & buffer, double hz)
+{
+    const size_t frames = buffer.size() / 2;
+    double re = 0.0, im = 0.0;
+    for (size_t i = 0; i < frames; i++) {
+        const double phase = 2.0 * M_PI * hz * static_cast<double>(i) / Constants::defaultSampleRate();
+        re += buffer[i * 2] * std::cos(phase);
+        im += buffer[i * 2] * std::sin(phase);
+    }
+    return std::hypot(re, im) / static_cast<double>(frames);
+}
+
+} // namespace
+
+namespace {
+
+//! Two saws at the very same pitch, nothing else running, held for as long as it takes to hear a
+//! slow beat: the case a stack of oscillators in a mono patch actually is.
+std::unique_ptr<SynthDevice> unisonStackSynth(float instability)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVoiceMode(SynthDevice::VoiceMode::Mono);
+    // Sines rather than saws: a saw's peak is a band-limited discontinuity, and where the sample
+    // grid falls across it moves the measured peak by a fraction of a dB whenever the pitch moves.
+    // That is the drift this test has to be blind to, so the waveform is one that has no edge.
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setMixVco1(1.0f);
+    synth->setMixVco2(1.0f);
+    synth->setMixVco3(0.0f);
+    synth->setMixVco4(0.0f);
+    synth->setAmpAttack(0.0f);
+    synth->setAmpDecay(0.0f);
+    synth->setAmpSustain(1.0f);
+    synth->setLfoInt(0.5f); // Centred, so the LFO adds nothing of its own
+    synth->setOscillatorInstability(instability);
+    return synth;
+}
+
+//! How far the level of a held note moves, in dB, once the attack is out of the way. A pair of
+//! oscillators that cannot drift apart sums to one waveform whose shape never changes, and holds
+//! this at nothing.
+double heldNoteLevelSwingDb(SynthDevice & synth, uint8_t note, double seconds)
+{
+    constexpr uint32_t rate { 48000 };
+    constexpr size_t blockFrames { 1024 };
+    synth.processMidiNoteOn(note, 110);
+
+    std::vector<double> levels;
+    std::vector<double> block(blockFrames * 2, 0.0);
+    const auto blocks = static_cast<size_t>(seconds * rate / blockFrames);
+    for (size_t i = 0; i < blocks; i++) {
+        std::fill(block.begin(), block.end(), 0.0);
+        AudioContext context { std::span(block.data(), block.size()), blockFrames, rate };
+        synth.processAudio(context);
+        // The first half second is the attack and the filter settling, which is not what is measured.
+        if (i * blockFrames < rate / 2) {
+            continue;
+        }
+        // The peak of the block rather than its RMS: a block holds a whole number of periods only by
+        // accident, and the part period at its end moves an RMS reading whenever the pitch moves --
+        // which is exactly what the drift this test has to ignore does. The peak of a waveform is
+        // its shape, and two oscillators that cannot drift apart keep one shape for ever.
+        double peak = 0.0;
+        for (size_t f = 0; f < blockFrames; f++) {
+            peak = std::max(peak, std::abs(0.5 * (block[f * 2] + block[f * 2 + 1])));
+        }
+        levels.push_back(20.0 * std::log10(std::max(1e-12, peak)));
+    }
+
+    const auto [minIt, maxIt] = std::minmax_element(levels.begin(), levels.end());
+    return *maxIt - *minIt;
+}
+
+} // namespace
+
+namespace {
+
+//! One sine into the filter and nothing else, which is the signal that tells a linear filter from a
+//! saturating one: a linear filter cannot add a harmonic that was not there.
+std::unique_ptr<SynthDevice> filterDriveSynth(float drive)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setMixVco1(1.0f);
+    synth->setMixVco2(0.0f);
+    synth->setMixVco3(0.0f);
+    synth->setAmpAttack(0.0f);
+    synth->setAmpDecay(0.0f);
+    synth->setAmpSustain(1.0f);
+    synth->setLfoInt(0.5f); // Centred, so the LFO adds nothing of its own
+    synth->setLpfCutoff(0.6f);
+    synth->setLpfResonance(0.5f);
+    synth->setFilterDrive(drive);
+    return synth;
+}
+
+//! Level of the third harmonic against the fundamental, in dB. The distortion is symmetric, so the
+//! odd harmonics are where it shows.
+double thirdHarmonicDb(const std::vector<double> & buffer, double fundamentalHz)
+{
+    const double fundamental = magnitudeAt(buffer, fundamentalHz);
+    const double third = magnitudeAt(buffer, fundamentalHz * 3.0);
+    return 20.0 * std::log10(std::max(1e-12, third / std::max(1e-12, fundamental)));
+}
+
+double rmsDb(const std::vector<double> & buffer)
+{
+    double sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        sum += buffer[i] * buffer[i];
+    }
+    return 20.0 * std::log10(std::max(1e-12, std::sqrt(sum / static_cast<double>(buffer.size() / 2))));
+}
+
+constexpr uint8_t DriveTestNote { 60 };
+const double DriveTestHz = 440.0 * 0.5 * std::pow(2.0, 3.0 / 12.0); // C4 against A4
+
+} // namespace
+
+void SynthTest::test_filterDrive_shouldFoldHarmonicsIntoASineTheFilterWouldNotHave()
+{
+    // A linear filter is linear: one sine in is one sine out, whatever the resonance. The saturating
+    // one folds its own integrator states, and what comes back round through the poles is the odd
+    // harmonics an overdriven VCF makes. Drive at the bottom has to stay the filter the synth has
+    // always had, since that is where every patch made before this control sits.
+    auto clean = filterDriveSynth(0.0f);
+    const auto cleanThird = thirdHarmonicDb(renderSynth(*clean, DriveTestNote), DriveTestHz);
+    QVERIFY2(cleanThird < -35.0, qPrintable(QString { "clean filter distorted by %1 dB" }.arg(cleanThird)));
+
+    auto driven = filterDriveSynth(0.5f);
+    const auto drivenThird = thirdHarmonicDb(renderSynth(*driven, DriveTestNote), DriveTestHz);
+    QVERIFY2(drivenThird > -20.0, qPrintable(QString { "driven filter only reached %1 dB" }.arg(drivenThird)));
+}
+
+void SynthTest::test_filterDrive_shouldNotRunAwayWithTheLevel()
+{
+    // Drive is level into the filter, and the fold is what stops that level coming out the other
+    // side. Most of it is handed back so that the knob changes the tone rather than the balance: a
+    // control that costs or gains ten decibels on the way is one nobody can compare either side of.
+    const auto clean = rmsDb(renderSynth(*filterDriveSynth(0.0f), DriveTestNote));
+    const auto driven = rmsDb(renderSynth(*filterDriveSynth(1.0f), DriveTestNote));
+
+    QVERIFY2(std::abs(driven - clean) < 3.0, qPrintable(QString { "level moved by %1 dB" }.arg(driven - clean)));
+}
+
+void SynthTest::test_oscillatorInstability_oscillatorsInUnison_shouldBeatAgainstEachOther()
+{
+    // The whole point of the control. Two oscillators at one pitch sum to a single waveform whose
+    // shape never changes, however long the note is held -- which is why a multi-oscillator mono
+    // patch sounds dead next to a unison stack. Given a wander of their own they beat instead.
+    auto synth = unisonStackSynth(0.5f);
+
+    const auto swing = heldNoteLevelSwingDb(*synth, 48, 8.0);
+
+    QVERIFY2(swing > 2.0, qPrintable(QString { "level swing was only %1 dB" }.arg(swing)));
+}
+
+void SynthTest::test_oscillatorInstability_off_shouldLeaveTheStackStanding()
+{
+    // And with the control at the bottom, where every patch that predates it sits, the pair has to
+    // stand as still as it always did. Drift is no substitute: it moves every oscillator of the
+    // voice by the very same ratio, so it cannot move two of them apart.
+    auto synth = unisonStackSynth(0.0f);
+    synth->setOscillatorDrift(1.0f);
+
+    const auto swing = heldNoteLevelSwingDb(*synth, 48, 8.0);
+
+    QVERIFY2(swing < 0.5, qPrintable(QString { "level swing was %1 dB" }.arg(swing)));
+}
+
+void SynthTest::test_vco4_shouldBeSilentUntilMixedIn()
+{
+    // The fourth oscillator starts at zero level, so a patch that predates it is the patch it was.
+    const SynthDevice fresh { "Synth" };
+    QCOMPARE(fresh.mixVco4(), 0.0f);
+
+    SynthDevice synth { "Synth" };
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    const auto silent = renderSynth(synth);
+    double peak = 0.0;
+    for (auto && sample : silent) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    QVERIFY2(peak < 0.001, qPrintable(QString::number(peak)));
+}
+
+void SynthTest::test_vco4_settings_shouldRoundTrip()
+{
+    // Every setting the fourth oscillator has, through the project format and back.
+    SynthDevice out { "Synth" };
+    out.setVco4Waveform(PolyBlepOscillator::Waveform::Square);
+    out.setVco4Octave(-2);
+    out.setVco4Pitch(0.65f);
+    out.setVco4Shape(0.4f);
+    out.setVco4Roundness(0.3f);
+    out.setVco4Sync(true);
+    out.setMixVco4(0.8f);
+    out.setModTarget(SynthDevice::ModTarget::Pitch4);
+    out.setLfoTarget(SynthDevice::LfoTarget::Pitch4);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(static_cast<int>(in.vco4Waveform()), static_cast<int>(PolyBlepOscillator::Waveform::Square));
+    QCOMPARE(in.vco4Octave(), -2);
+    QVERIFY(std::abs(in.vco4Pitch() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(in.vco4Shape() - 0.4f) < 0.001f);
+    QVERIFY(std::abs(in.vco4Roundness() - 0.3f) < 0.001f);
+    QCOMPARE(in.vco4Sync(), true);
+    QVERIFY(std::abs(in.mixVco4() - 0.8f) < 0.001f);
+    // The widened end of each enum has to survive the parameter's range as well as the format.
+    QCOMPARE(static_cast<int>(in.modTarget()), static_cast<int>(SynthDevice::ModTarget::Pitch4));
+    QCOMPARE(static_cast<int>(in.lfoTarget()), static_cast<int>(SynthDevice::LfoTarget::Pitch4));
+}
+
+void SynthTest::test_vco4_shouldSoundAtItsOwnPitch()
+{
+    // On its own, an octave below the others, so what is heard can only be it.
+    SynthDevice synth { "Synth" };
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMixVco4(1.0f);
+    synth.setVco4Octave(-1);
+    // A sine, so the only thing in the output is the fundamental: a saw an octave down puts its
+    // second harmonic exactly on the note, which would be indistinguishable from not transposing.
+    synth.setVco4Waveform(PolyBlepOscillator::Waveform::Sine);
+
+    const auto rendered = renderSynth(synth); // C4, so the fourth sounds C3
+    const double ownPitch = magnitudeAt(rendered, 130.81);
+    const double otherPitch = magnitudeAt(rendered, 261.63);
+    QVERIFY2(ownPitch > otherPitch * 4.0,
+             qPrintable(QString("%1 at its own octave, %2 at the note's").arg(ownPitch).arg(otherPitch)));
+}
+
+void SynthTest::test_vco4_modTarget_shouldMoveItsPitch()
+{
+    // Pitch4 was appended to the Mod EG's destinations rather than slotted in beside Pitch3: the
+    // ordinal is written into every project, so the order is not free to change.
+    const auto magnitudeAtRest = [](bool modulated) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(1.0f);
+        if (modulated) {
+            synth.setModTarget(SynthDevice::ModTarget::Pitch4);
+            synth.setModInt(1.0f);
+            synth.setModSustain(1.0f);
+        }
+        return magnitudeAt(renderSynth(synth), 261.63);
+    };
+
+    QVERIFY2(magnitudeAtRest(true) < magnitudeAtRest(false) * 0.5,
+             "the mod envelope did not move the fourth oscillator off the note");
+}
+
+void SynthTest::test_vco4_lfoTarget_shouldMoveItsPitch()
+{
+    const auto magnitudeAtRest = [](bool modulated) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(1.0f);
+        if (modulated) {
+            synth.setLfoTarget(SynthDevice::LfoTarget::Pitch4);
+            synth.setLfoInt(1.0f);
+            synth.setLfoRate(0.5f);
+        }
+        return magnitudeAt(renderSynth(synth), 261.63);
+    };
+
+    QVERIFY2(magnitudeAtRest(true) < magnitudeAtRest(false) * 0.5,
+             "the LFO did not move the fourth oscillator off the note");
+}
+
+void SynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
+{
+    // 24 dB/oct is what these voices have always been, so that is where a device starts and where
+    // every project that never touches the setting stays.
+    const SynthDevice synth { "Synth" };
+    QCOMPARE(synth.lpfSlope(), 1);
+}
+
+void SynthTest::test_lpfSlope_legacyName_shouldStillLoad()
+{
+    // One slope was shared by both filters for a while before they were separated. A project saved
+    // in between carries that name, and the value it holds was set for the low pass, so that is the
+    // parameter it has to arrive at.
+    SynthDevice synth { "Synth" };
+    const auto p = synth.parameter(Constants::NahdXml::xmlKeyLpfSlope().toStdString());
+    QVERIFY(p);
+    const auto & names = p->get().legacyNames();
+    QVERIFY(std::ranges::find(names, Constants::NahdXml::xmlKeyFilterSlope().toStdString()) != names.end());
+}
+
+void SynthTest::test_lpfSlope_shallow_shouldKeepMoreOfTheTop()
+{
+    // Two poles instead of four, which is the other classic voice: at the same cutoff a gentler
+    // filter leaves more above it.
+    //
+    // Measured at the note's own fundamental with the corner set below it, rather than somewhere up
+    // in the stop band: what a patch has up there depends on the patch, and a default one that is
+    // close to a sine leaves nothing there to measure but the noise floor.
+    const auto magnitudeAboveCutoff = [](int slope) {
+        SynthDevice synth { "Synth" };
+        synth.setLpfSlope(slope);
+        synth.setLpfCutoff(0.25f);
+        synth.setLpfResonance(0.0f);
+        synth.processMidiNoteOn(60, 127);
+
+        // Past the attack, so the measurement is of the filter rather than of the envelope.
+        std::vector<double> warmUp(2048 * 2, 0.0);
+        AudioContext warmUpContext { std::span(warmUp.data(), warmUp.size()), 2048, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+        synth.processAudio(warmUpContext);
+
+        std::vector<double> buffer(4096 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 4096, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+        synth.processAudio(context);
+
+        const double rate = Constants::defaultSampleRate();
+        double re = 0.0, im = 0.0;
+        for (size_t i = 0; i < 4096; i++) {
+            const double phase = 2.0 * M_PI * 261.63 * static_cast<double>(i) / rate;
+            re += buffer[i * 2] * std::cos(phase);
+            im += buffer[i * 2] * std::sin(phase);
+        }
+        return std::hypot(re, im) / 4096.0;
+    };
+
+    const double steep = magnitudeAboveCutoff(1);
+    const double shallow = magnitudeAboveCutoff(0);
+    QVERIFY2(shallow > steep * 2.0, qPrintable(QString("steep %1, shallow %2").arg(steep).arg(shallow)));
+}
+
+void SynthTest::test_vcoFilter_default_shouldBeDisengagedOnEveryOscillator()
+{
+    // Nothing asked of them, so nothing runs: this is what keeps a patch that predates these
+    // controls costing exactly what it always did.
+    const SynthDevice synth { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY2(!synth.vcoFilterEngaged(vco), qPrintable(QString::number(vco)));
+        QCOMPARE(synth.vcoLpfCutoff(vco), 1.0f);
+        QCOMPARE(synth.vcoHpfCutoff(vco), 0.0f);
+        QCOMPARE(synth.vcoLpfResonance(vco), 0.0f);
+    }
+}
+
+void SynthTest::test_vcoFilter_closedLowPass_shouldEngageThatOscillatorAlone()
+{
+    SynthDevice synth { "Synth" };
+    synth.setVcoLpfCutoff(0, 0.5f);
+
+    QVERIFY(synth.vcoFilterEngaged(0));
+    QVERIFY(!synth.vcoFilterEngaged(1));
+    QVERIFY(!synth.vcoFilterEngaged(2));
+    QVERIFY(!synth.vcoFilterEngaged(3));
+}
+
+void SynthTest::test_vcoFilter_modTarget_shouldEngageAFilterLeftWideOpen()
+{
+    // The controls say where a sweep starts, not whether there is one: a filter parked open is
+    // still engaged once something points at it.
+    SynthDevice synth { "Synth" };
+    QVERIFY(!synth.vcoFilterEngaged(1));
+
+    synth.setModTarget(SynthDevice::ModTarget::Vco2Lpf);
+
+    QVERIFY(synth.vcoFilterEngaged(1));
+    QVERIFY(!synth.vcoFilterEngaged(0));
+    QCOMPARE(synth.vcoLpfCutoff(1), 1.0f);
+}
+
+void SynthTest::test_vcoFilter_lowPass_shouldDarkenOnlyItsOwnOscillator()
+{
+    // \param upVco which oscillator is mixed in; VCO1's low pass is set either way.
+    const auto renderWith = [](int upVco, float vco1Cutoff) {
+        SynthDevice synth { "Synth" };
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setVco2Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setMixVco1(upVco == 1 ? 1.0f : 0.0f);
+        synth.setMixVco2(upVco == 2 ? 1.0f : 0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(0.0f);
+        synth.setVcoLpfCutoff(0, vco1Cutoff);
+        return renderSynth(synth);
+    };
+
+    // About 630 Hz, so the note's own fundamental passes and its upper harmonics do not.
+    constexpr float closedCutoff { 0.5f };
+    constexpr double fundamental { 261.63 };
+    constexpr double eighthHarmonic { fundamental * 8.0 };
+
+    const auto open = renderWith(1, 1.0f);
+    const auto closed = renderWith(1, closedCutoff);
+
+    QVERIFY2(magnitudeAt(closed, eighthHarmonic) < magnitudeAt(open, eighthHarmonic) * 0.5,
+             qPrintable(QString { "open %1, closed %2" }.arg(magnitudeAt(open, eighthHarmonic)).arg(magnitudeAt(closed, eighthHarmonic))));
+    QVERIFY(magnitudeAt(closed, fundamental) > magnitudeAt(open, fundamental) * 0.5);
+
+    // The same filter with VCO2 the one being heard: it belongs to VCO1, so it does nothing here.
+    const auto otherOpen = renderWith(2, 1.0f);
+    const auto otherClosed = renderWith(2, closedCutoff);
+
+    double worst = 0.0;
+    for (size_t i = 0; i < otherOpen.size(); i++) {
+        worst = std::max(worst, std::abs(otherOpen[i] - otherClosed[i]));
+    }
+    QVERIFY2(worst < 1.0e-12, qPrintable(QString::number(worst)));
+}
+
+void SynthTest::test_vcoFilter_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        synth.setVcoLpfCutoff(vco, 0.3f + 0.1f * static_cast<float>(vco));
+        synth.setVcoLpfResonance(vco, 0.2f + 0.1f * static_cast<float>(vco));
+        synth.setVcoHpfCutoff(vco, 0.1f + 0.1f * static_cast<float>(vco));
+        synth.setVcoLpfSlope(vco, static_cast<int>(vco % 2));
+        synth.setVcoHpfSlope(vco, static_cast<int>((vco + 1) % 2));
+    }
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    NahdXmlWriter writer { buffer };
+    writer.writeStartDocument();
+    synth.serializeToXml(writer);
+    writer.writeEndDocument();
+    buffer.close();
+
+    SynthDevice loaded { "Synth" };
+    buffer.open(QIODevice::ReadOnly);
+    NahdXmlReader reader { buffer };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    loaded.deserializeFromXml(reader);
+    buffer.close();
+
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY(std::abs(loaded.vcoLpfCutoff(vco) - synth.vcoLpfCutoff(vco)) < 0.001f);
+        QVERIFY(std::abs(loaded.vcoLpfResonance(vco) - synth.vcoLpfResonance(vco)) < 0.001f);
+        QVERIFY(std::abs(loaded.vcoHpfCutoff(vco) - synth.vcoHpfCutoff(vco)) < 0.001f);
+        QCOMPARE(loaded.vcoLpfSlope(vco), synth.vcoLpfSlope(vco));
+        QCOMPARE(loaded.vcoHpfSlope(vco), synth.vcoHpfSlope(vco));
+    }
+}
+
+void SynthTest::test_vcoFilter_absentFromXml_shouldLoadWideOpen()
+{
+    // What a project saved before these controls existed looks like: the parameters are simply not
+    // in the file. An absent parameter keeps the container's default, and the default has to be a
+    // filter that does nothing, or every old song would come back filtered.
+    SynthDevice out { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        out.setVcoLpfCutoff(vco, 0.2f);
+        out.setVcoHpfCutoff(vco, 0.8f);
+        out.setVcoLpfResonance(vco, 0.7f);
+    }
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    QRegularExpression perVcoFilter { R"(<Parameter name="vco[0-9](Lpf|Hpf)[^"]*"[^>]*(/>|>\s*</Parameter>))" };
+    const auto legacy = QString { xml }.remove(perVcoFilter);
+    QVERIFY2(legacy.length() < xml.length(), "nothing was stripped, so the test proves nothing");
+    QVERIFY(!legacy.contains("vco1LpfCutoff"));
+
+    NahdXmlReader reader { legacy };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QCOMPARE(in.vcoLpfCutoff(vco), 1.0f);
+        QCOMPARE(in.vcoHpfCutoff(vco), 0.0f);
+        QCOMPARE(in.vcoLpfResonance(vco), 0.0f);
+        QVERIFY(!in.vcoFilterEngaged(vco));
+    }
+}
+
+void SynthTest::test_multiFilter_default_shouldBeDisengaged()
+{
+    const SynthDevice synth { "Synth" };
+    QVERIFY(!synth.multiFilterEngaged());
+    QCOMPARE(synth.multiLpfCutoff(), 1.0f);
+    QCOMPARE(synth.multiHpfCutoff(), 0.0f);
+    QCOMPARE(synth.multiLpfResonance(), 0.0f);
+    QCOMPARE(synth.multiLpfSlope(), 0);
+    QCOMPARE(synth.multiHpfSlope(), 0);
+}
+
+void SynthTest::test_multiFilter_lfoTarget_shouldEngageItAlone()
+{
+    SynthDevice synth { "Synth" };
+    synth.setLfoTarget(SynthDevice::LfoTarget::MultiHpf);
+
+    QVERIFY(synth.multiFilterEngaged());
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY2(!synth.vcoFilterEngaged(vco), qPrintable(QString::number(vco)));
+    }
+
+    synth.setLfoTarget(SynthDevice::LfoTarget::Vco4Hpf);
+    QVERIFY(!synth.multiFilterEngaged());
+    QVERIFY(synth.vcoFilterEngaged(3));
+}
+
+void SynthTest::test_multiFilter_lowPass_shouldDarkenTheMultiEngine()
+{
+    const auto renderWith = [](float cutoff) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(0.0f);
+        // A high pass at the bottom of its range, which is white noise across the whole spectrum
+        synth.setMultiType(MultiEngine::Type::High);
+        synth.setMultiShape(0.0f);
+        synth.setMultiLevel(1.0f);
+        synth.setMultiLpfCutoff(cutoff);
+        return renderSynth(synth);
+    };
+
+    // Sample-to-sample difference stands in for the top of the spectrum
+    const auto highEnergy = [](const std::vector<double> & buffer) {
+        double sum = 0.0;
+        for (size_t i = 2; i < buffer.size(); i += 2) {
+            const double difference = buffer[i] - buffer[i - 2];
+            sum += difference * difference;
+        }
+        return sum;
+    };
+
+    const auto open = renderWith(1.0f);
+    const auto closed = renderWith(0.3f);
+    QVERIFY(highEnergy(open) > 0.0);
+    QVERIFY2(highEnergy(closed) < highEnergy(open) * 0.1,
+             qPrintable(QString { "open %1, closed %2" }.arg(highEnergy(open)).arg(highEnergy(closed))));
+}
+
+void SynthTest::test_multiFilter_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    synth.setMultiLpfCutoff(0.4f);
+    synth.setMultiLpfResonance(0.6f);
+    synth.setMultiHpfCutoff(0.2f);
+    synth.setMultiLpfSlope(1);
+    synth.setMultiHpfSlope(1);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        synth.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice loaded { "Synth" };
+    loaded.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(loaded.multiLpfCutoff() - 0.4f) < 0.001f);
+    QVERIFY(std::abs(loaded.multiLpfResonance() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(loaded.multiHpfCutoff() - 0.2f) < 0.001f);
+    QCOMPARE(loaded.multiLpfSlope(), 1);
+    QCOMPARE(loaded.multiHpfSlope(), 1);
+    // The oscillators' own filters are not the multi engine's
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QCOMPARE(loaded.vcoLpfCutoff(vco), 1.0f);
+    }
+}
+
+void SynthTest::test_multiFilter_automation_shouldOfferCutoffsAndResonance()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiLpfCutoff().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiLpfResonance().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiHpfCutoff().toStdString()));
+}
+
+void SynthTest::test_chorus_default_shouldBeDry()
+{
+    // A project saved before the chorus existed has no chorus parameters, and has to sound as it did
+    const SynthDevice synth { "Synth" };
+    QCOMPARE(synth.chorusMix(), 0.0f);
+}
+
+void SynthTest::test_chorus_mix_shouldWidenAMonoNote()
+{
+    // One voice in the middle of the field is the same in both channels; the chorus's two
+    // modulated taps, a quarter cycle apart, are not.
+    const auto stereoDifference = [](float chorusMix) {
+        SynthDevice synth { "Synth" };
+        synth.setChorusMix(chorusMix);
+        const auto buffer = renderSynth(synth);
+        double difference = 0.0;
+        double level = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2) {
+            difference += std::abs(buffer[i] - buffer[i + 1]);
+            level += std::abs(buffer[i]);
+        }
+        return difference / level;
+    };
+
+    QVERIFY2(stereoDifference(0.0f) < 1.0e-9, qPrintable(QString::number(stereoDifference(0.0f))));
+    QVERIFY2(stereoDifference(0.5f) > 0.05, qPrintable(QString::number(stereoDifference(0.5f))));
+}
+
+void SynthTest::test_chorus_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    synth.setChorusRate(0.3f);
+    synth.setChorusDepth(0.6f);
+    synth.setChorusDelay(0.2f);
+    synth.setChorusWidth(0.7f);
+    synth.setChorusMix(0.4f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        synth.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice loaded { "Synth" };
+    loaded.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(loaded.chorusRate() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusDepth() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusDelay() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusWidth() - 0.7f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusMix() - 0.4f) < 0.001f);
+}
+
+void SynthTest::test_chorus_absentFromXml_shouldLoadDry()
+{
+    SynthDevice out { "Synth" };
+    out.setChorusMix(0.4f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    QRegularExpression chorus { R"(<Parameter name="chorus[^"]*"[^>]*(/>|>\s*</Parameter>))" };
+    const auto legacy = QString { xml }.remove(chorus);
+    QVERIFY2(legacy.length() < xml.length(), "nothing was stripped, so the test proves nothing");
+
+    NahdXmlReader reader { legacy };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(in.chorusMix(), 0.0f);
+}
+
+void SynthTest::test_chorus_automation_shouldOfferMixRateAndDepth()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusMix().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusRate().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusDepth().toStdString()));
+}
+
+void SynthTest::test_delayFilter_automation_shouldOfferBothCutoffs()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()));
+}
+
+namespace {
+
+//! The echoes of one short note, after the note itself has gone.
+std::vector<double> renderEchoes(SynthDevice & synth)
+{
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    synth.processMidiNoteOn(60, 127);
+    std::vector<double> note(2048 * 2, 0.0);
+    AudioContext noteContext { std::span(note.data(), note.size()), 2048, rate };
+    synth.processAudio(noteContext);
+    synth.processMidiNoteOff(60);
+    std::vector<double> tail(48000 * 2, 0.0);
+    AudioContext tailContext { std::span(tail.data(), tail.size()), 48000, rate };
+    synth.processAudio(tailContext);
+    return tail;
+}
+
+std::unique_ptr<SynthDevice> echoingSynth()
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+    synth->setAmpRelease(0.0f);
+    synth->setDelayMix(1.0f);
+    synth->setDelayTime(0.01f);
+    synth->setDelayFeedback(0.8f);
+    return synth;
+}
+
+} // namespace
+
+void SynthTest::test_delayFilter_lfoTarget_shouldDarkenTheEchoes()
+{
+    // Sample-to-sample difference stands in for the top of the spectrum
+    const auto highEnergy = [](const std::vector<double> & buffer) {
+        double sum = 0.0;
+        for (size_t i = 2; i < buffer.size(); i += 2) {
+            const double difference = buffer[i] - buffer[i - 2];
+            sum += difference * difference;
+        }
+        return sum;
+    };
+
+    auto plain = echoingSynth();
+    const auto open = highEnergy(renderEchoes(*plain));
+
+    // Fully negative, so the sweep pulls the wide-open feedback low pass down
+    auto swept = echoingSynth();
+    swept->setLfoTarget(SynthDevice::LfoTarget::DelayLpf);
+    swept->setLfoInt(0.0f);
+    swept->setLfoRate(0.8f);
+    const auto darkened = highEnergy(renderEchoes(*swept));
+
+    QVERIFY(open > 0.0);
+    QVERIFY2(darkened < open * 0.7, qPrintable(QString { "%1 vs %2" }.arg(darkened).arg(open)));
+}
+
+void SynthTest::test_delayFilter_lfoTarget_shouldLeaveTheControlsAlone()
+{
+    // The sweep rides on top of the knobs, which stay where they were put
+    auto synth = echoingSynth();
+    synth->setLfoTarget(SynthDevice::LfoTarget::DelayHpf);
+    synth->setLfoInt(1.0f);
+    renderEchoes(*synth);
+    QCOMPARE(synth->delayFeedbackLpf(), 1.0f);
+    QCOMPARE(synth->delayFeedbackHpf(), 0.0f);
+}
+
+void SynthTest::test_presets_chorus_shouldBeOnOnlyWhereIntended()
+{
+    // Pads, plucks, keys and bells. Basses keep their low end in mono, and the stacked and drifting
+    // patches get their width from their voices already.
+    const std::set<std::string> chorused { "Warm Pad", "String Pad", "Glass Pad", "Formant Pad", "Pluck", "Clav", "Organ", "Bell" };
+
+    const auto & presets = SynthPresets::presets();
+    for (int i = 0; i < static_cast<int>(presets.size()); i++) {
+        SynthDevice synth { "Synth" };
+        synth.loadPreset(i);
+        const auto & name = presets.at(static_cast<size_t>(i)).name;
+        if (chorused.contains(name)) {
+            QVERIFY2(synth.chorusMix() > 0.0f, name.c_str());
+        } else {
+            QVERIFY2(synth.chorusMix() == 0.0f, name.c_str());
+        }
+    }
+}
+
+void SynthTest::initTestCase()
+{
+}
+
+void SynthTest::cleanupTestCase()
+{
+}
+
+void SynthTest::test_defaultValues_shouldBeCorrect()
+{
+    const SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.name(), std::string("Test Synth"));
+    QCOMPARE(synth.vco1Octave(), 0);
+    QCOMPARE(synth.vco1Pitch(), 0.5f);
+    QCOMPARE(synth.mixVco1(), 1.0f);
+    QCOMPARE(synth.mixVco2(), 0.0f);
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
+    QCOMPARE(synth.hpfCutoff(), 0.0f);
+    QCOMPARE(synth.ampSustain(), 1.0f);
+    QCOMPARE(synth.pan(), 0.5f);
+    QCOMPARE(synth.gain(), 0.5f);
+}
+
+void SynthTest::test_parameterSetting_shouldUpdateValues()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    QCOMPARE(synth.vco2Waveform(), PolyBlepOscillator::Waveform::Square);
+
+    synth.setMixVco2(0.5f);
+    QCOMPARE(synth.mixVco2(), 0.5f);
+
+    synth.setLpfCutoff(0.4f);
+    QCOMPARE(synth.lpfCutoff(), 0.4f);
+
+    synth.setModInt(0.8f);
+    QVERIFY(std::abs(synth.modInt() - 0.216f) < 0.001f);
+
+    synth.setDelayDepth(0.5f);
+    QCOMPARE(synth.delayDepth(), 0.5f);
+
+    synth.setDelaySync(true);
+    QCOMPARE(synth.delaySync(), true);
+
+    synth.setPan(0.2f);
+    QCOMPARE(synth.pan(), 0.2f);
+
+    synth.setGain(0.75f);
+    QCOMPARE(synth.gain(), 0.75f);
+}
+
+void SynthTest::test_polyphony_shouldActiveMultipleVoices()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+
+    // We can't easily check internal voice state without exposing it,
+    // but we can check if audio is generated.
+    double output[2048] {};
+    std::fill(output, output + 2048, 0.0f);
+    AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool soundDetected = false;
+    for (int i = 0; i < 2048; i++) {
+        if (std::abs(output[i]) > 0.0001f) {
+            soundDetected = true;
+            break;
+        }
+    }
+    QVERIFY(soundDetected);
+}
+
+void SynthTest::test_presets_shouldLoadCorrectValues()
+{
+    // Read the expected values out of the preset rather than repeating them here. A test that
+    // hardcodes one patch's numbers has to be edited whenever that patch is voiced, and says
+    // nothing about loading itself; this asserts that every value a preset names arrives on the
+    // device, for every preset. The patches themselves are covered by synth_presets_test.
+    SynthDevice synth { "Test Synth" };
+
+    int checked = 0;
+    for (int index = 1; index < static_cast<int>(SynthPresets::presets().size()); index++) {
+        const auto & preset = SynthPresets::presets().at(static_cast<size_t>(index));
+        synth.loadPreset(index);
+        for (auto && [name, expected] : preset.parameters) {
+            const auto parameter = synth.parameter(name);
+            QVERIFY2(parameter.has_value(), (preset.name + ": " + name).c_str());
+            QVERIFY2(std::abs(parameter->get().value() - expected) < 0.0001f, (preset.name + ": " + name).c_str());
+            checked++;
+        }
+    }
+    QVERIFY(checked > 0);
+}
+
+void SynthTest::test_midiCc_shouldUpdateParameters()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // Test individual CC updates
+    synth.processMidiCc(7, 64, 0); // Volume ~0.5
+    QCOMPARE(synth.volume(), Device::faderPositionFromMidiCc(64));
+
+    synth.processMidiCc(10, 32, 0); // Pan ~0.25
+    QCOMPARE(synth.pan(), 32.0f / 127.0f);
+
+    synth.processMidiCc(74, 100, 0); // Cutoff ~0.78
+    QCOMPARE(synth.lpfCutoff(), 100.0f / 127.0f);
+
+    synth.processMidiCc(81, 10, 0); // HPF Cutoff ~0.08
+    QCOMPARE(synth.hpfCutoff(), 10.0f / 127.0f);
+
+    // Test CC 121 (Reset All Controllers)
+    // First, set manual UI values
+    synth.setVolume(1.0f);
+    synth.setPan(0.0f);
+    synth.setPanSpread(0.0f);
+    synth.setLpfCutoff(0.5f);
+    synth.setHpfCutoff(0.1f);
+
+    // Now change them via MIDI CC
+    synth.processMidiCc(7, 10, 0);
+    synth.processMidiCc(74, 127, 0);
+
+    QCOMPARE(synth.volume(), Device::faderPositionFromMidiCc(10));
+    QCOMPARE(synth.lpfCutoff(), 127.0f / 127.0f);
+
+    // Trigger Reset
+    synth.processMidiCc(121, 0, 0);
+
+    // Should return to manual UI values
+    QCOMPARE(synth.volume(), 1.0f);
+    QCOMPARE(synth.pan(), 0.0f);
+    QCOMPARE(synth.panSpread(), 0.0f);
+    QCOMPARE(synth.lpfCutoff(), 0.5f);
+    QCOMPARE(synth.hpfCutoff(), 0.1f);
+}
+
+void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // Any preset that sets a cutoff of its own will do, found rather than named, so that voicing a
+    // patch cannot break this test.
+    int preset = -1;
+    float presetCutoff = 0.0f;
+    for (int index = 1; index < static_cast<int>(SynthPresets::presets().size()); index++) {
+        const auto & parameters = SynthPresets::presets().at(static_cast<size_t>(index)).parameters;
+        if (const auto cutoff = parameters.find("lpfCutoff"); cutoff != parameters.end() && cutoff->second < 0.9f) {
+            preset = index;
+            presetCutoff = cutoff->second;
+            break;
+        }
+    }
+    QVERIFY(preset > 0);
+
+    synth.setLpfCutoff(1.0f);
+
+    synth.loadPreset(preset);
+    QCOMPARE(synth.lpfCutoff(), presetCutoff);
+
+    synth.processMidiCc(74, 127, 0); // Cutoff to 1.0
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
+
+    synth.processMidiCc(121, 0, 0); // Reset All Controllers
+
+    // Back to the preset's value, not to the value that was set by hand before it was loaded.
+    QCOMPARE(synth.lpfCutoff(), presetCutoff);
+}
+
+namespace {
+
+//! Renders one block of a cutoff-modulated note. \a intensity is the LFO intensity parameter, whose
+//! neutral is 0.5, and the delay and fade are the parameters rather than seconds.
+std::vector<double> renderLfoBlock(float intensity, float delay, float fade)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    synth.setLpfCutoff(0.5f);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(8.0, 0.05, 20.0)));
+    synth.setLfoInt(intensity);
+    synth.setLfoDelay(delay);
+    synth.setLfoFade(fade);
+
+    synth.processMidiNoteOn(60, 100);
+
+    std::vector<double> output(512, 0.0);
+    AudioContext context { std::span(output.data(), output.size()), 256, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+    return output;
+}
+
+double maxDifference(const std::vector<double> & a, const std::vector<double> & b)
+{
+    double difference = 0.0;
+    for (size_t i = 0; i < a.size(); i++) {
+        difference = std::max(difference, std::abs(a.at(i) - b.at(i)));
+    }
+    return difference;
+}
+
+} // namespace
+
+void SynthTest::test_lfoEngagement_shouldDefaultToImmediate()
+{
+    // Zero for both is what makes a project saved before these existed sound exactly as it did.
+    const SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.lfoDelay(), 0.0f);
+    QCOMPARE(synth.lfoFade(), 0.0f);
+    QCOMPARE(synth.lfo2Delay(), 0.0f);
+    QCOMPARE(synth.lfo2Fade(), 0.0f);
+}
+
+void SynthTest::test_lfoEngagement_delay_shouldSuppressModulationUntilItExpires()
+{
+    const auto unmodulated = renderLfoBlock(0.5f, 0.0f, 0.0f);
+    const auto modulated = renderLfoBlock(1.0f, 0.0f, 0.0f);
+    const auto delayed = renderLfoBlock(1.0f, 1.0f, 0.0f);
+
+    // A full delay outlasts the block, so the LFO has not reached the cutoff yet.
+    QVERIFY(maxDifference(unmodulated, modulated) > 1e-6);
+    QVERIFY(maxDifference(unmodulated, delayed) < 1e-12);
+}
+
+void SynthTest::test_lfoEngagement_fade_shouldEaseModulationIn()
+{
+    const auto unmodulated = renderLfoBlock(0.5f, 0.0f, 0.0f);
+    const auto immediate = renderLfoBlock(1.0f, 0.0f, 0.0f);
+    const auto faded = renderLfoBlock(1.0f, 0.0f, 1.0f);
+
+    // The fade outlasts the block too, so the modulation is present but still on its way up.
+    QVERIFY(maxDifference(unmodulated, faded) > 1e-12);
+    QVERIFY(maxDifference(unmodulated, faded) < maxDifference(unmodulated, immediate));
+}
+
+void SynthTest::test_lfoModulation_shouldUpdateInternalState()
+{
+    SynthDevice synth { "Test Synth" };
+
+    synth.setLfoWaveform(Lfo::Waveform::Square);
+    QCOMPARE(synth.lfoWaveform(), Lfo::Waveform::Square);
+
+    synth.setLfoMode(Lfo::Mode::OneShot);
+    QCOMPARE(synth.lfoMode(), Lfo::Mode::OneShot);
+
+    synth.setLfoRate(0.8f);
+    QCOMPARE(synth.lfoRate(), 0.8f);
+
+    synth.setLfoInt(0.75f);
+    QVERIFY(std::abs(synth.lfoInt() - 0.125f) < 0.001f);
+
+    synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    QCOMPARE(synth.lfoTarget(), SynthDevice::LfoTarget::Cutoff);
+
+    synth.setLfoDelay(0.4f);
+    QCOMPARE(synth.lfoDelay(), 0.4f);
+
+    synth.setLfoFade(0.6f);
+    QCOMPARE(synth.lfoFade(), 0.6f);
+
+    // Verify audio generation works with Lfo
+    synth.processMidiNoteOn(60, 100);
+    double output[512] {};
+    std::fill(output, output + 512, 0.0f);
+    AudioContext context { std::span(output, 512), 256, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool sound = false;
+    for (int i = 0; i < 512; i++) {
+        if (std::abs(output[i]) > 0.0001f) {
+            sound = true;
+            break;
+        }
+    }
+    QVERIFY(sound);
+}
+
+void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // Trigger 6 notes to fill all voices
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        synth.processMidiNoteOn(60 + i, 100);
+    }
+
+    // Process audio so they all start playing
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    // Release Note 60 - it will start decaying (becoming quieter)
+    synth.processMidiNoteOff(60);
+
+    // Process a bit more to let it decay
+    synth.processAudio(context);
+
+    // Trigger a new note
+    // It should steal Note 60 because it's the quietest (releasing)
+    synth.processMidiNoteOn(80, 100);
+
+    // We verify sound is still coming out (basic stability check)
+    synth.processAudio(context);
+    bool sound = false;
+    for (int i = 0; i < 256; i++) {
+        if (std::abs(output[i]) > 0.0001f) {
+            sound = true;
+            break;
+        }
+    }
+    QVERIFY(sound);
+}
+
+void SynthTest::test_softClipper_shouldPreventClipping()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // Max out volume and multiple oscillators to force > 1.0 signal
+    synth.setVolume(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setLpfResonance(1.0f); // High resonance adds lots of gain
+
+    synth.processMidiNoteOn(60, 127);
+
+    double output[1024] {};
+    std::fill(output, output + 1024, 0.0f);
+    AudioContext context { std::span(output, 1024), 512, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    for (int i = 0; i < 1024; i++) {
+        QVERIFY(output[i] <= 1.0f);
+        QVERIFY(output[i] >= -1.0f);
+    }
+}
+
+void SynthTest::test_reset_shouldRestoreDefaults()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setMixVco2(0.9f);
+    synth.setLpfCutoff(0.1f);
+
+    synth.reset();
+
+    QCOMPARE(synth.mixVco2(), 0.0f);
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
+}
+
+void SynthTest::test_saveState_restore_shouldRestoreParameters()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setMixVco2(0.9f);
+    synth.setLpfCutoff(0.4f);
+    synth.setPan(0.2f);
+
+    synth.saveState();
+
+    synth.setMixVco2(0.1f);
+    synth.setLpfCutoff(0.8f);
+    synth.setPan(0.7f);
+
+    synth.restoreState();
+
+    // Both the parameter and the value syncParameters() mirrors it into have to come back
+    QCOMPARE(synth.mixVco2(), 0.9f);
+    QCOMPARE(synth.lpfCutoff(), 0.4f);
+    QCOMPARE(synth.pan(), 0.2f);
+}
+
+void SynthTest::test_saveState_restore_shouldRestoreManualValues()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.3f);
+
+    synth.saveState();
+    synth.setLpfResonance(0.8f);
+    synth.restoreState();
+
+    // A CC that overrides the resonance and then resets must fall back to the restored value,
+    // not to the one the cancelled edit left behind
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.lpfResonance(), 0.3f);
+}
+
+void SynthTest::test_portamento_shouldGlideFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+
+    // --- Test Poly Mode ---
+    synth.setVoiceMode(SynthDevice::VoiceMode::Poly);
+    synth.setPortamento(0.5f); // 50% portamento
+
+    // Play first note
+    synth.processMidiNoteOn(60, 100);
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+
+    // Let it finish (we need to process audio until it's inactive)
+    double dummy[1024] {};
+    AudioContext context { std::span(dummy, 1024), 512, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    for (int i = 0; i < 100; i++) {
+        synth.processAudio(context);
+    }
+
+    // Play second note (same voice should be reused if it's the only one)
+    synth.processMidiNoteOn(62, 100);
+
+    // In the BROKEN state, it will be freq62 immediately.
+    // In the FIXED state, it should still be freq60 (starting the glide).
+    // Note: processMidiNoteOn calls handleNoteOn which updates glideFrequency if broken.
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+
+    // --- Test Unison Mode ---
+    synth.reset();
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setPortamento(0.5f);
+
+    // Play first note (Unison triggers all voices)
+    synth.processMidiNoteOn(60, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), freq60);
+    }
+
+    // Play second note
+    synth.processMidiNoteOn(62, 100);
+
+    // In the BROKEN state, it will be freq62 immediately.
+    // In the FIXED state, it should still be freq60.
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), freq60);
+    }
+}
+
+void SynthTest::test_portamentoOff_shouldJumpImmediately()
+{
+    SynthDevice synth { "Test Synth" };
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double freq62 = 440.0 * std::pow(2.0, (62 - 69) / 12.0);
+
+    // --- Poly Mode ---
+    synth.setVoiceMode(SynthDevice::VoiceMode::Poly);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    bool found60 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq60) < 0.001) {
+            found60 = true;
+            break;
+        }
+    }
+    QVERIFY(found60);
+
+    synth.processMidiNoteOn(62, 100);
+    bool found62 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq62) < 0.001) {
+            found62 = true;
+            break;
+        }
+    }
+    QVERIFY(found62);
+
+    // --- Unison Mode ---
+    synth.reset();
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (i - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(0.0, 1.5) * 0.2; // voiceDepth is 0
+        const double expectedFreq = freq60 * std::pow(2.0, detuneAmount / 12.0);
+        QCOMPARE(synth.voiceGlideFrequency(i), expectedFreq);
+    }
+
+    synth.processMidiNoteOn(62, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (i - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(0.0, 1.5) * 0.2;
+        const double expectedFreq = freq62 * std::pow(2.0, detuneAmount / 12.0);
+        QCOMPARE(synth.voiceGlideFrequency(i), expectedFreq);
+    }
+}
+
+void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
+{
+    const SynthDevice synth { "Test Synth" };
+
+    // Test discrete parameters
+    const auto vco1Wave = synth.parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());
+    QVERIFY(vco1Wave.has_value());
+    QVERIFY(vco1Wave->get().isDiscrete());
+
+    const auto vco1Octave = synth.parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString());
+    QVERIFY(vco1Octave.has_value());
+    QVERIFY(vco1Octave->get().isDiscrete());
+
+    const auto vco1Pitch = synth.parameter(Constants::NahdXml::xmlKeyVco1Pitch().toStdString());
+    QVERIFY(vco1Pitch.has_value());
+    QVERIFY(!vco1Pitch->get().isDiscrete());
+
+    const auto modTarget = synth.parameter(Constants::NahdXml::xmlKeyModTarget().toStdString());
+    QVERIFY(modTarget.has_value());
+    QVERIFY(modTarget->get().isDiscrete());
+
+    const auto voiceMode = synth.parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString());
+    QVERIFY(voiceMode.has_value());
+    QVERIFY(voiceMode->get().isDiscrete());
+
+    // Test continuous parameters
+    const auto lpfCutoff = synth.parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString());
+    QVERIFY(lpfCutoff.has_value());
+    QVERIFY(!lpfCutoff->get().isDiscrete());
+
+    const auto ampAttack = synth.parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString());
+    QVERIFY(ampAttack.has_value());
+    QVERIFY(!ampAttack->get().isDiscrete());
+
+    const auto multiShape = synth.parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString());
+    QVERIFY(multiShape.has_value());
+    QVERIFY(!multiShape->get().isDiscrete());
+}
+
+namespace {
+
+//! Zero crossings of the left channel over the given number of blocks, a cheap stand-in for pitch.
+int zeroCrossings(SynthDevice & synth, int blocks)
+{
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    int crossings = 0;
+    double previous = 0.0;
+    for (int block = 0; block < blocks; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        for (uint32_t i = 0; i < frameCount; i++) {
+            const double sample = buffer[i * 2];
+            if ((previous < 0.0) != (sample < 0.0)) {
+                crossings++;
+            }
+            previous = sample;
+        }
+    }
+    return crossings;
+}
+
+} // namespace
+
+void SynthTest::test_vcoOctave_32Foot_shouldSoundTwoOctavesBelow8Foot()
+{
+    const auto crossingsAt = [](int octave) {
+        SynthDevice synth { "Test Synth" };
+        // A sine has exactly two zero crossings per cycle. A saw's polyBLEP-smoothed wrap can wobble
+        // across zero more than once, which biases the count at the low end.
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth.setVco1Octave(octave);
+        synth.processMidiNoteOn(72, 100);
+        zeroCrossings(synth, 10); // Past the attack, so the count is of a steady tone
+        return zeroCrossings(synth, 40);
+    };
+
+    const int at8Foot = crossingsAt(0);
+    const int at32Foot = crossingsAt(-2);
+    QVERIFY(at8Foot > 0);
+    QVERIFY(at32Foot > 0);
+
+    // 32' is two octaves below 8', so the waveform has to come out at a quarter of the rate.
+    const double ratio = static_cast<double>(at8Foot) / at32Foot;
+    QVERIFY2(std::abs(ratio - 4.0) < 0.2, qPrintable(QString { "Rate ratio was %1, expected 4" }.arg(ratio)));
+}
+
+void SynthTest::test_vcoOctave_belowRange_shouldClampTo32Foot()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // 32' is the bottom of the range, and presets are free to ask for more than that.
+    synth.setVco1Octave(-3);
+    QCOMPARE(synth.vco1Octave(), -2);
+    synth.setVco2Octave(-3);
+    QCOMPARE(synth.vco2Octave(), -2);
+    synth.setVco3Octave(-3);
+    QCOMPARE(synth.vco3Octave(), -2);
+}
+
+void SynthTest::test_midiProgramChange_shouldLoadCorrectPreset()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // Any preset with a cutoff of its own, found rather than named, so voicing a patch cannot
+    // break this. There is one bank now, so a program number is a preset index.
+    const auto & presets = SynthPresets::presets();
+    int program = -1;
+    float expected = 0.0f;
+    for (int index = 1; index < static_cast<int>(presets.size()); index++) {
+        const auto & parameters = presets.at(static_cast<size_t>(index)).parameters;
+        if (const auto cutoff = parameters.find(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); cutoff != parameters.end()) {
+            program = index;
+            expected = cutoff->second;
+            break;
+        }
+    }
+    QVERIFY(program > 0);
+
+    synth.processMidiProgramChange(static_cast<uint8_t>(program), 0);
+    QCOMPARE(synth.lpfCutoff(), expected);
+
+    // Program 0 is the init patch, which names nothing, so the cutoff goes back to its default.
+    synth.processMidiProgramChange(0, 0);
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
+}
+
+void SynthTest::test_projectLoadPhaseSync_shouldLoadCorrectly()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Sync(true);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.vco1Sync(), true);
+    }
+}
+
+void SynthTest::test_serialization_shouldSaveAndLoadGain()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setGain(0.8f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.gain(), 0.8f);
+    }
+}
+
+void SynthTest::test_serialization_shouldSaveAndLoadPitchBendRange()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setPitchBendRange(7);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.pitchBendRange(), 7);
+    }
+}
+
+void SynthTest::test_midiCcResetPanAndVolume_shouldRestoreManualValues()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // 1. Initial manual state
+    synth.setVolume(0.8f);
+    synth.setPan(0.2f);
+    synth.setGain(0.6f);
+
+    // 2. Change via MIDI CC
+    synth.processMidiCc(7, 127, 0); // Volume to unity
+    synth.processMidiCc(10, 127, 0); // Pan to 1.0
+    QCOMPARE(synth.volume(), Constants::faderUnityPosition());
+    QCOMPARE(synth.pan(), 1.0f);
+
+    // 3. Reset All Controllers (CC 121)
+    synth.processMidiCc(121, 0, 0);
+
+    // 4. Should restore to manual values
+    QCOMPARE(synth.volume(), 0.8f);
+    QCOMPARE(synth.pan(), 0.2f);
+    QCOMPARE(synth.gain(), 0.6f);
+
+    // 5. Test with preset load
+    synth.loadPreset(1); // This should update manual fallback values
+    const float presetVolume = synth.volume();
+    const float presetPan = synth.pan();
+    const float presetGain = synth.gain();
+
+    synth.processMidiCc(7, 0, 0); // Volume to 0.0
+    synth.processMidiCc(10, 0, 0); // Pan to 0.0
+    QCOMPARE(synth.volume(), 0.0f);
+    QCOMPARE(synth.pan(), 0.0f);
+
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.volume(), presetVolume);
+    QCOMPARE(synth.pan(), presetPan);
+    QCOMPARE(synth.gain(), presetGain);
+}
+
+void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVolume(0.4f);
+        synth.setPan(0.6f);
+        synth.setGain(0.7f);
+        synth.setLpfCutoff(0.33f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+
+        QCOMPARE(synth.volume(), 0.4f);
+        QCOMPARE(synth.pan(), 0.6f);
+        QCOMPARE(synth.gain(), 0.7f);
+        QCOMPARE(synth.lpfCutoff(), 0.33f);
+
+        // Change via MIDI CC
+        synth.processMidiCc(7, 127, 0);
+        synth.processMidiCc(10, 127, 0);
+        synth.processMidiCc(74, 127, 0);
+        QCOMPARE(synth.volume(), Constants::faderUnityPosition());
+        QCOMPARE(synth.pan(), 1.0f);
+        QCOMPARE(synth.lpfCutoff(), 1.0f);
+
+        // Reset All Controllers
+        synth.processMidiCc(121, 0, 0);
+
+        // Should return to LOADED values
+        QCOMPARE(synth.volume(), 0.4f);
+        QCOMPARE(synth.pan(), 0.6f);
+        QCOMPARE(synth.gain(), 0.7f);
+        QCOMPARE(synth.lpfCutoff(), 0.33f);
+    }
+}
+
+void SynthTest::test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange()
+{
+    AdsrEnvelope env;
+    env.setSampleRate(44100.0);
+    env.setAttackTime(1.0); // 1 second attack
+    env.setDecayTime(1.0);
+    env.setSustainLevel(1.0);
+    env.setReleaseTime(1.0);
+
+    env.trigger();
+    // At 44.1kHz, 1 second attack means the step is 1.0 / 44100.0
+    // After 1 sample, level should be 1.0 / 44100.0
+    double val44 = env.nextSample();
+    QVERIFY(std::abs(val44 - (1.0 / 44100.0)) < 0.000001);
+
+    // Change sample rate to 96kHz
+    env.reset();
+    env.setSampleRate(96000.0);
+    env.trigger();
+
+    // Now, after 1 sample, level should be 1.0 / 96000.0
+    double val96 = env.nextSample();
+    QVERIFY(std::abs(val96 - (1.0 / 96000.0)) < 0.000001);
+}
+
+void SynthTest::test_pitchBend_shouldUpdateFrequency()
+{
+    SynthDevice synth("TestSynth");
+    synth.setPitchBendRange(2);
+
+    // Default center
+    QCOMPARE(synth.currentPitchBendOffset(), 0.0f);
+
+    // Max up
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 2.0);
+
+    // Max down
+    synth.processMidiPitchBend(0, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), -2.0);
+
+    // Range change
+    synth.setPitchBendRange(12);
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 12.0);
+}
+
+void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
+{
+    SynthDevice synth("TestSynth");
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f); // 0dB
+    synth.setLpfCutoff(1.0f); // Open filter
+    synth.setHpfCutoff(0.0f);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 1000;
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+
+    // Shape 0.0 -> 50% duty cycle
+    synth.setVco1Shape(0.0f);
+    synth.processMidiNoteOn(60, 100);
+    // Process some audio to settle envelopes
+    synth.processAudio(context);
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(context);
+
+    int positiveSamples = 0;
+    double sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        if (buffer[i] > 0.001f)
+            positiveSamples++;
+        sum += buffer[i];
+    }
+    // With 50% duty cycle, roughly half should be positive
+    QVERIFY(positiveSamples > 400 && positiveSamples < 600);
+    // DC offset should be near zero
+    QVERIFY(std::abs(sum / frameCount) < 0.05);
+
+    // Shape 1.0 -> the narrowest pulse the control reaches, 5 % of the cycle. It used to go to
+    // 0.5 %, which at this note is about a sample wide and is a click rather than a tone.
+    synth.setVco1Shape(1.0f);
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(context);
+
+    positiveSamples = 0;
+    sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        if (buffer[i] > 0.001f)
+            positiveSamples++;
+        sum += buffer[i];
+    }
+    // With a 5 % duty cycle, a twentieth of the window and no more
+    QVERIFY(positiveSamples > 10 && positiveSamples < 120);
+    // DC offset should still be near zero
+    QVERIFY(std::abs(sum / frameCount) < 0.05);
+}
+
+void SynthTest::test_pwm_shouldModulatePulseWidth()
+{
+    SynthDevice synth("TestSynth");
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setLpfCutoff(1.0f);
+
+    // Set LFO to modulate Shape (PWM)
+    synth.setLfoTarget(SynthDevice::LfoTarget::Shape);
+    synth.setLfoRate(0.5f); // Fast enough to see change in 1000 samples
+    synth.setLfoInt(1.0f);
+    synth.setVco1Shape(0.5f);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 1000;
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+
+    synth.processMidiNoteOn(60, 100);
+
+    // Count positive samples in two consecutive blocks.
+    // Due to LFO modulation, the duty cycle should change.
+    synth.processAudio(context);
+    int pos1 = 0;
+    for (size_t i = 0; i < buffer.size(); i += 2)
+        if (buffer[i] > 0.001f)
+            pos1++;
+
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(context);
+    int pos2 = 0;
+    for (size_t i = 0; i < buffer.size(); i += 2)
+        if (buffer[i] > 0.001f)
+            pos2++;
+
+    // The number of positive samples should be different due to PWM
+    QVERIFY(pos1 != pos2);
+}
+
+void SynthTest::test_midiVelocity_shouldAffectVolume()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setAmpVelocitySensitivity(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+
+    const auto getPeak = [&](uint8_t velocity) {
+        synth.processMidiAllNotesOff();
+        synth.processMidiNoteOn(60, velocity);
+
+        const int frameCount { 1000 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+
+        double peak { 0.0 };
+        for (const double sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+        return peak;
+    };
+
+    {
+        const double peakLow = getPeak(40);
+        const double peakHigh = getPeak(127);
+        QVERIFY2(peakHigh > peakLow, QString { "Velocity did not affect volume: peakLow=%1, peakHigh=%2" }.arg(peakLow).arg(peakHigh).toUtf8().constData());
+    }
+
+    {
+        synth.resetAudio();
+        synth.setAmpVelocitySensitivity(0.0f);
+        const double peakLow = getPeak(40);
+        const double peakHigh = getPeak(127);
+        QVERIFY(std::fabs(peakHigh - peakLow) < 0.001);
+    }
+}
+
+void SynthTest::test_oscillatorOptimization_shouldSkipSilentOscillators()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setLpfCutoff(1.0f);
+    synth.setVco1Sync(true); // Disable phase randomization for predictable output
+
+    auto getOutput = [&]() {
+        synth.resetAudio();
+        synth.processMidiNoteOn(60, 100);
+        const int frameCount { 100 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+        return buffer;
+    };
+
+    // 1. All OSCs off -> should be silent
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+
+    const auto bufferSilent = getOutput();
+    for (const double sample : bufferSilent) {
+        QCOMPARE(sample, 0.0);
+    }
+
+    // 2. OSC2 off, OSC1 on. Changing OSC2 parameters should not change output.
+    synth.setMixVco1(1.0f);
+    const auto bufferOnlyVco1 = getOutput();
+
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco2Octave(2);
+    const auto bufferOnlyVco1AfterVco2Change = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco1.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterVco2Change[i]) < 1e-6,
+                 QString("VCO1 output changed when VCO2 parameters changed: diff=%1").arg(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterVco2Change[i])).toUtf8().constData());
+    }
+
+    // 3. Multi off, OSC1 on. Changing Multi parameters should not change output.
+    synth.setMultiType(MultiEngine::Type::Decim);
+    const auto bufferOnlyVco1AfterMultiChange = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco1.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterMultiChange[i]) < 1e-6,
+                 QString("VCO1 output changed when Multi parameters changed: diff=%1").arg(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterMultiChange[i])).toUtf8().constData());
+    }
+
+    // 4. VCO1 off, VCO2 on. Changing VCO1 parameters should not change output.
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(1.0f);
+    const auto bufferOnlyVco2 = getOutput();
+
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco1Octave(-1);
+    const auto bufferOnlyVco2AfterVco1Change = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco2.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco2[i] - bufferOnlyVco2AfterVco1Change[i]) < 1e-6,
+                 QString("VCO2 output changed when VCO1 parameters changed: diff=%1").arg(std::abs(bufferOnlyVco2[i] - bufferOnlyVco2AfterVco1Change[i])).toUtf8().constData());
+    }
+}
+
+void SynthTest::test_liveUnisonDepth_shouldUpdateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setVoiceDepth(0.0f);
+    synth.setPortamento(0.0f);
+
+    const uint8_t note = 60;
+    const double baseFreq = 440.0 * std::pow(2.0, (note - 69) / 12.0);
+
+    synth.processMidiNoteOn(note, 100);
+
+    // Initial check: all voices should have base frequency (depth 0)
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), baseFreq);
+    }
+
+    // Process some audio to make sure we are in the rendering loop where live updates happen
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    // Update depth live
+    synth.setVoiceDepth(1.0f);
+
+    // Process audio again - this should trigger the live update in updateVoiceParameters
+    synth.processAudio(context);
+
+    // Verify frequencies are now detuned
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (static_cast<double>(i) - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(1.0f, 1.5) * 0.2;
+        const double expectedFreq = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+        QVERIFY(std::abs(synth.voiceGlideFrequency(i) - expectedFreq) < 0.001);
+    }
+
+    // Also check Pan Spread live update
+    synth.setPanSpread(1.0f);
+    synth.processAudio(context);
+    // (Note: we can't easily check voice.pan directly as it's private, but it's part of the same fix)
+}
+
+void SynthTest::test_lfoWaveform_random_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setLfoWaveform(Lfo::Waveform::Random);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.lfoWaveform(), Lfo::Waveform::Random);
+    }
+}
+
+void SynthTest::test_panningAndAmplitude_shouldBeCorrect()
+{
+    SynthDevice synth { "TestSynth" };
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setLpfCutoff(1.0f);
+    synth.setGain(0.5f); // 0 dB
+    synth.setVolume(1.0f);
+    synth.setDelayMix(0.0f);
+    synth.setPanSpread(0.0f);
+
+    const int frameCount { 128 };
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+
+    auto getPeak = [&]() {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        // Process enough to get past attack (default 0.5)
+        for (int i = 0; i < 20; i++) {
+            synth.processAudio(context);
+        }
+        double peakL = 0.0;
+        double peakR = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2) {
+            peakL = std::max(peakL, std::abs(buffer[i]));
+            peakR = std::max(peakR, std::abs(buffer[i + 1]));
+        }
+        return std::make_pair(peakL, peakR);
+    };
+
+    synth.processMidiNoteOn(60, 127);
+
+    // With current gain staging:
+    // Amplitude = (1/6) * mixHeadroom(0.4) * velocity(1.0) ≈ 0.0666...
+    // Constant-power center pan: L=R=Amplitude*cos(π/4) ≈ Amplitude*0.707
+    // Full pan (cos(0)=1 / sin(π/2)=1): L or R = Amplitude
+
+    // 1. Center Pan (default): constant-power gives cos(π/4) ≈ 0.707 of full amplitude
+    synth.setPan(0.5f);
+    auto [peakL_center, peakR_center] = getPeak();
+    QVERIFY2(peakL_center > 0.04 && peakL_center < 0.08, qPrintable(QString("Center L peak out of range: %1").arg(peakL_center)));
+    QVERIFY2(peakR_center > 0.04 && peakR_center < 0.08, qPrintable(QString("Center R peak out of range: %1").arg(peakR_center)));
+
+    // 2. Full Left: cos(0)=1 gives full amplitude to L channel
+    synth.resetAudio();
+    synth.processMidiNoteOn(60, 127);
+    synth.setPan(0.0f);
+    auto [peakL_left, peakR_left] = getPeak();
+    QVERIFY2(peakL_left > 0.06 && peakL_left < 0.12, qPrintable(QString("Left peak out of range: %1").arg(peakL_left)));
+    QVERIFY2(peakR_left < 0.001, qPrintable(QString("Bleed into Right: %1").arg(peakR_left)));
+
+    // 3. Full Right: sin(π/2)=1 gives full amplitude to R channel
+    synth.resetAudio();
+    synth.processMidiNoteOn(60, 127);
+    synth.setPan(1.0f);
+    auto [peakL_right, peakR_right] = getPeak();
+    QVERIFY2(peakL_right < 0.001, qPrintable(QString("Bleed into Left: %1").arg(peakL_right)));
+    QVERIFY2(peakR_right > 0.06 && peakR_right < 0.12, qPrintable(QString("Right peak out of range: %1").arg(peakR_right)));
+}
+
+void SynthTest::test_oscillatorDrift_zero_shouldProduceSameFrequency()
+{
+    const auto setup = [](SynthDevice & synth) {
+        synth.setVco1Sync(true); // Deterministic phase
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setOscillatorDrift(0.0f);
+    };
+
+    const int frameCount = 512;
+
+    std::vector<double> buf1(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf1.data(), buf1.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    std::vector<double> buf2(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf2.data(), buf2.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    // With drift=0 both independent synths from same initial state should produce identical output
+    for (int i = 0; i < frameCount * 2; i++) {
+        QCOMPARE(buf1[i], buf2[i]);
+    }
+}
+
+void SynthTest::test_oscillatorDrift_nonZero_shouldModulateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setOscillatorDrift(1.0f);
+    QCOMPARE(synth.oscillatorDrift(), 1.0f);
+
+    synth.processMidiNoteOn(60, 100);
+
+    // Process enough audio that the drift has time to move the pitch
+    const int frameCount = 44100; // one full second at 44.1kHz
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(ctx);
+
+    // Check that there is non-trivial variation in the output (drift should cause detectable change)
+    double minVal = buffer[0];
+    double maxVal = buffer[0];
+    for (const double sample : buffer) {
+        minVal = std::min(minVal, sample);
+        maxVal = std::max(maxVal, sample);
+    }
+    QVERIFY(maxVal - minVal > 0.001);
+}
+
+void SynthTest::test_oscillatorDrift_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setOscillatorDrift(0.75f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.oscillatorDrift(), 0.75f);
+    }
+}
+
+void SynthTest::test_filterDrive_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setFilterDrive(0.62f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.filterDrive(), 0.62f);
+    }
+}
+
+void SynthTest::test_oscillatorInstability_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setOscillatorInstability(0.42f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.oscillatorInstability(), 0.42f);
+    }
+    // A patch made before either control existed carries neither, and must come back at the bottom
+    // of both: that is the synth it was saved from.
+    const SynthDevice fresh { "Test Synth" };
+    QCOMPARE(fresh.oscillatorInstability(), 0.0f);
+    QCOMPARE(fresh.filterDrive(), 0.0f);
+}
+
+void SynthTest::test_crossModDepth_zero_shouldProduceSameFrequency()
+{
+    const auto setup = [](SynthDevice & synth) {
+        synth.setVco1Sync(true); // Deterministic phase
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setCrossModDepth(0.0f);
+    };
+
+    const int frameCount = 512;
+
+    std::vector<double> buf1(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf1.data(), buf1.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    std::vector<double> buf2(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf2.data(), buf2.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    for (int i = 0; i < frameCount * 2; i++) {
+        QCOMPARE(buf1[i], buf2[i]);
+    }
+}
+
+void SynthTest::test_crossModDepth_nonZero_shouldModulateVco2Frequency()
+{
+    const auto render = [](float crossModDepth) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Sync(true);
+        synth.setMixVco1(0.0f); // VCO1 is the silent modulator
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setCrossModDepth(crossModDepth);
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto bufferNoMod = render(0.0f);
+    const auto bufferModulated = render(1.0f);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufferNoMod.size(); i++) {
+        if (std::abs(bufferNoMod[i] - bufferModulated[i]) > 0.001) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void SynthTest::test_crossModDepth_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setCrossModDepth(0.6f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.crossModDepth(), 0.6f);
+    }
+}
+
+void SynthTest::test_dcOffset_syncWithCrossMod_shouldStayNearZero()
+{
+    // Hard sync truncates VCO2's ramp, and cross mod walks the truncation point, so the mean of the
+    // resulting wave is non-zero. Neither alone does it; the two together do. The HPF is bypassed at
+    // cutoff zero, so only the DC blocker can take it out.
+    SynthDevice synth { "Test Synth" };
+    synth.setVco2Sync(true);
+    synth.setCrossModDepth(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco2Pitch(0.35f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setVolume(1.0f);
+    synth.processMidiNoteOn(60, 100);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 512;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+
+    double sum = 0.0;
+    double sumOfSquares = 0.0;
+    size_t count = 0;
+    // A second of audio, less the first 100 ms: the note onset is a genuinely one-sided transient,
+    // and the blocker's ~5 Hz corner takes some 30 ms to settle after it.
+    const int skippedBlocks = static_cast<int>(0.1 * sampleRate / frameCount);
+    for (int block = 0; block < static_cast<int>(sampleRate / frameCount); block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+        if (block < skippedBlocks) {
+            continue;
+        }
+        for (uint32_t i = 0; i < frameCount; i++) {
+            sum += buffer[i * 2];
+            sumOfSquares += buffer[i * 2] * buffer[i * 2];
+            count++;
+        }
+    }
+
+    QVERIFY(count > 0);
+    const double rms = std::sqrt(sumOfSquares / static_cast<double>(count));
+    QVERIFY(rms > 0.001); // The patch must actually be sounding for the offset to mean anything
+    const double dc = sum / static_cast<double>(count);
+    // Without the blocker this measures about -41 % of RMS at this depth; with it, well under 1 %.
+    QVERIFY(std::abs(dc) < rms * 0.005);
+}
+
+void SynthTest::test_vco2Ring_default_shouldBeOff()
+{
+    // Projects saved before Ring existed have no value for it, and must keep sounding as they did
+    QVERIFY(!SynthDevice { "Test Synth" }.vco2Ring());
+}
+
+void SynthTest::test_vco2Ring_sines_shouldSoundSumAndDifferenceOnly()
+{
+    // Two sines multiplied are their sum and difference and nothing at either pitch. VCO1 is muted,
+    // as in a typical ring patch, so it has to keep running only to modulate.
+    SynthDevice synth { "Test Synth" };
+    synth.setVco1Sync(true);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco2Octave(2);
+    synth.setVco2Ring(true);
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setDelayMix(0.0f);
+
+    const auto rendered = renderSynth(synth); // VCO1 at C4, VCO2 two octaves up
+    const double vco1Hz = 261.63;
+    const double vco2Hz = vco1Hz * 4.0;
+    const double difference = magnitudeAt(rendered, vco2Hz - vco1Hz);
+    const double sum = magnitudeAt(rendered, vco2Hz + vco1Hz);
+    const double strongestOriginal = std::max(magnitudeAt(rendered, vco1Hz), magnitudeAt(rendered, vco2Hz));
+    QVERIFY2(difference > strongestOriginal * 10.0 && sum > strongestOriginal * 10.0,
+             qPrintable(QString("difference %1, sum %2, originals %3").arg(difference).arg(sum).arg(strongestOriginal)));
+}
+
+void SynthTest::test_vco2Ring_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco2Ring(true);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    SynthDevice synth { "Test Synth" };
+    NahdXmlReader reader { data };
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+    synth.deserializeFromXml(reader);
+    QVERIFY(synth.vco2Ring());
+}
+
+void SynthTest::test_multiEngine_default_shouldBeNoise()
+{
+    // Projects saved before VPM existed have none of its values, and must keep sounding as they did
+    const SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.multiEngine(), MultiEngine::Engine::Noise);
+    QCOMPARE(synth.multiOctave(), 1);
+    QCOMPARE(synth.vpmType(), MultiEngine::VpmType::Sin1);
+    QCOMPARE(synth.vpmRatioOffset(), static_cast<int>(MultiEngine::VpmRatioOffsetUnity));
+    QCOMPARE(synth.vpmFeedback(), 0.5f);
+    QCOMPARE(synth.vpmNoiseDepth(), 0.5f);
+    QCOMPARE(synth.vpmShapeModInt(), 0.5f);
+    QCOMPARE(synth.vpmModAttack(), 0.5f);
+    QCOMPARE(synth.vpmModDecay(), 0.5f);
+    QCOMPARE(synth.vpmModKeyTrack(), 0.5f);
+}
+
+namespace {
+
+//! The multi engine alone, as a VPM sine with nothing modulating it.
+void setUpVpmSine(SynthDevice & synth)
+{
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(1.0f);
+    synth.setMultiEngine(MultiEngine::Engine::Vpm);
+    synth.setVpmType(MultiEngine::VpmType::Sin1);
+    synth.setMultiShape(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setDelayMix(0.0f);
+}
+
+} // namespace
+
+void SynthTest::test_multiEngine_vpm_shouldPlayNotePitch()
+{
+    SynthDevice synth { "Test Synth" };
+    setUpVpmSine(synth);
+    const auto rendered = renderSynth(synth); // C4
+    const double fundamental = magnitudeAt(rendered, 261.63);
+    QVERIFY(fundamental > 0.01);
+    QVERIFY(fundamental > magnitudeAt(rendered, 261.63 * 2.0) * 20.0);
+    QVERIFY(fundamental > magnitudeAt(rendered, 261.63 * 1.5) * 20.0);
+}
+
+void SynthTest::test_multiEngine_vpmOctave_shouldTransposeByOctave()
+{
+    SynthDevice synth { "Test Synth" };
+    setUpVpmSine(synth);
+    synth.setMultiOctave(2); // 4'
+    const auto rendered = renderSynth(synth);
+    QVERIFY(magnitudeAt(rendered, 523.25) > magnitudeAt(rendered, 261.63) * 20.0);
+}
+
+void SynthTest::test_multiEngine_vpmSettings_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setMultiEngine(MultiEngine::Engine::Vpm);
+        synth.setMultiOctave(3);
+        synth.setVpmType(MultiEngine::VpmType::Decay2);
+        synth.setVpmRatioOffset(4);
+        synth.setVpmFeedback(0.1f);
+        synth.setVpmNoiseDepth(0.2f);
+        synth.setVpmShapeModInt(0.3f);
+        synth.setVpmModAttack(0.6f);
+        synth.setVpmModDecay(0.7f);
+        synth.setVpmModKeyTrack(0.8f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    SynthDevice synth { "Test Synth" };
+    NahdXmlReader reader { data };
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+    synth.deserializeFromXml(reader);
+    QCOMPARE(synth.multiEngine(), MultiEngine::Engine::Vpm);
+    QCOMPARE(synth.multiOctave(), 3);
+    QCOMPARE(synth.vpmType(), MultiEngine::VpmType::Decay2);
+    QCOMPARE(synth.vpmRatioOffset(), 4);
+    QCOMPARE(synth.vpmFeedback(), 0.1f);
+    QCOMPARE(synth.vpmNoiseDepth(), 0.2f);
+    QCOMPARE(synth.vpmShapeModInt(), 0.3f);
+    QCOMPARE(synth.vpmModAttack(), 0.6f);
+    QCOMPARE(synth.vpmModDecay(), 0.7f);
+    QCOMPARE(synth.vpmModKeyTrack(), 0.8f);
+}
+
+void SynthTest::test_dcOffset_ringWithSyncAndCrossMod_shouldStayNearZero()
+{
+    // Two pulses multiplied have a mean of their own, on top of what sync and cross mod leave
+    SynthDevice synth { "Test Synth" };
+    synth.setVco2Sync(true);
+    synth.setVco2Ring(true);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco1Shape(0.6f);
+    synth.setVco2Shape(0.3f);
+    synth.setCrossModDepth(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco2Pitch(0.35f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setVolume(1.0f);
+    synth.processMidiNoteOn(60, 100);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 512;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+
+    double sum = 0.0;
+    double sumOfSquares = 0.0;
+    size_t count = 0;
+    // A second of audio, less the first 100 ms: the note onset is a genuinely one-sided transient,
+    // and the blocker's ~5 Hz corner takes some 30 ms to settle after it.
+    const int skippedBlocks = static_cast<int>(0.1 * sampleRate / frameCount);
+    for (int block = 0; block < static_cast<int>(sampleRate / frameCount); block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+        if (block < skippedBlocks) {
+            continue;
+        }
+        for (uint32_t i = 0; i < frameCount; i++) {
+            sum += buffer[i * 2];
+            sumOfSquares += buffer[i * 2] * buffer[i * 2];
+            count++;
+        }
+    }
+
+    QVERIFY(count > 0);
+    const double rms = std::sqrt(sumOfSquares / static_cast<double>(count));
+    QVERIFY(rms > 0.001); // The patch must actually be sounding for the offset to mean anything
+    const double dc = sum / static_cast<double>(count);
+    QVERIFY(std::abs(dc) < rms * 0.005);
+}
+
+void SynthTest::test_midiCcResonance_shouldUpdateParameter()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.0f);
+
+    synth.processMidiCc(71, 64, 0);
+    QCOMPARE(synth.lpfResonance(), 64.0f / 127.0f);
+
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+}
+
+void SynthTest::test_midiCcResonanceReset_shouldRestoreManualValue()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.3f);
+
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.lpfResonance(), 0.3f);
+}
+
+void SynthTest::test_midiCcModWheel_shouldOpenLfoIntensityFromTheKnob()
+{
+    SynthDevice synth { "Test Synth" };
+    // Parameter value 0.5 maps to 0.0 intensity via the cubic centered mapping
+    synth.setLfoInt(0.5f);
+    const auto key = Constants::NahdXml::xmlKeyLfoIntensity().toStdString();
+
+    synth.processMidiCc(1, 127, 0);
+    QCOMPARE(synth.lfoInt(), 1.0f);
+
+    // Halfway up the wheel is halfway from the knob to the top, under a knob that stays put
+    synth.processMidiCc(1, 64, 0);
+    QVERIFY(std::abs(synth.parameter(key)->get().value() - (0.5f + 0.5f * 64.0f / 127.0f)) < 1.0e-5f);
+    QCOMPARE(synth.parameter(key)->get().shownValue(), 0.5f);
+    QVERIFY(synth.lfoInt() > 0.0f && synth.lfoInt() < 1.0f);
+
+    // At rest the patch plays as set
+    synth.processMidiCc(1, 0, 0);
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
+}
+
+void SynthTest::test_midiCcModWheelReset_shouldRestoreLfoIntensity()
+{
+    SynthDevice synth { "Test Synth" };
+    // Parameter value 0.5 maps to 0.0 intensity via the cubic centered mapping
+    synth.setLfoInt(0.5f);
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
+
+    synth.processMidiCc(1, 127, 0); // mod wheel full
+    QCOMPARE(synth.lfoInt(), 1.0f);
+
+    synth.processMidiCc(121, 0, 0); // reset all controllers
+    // lfoInt should be restored from parameter (which is still 0.5 → maps to ~0.0)
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
+}
+
+void SynthTest::test_lfoTarget_volume_shouldModulateAmplitude()
+{
+    const auto renderPeak = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Square);
+        synth.setLfoRate(0.5f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 127);
+
+        const int frameCount = 2048;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+
+        double peak = 0.0;
+        for (const double s : buffer)
+            peak = std::max(peak, std::abs(s));
+        return peak;
+    };
+
+    // With Volume LFO at max intensity, peak amplitude should be higher than with Pitch LFO
+    // (Square LFO on volume between 0 and 2x, vs pitch which doesn't change amplitude)
+    const double peakPitch = renderPeak(SynthDevice::LfoTarget::Pitch, 0.0f);
+    const double peakVolume = renderPeak(SynthDevice::LfoTarget::Volume, 1.0f);
+
+    // Volume LFO with high intensity should produce audible output (not silence)
+    QVERIFY(peakVolume > 0.001);
+    // And without LFO modulation on pitch, amplitude is stable
+    QVERIFY(peakPitch > 0.001);
+}
+
+void SynthTest::test_lfoTarget_resonance_shouldModulateResonance()
+{
+    const auto renderBuffer = [](float lfoInt, SynthDevice::LfoTarget target) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(0.3f);
+        synth.setLpfResonance(0.5f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Sine);
+        synth.setLfoRate(0.8f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto bufNoMod = renderBuffer(0.0f, SynthDevice::LfoTarget::Resonance);
+    const auto bufWithMod = renderBuffer(1.0f, SynthDevice::LfoTarget::Resonance);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void SynthTest::test_lfoTarget_pan_shouldModulatePanning()
+{
+    const auto renderStereoImbalance = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setPan(0.5f);
+        synth.setPanSpread(0.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Square);
+        synth.setLfoRate(0.5f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+        synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+
+        synth.processMidiNoteOn(60, 127);
+
+        const int frameCount = 2048;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+
+        double sumDiff = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2)
+            sumDiff += std::abs(buffer[i] - buffer[i + 1]);
+        return sumDiff;
+    };
+
+    const double diffNoPan = renderStereoImbalance(SynthDevice::LfoTarget::Pitch, 0.0f);
+    const double diffWithPan = renderStereoImbalance(SynthDevice::LfoTarget::Pan, 1.0f);
+
+    QVERIFY2(diffWithPan > diffNoPan, qPrintable(QString("Pan LFO did not create stereo difference: noPan=%1, withPan=%2").arg(diffNoPan).arg(diffWithPan)));
+}
+
+void SynthTest::test_lfoTarget_perOscillatorPitch_shouldModulateOnlyTargetedVco()
+{
+    // Only VCO 2 is in the mix, so an LFO on Pitch 2 has to be audible while one on Pitch 1 or
+    // Pitch 3 has to leave the output untouched.
+    const auto renderBuffer = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Sine);
+        synth.setLfoRate(0.8f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto differs = [](const std::vector<double> & a, const std::vector<double> & b) {
+        for (size_t i = 0; i < a.size(); i++) {
+            if (std::abs(a[i] - b[i]) > 1e-4) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Intensity is bipolar around the centre, so 0.5f is the LFO doing nothing at all.
+    const auto reference = renderBuffer(SynthDevice::LfoTarget::Pitch2, 0.5f);
+
+    QVERIFY(differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch2, 1.0f)));
+    QVERIFY(!differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch1, 1.0f)));
+    QVERIFY(!differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch3, 1.0f)));
+
+    // The global Pitch target still reaches VCO 2 as before.
+    QVERIFY(differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch, 1.0f)));
+}
+
+void SynthTest::test_dualMode_shouldProduceAudioOnNote()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.processMidiNoteOn(60, 100);
+
+    double output[2048] {};
+    AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool soundDetected = false;
+    for (const double s : output) {
+        if (std::abs(s) > 0.0001) {
+            soundDetected = true;
+            break;
+        }
+    }
+    QVERIFY(soundDetected);
+}
+
+void SynthTest::test_dualMode_polyphony_shouldAllowChords()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    // Three notes fill all three pairs; chord must still sound
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+
+    double output[2048] {};
+    AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool soundDetected = false;
+    for (const double s : output) {
+        if (std::abs(s) > 0.0001) {
+            soundDetected = true;
+            break;
+        }
+    }
+    QVERIFY(soundDetected);
+}
+
+void SynthTest::test_dualMode_portamento_shouldGlideFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setPortamento(0.5f);
+
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    // Pair 0 (voices 0,1) should hold freq60 as glide start
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+    QCOMPARE(synth.voiceGlideFrequency(1), freq60);
+
+    // Trigger a second note on a new pair — pair 0 must still be at freq60 (gliding)
+    synth.processMidiNoteOn(64, 100);
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+    QCOMPARE(synth.voiceGlideFrequency(1), freq60);
+}
+
+void SynthTest::test_dualMode_portamentoOff_shouldJumpImmediately()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setPortamento(0.0f);
+    synth.setVoiceDepth(0.0f);
+
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double freq62 = 440.0 * std::pow(2.0, (62 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    bool found60 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq60) < 0.001) {
+            found60 = true;
+            break;
+        }
+    }
+    QVERIFY(found60);
+
+    // Release 60, trigger 62 so the same pair is reused (affinity)
+    synth.processMidiNoteOff(60);
+    synth.processMidiNoteOn(62, 100);
+    bool found62 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq62) < 0.001) {
+            found62 = true;
+            break;
+        }
+    }
+    QVERIFY(found62);
+}
+
+void SynthTest::test_dualMode_liveDepth_shouldUpdateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(0.0f);
+    synth.setPortamento(0.0f);
+
+    const uint8_t note = 60;
+    const double baseFreq = 440.0 * std::pow(2.0, (note - 69) / 12.0);
+
+    synth.processMidiNoteOn(note, 100);
+    // With depth 0, both sub-voices converge to base frequency
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - baseFreq) < 0.001);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(1) - baseFreq) < 0.001);
+
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    synth.setVoiceDepth(1.0f);
+    synth.processAudio(context);
+
+    // After live depth update: voice 0 (even) is below base, voice 1 (odd) is above
+    QVERIFY(synth.voiceGlideFrequency(0) < baseFreq - 0.001);
+    QVERIFY(synth.voiceGlideFrequency(1) > baseFreq + 0.001);
+}
+
+void SynthTest::test_dualMode_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Dual);
+    }
+}
+
+void SynthTest::test_voiceMode_serialization_shouldPreserveEveryMode()
+{
+    // The mode is stored as a raw ordinal, so this also pins the enum order down: appending is
+    // safe, reordering would silently change the voice mode of every existing project.
+    const std::vector<SynthDevice::VoiceMode> modes {
+        SynthDevice::VoiceMode::Poly,
+        SynthDevice::VoiceMode::Unison,
+        SynthDevice::VoiceMode::Dual,
+        SynthDevice::VoiceMode::Supersaw,
+        SynthDevice::VoiceMode::Drift,
+        SynthDevice::VoiceMode::Mono
+    };
+
+    for (auto && mode : modes) {
+        QByteArray data;
+        {
+            SynthDevice synth { "Test Synth" };
+            synth.setVoiceMode(mode);
+            NahdXmlWriter writer { data };
+            synth.serializeToXml(writer);
+        }
+
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.voiceMode(), mode);
+    }
+}
+
+namespace {
+
+//! Peak of one note held for a while in the given voice mode, with everything else left at defaults.
+double notePeak(SynthDevice::VoiceMode voiceMode)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(voiceMode);
+    synth.processMidiNoteOn(60, 100);
+
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double peak = 0.0;
+    // Long enough for the detuned voices to drift through a good part of their beat cycle, so the
+    // peak seen is a fair one rather than whatever the attack transient happened to be.
+    for (int block = 0; block < 200; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        for (auto && sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+    }
+    return peak;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto unisonPeak = notePeak(SynthDevice::VoiceMode::Unison);
+
+    QVERIFY(polyPeak > 0.0);
+
+    // Unison spends every voice on this one note, so without equal-power compensation it would land
+    // up to MaxVoices (~15.6 dB) above poly and overload whatever follows. The voices are detuned,
+    // so some margin is expected where they align; what must not come back is the raw voice count.
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(unisonPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Unison is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
+}
+
+namespace {
+
+//! Detune of each voice in semitones, read back through the glide frequency the note-on set.
+std::vector<double> voiceDetunes(SynthDevice & synth, uint8_t note)
+{
+    synth.processMidiNoteOn(note, 100);
+    const double base = 440.0 * std::pow(2.0, (static_cast<int>(note) - 69) / 12.0);
+
+    std::vector<double> detunes;
+    for (size_t i = 0; i < SynthDevice::MaxVoices; i++) {
+        detunes.push_back(12.0 * std::log2(synth.voiceGlideFrequency(i) / base));
+    }
+    return detunes;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_supersaw_shouldSpaceDetuneUnevenly()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Supersaw);
+    synth.setVoiceDepth(1.0f);
+
+    auto detunes = voiceDetunes(synth, 60);
+    std::ranges::sort(detunes);
+
+    // Evenly spaced detune is what makes plain unison comb: every adjacent pair beats at the same
+    // rate and every wider pair at an exact multiple. Supersaw's whole point is that no two gaps
+    // match, so the beating never lines up.
+    std::vector<double> gaps;
+    for (size_t i = 1; i < detunes.size(); i++) {
+        gaps.push_back(detunes.at(i) - detunes.at(i - 1));
+    }
+    for (size_t i = 1; i < gaps.size(); i++) {
+        QVERIFY2(std::abs(gaps.at(i) - gaps.at(i - 1)) > 1.0e-6,
+                 qPrintable(QString { "Gaps %1 and %2 are equal at %3" }.arg(i - 1).arg(i).arg(gaps.at(i))));
+    }
+
+    // And one voice sits exactly at pitch, which is the core the rest hangs off.
+    QVERIFY(std::ranges::any_of(detunes, [](double detune) { return std::abs(detune) < 1.0e-9; }));
+}
+
+void SynthTest::test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Supersaw);
+    synth.setVoiceDepth(0.0f);
+
+    // Closed up, the side voices fall away and it becomes a single clean saw rather than six voices
+    // piled in unison.
+    QVERIFY(synth.voiceLevel(0) < 0.1f);
+    QVERIFY(synth.voiceLevel(3) > 0.9f);
+}
+
+void SynthTest::test_voiceMode_drift_shouldNotDetuneStatically()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Drift);
+    synth.setVoiceDepth(1.0f);
+
+    // Drift has no fixed intervals at all; the movement over time is the entire detune.
+    for (auto && detune : voiceDetunes(synth, 60)) {
+        QVERIFY2(std::abs(detune) < 1.0e-9, qPrintable(QString::number(detune)));
+    }
+}
+
+void SynthTest::test_voiceMode_supersaw_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto supersawPeak = notePeak(SynthDevice::VoiceMode::Supersaw);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(supersawPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Supersaw is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Supersaw is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void SynthTest::test_voiceMode_drift_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto driftPeak = notePeak(SynthDevice::VoiceMode::Drift);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(driftPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Drift is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Drift is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void SynthTest::test_voiceMode_mono_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto monoPeak = notePeak(SynthDevice::VoiceMode::Mono);
+
+    QVERIFY(polyPeak > 0.0);
+
+    // Mono is poly with a single voice, so a single note must come out at exactly the same level.
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(monoPeak / polyPeak));
+    QVERIFY2(std::abs(differenceDb) < 0.01f, qPrintable(QString { "Mono is %1 dB off poly" }.arg(differenceDb)));
+}
+
+namespace {
+
+//! Runs the synth for the given number of blocks and returns the peak of the last one, per channel.
+std::pair<double, double> renderPeaks(SynthDevice & synth, int blocks)
+{
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double left = 0.0;
+    double right = 0.0;
+    for (int block = 0; block < blocks; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        left = 0.0;
+        right = 0.0;
+        for (uint32_t i = 0; i < frameCount; i++) {
+            left = std::max(left, std::abs(buffer[i * 2]));
+            right = std::max(right, std::abs(buffer[i * 2 + 1]));
+        }
+    }
+    return { left, right };
+}
+
+//! Number of voices the synth has ever triggered, counted through the glide frequency a trigger seeds.
+size_t triggeredVoiceCount(const SynthDevice & synth)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (synth.voiceGlideFrequency(i) > 0.0) {
+            count++;
+        }
+    }
+    return count;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_mono_overlappingNotes_shouldUseOneVoice()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+
+    // A chord's worth of note-ons with nothing released in between: poly would spend four voices,
+    // mono must keep them all on one.
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+    synth.processMidiNoteOn(72, 100);
+
+    QCOMPARE(triggeredVoiceCount(synth), 1u);
+}
+
+void SynthTest::test_voiceMode_mono_overlappingNotes_shouldGlideToNewPitch()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPortamento(0.5f);
+
+    const double lowFreq = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double highFreq = 440.0 * std::pow(2.0, (72 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    renderPeaks(synth, 20);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - lowFreq) < 0.1);
+
+    // The second note arrives while the first is still held, so the pitch travels there instead of
+    // jumping: partway through it must sit strictly between the two.
+    synth.processMidiNoteOn(72, 100);
+    renderPeaks(synth, 3);
+    QVERIFY(synth.voiceGlideFrequency(0) > lowFreq + 1.0);
+    QVERIFY(synth.voiceGlideFrequency(0) < highFreq - 1.0);
+
+    renderPeaks(synth, 200);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - highFreq) < 1.0);
+}
+
+void SynthTest::test_voiceMode_mono_overlappingNote_shouldRetriggerAmpEnvelope()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setAmpAttack(0.3f);
+    synth.setAmpDecay(0.4f);
+    // Well below unity, so a fresh attack has somewhere to climb to and is plain to see.
+    synth.setAmpSustain(0.3f);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [sustainLeft, sustainRight] = renderPeaks(synth, 400);
+    const double sustained = std::max(sustainLeft, sustainRight);
+    QVERIFY(sustained > 0.0);
+
+    // A note arriving over the sounding one still gets its own attack, which is what keeps a mono
+    // line articulate: the level climbs back above sustain instead of holding flat through the move.
+    synth.processMidiNoteOn(60, 100);
+    double peak = 0.0;
+    for (int block = 0; block < 100; block++) {
+        const auto [left, right] = renderPeaks(synth, 1);
+        peak = std::max({ peak, left, right });
+    }
+    QVERIFY2(peak > sustained * 1.5, qPrintable(QString { "Peak %1 did not rise above sustain %2" }.arg(peak).arg(sustained)));
+}
+
+void SynthTest::test_voiceMode_mono_newNotes_shouldStepThroughPanSpread()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPanSpread(1.0f);
+    synth.setAmpRelease(0.0f);
+
+    // Slot 0 puts the note hard left, slot 1 hard right. Each note here starts from silence, so the
+    // line steps through the spread the way successive poly voices would.
+    synth.processMidiNoteOn(60, 100);
+    const auto [firstLeft, firstRight] = renderPeaks(synth, 10);
+    QVERIFY2(firstLeft > firstRight, "First mono note is not panned left");
+
+    synth.processMidiNoteOff(60);
+    renderPeaks(synth, 40);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [secondLeft, secondRight] = renderPeaks(synth, 10);
+    QVERIFY2(secondRight > secondLeft, "Second mono note is not panned right");
+}
+
+void SynthTest::test_voiceMode_mono_overlappingNote_shouldKeepPanPosition()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPanSpread(1.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [firstLeft, firstRight] = renderPeaks(synth, 10);
+    QVERIFY(firstLeft > firstRight);
+
+    // The tone never falls silent between the two notes, so moving the pan now would be an audible
+    // jump under a held sound rather than a new note appearing somewhere else.
+    synth.processMidiNoteOn(64, 100);
+    const auto [secondLeft, secondRight] = renderPeaks(synth, 10);
+    QVERIFY2(secondLeft > secondRight, "Overlapping note moved to the next pan slot");
+}
+
+void SynthTest::test_dualMode_depth_shouldMatchUnisonOuterSpread()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(1.0f);
+    const auto dualDetunes = voiceDetunes(synth, 60);
+
+    SynthDevice unison { "Test Synth" };
+    unison.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    unison.setVoiceDepth(1.0f);
+    auto unisonDetunes = voiceDetunes(unison, 60);
+    std::ranges::sort(unisonDetunes);
+
+    // A dual pair opens to the whole width a unison stack reaches rather than a fraction of it: both
+    // halves land exactly on the unison stack's end voices, which is what gives the depth knob the
+    // same meaning in either mode.
+    QVERIFY(std::abs(dualDetunes.at(0) + Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(1) - Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(0) - unisonDetunes.front()) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(1) - unisonDetunes.back()) < 1.0e-9);
+}
+
+void SynthTest::test_dualMode_noteOn_shouldMatchLiveDetune()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(0.6f);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    const double noteOn0 = synth.voiceGlideFrequency(0);
+    const double noteOn1 = synth.voiceGlideFrequency(1);
+
+    // The per-block update recomputes the detune from scratch. It has to arrive at what the note-on
+    // set, or the pitch steps the moment the first block is rendered.
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - noteOn0) < 1.0e-9);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(1) - noteOn1) < 1.0e-9);
+}
+
+void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto dualPeak = notePeak(SynthDevice::VoiceMode::Dual);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(dualPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Dual is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Dual is %1 dB below poly" }.arg(differenceDb)));
+}
+
+namespace {
+
+//! Runs a note for a while with the Mod EG sweeping the cutoff, and returns the peak seen late in
+//! the note, once the envelope has had time to finish its attack and decay.
+double lateNotePeak(float modSustain)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setModTarget(SynthDevice::ModTarget::Cutoff);
+    synth.setModAttack(0.0f);
+    synth.setModDecay(0.2f);
+    synth.setModInt(1.0f);
+    synth.setModSustain(modSustain);
+    synth.setLpfCutoff(0.0f); // Closed, so the modulation is the only thing opening it
+    synth.processMidiNoteOn(60, 100);
+
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double peak = 0.0;
+    for (int block = 0; block < 400; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        if (block > 300) { // Well past the decay
+            for (auto && sample : buffer) {
+                peak = std::max(peak, std::abs(sample));
+            }
+        }
+    }
+    return peak;
+}
+
+} // namespace
+
+void SynthTest::test_modEg_defaultSustain_shouldReturnToStart()
+{
+    // The default keeps the old AD behaviour, so existing patches are unchanged: the sweep decays
+    // back and leaves the filter where it started.
+    SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.modSustain(), 0.0f);
+}
+
+void SynthTest::test_modEg_sustain_shouldHoldTheModulation()
+{
+    const auto withoutSustain = lateNotePeak(0.0f);
+    const auto withSustain = lateNotePeak(1.0f);
+
+    // With sustain the envelope parks on its level and the filter stays open for as long as the
+    // note is held. Without it the sweep collapses back, which made "sweep somewhere and stay"
+    // impossible.
+    QVERIFY2(withSustain > withoutSustain * 2.0, qPrintable(QString { "sustained %1 vs %2" }.arg(withSustain).arg(withoutSustain)));
+}
+
+namespace {
+
+constexpr uint32_t retriggerSampleRate { 48000 };
+constexpr int retriggerFrameCount { 512 };
+
+//! Leaves the synth with nothing in its output but VCO1, at a steady level, so the samples that come
+//! out of it are the oscillator's waveform and the retrigger tests can compare them directly.
+void setUpRetriggerSynth(SynthDevice & synth, bool phaseSync)
+{
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco1Sync(phaseSync);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setPanSpread(0.0f);
+    synth.setAmpAttack(0.0f);
+    // A decaying note rather than a held one: a steady tone repeats itself every period, so any
+    // offset a period apart would look like a restart whether the phase was reset or not. Falling
+    // level makes the start of a note something only a real restart can reproduce.
+    synth.setAmpDecay(0.126f); // ~30 ms
+    synth.setAmpSustain(0.0f);
+    synth.setLfoInt(0.5f); // Centred, so the LFO adds nothing
+}
+
+std::vector<double> renderNote(SynthDevice & synth, uint8_t note)
+{
+    std::vector<double> buffer(static_cast<size_t>(retriggerFrameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(retriggerFrameCount), retriggerSampleRate };
+    synth.processMidiNoteOn(note, 127);
+    synth.processAudio(context);
+
+    std::vector<double> left;
+    left.reserve(static_cast<size_t>(retriggerFrameCount));
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        left.push_back(buffer[i]);
+    }
+    return left;
+}
+
+double peakOf(const std::vector<double> & samples)
+{
+    double peak = 0.0;
+    for (auto && sample : samples) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    return peak;
+}
+
+//! The first sample that rises above @p tolerance: where a note starts once the decimator's latency
+//! has passed.
+size_t onsetOf(const std::vector<double> & samples, double tolerance)
+{
+    size_t onset = 0;
+    while (onset < samples.size() && std::abs(samples.at(onset)) < tolerance) {
+        onset++;
+    }
+    return onset;
+}
+
+//! How far into the second note the first note's waveform starts over, or nothing if it never does.
+//! A voice that restarted from a known phase repeats the shape it produced the first time; one left
+//! running carries on from wherever it happened to be.
+std::optional<size_t> restartOffset(const std::vector<double> & first, const std::vector<double> & second, double tolerance)
+{
+    constexpr size_t compared { 64 };
+    //! Wide enough to catch a restart that never came, narrow enough that it stays inside the decay
+    //! the comparison relies on.
+    constexpr size_t searched { 128 };
+    //! The comparison starts where the first note does, not at its first sample. Before that is only
+    //! the oversampling decimator's latency, which on the second note is where the fading voice and
+    //! the restarted one overlap inside the filter, so matching it would test the filter instead.
+    const size_t onset = onsetOf(first, tolerance);
+    for (size_t offset = 0; offset < searched; offset++) {
+        double worst = 0.0;
+        for (size_t i = onset; i < onset + compared; i++) {
+            worst = std::max(worst, std::abs(second.at(offset + i) - first.at(i)));
+        }
+        if (worst < tolerance) {
+            return offset;
+        }
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
+void SynthTest::test_phaseSync_repeatedNote_shouldRestartTheSameWaveform()
+{
+    // The switch used to reset the phase only on a voice that had gone fully silent, and the poly
+    // allocator hands a repeated note straight back to the voice already playing it — so the one
+    // case a tracker produces constantly was the case that never synced.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    const auto first = renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+
+    // Not exact: the voice restarts on an oversampled sample, which lands the output waveform up to
+    // half a sample away from where the first note put it, and the DC blocker is at a different
+    // point in its own settling. Both are far below the level a missing restart would differ by.
+    const auto offset = restartOffset(first, second, peakOf(first) * 0.1);
+    QVERIFY2(offset.has_value(), "the repeated note did not restart the waveform");
+}
+
+void SynthTest::test_phaseSync_repeatedNote_shouldFadeOutBeforeRestarting()
+{
+    // Resetting the phase and the envelopes under a voice that is still at full level is a step
+    // discontinuity, which is a click. The voice has to reach zero before the new note takes over.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    const auto first = renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+    const double peak = peakOf(first);
+
+    const auto offset = restartOffset(first, second, peak * 0.1);
+    QVERIFY(offset.has_value());
+    QVERIFY2(offset.value() > 0, "the note took over with no fade at all");
+    // The sample just before the restarted note starts, which is its offset plus the latency both
+    // notes share.
+    const double handover = second.at(offset.value() + onsetOf(first, peak * 0.1) - 1);
+    QVERIFY2(std::abs(handover) < peak * 0.1, qPrintable(QString { "handover at %1 of peak %2" }.arg(handover).arg(peak)));
+}
+
+void SynthTest::test_phaseSyncOff_repeatedNote_shouldNotFadeOut()
+{
+    // Phase Sync off leaves the oscillators running, so there is nothing to fade out of the way and
+    // the repeated note must not lose any level on its way in.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, false);
+    renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+
+    const std::vector<double> handover { second.begin(), second.begin() + 64 };
+    QVERIFY(peakOf(handover) > peakOf(second) * 0.5);
+}
+
+void SynthTest::test_phaseSync_vco4_shouldStartEveryNoteFromTheSamePhase()
+{
+    // Phase Sync resets the oscillators so that a repeated note is the same note however it was
+    // reached. VCO4 was left out of it: the array the starting phases travel in held three entries,
+    // and the guard meant to cover the fourth asked a fixed-size array whether it had more than
+    // three. It never had, so the fourth oscillator carried on from wherever the note before it
+    // happened to leave it -- which is only visible on a note that interrupts a sounding one, since
+    // a voice that has fallen silent is not advanced at all and keeps its phase by accident.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    synth.setVco4Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setMixVco1(0.0f);
+    synth.setMixVco4(1.0f);
+    // Held rather than plucked, so the voice is still sounding when the next note arrives and the
+    // synced path really does restart it.
+    synth.setAmpDecay(0.0f);
+    synth.setAmpSustain(1.0f);
+
+    const auto render = [&](size_t frames) {
+        std::vector<double> buffer(frames * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frames), 48000 };
+        synth.processAudio(context);
+        return buffer;
+    };
+
+    constexpr size_t NoteFrames { 3000 };
+    synth.processMidiNoteOn(69, 127);
+    render(NoteFrames);
+
+    synth.processMidiNoteOn(69, 127);
+    const auto first = render(NoteFrames);
+
+    // A stretch of held note of some length that is nobody's whole number of periods: an oscillator
+    // that is not reset by the next note starts it from somewhere else entirely because of this.
+    render(4321);
+
+    synth.processMidiNoteOn(69, 127);
+    const auto second = render(NoteFrames);
+
+    const double peak = peakOf(first);
+    QVERIFY(peak > 0.01);
+    // The tail, which is past the fade the synced path puts in front of a restart.
+    double worst = 0.0;
+    for (size_t i = first.size() / 2; i < first.size(); i++) {
+        worst = std::max(worst, std::abs(first.at(i) - second.at(i)));
+    }
+    QVERIFY2(worst < peak * 0.05, qPrintable(QString { "notes differ by %1 of peak %2" }.arg(worst).arg(peak)));
+}
+
+void SynthTest::test_ampCurve_shouldSteepenTheAudibleDecay()
+{
+    // Straight through the whole chain: the knob has to reach the voices, not just the parameter.
+    // Halfway through a decay to silence a straight line is still at half level, 6 dB down, which is
+    // what makes a pluck sound like a fade. The curve puts it some 20 dB further down.
+    auto halfwayPeak = [](float curve) {
+        SynthDevice synth { "Test Synth" };
+        setUpRetriggerSynth(synth, false);
+        synth.setAmpDecay(0.345f); // ~200 ms
+        synth.setAmpCurve(curve);
+
+        std::vector<double> buffer(static_cast<size_t>(retriggerFrameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(retriggerFrameCount), retriggerSampleRate };
+        synth.processMidiNoteOn(69, 127);
+
+        // Nine blocks of 512 frames at 48 kHz is 96 ms, so the tenth straddles the halfway point.
+        for (int block = 0; block < 9; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            synth.processAudio(context);
+        }
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        synth.processAudio(context);
+
+        return peakOf(buffer);
+    };
+
+    const double linear = halfwayPeak(0.0f);
+    const double curved = halfwayPeak(1.0f);
+
+    QVERIFY(linear > 0.0);
+    QVERIFY2(curved * 5.0 < linear, qPrintable(QString { "curved %1 vs linear %2" }.arg(curved).arg(linear)));
+}
+
+void SynthTest::test_ampCurve_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        QCOMPARE(synth.ampCurve(), 0.0f); // Straight lines, as before the knob existed
+        synth.setAmpCurve(0.7f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.ampCurve(), 0.7f);
+    }
+}
+
+void SynthTest::test_modCurve_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        QCOMPARE(synth.modCurve(), 0.0f);
+        synth.setModCurve(0.4f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.modCurve(), 0.4f);
+    }
+}
+
+// A render has to be a function of the project and nothing else. Oscillator drift and initial
+// phases are drawn from the device's own generator, so unless resetAudio() re-seeds it, the same
+// notes come out differently depending on what the session played beforehand -- which is exactly
+// what made two renders of the same song differ.
+void SynthTest::test_resetAudio_afterOtherNotes_shouldRenderIdenticalAudio()
+{
+    const auto renderSequence = [](SynthDevice & synth) {
+        std::vector<double> rendered;
+        const std::vector<uint8_t> notes { 62, 64, 60 };
+        for (auto && note : notes) {
+            synth.processMidiNoteOn(note, 100);
+            for (int block = 0; block < 8; block++) {
+                std::vector<double> buffer(256 * 2, 0.0);
+                AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+                synth.processAudio(context);
+                rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+            }
+            synth.processMidiNoteOff(note);
+        }
+        return rendered;
+    };
+
+    SynthDevice synth { "Test Synth" };
+    synth.setOscillatorDrift(0.5f); // Drift draws from the generator, so the seed has to matter.
+
+    synth.resetAudio();
+    const auto first = renderSequence(synth);
+
+    // Whatever the session does in between must leave no trace on the next render.
+    synth.processMidiNoteOn(71, 64);
+    for (int block = 0; block < 16; block++) {
+        std::vector<double> buffer(256 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+        synth.processAudio(context);
+    }
+    synth.processMidiNoteOff(71);
+
+    synth.resetAudio();
+    const auto second = renderSequence(synth);
+
+    QCOMPARE(first.size(), second.size());
+    QVERIFY(!first.empty());
+    QVERIFY(std::ranges::any_of(first, [](double sample) { return std::abs(sample) > 1.0e-6; }));
+    QCOMPARE(first, second);
+}
+
+void SynthTest::test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay()
+{
+    // A voice is retired on its amp envelope alone, so its mod envelope stops being advanced
+    // wherever it had got to. Re-triggering without resetting it made every other note start its
+    // filter sweep part way up, which is audible as one note in two sounding wrong.
+    //
+    // The patch is the shape that exposes it. The amp envelope ends the moment the key is released,
+    // so the voice retires at once, while the mod envelope is both slow to rise and slow to fall:
+    // it is still high at that moment, and an attack that begins from a level it should have left
+    // behind is both shorter and starts higher than the one the first note got.
+    constexpr uint32_t sampleRate = 44100;
+    constexpr uint32_t block = 512;
+    PatchableSynth synth { "Test" };
+
+    const auto set = [&synth](const QString & key, float value) {
+        const auto parameter = synth.parameter(key.toStdString());
+        QVERIFY2(parameter.has_value(), qPrintable("No such parameter: " + key));
+        parameter->get().setValue(value);
+    };
+    set(Constants::NahdXml::xmlKeyAmpAttack(), 0.0f);
+    set(Constants::NahdXml::xmlKeyAmpSustain(), 1.0f);
+    set(Constants::NahdXml::xmlKeyAmpRelease(), 0.0f); // retires the voice the moment the key lifts
+    set(Constants::NahdXml::xmlKeyModAttack(), 0.78f); // ~0.5 s, long enough to still be rising
+    set(Constants::NahdXml::xmlKeyModDecay(), 1.0f); // also the mod release: holds its level
+    set(Constants::NahdXml::xmlKeyModIntensity(), 1.0f); // fully positive: the envelope opens the filter
+    set(Constants::NahdXml::xmlKeyLpfCutoff(), 0.15f); // starts dark, so the sweep has somewhere to go
+    synth.applyPatch();
+
+    const auto playNote = [&] {
+        std::vector<double> captured;
+        synth.processMidiNoteOn(48, 100);
+        for (int i = 0; i < 30; i++) {
+            std::vector<double> buffer(block * 2, 0.0);
+            AudioContext context { std::span<double> { buffer.data(), buffer.size() }, block, sampleRate };
+            context.oversampleFactor = 1;
+            synth.processAudio(context);
+            captured.insert(captured.end(), buffer.begin(), buffer.end());
+        }
+        synth.processMidiNoteOff(48);
+        for (int i = 0; i < 10; i++) {
+            std::vector<double> buffer(block * 2, 0.0);
+            AudioContext context { std::span<double> { buffer.data(), buffer.size() }, block, sampleRate };
+            context.oversampleFactor = 1;
+            synth.processAudio(context);
+        }
+        return captured;
+    };
+
+    // The synth has six voices and hands out idle ones round-robin, so the first six notes each get
+    // a voice that has never sounded. The seventh comes back to the first voice, and that is the one
+    // that carries the previous note's leftovers, so it is the note to compare against.
+    std::vector<std::vector<double>> notes;
+    for (int i = 0; i < SynthDevice::MaxVoices + 1; i++) {
+        notes.push_back(playNote());
+    }
+    const auto & onAFreshVoice = notes.front();
+    const auto & onARecycledVoice = notes.back();
+    QCOMPARE(onAFreshVoice.size(), onARecycledVoice.size());
+
+    // Oscillator phase is randomised per note, so samples cannot be compared directly, and a saw
+    // crosses zero twice per cycle however open the filter is. The ratio between the energy of the
+    // first difference and the energy of the signal does track the filter: differencing tilts the
+    // spectrum up, so the brighter the note the larger the ratio, whatever its phase or level.
+    const auto brightness = [](const std::vector<double> & audio) {
+        constexpr size_t window = 2048;
+        std::vector<double> ratios;
+        for (size_t i = 0; i + window * 2 <= audio.size(); i += window * 2) {
+            double signalEnergy = 0.0;
+            double differenceEnergy = 0.0;
+            for (size_t k = 2; k < window * 2; k += 2) {
+                const double sample = audio[i + k];
+                const double difference = sample - audio[i + k - 2];
+                signalEnergy += sample * sample;
+                differenceEnergy += difference * difference;
+            }
+            ratios.push_back(signalEnergy > 0.0 ? std::sqrt(differenceEnergy / signalEnergy) : 0.0);
+        }
+        return ratios;
+    };
+
+    const auto freshSweep = brightness(onAFreshVoice);
+    const auto recycledSweep = brightness(onARecycledVoice);
+    QCOMPARE(freshSweep.size(), recycledSweep.size());
+    QVERIFY(!freshSweep.empty());
+
+    // The first window is the trigger transient. The filter is at its darkest there, so the ratio
+    // is formed from almost no high-frequency energy and the randomised phase alone moves it; the
+    // sweep is measured by everything after it.
+    constexpr size_t firstComparableWindow = 1;
+    QVERIFY(freshSweep.size() > firstComparableWindow);
+
+    double reference = 0.0;
+    for (auto ratio : freshSweep) {
+        reference = std::max(reference, ratio);
+    }
+    QVERIFY2(reference > 0.0, "the patch produced no audio to compare");
+
+    double worst = 0.0;
+    for (size_t i = firstComparableWindow; i < freshSweep.size(); i++) {
+        worst = std::max(worst, std::abs(freshSweep[i] - recycledSweep[i]) / reference);
+    }
+    // A stale mod envelope puts this above 1.0; a voice that starts its sweep from nothing stays
+    // well under 0.1.
+    QVERIFY2(worst < 0.25, qPrintable(QString { "the recycled voice swept differently: %1 of a fresh voice's brightness" }.arg(worst)));
+}
+
+void SynthTest::test_applyParameterAutomation_absolute_shouldDriveTheFilter()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    const auto authored = synth.parameter(key)->get().authoredValue();
+
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.3));
+
+    // Synced into what the voices read, not only written to the parameter
+    QVERIFY(std::abs(synth.lpfCutoff() - 0.3f) < 1.0e-6f);
+    // The live layer only: the project keeps the knob
+    QCOMPARE(synth.parameter(key)->get().authoredValue(), authored);
+}
+
+void SynthTest::test_applyParameterAutomation_relative_shouldScaleTheKnob()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    synth.setLpfCutoff(0.8f);
+
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Relative, 0.5));
+
+    // Half way from the bottom of the travel to the knob, in what the synth plays...
+    QVERIFY(std::abs(synth.parameter(key)->get().value() - 0.4f) < 1.0e-6f);
+    // ...while the knob stays where it was set: it is the reference being scaled
+    QVERIFY(std::abs(synth.lpfCutoff() - 0.8f) < 1.0e-6f);
+}
+
+void SynthTest::test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused()
+{
+    SynthDevice synth { "Synth" };
+    const auto slopeKey = Constants::NahdXml::xmlKeyLpfSlope().toStdString();
+    const auto slope = synth.parameter(slopeKey)->get().value();
+
+    QVERIFY(!synth.applyParameterAutomation("noSuchParameter", ParameterAutomation::Mode::Absolute, 0.5));
+    // A position between two choices of a switch means nothing
+    QVERIFY(!synth.applyParameterAutomation(slopeKey, ParameterAutomation::Mode::Absolute, 0.0));
+    QCOMPARE(synth.parameter(slopeKey)->get().value(), slope);
+}
+
+void SynthTest::test_applyParameterAutomation_shouldNotSignalFromTheAudioThread()
+{
+    // The audio thread applies it, and posting a Qt event from there allocates and locks; every
+    // event also used to re-read the whole dialog. The playback that schedules the change
+    // announces it instead, throttled, through parameterAutomationScheduled().
+    SynthDevice synth { "Synth" };
+    QSignalSpy parametersSpy { &synth, &Device::parametersChanged };
+    QSignalSpy automationSpy { &synth, &Device::parameterAutomationScheduled };
+
+    QVERIFY(synth.applyParameterAutomation(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.2));
+
+    QCOMPARE(parametersSpy.count(), 0);
+    QCOMPARE(automationSpy.count(), 0);
+}
+
+void SynthTest::test_clearParameterAutomation_shouldRestoreTheKnob()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    synth.setHpfCutoff(0.1f);
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.6));
+    QVERIFY(std::abs(synth.hpfCutoff() - 0.6f) < 1.0e-6f);
+
+    synth.clearParameterAutomation();
+
+    QVERIFY(std::abs(synth.hpfCutoff() - 0.1f) < 1.0e-6f);
+    QVERIFY(!synth.isAutomated());
+}
+
+void SynthTest::test_display_cutoffs_shouldMatchTheFilters()
+{
+    // Both filters put their cutoff on 20 Hz to 20 kHz in equal octaves; an automation written in
+    // hertz has to land on the frequency the filter then runs at.
+    const SynthDevice synth { "Synth" };
+    for (auto && key : { Constants::NahdXml::xmlKeyLpfCutoff(), Constants::NahdXml::xmlKeyHpfCutoff() }) {
+        const auto & display = synth.parameter(key.toStdString())->get().display();
+        QVERIFY(display.has_value());
+        for (const double position : { 0.0, 0.25, 0.5, 0.9, 1.0 }) {
+            const double filterHz = 20.0 * std::exp2(position * std::log2(20000.0 / 20.0));
+            QVERIFY(std::abs(display->toUnits(position) - filterHz) < 1.0e-6 * filterHz);
+        }
+    }
+}
+
+namespace {
+
+//! A unison patch that lets every voice fall silent between notes, so each note starts its voices
+//! from nothing: the case Phase Randomness is about. Nothing else in it is random.
+std::unique_ptr<SynthDevice> unisonSynth(float phaseRandomness)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth->setVoiceDepth(0.5f);
+    synth->setAmpSustain(1.0f);
+    synth->setAmpRelease(0.0f);
+    synth->setPhaseRandomness(phaseRandomness);
+    return synth;
+}
+
+//! The first 50 ms of a note, left channel, after which the note is released and left to go silent.
+std::vector<double> attackOf(SynthDevice & synth, uint8_t note)
+{
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const auto frames = static_cast<uint32_t>(rate / 20);
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processMidiNoteOn(note, 100);
+    synth.processAudio(context);
+    synth.processMidiNoteOff(note);
+    std::vector<double> silence(2048 * 2, 0.0);
+    AudioContext silenceContext { std::span(silence.data(), silence.size()), 2048, rate };
+    for (int block = 0; block < 20; block++) {
+        std::fill(silence.begin(), silence.end(), 0.0);
+        synth.processAudio(silenceContext);
+    }
+    std::vector<double> left;
+    for (size_t frame = 0; frame < buffer.size(); frame += 2) {
+        left.push_back(buffer[frame]);
+    }
+    return left;
+}
+
+double attackDb(SynthDevice & synth, uint8_t note)
+{
+    const auto attack = attackOf(synth, note);
+    const double power = std::accumulate(attack.begin(), attack.end(), 0.0, [](double sum, double sample) { return sum + sample * sample; }) / static_cast<double>(attack.size());
+    return 10.0 * std::log10(power);
+}
+
+} // namespace
+
+void SynthTest::test_phaseRandomness_default_shouldBeFullyRandom()
+{
+    // Fully random, which is how every voice always started
+    QCOMPARE(SynthDevice { "Synth" }.phaseRandomness(), 1.0f);
+}
+
+void SynthTest::test_phaseRandomness_shouldRoundTrip()
+{
+    SynthDevice out { "Synth" };
+    out.setPhaseRandomness(0.3f);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(in.phaseRandomness() - 0.3f) < 0.001f);
+}
+
+void SynthTest::test_phaseRandomness_projectWithoutIt_shouldLoadFullyRandom()
+{
+    SynthDevice out { "Synth" };
+    out.setPhaseRandomness(0.0f);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the control existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="phaseRandomness"[^>]*/>)" });
+    QVERIFY(!xml.contains("phaseRandomness"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    // Freshly made, as a device being loaded is: a parameter the file does not mention keeps the
+    // value the device was made with
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(in.phaseRandomness(), 1.0f);
+}
+
+void SynthTest::test_phaseRandomness_zero_shouldStartEveryNoteTheSame()
+{
+    auto synth = unisonSynth(0.0f);
+    const auto first = attackOf(*synth, 64);
+    const auto second = attackOf(*synth, 64);
+    const auto third = attackOf(*synth, 64);
+
+    // Every voice from the same phase, so the same note is the same note, sample for sample
+    QCOMPARE(maxDifference(first, second), 0.0);
+    QCOMPARE(maxDifference(first, third), 0.0);
+}
+
+void SynthTest::test_phaseRandomness_zeroDual_shouldStartEveryPairTheSame()
+{
+    // Successive notes go round the pairs, and each pair has to start from the same two phases
+    auto synth = unisonSynth(0.0f);
+    synth->setVoiceMode(SynthDevice::VoiceMode::Dual);
+    const auto first = attackOf(*synth, 64);
+    for (int i = 0; i < 3; i++) {
+        QCOMPARE(maxDifference(first, attackOf(*synth, 64)), 0.0);
+    }
+}
+
+void SynthTest::test_phaseRandomness_full_shouldVaryFromNoteToNote()
+{
+    // What the control exists to take away: a fresh random stack per note, and so a different level
+    auto synth = unisonSynth(1.0f);
+    std::vector<double> levels;
+    for (int i = 0; i < 12; i++) {
+        levels.push_back(attackDb(*synth, 64));
+    }
+    const auto [low, high] = std::ranges::minmax(levels);
+    QVERIFY2(high - low > 2.0, qPrintable(QString::number(high - low)));
+}
+
+void SynthTest::test_phaseRandomness_zero_shouldStartAsLoudAsTheRandomAverage()
+{
+    // The fixed spread is meant to start where a randomly started note does on average, so turning
+    // the control down evens the notes out without changing the mix, and nowhere near the level of
+    // a stack started in phase, which is Phase Sync and its laser.
+    for (const uint8_t note : { 52, 64, 76 }) {
+        auto random = unisonSynth(1.0f);
+        double randomPower = 0.0;
+        constexpr int trials = 40;
+        for (int i = 0; i < trials; i++) {
+            randomPower += std::pow(10.0, attackDb(*random, note) / 10.0);
+        }
+        const double randomDb = 10.0 * std::log10(randomPower / trials);
+
+        auto spread = unisonSynth(0.0f);
+        const double spreadDb = attackDb(*spread, note);
+
+        auto synced = unisonSynth(1.0f);
+        synced->setVco1Sync(true);
+        const double syncedDb = attackDb(*synced, note);
+
+        QVERIFY2(std::abs(spreadDb - randomDb) < 1.5, qPrintable(QString { "note %1: spread %2 dB, random %3 dB" }.arg(note).arg(spreadDb).arg(randomDb)));
+        QVERIFY2(syncedDb - spreadDb > 3.0, qPrintable(QString { "note %1: synced %2 dB, spread %3 dB" }.arg(note).arg(syncedDb).arg(spreadDb)));
+    }
+}
+
+void SynthTest::test_phaseRandomness_partial_shouldRenderTheSameEveryTime()
+{
+    // Random only by the device's own seeded generator, so a render is reproducible at any setting
+    auto a = unisonSynth(0.4f);
+    auto b = unisonSynth(0.4f);
+    for (int i = 0; i < 4; i++) {
+        QCOMPARE(maxDifference(attackOf(*a, 64), attackOf(*b, 64)), 0.0);
+    }
+}
+
+void SynthTest::test_phaseRandomness_phaseSync_shouldMakeItIrrelevant()
+{
+    auto none = unisonSynth(0.0f);
+    none->setVco1Sync(true);
+    auto full = unisonSynth(1.0f);
+    full->setVco1Sync(true);
+
+    QCOMPARE(maxDifference(attackOf(*none, 64), attackOf(*full, 64)), 0.0);
+}
+
+namespace {
+
+//! Clear direction changes of the level, in 20 ms windows over 0.3 s of a held note with LFO 1 at
+//! 8 Hz on Volume: several at full speed, and next to none once the divider slows it to a crawl.
+//! Windows that long average the waveform out, and the threshold ignores what beating is left.
+int tremoloTurns(SynthDevice & synth, int divider)
+{
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLfoTarget(SynthDevice::LfoTarget::Volume);
+    synth.setLfoMode(Lfo::Mode::Normal);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(8.0, 0.05, 20.0)));
+    synth.setLfoInt(1.0f);
+    synth.setLfoRateDivider(divider);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const auto frames = static_cast<uint32_t>(rate * 4 / 10);
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processMidiNoteOn(64, 100);
+    synth.processAudio(context);
+
+    const size_t window = rate / 50;
+    std::vector<double> levels;
+    for (size_t start = rate / 10; start + window <= frames; start += window) {
+        double power = 0.0;
+        for (size_t i = start; i < start + window; i++) {
+            power += buffer[i * 2] * buffer[i * 2];
+        }
+        levels.push_back(power / static_cast<double>(window));
+    }
+    int turns = 0;
+    int direction = 0;
+    for (size_t i = 1; i < levels.size(); i++) {
+        const double change = levels[i] - levels[i - 1];
+        if (std::abs(change) < 0.2 * std::max(levels[i], levels[i - 1])) {
+            continue;
+        }
+        const int next = change > 0 ? 1 : -1;
+        if (direction != 0 && next != direction) {
+            turns++;
+        }
+        direction = next;
+    }
+    return turns;
+}
+
+} // namespace
+
+void SynthTest::test_lfoRateDivider_default_shouldBeOne()
+{
+    SynthDevice synth { "Divider" };
+    QCOMPARE(synth.lfoRateDivider(), 1);
+    QCOMPARE(synth.lfo2RateDivider(), 1);
+}
+
+void SynthTest::test_lfoRateDivider_shouldRoundTrip()
+{
+    SynthDevice out { "Divider" };
+    out.setLfoRateDivider(8);
+    out.setLfo2RateDivider(64);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Divider" };
+    in.deserializeFromXml(reader);
+    QCOMPARE(in.lfoRateDivider(), 8);
+    QCOMPARE(in.lfo2RateDivider(), 64);
+}
+
+void SynthTest::test_lfoRateDivider_projectWithoutIt_shouldLoadOne()
+{
+    SynthDevice out { "Divider" };
+    out.setLfoRateDivider(8);
+    out.setLfo2RateDivider(8);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the control existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="lfo2?RateDivider"[^>]*/>)" });
+    QVERIFY(!xml.contains("RateDivider"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Divider" };
+    in.deserializeFromXml(reader);
+    QCOMPARE(in.lfoRateDivider(), 1);
+    QCOMPARE(in.lfo2RateDivider(), 1);
+}
+
+void SynthTest::test_lfoRateDivider_shouldSlowTheVoicesLfo()
+{
+    // Reaches the LFO of every voice, not just the parameter
+    SynthDevice fast { "Fast" };
+    SynthDevice slow { "Slow" };
+    const int fastTurns = tremoloTurns(fast, 1);
+    const int slowTurns = tremoloTurns(slow, Lfo::MaxRateDivider);
+    QVERIFY2(fastTurns >= 3, qPrintable(QString::number(fastTurns)));
+    QVERIFY2(slowTurns <= 1, qPrintable(QString::number(slowTurns)));
+}
+
+namespace {
+
+//! Renders a held tremolo note that starts after @p silentFrames of silence, rendered or, with
+//! @p idle, skipped the way the engine skips a silent device.
+std::vector<double> tremoloNoteAfterSilence(bool freeRun, uint32_t silentFrames, bool idle = false)
+{
+    SynthDevice synth { "Free Run" };
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLfoTarget(SynthDevice::LfoTarget::Volume);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoInt(1.0f);
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    if (silentFrames > 0) {
+        std::vector<double> silence(static_cast<size_t>(silentFrames) * 2, 0.0);
+        AudioContext silentContext { std::span(silence.data(), silence.size()), silentFrames, rate };
+        if (idle) {
+            synth.advanceIdle(silentContext);
+        } else {
+            synth.processAudio(silentContext);
+        }
+    }
+    synth.processMidiNoteOn(64, 100);
+    const auto frames = rate / 2;
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processAudio(context);
+    return buffer;
+}
+
+double largestDifference(const std::vector<double> & a, const std::vector<double> & b)
+{
+    double largest = 0.0;
+    for (size_t i = 0; i < std::min(a.size(), b.size()); i++) {
+        largest = std::max(largest, std::abs(a[i] - b[i]));
+    }
+    return largest;
+}
+
+//! The phase LED of a saw LFO 1 just after a note that follows @p silentFrames of silence.
+float sawLedAfterNote(bool freeRun, uint32_t silentFrames)
+{
+    SynthDevice synth { "LED" };
+    synth.setLfoWaveform(Lfo::Waveform::Saw);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> silence(static_cast<size_t>(silentFrames) * 2, 0.0);
+    AudioContext silentContext { std::span(silence.data(), silence.size()), silentFrames, rate };
+    synth.processAudio(silentContext);
+    synth.processMidiNoteOn(64, 100);
+    std::vector<double> buffer(2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 1, rate };
+    synth.processAudio(context);
+    return synth.lfoLed(0);
+}
+
+//! The LED over two blocks of silence after a note has died away, rendered as the engine renders a
+//! silent device with events scheduled, or skipped as it skips one without
+std::pair<float, float> sawLedsOnceSilent(bool freeRun, bool rendered)
+{
+    SynthDevice synth { "LED" };
+    synth.setLfoWaveform(Lfo::Waveform::Saw);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> buffer(3000 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 3000, rate };
+    synth.processMidiNoteOn(64, 100);
+    synth.processAudio(context);
+    synth.processMidiNoteOff(64);
+    for (int block = 0; block < 1000 && synth.hasActiveAudio(); block++) {
+        synth.processAudio(context);
+    }
+    const auto silentBlock = [&] {
+        if (rendered) {
+            synth.processAudio(context);
+        } else {
+            synth.advanceIdle(context);
+        }
+        return synth.lfoLed(0);
+    };
+    const float first = silentBlock();
+    return { first, silentBlock() };
+}
+
+} // namespace
+
+void SynthTest::test_lfoFreeRun_default_shouldBeOff()
+{
+    const SynthDevice synth { "Free Run" };
+    QVERIFY(!synth.lfoFreeRun());
+    QVERIFY(!synth.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_shouldRoundTrip()
+{
+    SynthDevice out { "Free Run" };
+    out.setLfo2FreeRun(true);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Free Run" };
+    in.deserializeFromXml(reader);
+    QVERIFY(!in.lfoFreeRun());
+    QVERIFY(in.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_projectWithoutIt_shouldLoadOff()
+{
+    SynthDevice out { "Free Run" };
+    out.setLfoFreeRun(true);
+    out.setLfo2FreeRun(true);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the switch existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="lfo2?FreeRun"[^>]*/>)" });
+    QVERIFY(!xml.contains("FreeRun"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Free Run" };
+    in.deserializeFromXml(reader);
+    QVERIFY(!in.lfoFreeRun());
+    QVERIFY(!in.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_off_shouldStartEveryNoteFromTheTop()
+{
+    QCOMPARE(largestDifference(tremoloNoteAfterSilence(false, 0), tremoloNoteAfterSilence(false, 3000)), 0.0);
+}
+
+void SynthTest::test_lfoFreeRun_on_shouldKeepRunningThroughTheSilence()
+{
+    // A quarter of a 4 Hz cycle: the note comes in on another part of the tremolo
+    const double difference = largestDifference(tremoloNoteAfterSilence(true, 0), tremoloNoteAfterSilence(true, 3000));
+    QVERIFY2(difference > 0.01, qPrintable(QString::number(difference)));
+}
+
+void SynthTest::test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes()
+{
+    const double difference = largestDifference(tremoloNoteAfterSilence(true, 3000, true), tremoloNoteAfterSilence(true, 3000, false));
+    QVERIFY2(difference < 1.0e-6, qPrintable(QString::number(difference)));
+}
+
+void SynthTest::test_lfoLed_noteOn_shouldRestartTheShape()
+{
+    const float led = sawLedAfterNote(false, 3000);
+    QVERIFY2(led < -0.99f, qPrintable(QString::number(led)));
+}
+
+void SynthTest::test_lfoLed_freeRun_shouldNotRestartOnTheNote()
+{
+    // A quarter of the way round the saw
+    const float led = sawLedAfterNote(true, 3000);
+    QVERIFY2(std::abs(led - -0.5f) < 0.01f, qPrintable(QString::number(led)));
+}
+
+void SynthTest::test_lfoLed_idle_shouldGoDark()
+{
+    QCOMPARE(sawLedsOnceSilent(false, false), std::make_pair(-1.0f, -1.0f));
+}
+
+void SynthTest::test_lfoLed_renderedSilence_shouldGoDark()
+{
+    QCOMPARE(sawLedsOnceSilent(false, true), std::make_pair(-1.0f, -1.0f));
+}
+
+void SynthTest::test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo()
+{
+    // A quarter of a cycle apart
+    const auto [first, second] = sawLedsOnceSilent(true, false);
+    QVERIFY2(std::abs(std::abs(second - first) - 0.5f) < 0.01f || std::abs(std::abs(second - first) - 1.5f) < 0.01f, qPrintable(QString { "%1 -> %2" }.arg(first).arg(second)));
+}
+
+namespace {
+
+std::vector<float> previewOf(const SynthDevice & synth, size_t vco)
+{
+    return synth.oscillatorPreview(vco, 400);
+}
+
+//! The largest difference between the first and the second half: zero for a wave that repeats
+//! exactly across the preview's two cycles.
+double halvesDifference(const std::vector<float> & preview)
+{
+    const size_t half = preview.size() / 2;
+    double largest = 0.0;
+    // Not the last point of each half: an edge right at the boundary lands either side of it
+    for (size_t i = 2; i + 2 < half; i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(preview.at(i) - preview.at(i + half))));
+    }
+    return largest;
+}
+
+} // namespace
+
+void SynthTest::test_oscillatorPreview_saw_shouldRampAndDrop()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+
+    const auto preview = previewOf(synth, 0);
+
+    QCOMPARE(preview.size(), size_t { 400 });
+    size_t rises = 0;
+    size_t drops = 0;
+    for (size_t i = 1; i < preview.size(); i++) {
+        rises += preview.at(i) > preview.at(i - 1) ? 1 : 0;
+        drops += preview.at(i) < preview.at(i - 1) - 0.5f ? 1 : 0;
+    }
+    // Two cycles from the start of one: a single drop between them, or a second one at the very end
+    QVERIFY2(drops >= 1 && drops <= 2, qPrintable(QString::number(drops)));
+    QVERIFY(rises > preview.size() * 9 / 10);
+}
+
+void SynthTest::test_oscillatorPreview_squareShape_shouldNarrowThePulse()
+{
+    const auto highFraction = [](float shape) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+        synth.setVco1Shape(shape);
+        const auto preview = previewOf(synth, 0);
+        return static_cast<double>(std::ranges::count_if(preview, [](float value) { return value > 0.0f; })) / static_cast<double>(preview.size());
+    };
+
+    const double square = highFraction(0.0f);
+    const double narrow = highFraction(0.8f);
+
+    QVERIFY2(std::abs(square - 0.5) < 0.05, qPrintable(QString::number(square)));
+    QVERIFY2(narrow < 0.35, qPrintable(QString::number(narrow)));
+}
+
+void SynthTest::test_oscillatorPreview_sync_shouldRepeatAtTheMasterCycle()
+{
+    // Out of tune with VCO1 and synced to it, VCO2 restarts with every VCO1 cycle, so the preview
+    // spans two of those and repeats across them. Unsynced, it is VCO2's own two plain cycles.
+    const auto preview = [](bool sync) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco2Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setVco2Pitch(0.8f);
+        synth.setVco2Sync(sync);
+        return previewOf(synth, 1);
+    };
+    const auto synced = preview(true);
+    const auto free = preview(false);
+
+    QVERIFY2(halvesDifference(synced) < 0.05, qPrintable(QString::number(halvesDifference(synced))));
+    double largest = 0.0;
+    for (size_t i = 0; i < synced.size(); i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(synced.at(i) - free.at(i))));
+    }
+    QVERIFY2(largest > 0.5, qPrintable(QString::number(largest)));
+}
+
+void SynthTest::test_oscillatorPreview_ring_shouldBeTheProductOfTheVcos()
+{
+    // Sines, so that resampling the product and multiplying the resampled waves agree. Synced, so
+    // that both of VCO2's previews span VCO1's cycle: synced to an octave above, it is unchanged.
+    const auto makeSynth = [](bool ring) {
+        auto synth = std::make_unique<SynthDevice>("Test Synth");
+        synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth->setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth->setVco2Octave(1);
+        synth->setVco2Sync(true);
+        synth->setVco2Ring(ring);
+        return synth;
+    };
+    const auto vco1 = previewOf(*makeSynth(false), 0);
+    const auto vco2 = previewOf(*makeSynth(false), 1);
+    const auto ringed = previewOf(*makeSynth(true), 1);
+
+    double largest = 0.0;
+    for (size_t i = 0; i < ringed.size(); i++) {
+        largest = std::max(largest, static_cast<double>(std::abs(ringed.at(i) - vco1.at(i) * vco2.at(i))));
+    }
+    QVERIFY2(largest < 0.02, qPrintable(QString::number(largest)));
+}
+
+void SynthTest::test_oscillatorPreview_mutedVco1_shouldStillDriveRing()
+{
+    // The usual ring patch mutes VCO1, which still has to run for VCO2 to have something to multiply
+    const auto ringPreview = [](float vco1Level) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(vco1Level);
+        synth.setVco2Ring(true);
+        return previewOf(synth, 1);
+    };
+
+    const auto muted = ringPreview(0.0f);
+
+    QCOMPARE(muted, ringPreview(1.0f));
+    QVERIFY(std::ranges::any_of(muted, [](float value) { return std::abs(value) > 0.1f; }));
+}
+
+void SynthTest::test_oscillatorStage_mutedSyncMaster_shouldStillRun()
+{
+    // Only VCO3 is heard, synced to VCO2, which is synced to VCO1: both masters have to run
+    SynthOscillatorStage::Settings settings;
+    settings.levels = { 0.0, 0.0, 1.0, 0.0 };
+    settings.syncs = { false, true, true, false };
+    QCOMPARE(SynthOscillatorStage::running(settings), (std::array<bool, SynthOscillatorStage::VcoCount> { true, true, true, false }));
+
+    // Without sync the muted ones are skipped as before
+    settings.syncs = {};
+    QCOMPARE(SynthOscillatorStage::running(settings), (std::array<bool, SynthOscillatorStage::VcoCount> { false, false, true, false }));
+}
+
+} // namespace noteahead
+
+QTEST_GUILESS_MAIN(noteahead::SynthTest)

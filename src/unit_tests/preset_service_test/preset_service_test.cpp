@@ -17,7 +17,7 @@
 
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/devices/synth_device.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
 
 #include <QDir>
 #include <QFile>

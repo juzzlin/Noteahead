@@ -17,10 +17,10 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/effects/gain.hpp"
 #include "../../domain/tracker/parameter.hpp"
 #include "../../domain/tracker/parameter_modulation.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/effects/gain/gain.hpp"
 
 #include <QTest>
 

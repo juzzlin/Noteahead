@@ -1,0 +1,25 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        sampler_device.cpp
+        sampler_device.hpp
+    APPLICATION_SOURCES
+        sampler_model.cpp
+        sampler_model.hpp
+        sampler_pad_model.cpp
+        sampler_pad_model.hpp
+    VIEW_SOURCES
+        sampler_controller.cpp
+        sampler_controller.hpp
+    QML_FILES
+        SamplerDialog.qml
+        SamplerDialog_Global.qml
+        SamplerDialog_Header.qml
+        SamplerDialog_Meters.qml
+        SamplerDialog_OffsetField.qml
+        SamplerDialog_Offsets.qml
+        SamplerDialog_PadAmpEg.qml
+        SamplerDialog_PadSettings.qml
+        SamplerDialog_Pads.qml
+        SamplerDialog_Record.qml
+        SamplerDialog_WaveformView.qml
+)

@@ -17,11 +17,11 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/effects/effect.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 
 #include <QBuffer>
 #include <QTest>

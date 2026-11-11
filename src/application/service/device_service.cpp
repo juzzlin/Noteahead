@@ -19,10 +19,6 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/modulation_source.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../domain/devices/sub_mixer_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/devices/xy_pad_device.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
@@ -33,6 +29,10 @@
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/devices/sampler/sampler_device.hpp"
+#include "../../plugins/devices/sub_mixer/sub_mixer_device.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/devices/xy_pad/xy_pad_device.hpp"
 
 #include <QDateTime>
 #include <QFile>

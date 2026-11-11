@@ -21,8 +21,6 @@ set(HEADER_FILES
     models/recent_files_model.hpp
     models/render_settings_model.hpp
     models/song_settings_model.hpp
-    models/sampler/sampler_model.hpp
-    models/sampler/sampler_pad_model.hpp
     models/track_settings_model.hpp
     note_converter.hpp
     position.hpp
@@ -38,11 +36,8 @@ set(HEADER_FILES
     service/copy_manager.hpp
     service/device_service.hpp
     service/editor_service.hpp
-    service/electric_bass_preview.hpp
     service/jack_service.hpp
     service/keyboard_service.hpp
-    service/kick_909_preview.hpp
-    service/kick_synth_preview.hpp
     service/language_service.hpp
     service/manual_service.hpp
     service/midi_recording_service.hpp
@@ -64,13 +59,11 @@ set(HEADER_FILES
     service/selection_service.hpp
     service/session_timer_service.hpp
     service/settings_service.hpp
-    service/snare_synth_preview.hpp
     service/song_overview_service.hpp
     service/side_chain_service.hpp
     service/theme_service.hpp
     service/tip_service.hpp
     service/util_service.hpp
-    service/xy_pad_recording_service.hpp
     state_machine.hpp
     ui_logger.hpp
 )
@@ -98,8 +91,6 @@ set(SOURCE_FILES
     models/recent_files_model.cpp
     models/render_settings_model.cpp
     models/song_settings_model.cpp
-    models/sampler/sampler_model.cpp
-    models/sampler/sampler_pad_model.cpp
     models/track_settings_model.cpp
     note_converter.cpp
     service/analysis_report_formatter.cpp
@@ -113,11 +104,8 @@ set(SOURCE_FILES
     service/copy_manager.cpp
     service/device_service.cpp
     service/editor_service.cpp
-    service/electric_bass_preview.cpp
     service/jack_service.cpp
     service/keyboard_service.cpp
-    service/kick_909_preview.cpp
-    service/kick_synth_preview.cpp
     service/language_service.cpp
     service/manual_service.cpp
     service/midi_recording_service.cpp
@@ -139,13 +127,11 @@ set(SOURCE_FILES
     service/selection_service.cpp
     service/session_timer_service.cpp
     service/settings_service.cpp
-    service/snare_synth_preview.cpp
     service/song_overview_service.cpp
     service/side_chain_service.cpp
     service/theme_service.cpp
     service/tip_service.cpp
     service/util_service.cpp
-    service/xy_pad_recording_service.cpp
     state_machine.cpp
     ui_logger.cpp
 )

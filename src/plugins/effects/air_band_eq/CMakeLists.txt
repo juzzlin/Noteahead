@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        air_band_eq.cpp
+        air_band_eq.hpp
+        air_band_eq_presets.cpp
+        air_band_eq_presets.hpp
+    QML_FILES
+        AirBandEqDialog.qml
+)

@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        crossfeed.cpp
+        crossfeed.hpp
+        crossfeed_presets.cpp
+        crossfeed_presets.hpp
+    QML_FILES
+        CrossfeedDialog.qml
+)

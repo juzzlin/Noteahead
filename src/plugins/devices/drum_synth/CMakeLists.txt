@@ -1,0 +1,12 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        drum_synth_constants.cpp
+        drum_synth_constants.hpp
+        drum_synth_device.cpp
+        drum_synth_device.hpp
+    VIEW_SOURCES
+        drum_synth_controller.cpp
+        drum_synth_controller.hpp
+    QML_FILES
+        DrumSynthDialog.qml
+)

@@ -19,11 +19,11 @@
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/tracker/interpolator.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/effects/auto_filter/auto_filter.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

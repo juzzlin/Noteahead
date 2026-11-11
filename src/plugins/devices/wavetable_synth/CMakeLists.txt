@@ -1,0 +1,25 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        wavetable_synth_device.cpp
+        wavetable_synth_device.hpp
+        wavetable_synth_presets.cpp
+        wavetable_synth_presets.hpp
+    VIEW_SOURCES
+        wavetable_synth_controller.cpp
+        wavetable_synth_controller.hpp
+    QML_FILES
+        WavetableSynthDialog.qml
+        WavetableSynthDialog_AmpEg.qml
+        WavetableSynthDialog_Filter.qml
+        WavetableSynthDialog_Global.qml
+        WavetableSynthDialog_Lfo1.qml
+        WavetableSynthDialog_Lfo2.qml
+        WavetableSynthDialog_ModEg.qml
+        WavetableSynthDialog_Noise.qml
+        WavetableSynthDialog_Osc1.qml
+        WavetableSynthDialog_Osc2.qml
+        WavetableSynthDialog_Presets.qml
+        WavetableSynthDialog_Tab1.qml
+        WavetableSynthDialog_Tab2.qml
+        WavetableSynthDialog_Tab3.qml
+)

@@ -15,8 +15,8 @@
 
 #include "knob_controller_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/effects/auto_filter.hpp"
+#include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/effects/auto_filter/auto_filter.hpp"
 #include "../../view/controllers/knob_controller.hpp"
 
 #include <QTest>

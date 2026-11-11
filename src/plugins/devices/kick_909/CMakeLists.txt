@@ -1,0 +1,21 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        kick_909_device.cpp
+        kick_909_device.hpp
+        kick_909_presets.cpp
+        kick_909_presets.hpp
+    APPLICATION_SOURCES
+        kick_909_preview.cpp
+        kick_909_preview.hpp
+    VIEW_SOURCES
+        kick_909_controller.cpp
+        kick_909_controller.hpp
+    QML_FILES
+        Kick909Dialog.qml
+        Kick909Dialog_Envelope.qml
+        Kick909Dialog_Global.qml
+        Kick909Dialog_Kick.qml
+        Kick909Dialog_Pitch.qml
+        Kick909Dialog_Presets.qml
+        Kick909Dialog_Waveform.qml
+)

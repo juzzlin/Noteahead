@@ -1,0 +1,22 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        synth_d_device.cpp
+        synth_d_device.hpp
+        synth_d_presets.cpp
+        synth_d_presets.hpp
+    VIEW_SOURCES
+        synth_d_controller.cpp
+        synth_d_controller.hpp
+    QML_FILES
+        SynthDDialog.qml
+        SynthDDialog_Analog.qml
+        SynthDDialog_Contour.qml
+        SynthDDialog_Controllers.qml
+        SynthDDialog_Filter.qml
+        SynthDDialog_Global.qml
+        SynthDDialog_Lfo.qml
+        SynthDDialog_Mixer.qml
+        SynthDDialog_Modulation.qml
+        SynthDDialog_Oscillator.qml
+        SynthDDialog_Presets.qml
+)

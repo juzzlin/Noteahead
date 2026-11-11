@@ -18,10 +18,10 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/device_factory.hpp"
-#include "../../domain/devices/piano_synth_device.hpp"
-#include "../../domain/devices/sampler_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../plugins/devices/piano_synth/piano_synth_device.hpp"
+#include "../../plugins/devices/sampler/sampler_device.hpp"
 
 #include <QTest>
 

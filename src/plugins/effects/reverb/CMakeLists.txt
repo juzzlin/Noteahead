@@ -1,0 +1,9 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        reverb.cpp
+        reverb.hpp
+        reverb_presets.cpp
+        reverb_presets.hpp
+    QML_FILES
+        ReverbDialog.qml
+)

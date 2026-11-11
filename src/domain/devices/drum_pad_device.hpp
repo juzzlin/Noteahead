@@ -16,6 +16,7 @@
 #ifndef DRUM_PAD_DEVICE_HPP
 #define DRUM_PAD_DEVICE_HPP
 
+#include "../../plugins/devices/drum_synth_v2/drum_synth_v2_constants.hpp"
 #include "../dsp/drum/drum_amp_envelope.hpp"
 #include "../dsp/drum/drum_engine.hpp"
 #include "../dsp/high_pass_filter.hpp"
@@ -24,7 +25,6 @@
 #include "../dsp/upsampler.hpp"
 #include "../dsp/volume.hpp"
 #include "device.hpp"
-#include "drum_synth_v2_constants.hpp"
 
 #include <array>
 #include <memory>

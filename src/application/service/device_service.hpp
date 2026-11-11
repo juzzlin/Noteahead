@@ -17,10 +17,10 @@
 #define DEVICE_SERVICE_HPP
 
 #include "../../domain/devices/device.hpp"
-#include "../../domain/devices/synth_presets.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../plugins/devices/synth/synth_presets.hpp"
 
 #include <QObject>
 #include <QStringList>

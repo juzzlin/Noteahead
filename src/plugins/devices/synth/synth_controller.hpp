@@ -1,0 +1,693 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef SYNTH_CONTROLLER_HPP
+#define SYNTH_CONTROLLER_HPP
+
+#include "../../../view/controllers/device_controller.hpp"
+#include "synth_presets.hpp"
+
+#include <memory>
+
+namespace noteahead {
+
+class DeviceService;
+class SynthDevice;
+
+class SynthController : public DeviceController
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QStringList vcoWaveformNames READ vcoWaveformNames CONSTANT)
+    Q_PROPERTY(QStringList lfoWaveformNames READ lfoWaveformNames CONSTANT)
+    Q_PROPERTY(QStringList voiceModes READ voiceModes NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList octaveNames READ octaveNames CONSTANT)
+    Q_PROPERTY(QStringList multiTypeNames READ multiTypeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList multiEngineNames READ multiEngineNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList multiOctaveNames READ multiOctaveNames CONSTANT)
+    Q_PROPERTY(QStringList vpmTypeNames READ vpmTypeNames CONSTANT)
+    Q_PROPERTY(QStringList vpmRatioOffsetNames READ vpmRatioOffsetNames CONSTANT)
+    Q_PROPERTY(QStringList modTargetNames READ modTargetNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfo2WaveformNames READ lfo2WaveformNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames NOTIFY translationsChanged)
+
+    //! Index of the pulse in vcoWaveformNames, so QML can tell whether a VCO is on the one waveform
+    //! Roundness applies to without hardcoding the enum's ordinal.
+    Q_PROPERTY(int squareWaveformIndex READ squareWaveformIndex CONSTANT)
+
+    // VCO1
+    Q_PROPERTY(int vco1Waveform READ vco1Waveform WRITE setVco1Waveform NOTIFY vco1WaveformChanged)
+    Q_PROPERTY(int vco1Octave READ vco1Octave WRITE setVco1Octave NOTIFY vco1OctaveChanged)
+    Q_PROPERTY(int vco1Pitch READ vco1Pitch WRITE setVco1Pitch NOTIFY vco1PitchChanged)
+    Q_PROPERTY(int vco1Shape READ vco1Shape WRITE setVco1Shape NOTIFY vco1ShapeChanged)
+    Q_PROPERTY(int vco1Roundness READ vco1Roundness WRITE setVco1Roundness NOTIFY vco1RoundnessChanged)
+    Q_PROPERTY(bool vco1Sync READ vco1Sync WRITE setVco1Sync NOTIFY vco1SyncChanged)
+    Q_PROPERTY(int phaseRandomness READ phaseRandomness WRITE setPhaseRandomness NOTIFY phaseRandomnessChanged)
+
+    // VCO2
+    Q_PROPERTY(int vco2Waveform READ vco2Waveform WRITE setVco2Waveform NOTIFY vco2WaveformChanged)
+    Q_PROPERTY(int vco2Octave READ vco2Octave WRITE setVco2Octave NOTIFY vco2OctaveChanged)
+    Q_PROPERTY(int vco2Pitch READ vco2Pitch WRITE setVco2Pitch NOTIFY vco2PitchChanged)
+    Q_PROPERTY(int vco2Shape READ vco2Shape WRITE setVco2Shape NOTIFY vco2ShapeChanged)
+    Q_PROPERTY(int vco2Roundness READ vco2Roundness WRITE setVco2Roundness NOTIFY vco2RoundnessChanged)
+    Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
+    Q_PROPERTY(bool vco2Ring READ vco2Ring WRITE setVco2Ring NOTIFY vco2RingChanged)
+    //! Moves whenever an oscillator preview may have changed, for a binding to depend on.
+    Q_PROPERTY(int oscillatorPreviewRevision READ oscillatorPreviewRevision NOTIFY oscillatorPreviewChanged)
+
+    // VCO3
+    Q_PROPERTY(int vco3Waveform READ vco3Waveform WRITE setVco3Waveform NOTIFY vco3WaveformChanged)
+    Q_PROPERTY(int vco3Octave READ vco3Octave WRITE setVco3Octave NOTIFY vco3OctaveChanged)
+    Q_PROPERTY(int vco3Pitch READ vco3Pitch WRITE setVco3Pitch NOTIFY vco3PitchChanged)
+    Q_PROPERTY(int vco3Shape READ vco3Shape WRITE setVco3Shape NOTIFY vco3ShapeChanged)
+    Q_PROPERTY(int vco3Roundness READ vco3Roundness WRITE setVco3Roundness NOTIFY vco3RoundnessChanged)
+    Q_PROPERTY(bool vco3Sync READ vco3Sync WRITE setVco3Sync NOTIFY vco3SyncChanged)
+    Q_PROPERTY(int vco4Waveform READ vco4Waveform WRITE setVco4Waveform NOTIFY vco4WaveformChanged)
+    Q_PROPERTY(int vco4Octave READ vco4Octave WRITE setVco4Octave NOTIFY vco4OctaveChanged)
+    Q_PROPERTY(int vco4Pitch READ vco4Pitch WRITE setVco4Pitch NOTIFY vco4PitchChanged)
+    Q_PROPERTY(int vco4Shape READ vco4Shape WRITE setVco4Shape NOTIFY vco4ShapeChanged)
+    Q_PROPERTY(int vco4Roundness READ vco4Roundness WRITE setVco4Roundness NOTIFY vco4RoundnessChanged)
+    Q_PROPERTY(bool vco4Sync READ vco4Sync WRITE setVco4Sync NOTIFY vco4SyncChanged)
+
+    // Multi Engine
+    Q_PROPERTY(int multiType READ multiType WRITE setMultiType NOTIFY multiTypeChanged)
+    Q_PROPERTY(int multiShape READ multiShape WRITE setMultiShape NOTIFY multiShapeChanged)
+    Q_PROPERTY(int multiLevel READ multiLevel WRITE setMultiLevel NOTIFY multiLevelChanged)
+    Q_PROPERTY(int multiKeyTrack READ multiKeyTrack WRITE setMultiKeyTrack NOTIFY multiKeyTrackChanged)
+    Q_PROPERTY(int multiLpfCutoff READ multiLpfCutoff WRITE setMultiLpfCutoff NOTIFY multiLpfCutoffChanged)
+    Q_PROPERTY(int multiLpfResonance READ multiLpfResonance WRITE setMultiLpfResonance NOTIFY multiLpfResonanceChanged)
+    Q_PROPERTY(int multiLpfSlope READ multiLpfSlope WRITE setMultiLpfSlope NOTIFY multiLpfSlopeChanged)
+    Q_PROPERTY(int multiHpfCutoff READ multiHpfCutoff WRITE setMultiHpfCutoff NOTIFY multiHpfCutoffChanged)
+    Q_PROPERTY(int multiHpfSlope READ multiHpfSlope WRITE setMultiHpfSlope NOTIFY multiHpfSlopeChanged)
+    Q_PROPERTY(int multiEngine READ multiEngine WRITE setMultiEngine NOTIFY multiEngineChanged)
+    Q_PROPERTY(int multiOctave READ multiOctave WRITE setMultiOctave NOTIFY multiOctaveChanged)
+    Q_PROPERTY(int vpmType READ vpmType WRITE setVpmType NOTIFY vpmTypeChanged)
+    Q_PROPERTY(int vpmRatioOffset READ vpmRatioOffset WRITE setVpmRatioOffset NOTIFY vpmRatioOffsetChanged)
+    Q_PROPERTY(int vpmFeedback READ vpmFeedback WRITE setVpmFeedback NOTIFY vpmFeedbackChanged)
+    Q_PROPERTY(int vpmNoiseDepth READ vpmNoiseDepth WRITE setVpmNoiseDepth NOTIFY vpmNoiseDepthChanged)
+    Q_PROPERTY(int vpmShapeModInt READ vpmShapeModInt WRITE setVpmShapeModInt NOTIFY vpmShapeModIntChanged)
+    Q_PROPERTY(int vpmModAttack READ vpmModAttack WRITE setVpmModAttack NOTIFY vpmModAttackChanged)
+    Q_PROPERTY(int vpmModDecay READ vpmModDecay WRITE setVpmModDecay NOTIFY vpmModDecayChanged)
+    Q_PROPERTY(int vpmModKeyTrack READ vpmModKeyTrack WRITE setVpmModKeyTrack NOTIFY vpmModKeyTrackChanged)
+
+    // Mixer
+    Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
+    Q_PROPERTY(int mixVco2 READ mixVco2 WRITE setMixVco2 NOTIFY mixVco2Changed)
+    Q_PROPERTY(int mixVco3 READ mixVco3 WRITE setMixVco3 NOTIFY mixVco3Changed)
+    Q_PROPERTY(int mixVco4 READ mixVco4 WRITE setMixVco4 NOTIFY mixVco4Changed)
+
+    // Filter
+    Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
+    Q_PROPERTY(int lpfResonance READ lpfResonance WRITE setLpfResonance NOTIFY lpfResonanceChanged)
+    // The per-oscillator filter sections. Four of everything, since a QML binding needs a
+    // property of its own to depend on.
+    Q_PROPERTY(int vco1LpfCutoff READ vco1LpfCutoff WRITE setVco1LpfCutoff NOTIFY vco1LpfCutoffChanged)
+    Q_PROPERTY(int vco1LpfResonance READ vco1LpfResonance WRITE setVco1LpfResonance NOTIFY vco1LpfResonanceChanged)
+    Q_PROPERTY(int vco1LpfSlope READ vco1LpfSlope WRITE setVco1LpfSlope NOTIFY vco1LpfSlopeChanged)
+    Q_PROPERTY(int vco1HpfCutoff READ vco1HpfCutoff WRITE setVco1HpfCutoff NOTIFY vco1HpfCutoffChanged)
+    Q_PROPERTY(int vco1HpfSlope READ vco1HpfSlope WRITE setVco1HpfSlope NOTIFY vco1HpfSlopeChanged)
+    Q_PROPERTY(bool vco1FilterEngaged READ vco1FilterEngaged NOTIFY vco1FilterEngagedChanged)
+    Q_PROPERTY(int vco2LpfCutoff READ vco2LpfCutoff WRITE setVco2LpfCutoff NOTIFY vco2LpfCutoffChanged)
+    Q_PROPERTY(int vco2LpfResonance READ vco2LpfResonance WRITE setVco2LpfResonance NOTIFY vco2LpfResonanceChanged)
+    Q_PROPERTY(int vco2LpfSlope READ vco2LpfSlope WRITE setVco2LpfSlope NOTIFY vco2LpfSlopeChanged)
+    Q_PROPERTY(int vco2HpfCutoff READ vco2HpfCutoff WRITE setVco2HpfCutoff NOTIFY vco2HpfCutoffChanged)
+    Q_PROPERTY(int vco2HpfSlope READ vco2HpfSlope WRITE setVco2HpfSlope NOTIFY vco2HpfSlopeChanged)
+    Q_PROPERTY(bool vco2FilterEngaged READ vco2FilterEngaged NOTIFY vco2FilterEngagedChanged)
+    Q_PROPERTY(int vco3LpfCutoff READ vco3LpfCutoff WRITE setVco3LpfCutoff NOTIFY vco3LpfCutoffChanged)
+    Q_PROPERTY(int vco3LpfResonance READ vco3LpfResonance WRITE setVco3LpfResonance NOTIFY vco3LpfResonanceChanged)
+    Q_PROPERTY(int vco3LpfSlope READ vco3LpfSlope WRITE setVco3LpfSlope NOTIFY vco3LpfSlopeChanged)
+    Q_PROPERTY(int vco3HpfCutoff READ vco3HpfCutoff WRITE setVco3HpfCutoff NOTIFY vco3HpfCutoffChanged)
+    Q_PROPERTY(int vco3HpfSlope READ vco3HpfSlope WRITE setVco3HpfSlope NOTIFY vco3HpfSlopeChanged)
+    Q_PROPERTY(bool vco3FilterEngaged READ vco3FilterEngaged NOTIFY vco3FilterEngagedChanged)
+    Q_PROPERTY(int vco4LpfCutoff READ vco4LpfCutoff WRITE setVco4LpfCutoff NOTIFY vco4LpfCutoffChanged)
+    Q_PROPERTY(int vco4LpfResonance READ vco4LpfResonance WRITE setVco4LpfResonance NOTIFY vco4LpfResonanceChanged)
+    Q_PROPERTY(int vco4LpfSlope READ vco4LpfSlope WRITE setVco4LpfSlope NOTIFY vco4LpfSlopeChanged)
+    Q_PROPERTY(int vco4HpfCutoff READ vco4HpfCutoff WRITE setVco4HpfCutoff NOTIFY vco4HpfCutoffChanged)
+    Q_PROPERTY(int vco4HpfSlope READ vco4HpfSlope WRITE setVco4HpfSlope NOTIFY vco4HpfSlopeChanged)
+    Q_PROPERTY(bool vco4FilterEngaged READ vco4FilterEngaged NOTIFY vco4FilterEngagedChanged)
+
+    Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
+    Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
+    Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
+    Q_PROPERTY(int filterKeyTrack READ filterKeyTrack WRITE setFilterKeyTrack NOTIFY filterKeyTrackChanged)
+
+    // Amp EG
+    Q_PROPERTY(int ampAttack READ ampAttack WRITE setAmpAttack NOTIFY ampAttackChanged)
+    Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampDecayChanged)
+    Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
+    Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
+    Q_PROPERTY(int ampVelocitySensitivity READ ampVelocitySensitivity WRITE setAmpVelocitySensitivity NOTIFY ampVelocitySensitivityChanged)
+    Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampCurveChanged)
+
+    // Mod EG
+    Q_PROPERTY(int modAttack READ modAttack WRITE setModAttack NOTIFY modAttackChanged)
+    Q_PROPERTY(int modDecay READ modDecay WRITE setModDecay NOTIFY modDecayChanged)
+    Q_PROPERTY(int modSustain READ modSustain WRITE setModSustain NOTIFY modSustainChanged)
+    Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
+    Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
+    Q_PROPERTY(int modCurve READ modCurve WRITE setModCurve NOTIFY modCurveChanged)
+
+    // Lfo
+    Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
+    Q_PROPERTY(int lfoMode READ lfoMode WRITE setLfoMode NOTIFY lfoModeChanged)
+    Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
+    Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
+    Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
+    Q_PROPERTY(int lfoDelay READ lfoDelay WRITE setLfoDelay NOTIFY lfoDelayChanged)
+    Q_PROPERTY(int lfoFade READ lfoFade WRITE setLfoFade NOTIFY lfoFadeChanged)
+
+    // Lfo 2
+    Q_PROPERTY(int lfo2Waveform READ lfo2Waveform WRITE setLfo2Waveform NOTIFY lfo2WaveformChanged)
+    Q_PROPERTY(int lfo2Mode READ lfo2Mode WRITE setLfo2Mode NOTIFY lfo2ModeChanged)
+    Q_PROPERTY(int lfo2Rate READ lfo2Rate WRITE setLfo2Rate NOTIFY lfo2RateChanged)
+    Q_PROPERTY(int lfo2Int READ lfo2Int WRITE setLfo2Int NOTIFY lfo2IntChanged)
+    Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
+    Q_PROPERTY(int lfo2Delay READ lfo2Delay WRITE setLfo2Delay NOTIFY lfo2DelayChanged)
+    Q_PROPERTY(int lfo2Fade READ lfo2Fade WRITE setLfo2Fade NOTIFY lfo2FadeChanged)
+    Q_PROPERTY(int lfoRateDivider READ lfoRateDivider WRITE setLfoRateDivider NOTIFY lfoRateDividerChanged)
+    Q_PROPERTY(int lfo2RateDivider READ lfo2RateDivider WRITE setLfo2RateDivider NOTIFY lfo2RateDividerChanged)
+    Q_PROPERTY(bool lfoFreeRun READ lfoFreeRun WRITE setLfoFreeRun NOTIFY lfoFreeRunChanged)
+    Q_PROPERTY(bool lfo2FreeRun READ lfo2FreeRun WRITE setLfo2FreeRun NOTIFY lfo2FreeRunChanged)
+    Q_PROPERTY(int maxLfoRateDivider READ maxLfoRateDivider CONSTANT)
+
+    // Global
+    Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
+    Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
+    Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
+    Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
+
+    // Oscillator drift
+    Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
+    Q_PROPERTY(int oscillatorInstability READ oscillatorInstability WRITE setOscillatorInstability NOTIFY oscillatorInstabilityChanged)
+    Q_PROPERTY(int filterDrive READ filterDrive WRITE setFilterDrive NOTIFY filterDriveChanged)
+
+    // Cross modulation
+    Q_PROPERTY(int crossModDepth READ crossModDepth WRITE setCrossModDepth NOTIFY crossModDepthChanged)
+
+    // Delay
+    Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
+    Q_PROPERTY(int delayTime READ delayTime WRITE setDelayTime NOTIFY delayTimeChanged)
+    Q_PROPERTY(int delayFeedback READ delayFeedback WRITE setDelayFeedback NOTIFY delayFeedbackChanged)
+    Q_PROPERTY(int delayDepth READ delayDepth WRITE setDelayDepth NOTIFY delayDepthChanged)
+    Q_PROPERTY(int delayMix READ delayMix WRITE setDelayMix NOTIFY delayMixChanged)
+    Q_PROPERTY(int chorusRate READ chorusRate WRITE setChorusRate NOTIFY chorusRateChanged)
+    Q_PROPERTY(int chorusDepth READ chorusDepth WRITE setChorusDepth NOTIFY chorusDepthChanged)
+    Q_PROPERTY(int chorusDelay READ chorusDelay WRITE setChorusDelay NOTIFY chorusDelayChanged)
+    Q_PROPERTY(int chorusWidth READ chorusWidth WRITE setChorusWidth NOTIFY chorusWidthChanged)
+    Q_PROPERTY(int chorusMix READ chorusMix WRITE setChorusMix NOTIFY chorusMixChanged)
+    Q_PROPERTY(bool delaySync READ delaySync WRITE setDelaySync NOTIFY delaySyncChanged)
+    Q_PROPERTY(int delaySyncDivision READ delaySyncDivision WRITE setDelaySyncDivision NOTIFY delaySyncDivisionChanged)
+    Q_PROPERTY(int delayFeedbackLpf READ delayFeedbackLpf WRITE setDelayFeedbackLpf NOTIFY delayFeedbackLpfChanged)
+    Q_PROPERTY(int delayFeedbackHpf READ delayFeedbackHpf WRITE setDelayFeedbackHpf NOTIFY delayFeedbackHpfChanged)
+
+public:
+    explicit SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent = nullptr);
+    ~SynthController() override;
+
+    //! Re-emits the notifications for everything holding translated strings. The lists below are
+    //! built with tr() and QML binds them once, so a language change is invisible without this.
+    void retranslate();
+
+    DeviceS device() const override;
+    bool setDevice(DeviceS device) override;
+    std::shared_ptr<SynthDevice> synth() const;
+
+    // Accessors
+    QStringList vcoWaveformNames() const;
+    int squareWaveformIndex() const;
+    QStringList lfoWaveformNames() const;
+    QStringList voiceModes() const;
+    QStringList octaveNames() const;
+    QStringList multiTypeNames() const;
+    QStringList multiEngineNames() const;
+    QStringList multiOctaveNames() const;
+    QStringList vpmTypeNames() const;
+    QStringList vpmRatioOffsetNames() const;
+    QStringList modTargetNames() const;
+    //! The eight per-oscillator filter corners, which both the Mod EG and the LFOs can reach. At the
+    //! end of either list, because the ordinal a ComboBox writes is what the project stores.
+    QStringList vcoFilterTargetNames() const;
+    QStringList lfoModeNames() const;
+    QStringList lfoTargetNames() const;
+    QStringList lfo2WaveformNames() const;
+    QStringList lfo2ModeNames() const;
+    QStringList lfo2TargetNames() const;
+
+    int vco1Waveform() const;
+    void setVco1Waveform(int wave);
+    int vco1Octave() const;
+    void setVco1Octave(int oct);
+    int vco1Pitch() const;
+    void setVco1Pitch(int p);
+    // Per-oscillator filter sections, one set per VCO.
+    int vco1LpfCutoff() const;
+    void setVco1LpfCutoff(int value);
+    int vco1LpfResonance() const;
+    void setVco1LpfResonance(int value);
+    int vco1LpfSlope() const;
+    void setVco1LpfSlope(int value);
+    int vco1HpfCutoff() const;
+    void setVco1HpfCutoff(int value);
+    int vco1HpfSlope() const;
+    void setVco1HpfSlope(int value);
+    bool vco1FilterEngaged() const;
+    int vco2LpfCutoff() const;
+    void setVco2LpfCutoff(int value);
+    int vco2LpfResonance() const;
+    void setVco2LpfResonance(int value);
+    int vco2LpfSlope() const;
+    void setVco2LpfSlope(int value);
+    int vco2HpfCutoff() const;
+    void setVco2HpfCutoff(int value);
+    int vco2HpfSlope() const;
+    void setVco2HpfSlope(int value);
+    bool vco2FilterEngaged() const;
+    int vco3LpfCutoff() const;
+    void setVco3LpfCutoff(int value);
+    int vco3LpfResonance() const;
+    void setVco3LpfResonance(int value);
+    int vco3LpfSlope() const;
+    void setVco3LpfSlope(int value);
+    int vco3HpfCutoff() const;
+    void setVco3HpfCutoff(int value);
+    int vco3HpfSlope() const;
+    void setVco3HpfSlope(int value);
+    bool vco3FilterEngaged() const;
+    int vco4LpfCutoff() const;
+    void setVco4LpfCutoff(int value);
+    int vco4LpfResonance() const;
+    void setVco4LpfResonance(int value);
+    int vco4LpfSlope() const;
+    void setVco4LpfSlope(int value);
+    int vco4HpfCutoff() const;
+    void setVco4HpfCutoff(int value);
+    int vco4HpfSlope() const;
+    void setVco4HpfSlope(int value);
+    bool vco4FilterEngaged() const;
+
+    int vco1Shape() const;
+    void setVco1Shape(int s);
+    int vco1Roundness() const;
+    void setVco1Roundness(int r);
+    bool vco1Sync() const;
+    void setVco1Sync(bool s);
+    int phaseRandomness() const;
+    void setPhaseRandomness(int randomness);
+
+    int vco2Waveform() const;
+    void setVco2Waveform(int wave);
+    int vco2Octave() const;
+    void setVco2Octave(int oct);
+    int vco2Pitch() const;
+    void setVco2Pitch(int p);
+    int vco2Shape() const;
+    void setVco2Shape(int s);
+    int vco2Roundness() const;
+    void setVco2Roundness(int r);
+    bool vco2Sync() const;
+    void setVco2Sync(bool s);
+    bool vco2Ring() const;
+    int oscillatorPreviewRevision() const;
+    //! What the given VCO (0 to 3) plays, as @p points values from -1 to 1. See SynthDevice.
+    Q_INVOKABLE QList<qreal> oscillatorPreview(int vco, int points) const;
+    //! The VPM oscillator's picture, empty while the multi engine plays noise.
+    Q_INVOKABLE QList<qreal> multiPreview(int points) const;
+    void setVco2Ring(bool ring);
+
+    int vco3Waveform() const;
+    void setVco3Waveform(int wave);
+    int vco3Octave() const;
+    void setVco3Octave(int oct);
+    int vco3Pitch() const;
+    void setVco3Pitch(int p);
+    int vco3Shape() const;
+    void setVco3Shape(int s);
+    int vco3Roundness() const;
+    void setVco3Roundness(int r);
+    bool vco3Sync() const;
+    void setVco3Sync(bool s);
+    int vco4Waveform() const;
+    void setVco4Waveform(int wave);
+    int vco4Octave() const;
+    void setVco4Octave(int oct);
+    int vco4Pitch() const;
+    void setVco4Pitch(int p);
+    int vco4Shape() const;
+    void setVco4Shape(int s);
+    int vco4Roundness() const;
+    void setVco4Roundness(int r);
+    bool vco4Sync() const;
+    void setVco4Sync(bool s);
+
+    int multiType() const;
+    void setMultiType(int type);
+    int multiShape() const;
+    void setMultiShape(int s);
+    int multiLevel() const;
+    void setMultiLevel(int lvl);
+    int multiKeyTrack() const;
+    void setMultiKeyTrack(int t);
+    int multiLpfCutoff() const;
+    void setMultiLpfCutoff(int value);
+    int multiLpfResonance() const;
+    void setMultiLpfResonance(int value);
+    int multiLpfSlope() const;
+    void setMultiLpfSlope(int value);
+    int multiHpfCutoff() const;
+    void setMultiHpfCutoff(int value);
+    int multiHpfSlope() const;
+    void setMultiHpfSlope(int value);
+    int multiEngine() const;
+    void setMultiEngine(int engine);
+    int multiOctave() const;
+    void setMultiOctave(int octave);
+    int vpmType() const;
+    void setVpmType(int type);
+    int vpmRatioOffset() const;
+    void setVpmRatioOffset(int index);
+    int vpmFeedback() const;
+    void setVpmFeedback(int value);
+    int vpmNoiseDepth() const;
+    void setVpmNoiseDepth(int value);
+    int vpmShapeModInt() const;
+    void setVpmShapeModInt(int value);
+    int vpmModAttack() const;
+    void setVpmModAttack(int value);
+    int vpmModDecay() const;
+    void setVpmModDecay(int value);
+    int vpmModKeyTrack() const;
+    void setVpmModKeyTrack(int value);
+
+    int mixVco1() const;
+    void setMixVco1(int lvl);
+    int mixVco2() const;
+    void setMixVco2(int lvl);
+    int mixVco3() const;
+    void setMixVco3(int lvl);
+    int mixVco4() const;
+    void setMixVco4(int lvl);
+
+    int lpfCutoff() const;
+    void setLpfCutoff(int c);
+    int lpfResonance() const;
+    void setLpfResonance(int r);
+    int lpfSlope() const;
+    void setLpfSlope(int value);
+    int hpfSlope() const;
+    void setHpfSlope(int value);
+    int hpfCutoff() const;
+    void setHpfCutoff(int c);
+    int filterKeyTrack() const;
+    void setFilterKeyTrack(int t);
+
+    int ampAttack() const;
+    void setAmpAttack(int a);
+    int ampDecay() const;
+    void setAmpDecay(int d);
+    int ampSustain() const;
+    void setAmpSustain(int s);
+    int ampRelease() const;
+    void setAmpRelease(int r);
+    int ampVelocitySensitivity() const;
+    void setAmpVelocitySensitivity(int sensitivity);
+    int ampCurve() const;
+    void setAmpCurve(int curve);
+
+    int modAttack() const;
+    void setModAttack(int a);
+    int modDecay() const;
+    void setModDecay(int d);
+    int modSustain() const;
+    void setModSustain(int sustain);
+    int modInt() const;
+    void setModInt(int i);
+    int modTarget() const;
+    void setModTarget(int t);
+    int modCurve() const;
+    void setModCurve(int curve);
+
+    int lfoWaveform() const;
+    void setLfoWaveform(int wave);
+    int lfoMode() const;
+    void setLfoMode(int mode);
+    int lfoRate() const;
+    void setLfoRate(int rate);
+    int lfoInt() const;
+    void setLfoInt(int intensity);
+    int lfoTarget() const;
+    void setLfoTarget(int target);
+    int lfoDelay() const;
+    void setLfoDelay(int delay);
+    int lfoFade() const;
+    void setLfoFade(int fade);
+
+    int lfo2Waveform() const;
+    void setLfo2Waveform(int wave);
+    int lfo2Mode() const;
+    void setLfo2Mode(int mode);
+    int lfo2Rate() const;
+    void setLfo2Rate(int rate);
+    int lfo2Int() const;
+    void setLfo2Int(int intensity);
+    int lfo2Target() const;
+    void setLfo2Target(int target);
+    int lfo2Delay() const;
+    void setLfo2Delay(int delay);
+    int lfo2Fade() const;
+    void setLfo2Fade(int fade);
+    int lfoRateDivider() const;
+    void setLfoRateDivider(int divider);
+    int lfo2RateDivider() const;
+    void setLfo2RateDivider(int divider);
+    bool lfoFreeRun() const;
+    void setLfoFreeRun(bool freeRun);
+    bool lfo2FreeRun() const;
+    void setLfo2FreeRun(bool freeRun);
+    int maxLfoRateDivider() const;
+
+    int voiceMode() const;
+    void setVoiceMode(int m);
+    int voiceDepth() const;
+    void setVoiceDepth(int d);
+    int portamento() const;
+    void setPortamento(int p);
+    int panSpread() const;
+    void setPanSpread(int s);
+    int pitchBendRange() const;
+    void setPitchBendRange(int r);
+
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
+
+    int oscillatorDrift() const;
+    void setOscillatorDrift(int drift);
+
+    int oscillatorInstability() const;
+    void setOscillatorInstability(int instability);
+
+    int filterDrive() const;
+    void setFilterDrive(int drive);
+
+    int crossModDepth() const;
+    void setCrossModDepth(int depth);
+
+    int delayType() const;
+    void setDelayType(int type);
+    int delayTime() const;
+    void setDelayTime(int time);
+    int delayFeedback() const;
+    void setDelayFeedback(int fb);
+    int delayDepth() const;
+    void setDelayDepth(int d);
+    int delayMix() const;
+    void setDelayMix(int mix);
+    int chorusRate() const;
+    void setChorusRate(int value);
+    int chorusDepth() const;
+    void setChorusDepth(int value);
+    int chorusDelay() const;
+    void setChorusDelay(int value);
+    int chorusWidth() const;
+    void setChorusWidth(int value);
+    int chorusMix() const;
+    void setChorusMix(int value);
+    bool delaySync() const;
+    void setDelaySync(bool sync);
+    int delaySyncDivision() const;
+    void setDelaySyncDivision(int div);
+    int delayFeedbackLpf() const;
+    void setDelayFeedbackLpf(int cutoff);
+    int delayFeedbackHpf() const;
+    void setDelayFeedbackHpf(int cutoff);
+
+    Q_INVOKABLE void initialize();
+    Q_INVOKABLE void requestSettings() override;
+
+signals:
+    //! Emitted when the UI language changed and the translated lists must be re-read.
+    void translationsChanged();
+
+    void synthChanged();
+    void vco1WaveformChanged();
+    void vco1OctaveChanged();
+    void vco1PitchChanged();
+    void vco1LpfCutoffChanged();
+    void vco1LpfResonanceChanged();
+    void vco1LpfSlopeChanged();
+    void vco1HpfCutoffChanged();
+    void vco1HpfSlopeChanged();
+    void vco1FilterEngagedChanged();
+    void vco2LpfCutoffChanged();
+    void vco2LpfResonanceChanged();
+    void vco2LpfSlopeChanged();
+    void vco2HpfCutoffChanged();
+    void vco2HpfSlopeChanged();
+    void vco2FilterEngagedChanged();
+    void vco3LpfCutoffChanged();
+    void vco3LpfResonanceChanged();
+    void vco3LpfSlopeChanged();
+    void vco3HpfCutoffChanged();
+    void vco3HpfSlopeChanged();
+    void vco3FilterEngagedChanged();
+    void vco4LpfCutoffChanged();
+    void vco4LpfResonanceChanged();
+    void vco4LpfSlopeChanged();
+    void vco4HpfCutoffChanged();
+    void vco4HpfSlopeChanged();
+    void vco4FilterEngagedChanged();
+    void vco1ShapeChanged();
+    void vco1RoundnessChanged();
+    void vco1SyncChanged();
+    void phaseRandomnessChanged();
+    void vco2WaveformChanged();
+    void vco2OctaveChanged();
+    void vco2PitchChanged();
+    void vco2ShapeChanged();
+    void vco2RoundnessChanged();
+    void vco2SyncChanged();
+    void vco2RingChanged();
+    void oscillatorPreviewChanged();
+    void vco3WaveformChanged();
+    void vco3OctaveChanged();
+    void vco3PitchChanged();
+    void vco3ShapeChanged();
+    void vco3RoundnessChanged();
+    void vco3SyncChanged();
+    void vco4WaveformChanged();
+    void vco4OctaveChanged();
+    void vco4PitchChanged();
+    void vco4ShapeChanged();
+    void vco4RoundnessChanged();
+    void vco4SyncChanged();
+    void multiTypeChanged();
+    void multiShapeChanged();
+    void multiLevelChanged();
+    void multiKeyTrackChanged();
+    void multiLpfCutoffChanged();
+    void multiLpfResonanceChanged();
+    void multiLpfSlopeChanged();
+    void multiHpfCutoffChanged();
+    void multiHpfSlopeChanged();
+    void multiEngineChanged();
+    void multiOctaveChanged();
+    void vpmTypeChanged();
+    void vpmRatioOffsetChanged();
+    void vpmFeedbackChanged();
+    void vpmNoiseDepthChanged();
+    void vpmShapeModIntChanged();
+    void vpmModAttackChanged();
+    void vpmModDecayChanged();
+    void vpmModKeyTrackChanged();
+    void mixVco1Changed();
+    void mixVco2Changed();
+    void mixVco3Changed();
+    void mixVco4Changed();
+    void lpfCutoffChanged();
+    void lpfResonanceChanged();
+    void lpfSlopeChanged();
+    void hpfSlopeChanged();
+    void hpfCutoffChanged();
+    void filterKeyTrackChanged();
+    void ampAttackChanged();
+    void ampDecayChanged();
+    void ampSustainChanged();
+    void ampReleaseChanged();
+    void ampVelocitySensitivityChanged();
+    void ampCurveChanged();
+    void modAttackChanged();
+    void modDecayChanged();
+    void modSustainChanged();
+    void modIntChanged();
+    void modTargetChanged();
+    void modCurveChanged();
+    void lfoWaveformChanged();
+    void lfoModeChanged();
+    void lfoRateChanged();
+    void lfoIntChanged();
+    void lfoTargetChanged();
+    void lfoDelayChanged();
+    void lfoFadeChanged();
+    void lfo2WaveformChanged();
+    void lfo2ModeChanged();
+    void lfo2RateChanged();
+    void lfo2IntChanged();
+    void lfo2TargetChanged();
+    void lfo2DelayChanged();
+    void lfo2FadeChanged();
+    void lfoRateDividerChanged();
+    void lfo2RateDividerChanged();
+    void lfoFreeRunChanged();
+    void lfo2FreeRunChanged();
+    void voiceModeChanged();
+    void voiceDepthChanged();
+    void portamentoChanged();
+    void panSpreadChanged();
+    void pitchBendRangeChanged();
+    void oscillatorDriftChanged();
+    void oscillatorInstabilityChanged();
+    void filterDriveChanged();
+    void crossModDepthChanged();
+    void delayTypeChanged();
+    void delayTimeChanged();
+    void delayFeedbackChanged();
+    void delayDepthChanged();
+    void delayMixChanged();
+    void chorusRateChanged();
+    void chorusDepthChanged();
+    void chorusDelayChanged();
+    void chorusWidthChanged();
+    void chorusMixChanged();
+    void delaySyncChanged();
+    void delaySyncDivisionChanged();
+    void delayFeedbackLpfChanged();
+    void delayFeedbackHpfChanged();
+
+public:
+    void setSynth(std::shared_ptr<SynthDevice> synth);
+    void setDeviceService(std::shared_ptr<DeviceService> deviceService);
+
+private:
+    int m_oscillatorPreviewRevision { 0 };
+    std::shared_ptr<SynthDevice> m_synth;
+    std::shared_ptr<DeviceService> m_deviceService;
+};
+
+} // namespace noteahead
+
+#endif // SYNTH_CONTROLLER_HPP

@@ -1,0 +1,13 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        lfo_device.cpp
+        lfo_device.hpp
+    VIEW_SOURCES
+        lfo_controller.cpp
+        lfo_controller.hpp
+        lfo_panel_controller.cpp
+        lfo_panel_controller.hpp
+    QML_FILES
+        LfoDialog.qml
+        LfoDialog_Lfo.qml
+)
