@@ -95,6 +95,7 @@ AnimatedDialog {
             Repeater {
                 model: xyPadController.pads
                 delegate: XyPadRenderer {
+                    id: padRenderer
                     required property var modelData
                     controller: xyPadController
                     pad: modelData.index
@@ -103,6 +104,17 @@ AnimatedDialog {
                     accentColor: themeService.accentColor
                     Layout.preferredWidth: padRow.padSize
                     Layout.preferredHeight: padRow.padSize
+
+                    // The pad the open tab edits, framed in the accent just outside its edge
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        color: "transparent"
+                        border.color: themeService.accentColor
+                        border.width: 2
+                        radius: 3
+                        visible: padTabBar.currentIndex === padRenderer.modelData.index
+                    }
                 }
             }
         }
