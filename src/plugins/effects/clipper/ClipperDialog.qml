@@ -72,9 +72,9 @@ EffectDialog {
                             model: [qsTr("Hard"), qsTr("Soft (Tanh)")]
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.clipperModeKey());
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                             }
-                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperModeKey(), i)
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
                             Layout.fillWidth: true
                         }
                     }
@@ -86,9 +86,9 @@ EffectDialog {
                         to: 0
                         value: {
                             effectRackController.revision;
-                            return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperThresholdKey()) * 24;
+                            return -24 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 24;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperThresholdKey(), (v + 24) / 24)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 24) / 24)
                         Layout.fillWidth: true
                     }
 
@@ -99,9 +99,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperGainKey()) * 48;
+                            return -24 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 48;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperGainKey(), (v + 24) / 48)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 24) / 48)
                         Layout.fillWidth: true
                     }
                 }

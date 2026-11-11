@@ -81,7 +81,7 @@ EffectDialog {
             }
             showGuides: {
                 effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoFieldMeterShowGuidesKey()) > 0.5;
+                return effectRackController.parameterValue(root.effectIndex, NahdXml.showGuides) > 0.5;
             }
         }
 
@@ -101,9 +101,9 @@ EffectDialog {
                     model: [qsTr("Fast"), qsTr("Normal"), qsTr("Slow")]
                     currentIndex: {
                         effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.stereoFieldMeterSpeedKey()));
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.speed));
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoFieldMeterSpeedKey(), index)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.speed, index)
                 }
             }
 
@@ -119,18 +119,18 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoFieldMeterZoomKey()) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.zoom) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoFieldMeterZoomKey(), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.zoom, v / 1000)
             }
 
             Switch {
                 text: qsTr("Guides")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoFieldMeterShowGuidesKey()) > 0.5;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.showGuides) > 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoFieldMeterShowGuidesKey(), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.showGuides, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
@@ -145,7 +145,7 @@ EffectDialog {
 
     // The stored value is the knob's own position; the renderer wants the factor it stands for.
     function zoomFactor() {
-        const position = effectRackController.parameterValue(root.effectIndex, effectRackController.stereoFieldMeterZoomKey());
+        const position = effectRackController.parameterValue(root.effectIndex, NahdXml.zoom);
         return knobController.map(position, "exponential", 0.25, 4);
     }
 }

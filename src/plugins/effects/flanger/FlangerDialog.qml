@@ -92,9 +92,9 @@ EffectDialog {
                     model: effectRackController.lfoModeNames()
                     currentIndex: {
                         effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.flangerModeKey()));
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.lfoMode));
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerModeKey(), index)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.lfoMode, index)
                     Layout.fillWidth: true
                 }
 
@@ -108,9 +108,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerRateKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.lfoRate) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerRateKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lfoRate, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -126,9 +126,9 @@ EffectDialog {
                     stepSize: 1
                     value: {
                         effectRackController.revision;
-                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, effectRackController.flangerRateDividerKey()));
+                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, NahdXml.rateDivider));
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerRateDividerKey(), Math.round(v))
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rateDivider, Math.round(v))
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -150,9 +150,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerDelayKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.delay) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerDelayKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.delay, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -166,9 +166,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerDepthKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.depth) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerDepthKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.depth, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -185,9 +185,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerFeedbackKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.feedback) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerFeedbackKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.feedback, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -209,9 +209,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerStereoPhaseKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.stereoPhase) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerStereoPhaseKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.stereoPhase, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -225,9 +225,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.flangerMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.flangerMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

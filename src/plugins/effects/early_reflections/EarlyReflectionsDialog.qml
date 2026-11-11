@@ -75,9 +75,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsSizeKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.size) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsSizeKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.size, v / 100)
                 }
 
                 Knob {
@@ -87,9 +87,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.preDelay) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.preDelay, v / 100)
                 }
 
                 Knob {
@@ -99,9 +99,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsDampingKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.damping) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsDampingKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.damping, v / 100)
                 }
 
                 Knob {
@@ -111,9 +111,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsDiffusionKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.diffusion) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsDiffusionKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.diffusion, v / 100)
                 }
 
                 Knob {
@@ -126,9 +126,9 @@ EffectDialog {
                     to: 200
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsWidthKey()) * 200;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.width) * 200;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsWidthKey(), v / 200)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.width, v / 200)
                 }
 
                 Knob {
@@ -141,9 +141,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsLowCutKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsLowCutKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / 1000)
                 }
 
                 Knob {
@@ -153,18 +153,18 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                 }
 
                 Switch {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsSoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsSoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

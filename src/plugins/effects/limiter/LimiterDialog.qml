@@ -74,9 +74,9 @@ EffectDialog {
                             to: 0
                             value: {
                                 effectRackController.revision;
-                                return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.limiterThresholdKey()) * 24;
+                                return -24 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 24;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.limiterThresholdKey(), (v + 24) / 24)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 24) / 24)
                             Layout.fillWidth: true
                         }
 
@@ -90,9 +90,9 @@ EffectDialog {
                             stepSize: 0.1
                             value: {
                                 effectRackController.revision;
-                                return -3 + effectRackController.parameterValue(root.effectIndex, effectRackController.limiterCeilingKey()) * 3;
+                                return -3 + effectRackController.parameterValue(root.effectIndex, NahdXml.ceiling) * 3;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.limiterCeilingKey(), (v + 3) / 3)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.ceiling, (v + 3) / 3)
                             Layout.fillWidth: true
                         }
 
@@ -108,9 +108,9 @@ EffectDialog {
                             to: 1000
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.limiterReleaseKey()) * 1000;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.release) * 1000;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.limiterReleaseKey(), v / 1000)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.release, v / 1000)
                             Layout.fillWidth: true
                         }
 
@@ -123,9 +123,9 @@ EffectDialog {
                             to: 10
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.limiterLookaheadKey()) * 10;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.lookahead) * 10;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.limiterLookaheadKey(), v / 10)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lookahead, v / 10)
                             Layout.fillWidth: true
                         }
                     }
@@ -142,9 +142,9 @@ EffectDialog {
                         Switch {
                             checked: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.limiterBoostKey()) > 0.5;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.boost) > 0.5;
                             }
-                            onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.limiterBoostKey(), checked ? 1 : 0)
+                            onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.boost, checked ? 1 : 0)
                         }
 
                         Label {

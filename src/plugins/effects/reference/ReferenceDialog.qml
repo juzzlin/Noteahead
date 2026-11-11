@@ -77,9 +77,9 @@ EffectDialog {
                     model: effectRackController.referenceEnvironmentNames()
                     currentIndex: {
                         effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.referenceEnvironmentKey()) * (count - 1));
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.environment) * (count - 1));
                     }
-                    onActivated: effectRackController.setParameterValue(root.effectIndex, effectRackController.referenceEnvironmentKey(), count > 1 ? currentIndex / (count - 1) : 0)
+                    onActivated: effectRackController.setParameterValue(root.effectIndex, NahdXml.environment, count > 1 ? currentIndex / (count - 1) : 0)
                     Universal.theme: Universal.Dark
                     implicitWidth: 160
                 }
@@ -100,9 +100,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.referenceAmountKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.amount) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.referenceAmountKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.amount, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -116,9 +116,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.referenceRoomKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.room) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.referenceRoomKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.room, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -132,9 +132,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.referenceDynamicsKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.dynamics) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.referenceDynamicsKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.dynamics, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -151,9 +151,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.referenceGainKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.referenceGainKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v / 100)
                 }
 
                 Item {

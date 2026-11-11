@@ -65,13 +65,13 @@ EffectDialog {
 
     function syncRendererParams() {
         renderer.dbRange = dbRangeValue();
-        renderer.showPinkNoise = effectRackController.parameterValue(effectIndex, effectRackController.rtaShowPinkNoiseKey()) >= 0.5;
-        renderer.pinkNoiseLevel = effectRackController.parameterValue(effectIndex, effectRackController.rtaPinkNoiseLevelKey());
+        renderer.showPinkNoise = effectRackController.parameterValue(effectIndex, NahdXml.showPinkNoise) >= 0.5;
+        renderer.pinkNoiseLevel = effectRackController.parameterValue(effectIndex, NahdXml.pinkNoiseLevel);
         effectRackController.rtaUpdateRenderer(effectIndex, renderer);
     }
 
     function dbRangeValue() {
-        const idx = Math.round(effectRackController.parameterValue(effectIndex, effectRackController.rtaDbRangeKey()));
+        const idx = Math.round(effectRackController.parameterValue(effectIndex, NahdXml.dbRange));
         const ranges = [30, 45, 60, 80];
         return ranges[Math.max(0, Math.min(3, idx))];
     }
@@ -103,9 +103,9 @@ EffectDialog {
                 ComboBox {
                     id: bandCountCombo
                     model: ["32", "64", "96", "128"]
-                    currentIndex: root.bandCountModes.indexOf(Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaBandCountKey())))
+                    currentIndex: root.bandCountModes.indexOf(Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.bandCount)))
                     onActivated: {
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaBandCountKey(), root.bandCountModes[currentIndex]);
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.bandCount, root.bandCountModes[currentIndex]);
                     }
                     Universal.theme: Universal.Dark
                     implicitWidth: 80
@@ -119,9 +119,9 @@ EffectDialog {
                 ComboBox {
                     id: dbRangeCombo
                     model: ["-30 dB", "-45 dB", "-60 dB", "-80 dB"]
-                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaDbRangeKey()))
+                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.dbRange))
                     onActivated: {
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaDbRangeKey(), currentIndex);
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.dbRange, currentIndex);
                         const ranges = [30, 45, 60, 80];
                         renderer.dbRange = ranges[currentIndex];
                     }
@@ -137,9 +137,9 @@ EffectDialog {
                 ComboBox {
                     id: speedCombo
                     model: [qsTr("Fast"), qsTr("Normal"), qsTr("Slow")]
-                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaSpeedKey()))
+                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.speed))
                     onActivated: {
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaSpeedKey(), currentIndex);
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.speed, currentIndex);
                     }
                     Universal.theme: Universal.Dark
                     implicitWidth: 90
@@ -153,9 +153,9 @@ EffectDialog {
                 ComboBox {
                     id: fftRateCombo
                     model: [qsTr("Fast"), qsTr("Normal"), qsTr("Slow")]
-                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaFftRateKey()))
+                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.fftRate))
                     onActivated: {
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaFftRateKey(), currentIndex);
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.fftRate, currentIndex);
                     }
                     Universal.theme: Universal.Dark
                     implicitWidth: 90
@@ -185,7 +185,7 @@ EffectDialog {
                     onToggled: {
                         renderer.showPinkNoise = checked;
                         effectRackController.setParameterValue(root.effectIndex,
-                            effectRackController.rtaShowPinkNoiseKey(), checked ? 1.0 : 0.0);
+                            NahdXml.showPinkNoise, checked ? 1.0 : 0.0);
                     }
                     Universal.theme: Universal.Dark
                 }
@@ -202,10 +202,10 @@ EffectDialog {
                     suffix: "dB"
                     from: -80
                     to: 0
-                    value: effectRackController.parameterValue(root.effectIndex, effectRackController.rtaPinkNoiseLevelKey())
+                    value: effectRackController.parameterValue(root.effectIndex, NahdXml.pinkNoiseLevel)
                     onMoved: v => {
                         renderer.pinkNoiseLevel = v;
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaPinkNoiseLevelKey(), v);
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.pinkNoiseLevel, v);
                     }
                     implicitWidth: 80
                 }

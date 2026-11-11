@@ -64,9 +64,9 @@ EffectDialog {
                     label: qsTr("Size")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessSizeKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.size) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessSizeKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.size, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -74,9 +74,9 @@ EffectDialog {
                     label: qsTr("Feedback")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFeedbackKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.decay) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFeedbackKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.decay, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -87,9 +87,9 @@ EffectDialog {
                     to: 500
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessPreDelayKey()) * 500;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.preDelay) * 500;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessPreDelayKey(), v / 500)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.preDelay, v / 500)
                     Layout.fillWidth: true
                 }
 
@@ -97,9 +97,9 @@ EffectDialog {
                     label: qsTr("Damping")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessDampingKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.damping) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessDampingKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.damping, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -107,9 +107,9 @@ EffectDialog {
                     label: qsTr("Mod Depth")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModDepthKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.depth) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModDepthKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.depth, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -117,9 +117,9 @@ EffectDialog {
                     label: qsTr("Mod Rate")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModRateKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.rate) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModRateKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rate, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -130,9 +130,9 @@ EffectDialog {
                     to: 200
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessWidthKey()) * 200;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.width) * 200;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessWidthKey(), v / 200)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.width, v / 200)
                     Layout.fillWidth: true
                 }
 
@@ -140,9 +140,9 @@ EffectDialog {
                     label: qsTr("Mix")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessMixKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessMixKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -150,9 +150,9 @@ EffectDialog {
                     label: qsTr("LPF")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.lpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -161,9 +161,9 @@ EffectDialog {
                     isHpf: true
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -178,9 +178,9 @@ EffectDialog {
                     Switch {
                         checked: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFreezeKey()) > 0.5;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.freeze) > 0.5;
                         }
-                        onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFreezeKey(), checked ? 1 : 0)
+                        onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.freeze, checked ? 1 : 0)
                     }
                     Label {
                         text: qsTr("Sustain the tail infinitely")
@@ -193,9 +193,9 @@ EffectDialog {
                         text: qsTr("Solo")
                         checked: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessSoloKey()) > 0.5;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                         }
-                        onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessSoloKey(), checked ? 1 : 0)
+                        onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered

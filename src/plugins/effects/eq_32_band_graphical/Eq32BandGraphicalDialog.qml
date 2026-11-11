@@ -75,9 +75,9 @@ EffectDialog {
                 model: [qsTr("Stereo"), qsTr("Mid"), qsTr("Side")]
                 currentIndex: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq32BandGraphicalStereoModeKey());
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.stereoMode);
                 }
-                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalStereoModeKey(), index)
+                onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.stereoMode, index)
             }
         }
 
@@ -90,9 +90,9 @@ EffectDialog {
                 text: qsTr("Linear Phase")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq32BandGraphicalLinearPhaseKey()) >= 0.5;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.linearPhase) >= 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalLinearPhaseKey(), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.linearPhase, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
@@ -119,9 +119,9 @@ EffectDialog {
                 to: 12
                 value: {
                     effectRackController.revision;
-                    return root.sliderDb(effectRackController.parameterValue(root.effectIndex, effectRackController.eq32BandGraphicalOutputGainKey()));
+                    return root.sliderDb(effectRackController.parameterValue(root.effectIndex, NahdXml.gain));
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalOutputGainKey(), (v + 12) / 24)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                 // Right-aligned by the spacer before it, at the width a lone knob takes
                 Layout.fillWidth: false
                 Layout.preferredWidth: Constants.standaloneKnobWidth
@@ -167,7 +167,7 @@ EffectDialog {
     component BandSlider: ColumnLayout {
         id: band
         property int bandIndex: -1
-        readonly property string gainKey: effectRackController.eq32BandGraphicalBandGainKey(bandIndex)
+        readonly property string gainKey: NahdXml.bandGain(bandIndex)
         readonly property real gainDb: {
             effectRackController.revision;
             return root.sliderDb(effectRackController.parameterValue(root.effectIndex, gainKey));

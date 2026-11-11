@@ -73,9 +73,9 @@ EffectDialog {
                             model: [qsTr("Off"), qsTr("On")]
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderColorKey());
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.color);
                             }
-                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderColorKey(), i)
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.color, i)
                             Layout.fillWidth: true
                         }
                     }
@@ -95,9 +95,9 @@ EffectDialog {
                             to: 40
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderDriveKey()) * 40;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.drive) * 40;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderDriveKey(), v / 40)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.drive, v / 40)
                             Layout.fillWidth: true
                         }
 
@@ -110,9 +110,9 @@ EffectDialog {
                             to: 100
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderBlendKey()) * 100;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.blend) * 100;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderBlendKey(), v / 100)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.blend, v / 100)
                             Layout.fillWidth: true
                         }
 
@@ -128,9 +128,9 @@ EffectDialog {
                             to: 1000
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderSplitFreqKey()) * 1000;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.splitFreq) * 1000;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderSplitFreqKey(), v / 1000)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.splitFreq, v / 1000)
                             Layout.fillWidth: true
                         }
 
@@ -143,9 +143,9 @@ EffectDialog {
                             to: 15
                             value: {
                                 effectRackController.revision;
-                                return -15 + effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderBassGainKey()) * 30;
+                                return -15 + effectRackController.parameterValue(root.effectIndex, NahdXml.bassGain) * 30;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderBassGainKey(), (v + 15) / 30)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bassGain, (v + 15) / 30)
                             Layout.fillWidth: true
                         }
 
@@ -158,9 +158,9 @@ EffectDialog {
                             to: 15
                             value: {
                                 effectRackController.revision;
-                                return -15 + effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderMidGainKey()) * 30;
+                                return -15 + effectRackController.parameterValue(root.effectIndex, NahdXml.midGain) * 30;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderMidGainKey(), (v + 15) / 30)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.midGain, (v + 15) / 30)
                             Layout.fillWidth: true
                         }
 
@@ -176,9 +176,9 @@ EffectDialog {
                             to: 1000
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderMidFreqKey()) * 1000;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.midFreq) * 1000;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderMidFreqKey(), v / 1000)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.midFreq, v / 1000)
                             Layout.fillWidth: true
                         }
 
@@ -191,9 +191,9 @@ EffectDialog {
                             to: 15
                             value: {
                                 effectRackController.revision;
-                                return -15 + effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderHighGainKey()) * 30;
+                                return -15 + effectRackController.parameterValue(root.effectIndex, NahdXml.highGain) * 30;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderHighGainKey(), (v + 15) / 30)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.highGain, (v + 15) / 30)
                             Layout.fillWidth: true
                         }
 
@@ -206,9 +206,9 @@ EffectDialog {
                             to: 100
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderMixKey()) * 100;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderMixKey(), v / 100)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                             Layout.fillWidth: true
                         }
 
@@ -221,9 +221,9 @@ EffectDialog {
                             to: 12
                             value: {
                                 effectRackController.revision;
-                                return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.bassGrinderGainKey()) * 24;
+                                return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bassGrinderGainKey(), (v + 12) / 24)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                             Layout.fillWidth: true
                         }
                     }

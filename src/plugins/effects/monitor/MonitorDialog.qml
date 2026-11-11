@@ -36,7 +36,7 @@ EffectDialog {
     // undo therefore move the buttons without either of them knowing the buttons exist.
     readonly property int mode: {
         effectRackController.revision;
-        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.monitorModeKey()));
+        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.mode));
     }
 
     background: Rectangle {
@@ -93,7 +93,7 @@ EffectDialog {
                         text: modelData.label
                         highlighted: root.mode === modelData.mode
                         Layout.fillWidth: true
-                        onClicked: effectRackController.setParameterValue(root.effectIndex, effectRackController.monitorModeKey(), modelData.mode)
+                        onClicked: effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, modelData.mode)
                     }
                 }
             }

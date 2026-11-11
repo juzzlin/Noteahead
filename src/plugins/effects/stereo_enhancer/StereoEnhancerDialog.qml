@@ -60,9 +60,9 @@ EffectDialog {
                 to: 100
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.bassGain) * 100;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bassGain, v / 100)
                 Layout.fillWidth: true
             }
 
@@ -78,9 +78,9 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey()) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.bassFreq) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey(), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bassFreq, v / 1000)
                 Layout.fillWidth: true
             }
 
@@ -93,9 +93,9 @@ EffectDialog {
                 to: 100
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.midGain) * 100;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.midGain, v / 100)
                 Layout.fillWidth: true
             }
 
@@ -111,9 +111,9 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey()) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.midQ) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey(), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.midQ, v / 1000)
                 Layout.fillWidth: true
             }
 
@@ -126,9 +126,9 @@ EffectDialog {
                 to: 100
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.highGain) * 100;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.highGain, v / 100)
                 Layout.fillWidth: true
             }
 
@@ -144,9 +144,9 @@ EffectDialog {
                 to: 1000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey()) * 1000;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.highFreq) * 1000;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey(), v / 1000)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.highFreq, v / 1000)
                 Layout.fillWidth: true
             }
 
@@ -159,9 +159,9 @@ EffectDialog {
                 to: 12
                 value: {
                     effectRackController.revision;
-                    return (effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey()) - 0.5) * 24;
+                    return (effectRackController.parameterValue(root.effectIndex, NahdXml.gain) - 0.5) * 24;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey(), v / 24 + 0.5)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v / 24 + 0.5)
                 Layout.fillWidth: true
             }
 
@@ -174,9 +174,9 @@ EffectDialog {
                 to: 100
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.spread) * 100;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.spread, v / 100)
                 Layout.fillWidth: true
             }
 
@@ -189,9 +189,9 @@ EffectDialog {
                 to: 100
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                 Layout.fillWidth: true
             }
 
@@ -201,9 +201,9 @@ EffectDialog {
                 text: qsTr("Solo Mode")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey()) > 0.5;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey(), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered

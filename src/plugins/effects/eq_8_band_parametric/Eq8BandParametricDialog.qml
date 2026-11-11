@@ -80,9 +80,9 @@ EffectDialog {
                 model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
                 currentIndex: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.stereoMode);
                 }
-                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
+                onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.stereoMode, index)
             }
         }
 
@@ -108,9 +108,9 @@ EffectDialog {
                     to: 12
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricOutputGainKey()) * 24 - 12;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 24 - 12;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricOutputGainKey(), (v + 12) / 24)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 12) / 24)
                     Layout.fillWidth: false
                     Layout.preferredWidth: Constants.standaloneKnobWidth
                 }
@@ -216,7 +216,7 @@ EffectDialog {
                     model: [qsTr("Bypass"), qsTr("Bell"), qsTr("Low Shelf"), qsTr("High Shelf"), qsTr("Low Cut"), qsTr("High Cut"), qsTr("Notch")]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex));
+                        return effectRackController.parameterValue(effectIndex, NahdXml.bandType(bandIndex));
                     }
                     // Q means a different thing to each type, so picking one opens it at the width
                     // that type is reached for at. Which type it already was decides whether that
@@ -240,9 +240,9 @@ EffectDialog {
                     model: ["12 dB/oct", "24 dB/oct", "48 dB/oct"]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricSlopeKey(bandIndex));
+                        return effectRackController.parameterValue(effectIndex, NahdXml.bandSlope(bandIndex));
                     }
-                    onActivated: index => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricSlopeKey(bandIndex), index)
+                    onActivated: index => effectRackController.setParameterValue(effectIndex, NahdXml.bandSlope(bandIndex), index)
                     // Only a cut has a slope to set. A bell or a shelf is shaped by its Q.
                     enabled: typeCombo.currentIndex === 4 || typeCombo.currentIndex === 5
                     Layout.fillWidth: true
@@ -260,9 +260,9 @@ EffectDialog {
             to: 1000
             value: {
                 effectRackController.revision;
-                return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricFreqKey(bandIndex)) * 1000;
+                return effectRackController.parameterValue(effectIndex, NahdXml.bandFreq(bandIndex)) * 1000;
             }
-            onMoved: v => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricFreqKey(bandIndex), v / 1000)
+            onMoved: v => effectRackController.setParameterValue(effectIndex, NahdXml.bandFreq(bandIndex), v / 1000)
             Layout.fillWidth: true
             enabled: typeCombo.currentIndex !== 0
         }
@@ -274,9 +274,9 @@ EffectDialog {
             to: 24
             value: {
                 effectRackController.revision;
-                return -24 + effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricGainKey(bandIndex)) * 48;
+                return -24 + effectRackController.parameterValue(effectIndex, NahdXml.bandGain(bandIndex)) * 48;
             }
-            onMoved: v => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricGainKey(bandIndex), (v + 24) / 48)
+            onMoved: v => effectRackController.setParameterValue(effectIndex, NahdXml.bandGain(bandIndex), (v + 24) / 48)
             Layout.fillWidth: true
             enabled: typeCombo.currentIndex === 1 || typeCombo.currentIndex === 2 || typeCombo.currentIndex === 3
         }
@@ -292,9 +292,9 @@ EffectDialog {
             to: 1000
             value: {
                 effectRackController.revision;
-                return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricQKey(bandIndex)) * 1000;
+                return effectRackController.parameterValue(effectIndex, NahdXml.bandQ(bandIndex)) * 1000;
             }
-            onMoved: v => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricQKey(bandIndex), v / 1000)
+            onMoved: v => effectRackController.setParameterValue(effectIndex, NahdXml.bandQ(bandIndex), v / 1000)
             Layout.fillWidth: true
             enabled: typeCombo.currentIndex !== 0
         }

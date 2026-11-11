@@ -56,9 +56,9 @@ EffectDialog {
                 mapMax: 20000
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey()) * Constants.uiInternalScaling;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.frequency) * Constants.uiInternalScaling;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey(), v / Constants.uiInternalScaling)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.frequency, v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
 
                 HoverHandler { id: freqHover }
@@ -77,9 +77,9 @@ EffectDialog {
                 isInteger: false
                 value: {
                     effectRackController.revision;
-                    return 0.1 + effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterQKey()) * 9.9;
+                    return 0.1 + effectRackController.parameterValue(root.effectIndex, NahdXml.q) * 9.9;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterQKey(), (v - 0.1) / 9.9)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.q, (v - 0.1) / 9.9)
                 Layout.fillWidth: true
 
                 HoverHandler { id: qHover }
@@ -98,9 +98,9 @@ EffectDialog {
                 stepSize: 1
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey());
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.stages);
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey(), Math.round(v))
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.stages, Math.round(v))
                 Layout.fillWidth: true
 
                 HoverHandler { id: stagesHover }

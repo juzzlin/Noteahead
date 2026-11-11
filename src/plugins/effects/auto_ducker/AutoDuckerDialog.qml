@@ -72,9 +72,9 @@ EffectDialog {
                         to: 0
                         value: {
                             effectRackController.revision;
-                            return -60 + effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerThresholdKey()) * 60;
+                            return -60 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 60;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerThresholdKey(), (v + 60) / 60)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 60) / 60)
                         Layout.fillWidth: true
                     }
 
@@ -87,9 +87,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerAmountKey()) * 48;
+                            return -24 + effectRackController.parameterValue(root.effectIndex, NahdXml.amount) * 48;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerAmountKey(), (v + 24) / 48)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.amount, (v + 24) / 48)
                         Layout.fillWidth: true
                     }
 
@@ -102,9 +102,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerKneeKey()) * 24;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.knee) * 24;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerKneeKey(), v / 24)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.knee, v / 24)
                         Layout.fillWidth: true
                     }
 
@@ -120,9 +120,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerAttackKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.attack) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerAttackKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.attack, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -138,9 +138,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerReleaseKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.release) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerReleaseKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.release, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -153,9 +153,9 @@ EffectDialog {
                         to: 500
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerHoldKey()) * 500;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.hold) * 500;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerHoldKey(), v / 500)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hold, v / 500)
                         Layout.fillWidth: true
                     }
 
@@ -207,17 +207,17 @@ EffectDialog {
                             }
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerSideChainSourceDeviceKey()) + 1;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.sideChainSourceDevice) + 1;
                             }
-                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerSideChainSourceDeviceKey(), index - 1)
+                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.sideChainSourceDevice, index - 1)
                         }
                         FilterKnob {
                             label: qsTr("LPF")
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.autoDuckerSideChainLpfKey()) * Constants.uiInternalScaling;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.sideChainLpf) * Constants.uiInternalScaling;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoDuckerSideChainLpfKey(), v / Constants.uiInternalScaling)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.sideChainLpf, v / Constants.uiInternalScaling)
                         }
                     }
                 }

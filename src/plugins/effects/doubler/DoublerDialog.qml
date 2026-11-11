@@ -67,9 +67,9 @@ EffectDialog {
                     model: [qsTr("Mono Safe"), qsTr("Haas")]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerModeKey());
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                     }
-                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerModeKey(), i)
+                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
                     Layout.preferredWidth: 160
                 }
             }
@@ -90,9 +90,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerTimeKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.delayTime) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerTimeKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.delayTime, v / 1000)
                     Layout.fillWidth: true
                 }
 
@@ -103,9 +103,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerAmountKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.amount) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerAmountKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.amount, v / 100)
                     Layout.fillWidth: true
                 }
 
@@ -119,9 +119,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerLowCutKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerLowCutKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / 1000)
                     Layout.fillWidth: true
                 }
 
@@ -132,9 +132,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerDriftKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.depth) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerDriftKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.depth, v / 100)
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -146,9 +146,9 @@ EffectDialog {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.doublerSoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.doublerSoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

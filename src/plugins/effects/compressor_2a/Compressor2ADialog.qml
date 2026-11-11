@@ -78,9 +78,9 @@ EffectDialog {
                     model: ["Compress", "Limit"]
                     currentIndex: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2AModeKey());
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                     }
-                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2AModeKey(), i)
+                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
                     Layout.preferredWidth: 160
                 }
                 Label {
@@ -137,9 +137,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2APeakReductionKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.peakReduction) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2APeakReductionKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.peakReduction, v / 100)
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -155,9 +155,9 @@ EffectDialog {
                     isInteger: false
                     value: {
                         effectRackController.revision;
-                        return -20 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2AGainKey()) * 60;
+                        return -20 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 60;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2AGainKey(), (v + 20) / 60)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 20) / 60)
                     Layout.fillWidth: true
                 }
 
@@ -168,9 +168,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2AMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2AMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                     Layout.fillWidth: true
                 }
 
@@ -178,9 +178,9 @@ EffectDialog {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.compressor2ASoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.compressor2ASoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

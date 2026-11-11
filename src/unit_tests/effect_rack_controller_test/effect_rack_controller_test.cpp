@@ -160,8 +160,8 @@ void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnF
     QCOMPARE(summary, QString { "(pre=20ms, decay=1500ms)" });
 
     // Change parameters
-    controller.setParameterValue(0, controller.reverbPreDelayKey(), 50.0f / 500.0f); // 50ms
-    controller.setParameterValue(0, controller.reverbDecayKey(), 3000.0f / 10000.0f); // 3000ms
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 3000.0f / 10000.0f); // 3000ms
 
     const auto summary2 = controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, decay=3000ms)" });
@@ -180,7 +180,7 @@ void EffectRackControllerTest::test_effectParametersSummary_allPassFilter_should
     // The frequency the filter runs at, not the knob position the project stores: 80 Hz read out
     // as 4036 before, which is where 80 Hz sits on the log knob spread linearly over 20..20000
     QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=40Hz, stages=1)" });
-    controller.setParameterValue(0, controller.allPassFilterFrequencyKey(), static_cast<float>(ParameterMapper::unmapLogFrequency(80.0, 20.0, 20000.0)));
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyFrequency(), static_cast<float>(ParameterMapper::unmapLogFrequency(80.0, 20.0, 20000.0)));
     QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=80Hz, stages=1)" });
 }
 
@@ -198,7 +198,7 @@ void EffectRackControllerTest::test_effectParametersSummary_endlessReverb_should
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(pre=20ms, size=70%, freeze=off)" });
 
-    controller.setParameterValue(0, controller.endlessPreDelayKey(), 50.0f / 500.0f); // 50ms
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
 
     const auto summary2 = controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, size=70%, freeze=off)" });
@@ -219,7 +219,7 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
     QCOMPARE(summary, QString { "(Peak, attack=0.5ms, ratio=4:1, sidechain=None)" });
 
     // Change ratio to 10:1 (internal = (10-1)/19 = 0.473...)
-    controller.setParameterValue(0, controller.compressorRatioKey(), 9.0f / 19.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyRatio(), 9.0f / 19.0f);
     const auto summary2 { controller.effectParametersSummary(0) };
     QCOMPARE(summary2, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=None)" });
 
@@ -227,11 +227,11 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
     const auto device1 { std::make_shared<MockDevice>("Device 1") };
     deviceService->setDevice(1, device1);
 
-    controller.setParameterValue(0, controller.compressorSideChainSourceDeviceKey(), 1.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeySideChainSourceDevice(), 1.0f);
     const auto summary3 { controller.effectParametersSummary(0) };
     QCOMPARE(summary3, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
 
-    controller.setParameterValue(0, controller.compressorModeKey(), 1.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMode(), 1.0f);
     const auto summary4 { controller.effectParametersSummary(0) };
     QCOMPARE(summary4, QString { "(RMS, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
 }
@@ -255,7 +255,7 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
     QCOMPARE(summary, QString { "(rate=3.52Hz, int=100%)" });
 
     // The divider is reported in the rate, so a sweep stretched over bars reads as one.
-    controller.setParameterValue(0, controller.autoPannerRateDividerKey(), 4.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyRateDivider(), 4.0f);
     QCOMPARE(controller.effectParametersSummary(0), QString { "(rate=0.88Hz, int=100%)" });
 }
 
@@ -273,9 +273,9 @@ void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldRet
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(LPF, 2.5kHz, rate=1.00Hz, int=25%)" });
 
-    controller.setParameterValue(0, controller.autoFilterFilterTypeKey(), 1.0f);
-    controller.setParameterValue(0, controller.autoFilterLfoModeKey(), static_cast<float>(Lfo::Mode::BPM));
-    controller.setParameterValue(0, controller.autoFilterLfoRateKey(), 0.25f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyFilterType(), 1.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoMode(), static_cast<float>(Lfo::Mode::BPM));
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoRate(), 0.25f);
     const auto syncedSummary = controller.effectParametersSummary(0);
     QCOMPARE(syncedSummary, QString { "(HPF, 2.5kHz, rate=1/4, int=25%)" });
 }
@@ -636,7 +636,7 @@ void EffectRackControllerTest::test_eqAutoGainDb_switchedOn_shouldReportTheCompe
     controller.setParameterValue(0, Constants::NahdXml::xmlKeyAmount(), 1.0f);
 
     QCOMPARE(controller.eqAutoGainDb(0), 0.0);
-    controller.setParameterValue(0, controller.eqAutoGainKey(), 1.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
     QVERIFY(controller.eqAutoGainDb(0) < -1.0);
 
     // A slot with nothing in it has nothing to report
@@ -950,7 +950,7 @@ void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
 
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, controller.reverbDecayKey(), 0.75f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 0.75f);
 
     QByteArray data;
     QBuffer buffer { &data };
@@ -968,7 +968,7 @@ void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
     buffer.close();
 
     QCOMPARE(controller.effectType(0), controller.reverbType());
-    QCOMPARE(controller.parameterValue(0, controller.reverbDecayKey()), 0.75f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDecay()), 0.75f);
 }
 
 void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmitConfirmationWithoutMismatch()
@@ -1079,7 +1079,7 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     controller.confirmImportEffectSettings(0, QUrl::fromLocalFile(filePath));
 
     QCOMPARE(revisionSpy.count(), 1);
-    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.123f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.123f);
     QVERIFY(editorService->isModified());
 
     QFile::remove(filePath);
@@ -1094,7 +1094,7 @@ void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
 
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, controller.reverbSizeKey(), 0.42f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
 
     QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
     controller.copyEffect(0, 2);
@@ -1102,7 +1102,7 @@ void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
     QVERIFY(revisionSpy.count() > 0);
     QVERIFY(editorService->isModified());
     QCOMPARE(controller.effectType(2), controller.reverbType());
-    QCOMPARE(controller.parameterValue(2, controller.reverbSizeKey()), 0.42f);
+    QCOMPARE(controller.parameterValue(2, Constants::NahdXml::xmlKeySize()), 0.42f);
 }
 
 void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackAndNotify()
@@ -1118,7 +1118,7 @@ void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackA
     controller.setIsInsertRack(true);
     controller.setTargetDeviceName("Mock Device");
     controller.setEffect(1, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(1, controller.reverbSizeKey(), 0.42f);
+    controller.setParameterValue(1, Constants::NahdXml::xmlKeySize(), 0.42f);
 
     controller.setTargetDeviceName({});
     controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
@@ -1130,12 +1130,12 @@ void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackA
     QVERIFY(editorService->isModified());
     QCOMPARE(controller.effectType(0), QString {});
     QCOMPARE(controller.effectType(1), controller.reverbType());
-    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.42f);
+    QCOMPARE(controller.parameterValue(1, Constants::NahdXml::xmlKeySize()), 0.42f);
 
     // The copy is independent: editing it does not reach into the rack it came from.
-    controller.setParameterValue(1, controller.reverbSizeKey(), 0.1f);
+    controller.setParameterValue(1, Constants::NahdXml::xmlKeySize(), 0.1f);
     controller.setTargetDeviceName("Mock Device");
-    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.42f);
+    QCOMPARE(controller.parameterValue(1, Constants::NahdXml::xmlKeySize()), 0.42f);
 }
 
 void EffectRackControllerTest::test_copyRackFrom_sameRack_shouldFail()
@@ -1199,19 +1199,19 @@ void EffectRackControllerTest::test_revertEffect_shouldRestoreSnapshotAndNotify(
 
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, controller.reverbSizeKey(), 0.42f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
 
     controller.snapshotEffect(0);
 
-    controller.setParameterValue(0, controller.reverbSizeKey(), 0.9f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.9f);
     controller.setIsEffectEnabled(0, false);
-    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.9f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.9f);
 
     QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
     QSignalSpy parameterSpy { &controller, &EffectRackController::parameterChanged };
     controller.revertEffect(0);
 
-    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.42f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.42f);
     QVERIFY(controller.isEffectEnabled(0));
     QCOMPARE(revisionSpy.count(), 1);
     // An empty parameter name is how the dialog is told to re-read all of them
@@ -1228,11 +1228,11 @@ void EffectRackControllerTest::test_revertEffect_withoutSnapshot_shouldKeepEdits
 
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, controller.reverbSizeKey(), 0.7f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.7f);
 
     controller.revertEffect(0);
 
-    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.7f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.7f);
 }
 
 void EffectRackControllerTest::test_revertEffect_otherSlot_shouldKeepEdits()
@@ -1247,12 +1247,12 @@ void EffectRackControllerTest::test_revertEffect_otherSlot_shouldKeepEdits()
     controller.setEffect(1, QString::fromStdString(Reverb::typeIdString()));
 
     controller.snapshotEffect(0);
-    controller.setParameterValue(1, controller.reverbSizeKey(), 0.33f);
+    controller.setParameterValue(1, Constants::NahdXml::xmlKeySize(), 0.33f);
 
     // The snapshot belongs to slot 0, so slot 1 must be left alone
     controller.revertEffect(1);
 
-    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.33f);
+    QCOMPARE(controller.parameterValue(1, Constants::NahdXml::xmlKeySize()), 0.33f);
 }
 
 namespace {
@@ -1717,21 +1717,21 @@ void EffectRackControllerTest::test_setEffect_masterSendRack_shouldStartMixAtThe
 
     controller.setIsInsertRack(false);
     controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 1.0f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 1.0f);
     // Only a start: the knob moves as before
-    controller.setParameterValue(0, controller.ambienceMixKey(), 0.4f);
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.4f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.4f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.4f);
 
     // An insert keeps the effect's own default
     controller.setIsInsertRack(true);
     controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.3f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
 
     // And so does the chain behind a send bus, which is an insert on the return
     controller.setIsInsertRack(false);
     controller.setTargetSubIndex(0);
     controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.3f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
 
     // The Delay keeps its Mix under a key of its own
     controller.setTargetSubIndex(-1);
@@ -1757,19 +1757,19 @@ void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTh
 
     controller.setIsInsertRack(false);
     controller.setEffect(0, controller.ambienceType());
-    controller.setParameterValue(0, controller.ambienceMixKey(), 0.6f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
     QVERIFY(mixGlue() > 0);
     controller.loadEffectPreset(0, mixGlue());
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.6f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.6f);
     // The rest of the preset does land
-    QCOMPARE(controller.parameterValue(0, controller.ambienceSizeKey()), 0.45f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.45f);
 
     // On an insert the preset's Mix is part of its sound
     controller.setIsInsertRack(true);
     controller.setEffect(0, controller.ambienceType());
-    controller.setParameterValue(0, controller.ambienceMixKey(), 0.6f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
     controller.loadEffectPreset(0, mixGlue());
-    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.2f);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.2f);
 
     // And so does the Delay, whose Mix has a key of its own
     controller.setIsInsertRack(false);

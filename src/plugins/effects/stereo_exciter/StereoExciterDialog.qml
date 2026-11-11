@@ -72,9 +72,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterTuneKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.tune) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterTuneKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.tune, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -87,9 +87,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterPeakKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.peak) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterPeakKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.peak, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -102,9 +102,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterZeroFillKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.zeroFill) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterZeroFillKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.zeroFill, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -120,9 +120,9 @@ EffectDialog {
                         to: 50
                         value: {
                             effectRackController.revision;
-                            return (effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterTimbreKey()) - 0.5) * 100;
+                            return (effectRackController.parameterValue(root.effectIndex, NahdXml.timbre) - 0.5) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterTimbreKey(), v / 100 + 0.5)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.timbre, v / 100 + 0.5)
                         Layout.fillWidth: true
                     }
 
@@ -135,9 +135,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterHarmonicsKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.harmonics) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterHarmonicsKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.harmonics, v / 100)
                         Layout.fillWidth: true
                     }
 
@@ -150,9 +150,9 @@ EffectDialog {
                         to: 100
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterMixKey()) * 100;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterMixKey(), v / 100)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                         Layout.fillWidth: true
                     }
                 }
@@ -203,9 +203,9 @@ EffectDialog {
                 text: qsTr("Solo Mode")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey()) > 0.5;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey(), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered

@@ -40,7 +40,7 @@ EffectDialog {
 
     readonly property int program: {
         effectRackController.revision;
-        return Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.reverb224ProgramKey()));
+        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.program));
     }
 
     //! A knob on one of the effect's parameters, which run 0..1 and are shown over 0..scale.
@@ -104,7 +104,7 @@ EffectDialog {
                         // Reverb jargon, left in English
                         model: ["Small Hall A", "Small Hall B", "Large Hall", "Vocal Plate", "Chamber", "Percussion Plate", "Constant Density Plate", "Room"]
                         currentIndex: root.program
-                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverb224ProgramKey(), index)
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.program, index)
                         Layout.preferredWidth: 220
                     }
                 }
@@ -112,9 +112,9 @@ EffectDialog {
                     text: qsTr("Converters")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverb224ConvertersKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.converters) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverb224ConvertersKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.converters, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -140,7 +140,7 @@ EffectDialog {
                     mapMax: 70.0
                     isInteger: false
                     scale: 1000
-                    key: effectRackController.reverb224BassDecayKey()
+                    key: NahdXml.bassDecay
                 }
                 ParameterKnob {
                     label: qsTr("Crossover")
@@ -149,7 +149,7 @@ EffectDialog {
                     mapMin: 100
                     mapMax: 10900
                     scale: 1000
-                    key: effectRackController.reverb224CrossoverKey()
+                    key: NahdXml.crossoverFreq(0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -163,7 +163,7 @@ EffectDialog {
                     mapMax: 70.0
                     isInteger: false
                     scale: 1000
-                    key: effectRackController.reverb224MidDecayKey()
+                    key: NahdXml.midDecay
                 }
                 ParameterKnob {
                     label: qsTr("Treble Decay")
@@ -172,7 +172,7 @@ EffectDialog {
                     mapMin: 100
                     mapMax: 10900
                     scale: 1000
-                    key: effectRackController.reverb224TrebleDecayKey()
+                    key: NahdXml.trebleDecay
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -191,12 +191,12 @@ EffectDialog {
                     label: qsTr("Pre-Delay")
                     suffix: "ms"
                     scale: 255
-                    key: effectRackController.reverb224PreDelayKey()
+                    key: NahdXml.preDelay
                 }
                 ParameterKnob {
                     label: qsTr("Depth")
                     suffix: "%"
-                    key: effectRackController.reverb224DepthKey()
+                    key: NahdXml.depth
                     enabled: effectRackController.reverb224HasEarlyReflections(root.program)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -206,7 +206,7 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Diffusion")
                     suffix: "%"
-                    key: effectRackController.reverb224DiffusionKey()
+                    key: NahdXml.diffusion
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -215,7 +215,7 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Enhance")
                     suffix: "%"
-                    key: effectRackController.reverb224EnhanceKey()
+                    key: NahdXml.enhance
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -236,7 +236,7 @@ EffectDialog {
                     mapMin: 20
                     mapMax: 1000
                     scale: 1000
-                    key: effectRackController.reverb224LowCutKey()
+                    key: NahdXml.hpfCutoff
                     // In the Space knobs' column
                     Layout.fillWidth: false
                     Layout.preferredWidth: preDelayKnob.width
@@ -257,15 +257,15 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Mix")
                     suffix: "%"
-                    key: effectRackController.reverb224MixKey()
+                    key: NahdXml.mix
                 }
                 Switch {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverb224SoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverb224SoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

@@ -92,17 +92,17 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Size")
                     suffix: "%"
-                    key: effectRackController.ambienceSizeKey()
+                    key: NahdXml.size
                 }
                 ParameterKnob {
                     label: qsTr("Pre-Delay")
                     suffix: "ms"
-                    key: effectRackController.ambiencePreDelayKey()
+                    key: NahdXml.preDelay
                 }
                 ParameterKnob {
                     label: qsTr("Diffusion")
                     suffix: "%"
-                    key: effectRackController.ambienceDiffusionKey()
+                    key: NahdXml.diffusion
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -111,7 +111,7 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Shape")
                     suffix: "%"
-                    key: effectRackController.ambienceShapeKey()
+                    key: NahdXml.shape
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -120,7 +120,7 @@ EffectDialog {
                 ParameterKnob {
                     label: qsTr("Early/Late")
                     suffix: "%"
-                    key: effectRackController.ambienceEarlyLateKey()
+                    key: NahdXml.earlyLate
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -141,12 +141,12 @@ EffectDialog {
                     mapMin: 0.2
                     mapMax: 3.0
                     scale: 1000
-                    key: effectRackController.ambienceDecayKey()
+                    key: NahdXml.decay
                 }
                 ParameterKnob {
                     label: qsTr("Damping")
                     suffix: "%"
-                    key: effectRackController.ambienceDampingKey()
+                    key: NahdXml.damping
                 }
                 ParameterKnob {
                     label: qsTr("Mod Rate")
@@ -156,12 +156,12 @@ EffectDialog {
                     mapMax: 2.0
                     isInteger: false
                     scale: 1000
-                    key: effectRackController.ambienceModRateKey()
+                    key: NahdXml.rate
                 }
                 ParameterKnob {
                     label: qsTr("Mod Depth")
                     suffix: "%"
-                    key: effectRackController.ambienceModDepthKey()
+                    key: NahdXml.depth
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -182,7 +182,7 @@ EffectDialog {
                     mapMin: 20
                     mapMax: 1000
                     scale: 1000
-                    key: effectRackController.ambienceLowCutKey()
+                    key: NahdXml.hpfCutoff
                 }
                 ParameterKnob {
                     label: qsTr("High Cut")
@@ -191,7 +191,7 @@ EffectDialog {
                     mapMin: 1000
                     mapMax: 20000
                     scale: 1000
-                    key: effectRackController.ambienceHighCutKey()
+                    key: NahdXml.lpfCutoff
                 }
                 ParameterKnob {
                     label: qsTr("Width")
@@ -200,20 +200,20 @@ EffectDialog {
                     mapMin: 0
                     mapMax: 200
                     scale: 200
-                    key: effectRackController.ambienceWidthKey()
+                    key: NahdXml.width
                 }
                 ParameterKnob {
                     label: qsTr("Mix")
                     suffix: "%"
-                    key: effectRackController.ambienceMixKey()
+                    key: NahdXml.mix
                 }
                 Switch {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.ambienceSoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.ambienceSoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

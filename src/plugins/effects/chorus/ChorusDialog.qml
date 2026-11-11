@@ -63,9 +63,9 @@ EffectDialog {
                     mapMax: 10.0
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusRateKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.rate) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusRateKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.rate, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -73,9 +73,9 @@ EffectDialog {
                     label: qsTr("Depth")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDepthKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.depth) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDepthKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.depth, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -87,9 +87,9 @@ EffectDialog {
                     mapMax: 30.0
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDelayKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.delay) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDelayKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.delay, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -97,9 +97,9 @@ EffectDialog {
                     label: qsTr("Width")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusWidthKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.width) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusWidthKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.width, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -107,9 +107,9 @@ EffectDialog {
                     label: qsTr("LPF")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusLpfKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.lpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusLpfKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -118,9 +118,9 @@ EffectDialog {
                     isHpf: true
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusHpfKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusHpfKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -128,9 +128,9 @@ EffectDialog {
                     label: qsTr("Mix")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusMixKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusMixKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }

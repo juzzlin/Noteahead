@@ -76,9 +76,9 @@ EffectDialog {
                     stepSize: 1
                     value: {
                         effectRackController.revision;
-                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, effectRackController.bitCrusherBitDepthKey()));
+                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, NahdXml.bitDepth));
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bitCrusherBitDepthKey(), Math.round(v))
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.bitDepth, Math.round(v))
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -95,9 +95,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.bitCrusherRateKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.sampleRate) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bitCrusherRateKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.sampleRate, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -111,9 +111,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.bitCrusherMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.bitCrusherMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

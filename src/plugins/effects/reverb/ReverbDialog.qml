@@ -63,9 +63,9 @@ EffectDialog {
                     label: qsTr("Size")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbSizeKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.size) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbSizeKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.size, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -76,9 +76,9 @@ EffectDialog {
                     to: 10000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDecayKey()) * 10000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.decay) * 10000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDecayKey(), v / 10000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.decay, v / 10000)
                     Layout.fillWidth: true
                 }
 
@@ -86,9 +86,9 @@ EffectDialog {
                     label: qsTr("Damping")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDampingKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.damping) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDampingKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.damping, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -99,9 +99,9 @@ EffectDialog {
                     to: 500
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbPreDelayKey()) * 500;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.preDelay) * 500;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbPreDelayKey(), v / 500)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.preDelay, v / 500)
                     Layout.fillWidth: true
                 }
 
@@ -114,9 +114,9 @@ EffectDialog {
                     to: 2 * Constants.uiInternalScaling
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbWidthKey()) * 2 * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.width) * 2 * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbWidthKey(), v / (2 * Constants.uiInternalScaling))
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.width, v / (2 * Constants.uiInternalScaling))
                     Layout.fillWidth: true
                 }
 
@@ -124,9 +124,9 @@ EffectDialog {
                     label: qsTr("Mix")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbMixKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbMixKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -134,9 +134,9 @@ EffectDialog {
                     label: qsTr("LPF")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.lpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -145,9 +145,9 @@ EffectDialog {
                     isHpf: true
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -164,9 +164,9 @@ EffectDialog {
                     text: qsTr("Gated")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGatedKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.gated) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGatedKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.gated, checked ? 1 : 0)
                 }
                 Label {
                     text: qsTr("Chop the reverb tail with a noise gate keyed off the dry input")
@@ -191,9 +191,9 @@ EffectDialog {
                     to: 0
                     value: {
                         effectRackController.revision;
-                        return -60 + effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey()) * 60;
+                        return -60 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 60;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey(), (v + 60) / 60)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 60) / 60)
                     Layout.fillWidth: true
                 }
 
@@ -207,9 +207,9 @@ EffectDialog {
                     to: Constants.uiInternalScaling
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateAttackKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.attack) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateAttackKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.attack, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
@@ -220,9 +220,9 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateHoldKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hold) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateHoldKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hold, v / 1000)
                     Layout.fillWidth: true
                 }
 
@@ -236,9 +236,9 @@ EffectDialog {
                     to: Constants.uiInternalScaling
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey()) * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.release) * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey(), v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.release, v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
             }
@@ -248,9 +248,9 @@ EffectDialog {
                 text: qsTr("Solo")
                 checked: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbSoloKey()) > 0.5;
+                    return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                 }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbSoloKey(), checked ? 1 : 0)
+                onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered

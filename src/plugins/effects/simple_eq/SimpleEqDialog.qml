@@ -55,9 +55,9 @@ EffectDialog {
             Layout.preferredWidth: 140
             value: {
                 effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.simpleEqAmountKey()) * 100;
+                return effectRackController.parameterValue(root.effectIndex, NahdXml.amount) * 100;
             }
-            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.simpleEqAmountKey(), v / 100)
+            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.amount, v / 100)
         }
 
         Label {

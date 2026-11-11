@@ -16,6 +16,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
 import ".."
 
 // The Auto Gain switch every equalizer shares, with what it currently applies beside the name.
@@ -36,9 +37,9 @@ Switch {
     text: qsTr("Auto Gain") + (checked ? " " + formatDb(gainDb) : "")
     checked: {
         effectRackController.revision;
-        return effectRackController.parameterValue(root.effectIndex, effectRackController.eqAutoGainKey()) >= 0.5;
+        return effectRackController.parameterValue(root.effectIndex, NahdXml.autoGain) >= 0.5;
     }
-    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.eqAutoGainKey(), checked ? 1 : 0)
+    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.autoGain, checked ? 1 : 0)
     ToolTip.delay: Constants.toolTipDelay
     ToolTip.timeout: Constants.toolTipTimeout
     ToolTip.visible: hovered

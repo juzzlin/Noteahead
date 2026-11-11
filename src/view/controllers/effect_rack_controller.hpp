@@ -172,35 +172,11 @@ public:
     QString reverbType() const;
     QString endlessType() const;
     QString gateType() const;
-    Q_INVOKABLE QString gateThresholdKey() const;
-    Q_INVOKABLE QString gateRatioKey() const;
-    Q_INVOKABLE QString gateRangeKey() const;
-    Q_INVOKABLE QString gateAttackKey() const;
-    Q_INVOKABLE QString gateHoldKey() const;
-    Q_INVOKABLE QString gateReleaseKey() const;
     QString bitCrusherType() const;
-    Q_INVOKABLE QString bitCrusherBitDepthKey() const;
-    Q_INVOKABLE QString bitCrusherRateKey() const;
-    Q_INVOKABLE QString bitCrusherMixKey() const;
     Q_INVOKABLE int bitCrusherMaxBits() const;
     QString flangerType() const;
-    Q_INVOKABLE QString flangerRateKey() const;
-    Q_INVOKABLE QString flangerModeKey() const;
-    Q_INVOKABLE QString flangerRateDividerKey() const;
-    Q_INVOKABLE QString flangerDepthKey() const;
-    Q_INVOKABLE QString flangerDelayKey() const;
-    Q_INVOKABLE QString flangerFeedbackKey() const;
-    Q_INVOKABLE QString flangerStereoPhaseKey() const;
-    Q_INVOKABLE QString flangerMixKey() const;
     Q_INVOKABLE int flangerMaxRateDivider() const;
     QString tremoloType() const;
-    Q_INVOKABLE QString tremoloWaveformKey() const;
-    Q_INVOKABLE QString tremoloIntensityKey() const;
-    Q_INVOKABLE QString tremoloRateKey() const;
-    Q_INVOKABLE QString tremoloSyncKey() const;
-    Q_INVOKABLE QString tremoloSyncDivisionKey() const;
-    Q_INVOKABLE QString tremoloRateDividerKey() const;
-    Q_INVOKABLE QString tremoloStereoPhaseKey() const;
     Q_INVOKABLE int tremoloMaxRateDivider() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
@@ -255,69 +231,6 @@ public:
     //! The id of the effect in @p effectIndex of the current rack, empty for none. See Effect::id().
     Q_INVOKABLE QString effectId(quint32 effectIndex) const;
 
-    Q_INVOKABLE QString reverbSizeKey() const;
-    Q_INVOKABLE QString reverbDecayKey() const;
-    Q_INVOKABLE QString reverbDampingKey() const;
-    Q_INVOKABLE QString reverbPreDelayKey() const;
-    Q_INVOKABLE QString reverbWidthKey() const;
-    Q_INVOKABLE QString reverbLpfCutoffKey() const;
-    Q_INVOKABLE QString reverbHpfCutoffKey() const;
-    Q_INVOKABLE QString reverbMixKey() const;
-    Q_INVOKABLE QString reverbSoloKey() const;
-    Q_INVOKABLE QString reverbGatedKey() const;
-    Q_INVOKABLE QString reverbGateThresholdKey() const;
-    Q_INVOKABLE QString reverbGateAttackKey() const;
-    Q_INVOKABLE QString reverbGateHoldKey() const;
-    Q_INVOKABLE QString reverbGateReleaseKey() const;
-
-    Q_INVOKABLE QString chorusRateKey() const;
-    Q_INVOKABLE QString chorusDepthKey() const;
-    Q_INVOKABLE QString chorusDelayKey() const;
-    Q_INVOKABLE QString chorusMixKey() const;
-    Q_INVOKABLE QString chorusWidthKey() const;
-    Q_INVOKABLE QString chorusLpfKey() const;
-    Q_INVOKABLE QString chorusHpfKey() const;
-    Q_INVOKABLE QString compressorModeKey() const;
-    Q_INVOKABLE QString compressorThresholdKey() const;
-    Q_INVOKABLE QString compressorRatioKey() const;
-    Q_INVOKABLE QString compressorAttackKey() const;
-    Q_INVOKABLE QString compressorReleaseKey() const;
-    Q_INVOKABLE QString compressorKneeKey() const;
-    Q_INVOKABLE QString compressorMakeupKey() const;
-    Q_INVOKABLE QString compressorLookaheadKey() const;
-    Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
-    Q_INVOKABLE QString compressorSideChainLpfKey() const;
-
-    Q_INVOKABLE QString autoFilterFilterTypeKey() const;
-    Q_INVOKABLE QString autoFilterFilterSlopeKey() const;
-    Q_INVOKABLE QString autoFilterCutoffKey() const;
-    Q_INVOKABLE QString autoFilterResonanceKey() const;
-    Q_INVOKABLE QString autoFilterLfoWaveformKey() const;
-    Q_INVOKABLE QString autoFilterLfoModeKey() const;
-    Q_INVOKABLE QString autoFilterLfoRateKey() const;
-    Q_INVOKABLE QString autoFilterLfoIntensityKey() const;
-    Q_INVOKABLE QString autoFilterLfo2WaveformKey() const;
-    Q_INVOKABLE QString autoFilterLfo2ModeKey() const;
-    Q_INVOKABLE QString autoFilterLfo2RateKey() const;
-    Q_INVOKABLE QString autoFilterLfo2IntensityKey() const;
-    Q_INVOKABLE QString autoFilterStereoPhaseKey() const;
-    Q_INVOKABLE QString autoFilterEnvModKey() const;
-    Q_INVOKABLE QString autoFilterEnvAttackKey() const;
-    Q_INVOKABLE QString autoFilterEnvReleaseKey() const;
-    Q_INVOKABLE QString autoFilterGainKey() const;
-    Q_INVOKABLE QString autoFilterMixKey() const;
-    Q_INVOKABLE QString phaserStagesKey() const;
-    Q_INVOKABLE QString phaserFrequencyKey() const;
-    Q_INVOKABLE QString phaserDepthKey() const;
-    Q_INVOKABLE QString phaserFeedbackKey() const;
-    Q_INVOKABLE QString phaserLfoWaveformKey() const;
-    Q_INVOKABLE QString phaserLfoModeKey() const;
-    Q_INVOKABLE QString phaserLfoRateKey() const;
-    Q_INVOKABLE QString phaserRateDividerKey() const;
-    Q_INVOKABLE QString autoPannerRateDividerKey() const;
-    Q_INVOKABLE QString phaserStereoPhaseKey() const;
-    Q_INVOKABLE QString phaserGainKey() const;
-    Q_INVOKABLE QString phaserMixKey() const;
     Q_INVOKABLE int phaserMaxStages() const;
     Q_INVOKABLE int phaserMaxRateDivider() const;
     Q_INVOKABLE int autoPannerMaxRateDivider() const;
@@ -326,182 +239,19 @@ public:
     Q_INVOKABLE QStringList lfoWaveformNames() const;
     Q_INVOKABLE QStringList lfoModeNames() const;
 
-    Q_INVOKABLE QString multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const;
-    Q_INVOKABLE QString multibandCompressorThresholdKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorRatioKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorKneeKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorAttackKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorReleaseKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorMakeupKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorBypassKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorSoloKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString multibandCompressorModeKey() const;
-    Q_INVOKABLE QString multibandCompressorGainKey() const;
-    Q_INVOKABLE QString multibandCompressorSideChainSourceDeviceKey() const;
-
-    Q_INVOKABLE QString stereoWidenerCrossoverFreqKey(quint32 crossoverIndex) const;
-    Q_INVOKABLE QString stereoWidenerWidthKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString stereoWidenerSoloKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString stereoWidenerMonoBassKey() const;
-    Q_INVOKABLE QString stereoWidenerMonoFreqKey() const;
-    Q_INVOKABLE QString stereoWidenerGainKey() const;
-
-    Q_INVOKABLE QString earlyReflectionsSizeKey() const;
-    Q_INVOKABLE QString earlyReflectionsPreDelayKey() const;
-    Q_INVOKABLE QString earlyReflectionsDampingKey() const;
-    Q_INVOKABLE QString earlyReflectionsDiffusionKey() const;
-    Q_INVOKABLE QString earlyReflectionsWidthKey() const;
-    Q_INVOKABLE QString earlyReflectionsLowCutKey() const;
-    Q_INVOKABLE QString earlyReflectionsMixKey() const;
-    Q_INVOKABLE QString earlyReflectionsSoloKey() const;
-
-    Q_INVOKABLE QString dimensionDetuneKey() const;
-    Q_INVOKABLE QString dimensionAmountKey() const;
-    Q_INVOKABLE QString dimensionLowCutKey() const;
-    Q_INVOKABLE QString dimensionSoloKey() const;
-    Q_INVOKABLE QString compressor2APeakReductionKey() const;
-    Q_INVOKABLE QString compressor2AGainKey() const;
-    Q_INVOKABLE QString compressor2AModeKey() const;
-    Q_INVOKABLE QString compressor2AMixKey() const;
-    Q_INVOKABLE QString compressor2ASoloKey() const;
-    Q_INVOKABLE QString doublerModeKey() const;
-    Q_INVOKABLE QString doublerTimeKey() const;
-    Q_INVOKABLE QString doublerAmountKey() const;
-    Q_INVOKABLE QString doublerLowCutKey() const;
-    Q_INVOKABLE QString doublerDriftKey() const;
-    Q_INVOKABLE QString doublerSoloKey() const;
-
-    Q_INVOKABLE QString stereoFieldMeterSpeedKey() const;
-    Q_INVOKABLE QString stereoFieldMeterZoomKey() const;
-    Q_INVOKABLE QString stereoFieldMeterShowGuidesKey() const;
     //! Recent sample pairs for the goniometer, flat: [l0, r0, l1, r1, ...].
     Q_INVOKABLE QVariantList stereoFieldMeterPoints(quint32 effectIndex, int maxPoints) const;
     //! Correlation, per-band correlation, mid and side levels and balance, taken together.
     Q_INVOKABLE QVariantMap stereoFieldMeterReading(quint32 effectIndex) const;
     Q_INVOKABLE void stereoFieldMeterSetActive(quint32 effectIndex, bool active);
 
-    Q_INVOKABLE QString autoDuckerThresholdKey() const;
-    Q_INVOKABLE QString autoDuckerAmountKey() const;
-    Q_INVOKABLE QString autoDuckerKneeKey() const;
-    Q_INVOKABLE QString autoDuckerAttackKey() const;
-    Q_INVOKABLE QString autoDuckerReleaseKey() const;
-    Q_INVOKABLE QString autoDuckerHoldKey() const;
-    Q_INVOKABLE QString autoDuckerSideChainSourceDeviceKey() const;
-    Q_INVOKABLE QString autoDuckerSideChainLpfKey() const;
-
-    Q_INVOKABLE QString allPassFilterFrequencyKey() const;
-    Q_INVOKABLE QString allPassFilterQKey() const;
-    Q_INVOKABLE QString allPassFilterStagesKey() const;
-
-    Q_INVOKABLE QString clipperModeKey() const;
-    Q_INVOKABLE QString clipperThresholdKey() const;
-    Q_INVOKABLE QString clipperGainKey() const;
-
-    Q_INVOKABLE QString limiterThresholdKey() const;
-    Q_INVOKABLE QString limiterCeilingKey() const;
-    Q_INVOKABLE QString limiterReleaseKey() const;
-    Q_INVOKABLE QString limiterLookaheadKey() const;
-    Q_INVOKABLE QString limiterBoostKey() const;
-
-    Q_INVOKABLE QString monitorModeKey() const;
-
-    Q_INVOKABLE QString crossfeedAmountKey() const;
-    Q_INVOKABLE QString crossfeedDelayKey() const;
-    Q_INVOKABLE QString crossfeedCutoffKey() const;
-    Q_INVOKABLE QString crossfeedGainKey() const;
-
-    Q_INVOKABLE QString referenceEnvironmentKey() const;
-    Q_INVOKABLE QString referenceAmountKey() const;
-    Q_INVOKABLE QString referenceRoomKey() const;
-    Q_INVOKABLE QString referenceDynamicsKey() const;
-    Q_INVOKABLE QString referenceGainKey() const;
     //! Names of the systems the environment parameter numbers, for the dialog's selector.
     Q_INVOKABLE QStringList referenceEnvironmentNames() const;
 
-    Q_INVOKABLE QString gainGainKey() const;
     //! Whether the Gain in this slot has seen a full-scale sample since it was last cleared.
     Q_INVOKABLE bool gainClipped(quint32 effectIndex) const;
     Q_INVOKABLE void clearGainClip(quint32 effectIndex);
 
-    Q_INVOKABLE QString endlessSizeKey() const;
-    Q_INVOKABLE QString endlessFeedbackKey() const;
-    Q_INVOKABLE QString endlessDampingKey() const;
-    Q_INVOKABLE QString endlessPreDelayKey() const;
-    Q_INVOKABLE QString endlessModDepthKey() const;
-    Q_INVOKABLE QString endlessModRateKey() const;
-    Q_INVOKABLE QString endlessWidthKey() const;
-    Q_INVOKABLE QString endlessLpfCutoffKey() const;
-    Q_INVOKABLE QString endlessHpfCutoffKey() const;
-    Q_INVOKABLE QString endlessMixKey() const;
-    Q_INVOKABLE QString endlessSoloKey() const;
-    Q_INVOKABLE QString endlessFreezeKey() const;
-
-    Q_INVOKABLE QString saturatorModeKey() const;
-    Q_INVOKABLE QString saturatorDriveKey() const;
-    Q_INVOKABLE QString saturatorToneKey() const;
-    Q_INVOKABLE QString saturatorMixKey() const;
-    Q_INVOKABLE QString saturatorGainKey() const;
-
-    Q_INVOKABLE QString tubeStageModeKey() const;
-    Q_INVOKABLE QString tubeStageDriveKey() const;
-    Q_INVOKABLE QString tubeStageBiasKey() const;
-    Q_INVOKABLE QString tubeStageToneKey() const;
-    Q_INVOKABLE QString tubeStageMixKey() const;
-    Q_INVOKABLE QString tubeStageGainKey() const;
-
-    Q_INVOKABLE QString analogFuzzDriveKey() const;
-    Q_INVOKABLE QString analogFuzzFuzzKey() const;
-    Q_INVOKABLE QString analogFuzzBiasKey() const;
-    Q_INVOKABLE QString analogFuzzCutoffKey() const;
-    Q_INVOKABLE QString analogFuzzResonanceKey() const;
-    Q_INVOKABLE QString analogFuzzMixKey() const;
-    Q_INVOKABLE QString analogFuzzGainKey() const;
-
-    Q_INVOKABLE QString bassGrinderDriveKey() const;
-    Q_INVOKABLE QString bassGrinderBlendKey() const;
-    Q_INVOKABLE QString bassGrinderSplitFreqKey() const;
-    Q_INVOKABLE QString bassGrinderColorKey() const;
-    Q_INVOKABLE QString bassGrinderBassGainKey() const;
-    Q_INVOKABLE QString bassGrinderMidGainKey() const;
-    Q_INVOKABLE QString bassGrinderMidFreqKey() const;
-    Q_INVOKABLE QString bassGrinderHighGainKey() const;
-    Q_INVOKABLE QString bassGrinderMixKey() const;
-    Q_INVOKABLE QString bassGrinderGainKey() const;
-
-    Q_INVOKABLE QString waveDesignerAttackKey() const;
-    Q_INVOKABLE QString waveDesignerSustainKey() const;
-    Q_INVOKABLE QString waveDesignerGainKey() const;
-    Q_INVOKABLE QString waveDesignerMixKey() const;
-
-    Q_INVOKABLE QString stereoEnhancerBassGainKey() const;
-    Q_INVOKABLE QString stereoEnhancerBassFreqKey() const;
-    Q_INVOKABLE QString stereoEnhancerMidGainKey() const;
-    Q_INVOKABLE QString stereoEnhancerMidQKey() const;
-    Q_INVOKABLE QString stereoEnhancerHighGainKey() const;
-    Q_INVOKABLE QString stereoEnhancerHighFreqKey() const;
-    Q_INVOKABLE QString stereoEnhancerGainKey() const;
-    Q_INVOKABLE QString stereoEnhancerSpreadKey() const;
-    Q_INVOKABLE QString stereoEnhancerMixKey() const;
-    Q_INVOKABLE QString stereoEnhancerSoloKey() const;
-
-    Q_INVOKABLE QString stereoExciterTuneKey() const;
-    Q_INVOKABLE QString stereoExciterPeakKey() const;
-    Q_INVOKABLE QString stereoExciterZeroFillKey() const;
-    Q_INVOKABLE QString stereoExciterTimbreKey() const;
-    Q_INVOKABLE QString stereoExciterHarmonicsKey() const;
-    Q_INVOKABLE QString stereoExciterMixKey() const;
-    Q_INVOKABLE QString stereoExciterSoloKey() const;
-
-    Q_INVOKABLE QString driveModeKey() const;
-    Q_INVOKABLE QString driveAmountKey() const;
-    Q_INVOKABLE QString driveMixKey() const;
-    Q_INVOKABLE QString driveGainKey() const;
-
-    Q_INVOKABLE QString eq8BandParametricTypeKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricFreqKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricGainKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricQKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricSlopeKey(quint32 bandIndex) const;
     //! The Q a band opens at when the user picks @p bandType, or -1 for a type that has no sensible
     //! one. Applied on the user's action so that loading a project cannot overwrite a saved Q.
     Q_INVOKABLE float eq8BandParametricDefaultQ(int bandType) const;
@@ -515,95 +265,29 @@ public:
     Q_INVOKABLE QVariantList eq8BandParametricResponse(quint32 effectIndex, int points) const;
     //! The curve of the path the equalizer leaves unshaped, or an empty list when it shapes both.
     Q_INVOKABLE QVariantList eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const;
-    Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
-    Q_INVOKABLE QString eq8BandParametricOutputGainKey() const;
 
-    //! The key of the Auto Gain switch, which every equalizer that has one shares.
-    Q_INVOKABLE QString eqAutoGainKey() const;
     //! What auto gain applies at @p effectIndex, in dB: 0 while it is off, and for an effect
     //! without it.
     Q_INVOKABLE double eqAutoGainDb(quint32 effectIndex) const;
 
-    Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;
-    Q_INVOKABLE QString vintagePassiveEqLowBoostKey() const;
-    Q_INVOKABLE QString vintagePassiveEqLowAttenKey() const;
-    Q_INVOKABLE QString vintagePassiveEqHighBoostFreqKey() const;
-    Q_INVOKABLE QString vintagePassiveEqHighBoostKey() const;
-    Q_INVOKABLE QString vintagePassiveEqBandwidthKey() const;
-    Q_INVOKABLE QString vintagePassiveEqHighAttenFreqKey() const;
-    Q_INVOKABLE QString vintagePassiveEqHighAttenKey() const;
-
     Q_INVOKABLE QVariantList airBandEqResponse(quint32 effectIndex, int points) const;
-    Q_INVOKABLE QString airBandEqBandGainKey(quint32 bandIndex) const;
-    Q_INVOKABLE QString airBandEqAirFreqKey() const;
-    Q_INVOKABLE QString airBandEqAirGainKey() const;
-    Q_INVOKABLE QString airBandEqOutputGainKey() const;
 
     // EQ 32-Band Graphical
     Q_INVOKABLE QVariantList eq32BandGraphicalResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE int eq32BandGraphicalBandCount() const;
-    Q_INVOKABLE QString eq32BandGraphicalBandGainKey(quint32 bandIndex) const;
     //! The nominal frequency a slider is labelled with, "31.5 Hz" or "1.25 kHz".
     Q_INVOKABLE QString eq32BandGraphicalBandLabel(quint32 bandIndex) const;
-    Q_INVOKABLE QString eq32BandGraphicalStereoModeKey() const;
-    Q_INVOKABLE QString eq32BandGraphicalOutputGainKey() const;
-    Q_INVOKABLE QString eq32BandGraphicalLinearPhaseKey() const;
     //! How late Linear Phase makes the output at the effect's sample rate, in milliseconds.
     Q_INVOKABLE double eq32BandGraphicalLinearPhaseLatencyMs(quint32 effectIndex) const;
     //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
     //! is how this differs from the Flat preset.
     Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
 
-    // Ambience
-    Q_INVOKABLE QString ambienceSizeKey() const;
-    Q_INVOKABLE QString ambienceDecayKey() const;
-    Q_INVOKABLE QString ambiencePreDelayKey() const;
-    Q_INVOKABLE QString ambienceDiffusionKey() const;
-    Q_INVOKABLE QString ambienceShapeKey() const;
-    Q_INVOKABLE QString ambienceEarlyLateKey() const;
-    Q_INVOKABLE QString ambienceDampingKey() const;
-    Q_INVOKABLE QString ambienceModRateKey() const;
-    Q_INVOKABLE QString ambienceModDepthKey() const;
-    Q_INVOKABLE QString ambienceLowCutKey() const;
-    Q_INVOKABLE QString ambienceHighCutKey() const;
-    Q_INVOKABLE QString ambienceWidthKey() const;
-    Q_INVOKABLE QString ambienceMixKey() const;
-    Q_INVOKABLE QString ambienceSoloKey() const;
-
     // Reverb 224
-    Q_INVOKABLE QString reverb224ProgramKey() const;
-    Q_INVOKABLE QString reverb224PreDelayKey() const;
-    Q_INVOKABLE QString reverb224BassDecayKey() const;
-    Q_INVOKABLE QString reverb224MidDecayKey() const;
-    Q_INVOKABLE QString reverb224CrossoverKey() const;
-    Q_INVOKABLE QString reverb224TrebleDecayKey() const;
-    Q_INVOKABLE QString reverb224DepthKey() const;
-    Q_INVOKABLE QString reverb224DiffusionKey() const;
-    Q_INVOKABLE QString reverb224EnhanceKey() const;
-    Q_INVOKABLE QString reverb224ConvertersKey() const;
-    Q_INVOKABLE QString reverb224LowCutKey() const;
-    Q_INVOKABLE QString reverb224MixKey() const;
-    Q_INVOKABLE QString reverb224SoloKey() const;
     //! Whether @p program has early reflections for Depth to balance, which the plates do not.
     Q_INVOKABLE bool reverb224HasEarlyReflections(int program) const;
 
     // DynamicEq
-    Q_INVOKABLE QString dynamicEqTypeKey() const;
-    Q_INVOKABLE QString dynamicEqFrequencyKey() const;
-    Q_INVOKABLE QString dynamicEqQKey() const;
-    Q_INVOKABLE QString dynamicEqRangeKey() const;
-    Q_INVOKABLE QString dynamicEqThresholdKey() const;
-    Q_INVOKABLE QString dynamicEqRatioKey() const;
-    Q_INVOKABLE QString dynamicEqKneeKey() const;
-    Q_INVOKABLE QString dynamicEqAttackKey() const;
-    Q_INVOKABLE QString dynamicEqReleaseKey() const;
-    Q_INVOKABLE QString dynamicEqDetectorSourceKey() const;
-    Q_INVOKABLE QString dynamicEqDetectorFilterKey() const;
-    Q_INVOKABLE QString dynamicEqSideChainSourceDeviceKey() const;
-    Q_INVOKABLE QString dynamicEqSideChainLpfKey() const;
-    Q_INVOKABLE QString dynamicEqListenKey() const;
-    Q_INVOKABLE QString dynamicEqStereoModeKey() const;
-    Q_INVOKABLE QString dynamicEqGainKey() const;
     //! The band at its current gain, and at the whole of its Range: where it is and how far it can go.
     Q_INVOKABLE QVariantList dynamicEqResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE QVariantList dynamicEqRangeResponse(quint32 effectIndex, int points) const;
@@ -617,16 +301,6 @@ public:
     Q_INVOKABLE void dynamicEqSetActive(quint32 effectIndex, bool active);
 
     // PhaseScope
-    Q_INVOKABLE QString phaseScopeGainKey() const;
-    Q_INVOKABLE QString phaseScopeInvertLeftKey() const;
-    Q_INVOKABLE QString phaseScopeInvertRightKey() const;
-    Q_INVOKABLE QString phaseScopeChannelModeKey() const;
-    Q_INVOKABLE QString phaseScopeWidthKey() const;
-    Q_INVOKABLE QString phaseScopeMonoBassKey() const;
-    Q_INVOKABLE QString phaseScopeMonoBassFrequencyKey() const;
-    Q_INVOKABLE QString phaseScopeDelayKey() const;
-    Q_INVOKABLE QString phaseScopeDcBlockKey() const;
-    Q_INVOKABLE QString phaseScopeReferenceKey() const;
     //! The delay as it is applied, in whole samples at the effect's rate.
     Q_INVOKABLE int phaseScopeDelaySamples(quint32 effectIndex) const;
     //! Sets the delay to exactly @p samples at the effect's rate, for nudging a sample at a time.
@@ -637,8 +311,6 @@ public:
     Q_INVOKABLE QVariantMap phaseScopeReading(quint32 effectIndex) const;
     //! The latest hit: reference and signal, each decimated to at most @p maxPoints.
     Q_INVOKABLE QVariantMap phaseScopeCapture(quint32 effectIndex, int maxPoints) const;
-
-    Q_INVOKABLE QString simpleEqAmountKey() const;
 
     Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const;
@@ -673,12 +345,6 @@ public:
     //! the fully qualified one the class is registered under and finds nothing, which fails the
     //! call rather than the build. QObject is a type it always knows.
     Q_INVOKABLE void rtaUpdateRenderer(quint32 effectIndex, QObject * renderer) const;
-    Q_INVOKABLE QString rtaBandCountKey() const;
-    Q_INVOKABLE QString rtaDbRangeKey() const;
-    Q_INVOKABLE QString rtaShowPinkNoiseKey() const;
-    Q_INVOKABLE QString rtaPinkNoiseLevelKey() const;
-    Q_INVOKABLE QString rtaSpeedKey() const;
-    Q_INVOKABLE QString rtaFftRateKey() const;
     Q_INVOKABLE void rtaSetActive(quint32 effectIndex, bool active);
 
     //! Copies one frame of the spectrum an equalizer's @p renderer shows into it, layout included

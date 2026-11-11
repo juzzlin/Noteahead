@@ -68,9 +68,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.waveDesignerAttackKey()) - 0.5) * 200;
+                        return (effectRackController.parameterValue(root.effectIndex, NahdXml.attack) - 0.5) * 200;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.waveDesignerAttackKey(), v / 200 + 0.5)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.attack, v / 200 + 0.5)
                     Layout.fillWidth: true
                 }
 
@@ -86,9 +86,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.waveDesignerSustainKey()) - 0.5) * 200;
+                        return (effectRackController.parameterValue(root.effectIndex, NahdXml.sustain) - 0.5) * 200;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.waveDesignerSustainKey(), v / 200 + 0.5)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.sustain, v / 200 + 0.5)
                     Layout.fillWidth: true
                 }
 
@@ -101,9 +101,9 @@ EffectDialog {
                     to: 24
                     value: {
                         effectRackController.revision;
-                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.waveDesignerGainKey()) - 0.5) * 48;
+                        return (effectRackController.parameterValue(root.effectIndex, NahdXml.gain) - 0.5) * 48;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.waveDesignerGainKey(), v / 48 + 0.5)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v / 48 + 0.5)
                     Layout.fillWidth: true
                 }
 
@@ -116,9 +116,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.waveDesignerMixKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.waveDesignerMixKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
                     Layout.fillWidth: true
                 }
             }

@@ -71,9 +71,9 @@ EffectDialog {
                     to: 250
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.dimensionDetuneKey()) * 250;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.detune) * 250;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.dimensionDetuneKey(), v / 250)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.detune, v / 250)
                 }
 
                 Knob {
@@ -83,9 +83,9 @@ EffectDialog {
                     to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.dimensionAmountKey()) * 100;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.amount) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.dimensionAmountKey(), v / 100)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.amount, v / 100)
                 }
 
                 Knob {
@@ -98,18 +98,18 @@ EffectDialog {
                     to: 1000
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.dimensionLowCutKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * 1000;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.dimensionLowCutKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / 1000)
                 }
 
                 Switch {
                     text: qsTr("Solo")
                     checked: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.dimensionSoloKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.solo) > 0.5;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.dimensionSoloKey(), checked ? 1 : 0)
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.solo, checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

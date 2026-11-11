@@ -73,9 +73,9 @@ EffectDialog {
                         to: 0
                         value: {
                             effectRackController.revision;
-                            return -60 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressorThresholdKey()) * 60;
+                            return -60 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 60;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorThresholdKey(), (v + 60) / 60)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 60) / 60)
                         Layout.fillWidth: true
                     }
 
@@ -88,9 +88,9 @@ EffectDialog {
                         to: 20
                         value: {
                             effectRackController.revision;
-                            return 1 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressorRatioKey()) * 19;
+                            return 1 + effectRackController.parameterValue(root.effectIndex, NahdXml.ratio) * 19;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorRatioKey(), (v - 1) / 19)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.ratio, (v - 1) / 19)
                         Layout.fillWidth: true
                     }
 
@@ -103,9 +103,9 @@ EffectDialog {
                         to: 24
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorKneeKey()) * 24;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.knee) * 24;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorKneeKey(), v / 24)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.knee, v / 24)
                         Layout.fillWidth: true
                     }
 
@@ -121,9 +121,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorAttackKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.attack) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorAttackKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.attack, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -139,9 +139,9 @@ EffectDialog {
                         to: 1000
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorReleaseKey()) * 1000;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.release) * 1000;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorReleaseKey(), v / 1000)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.release, v / 1000)
                         Layout.fillWidth: true
                     }
 
@@ -154,9 +154,9 @@ EffectDialog {
                         to: 12
                         value: {
                             effectRackController.revision;
-                            return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.compressorMakeupKey()) * 24;
+                            return -12 + effectRackController.parameterValue(root.effectIndex, NahdXml.makeup) * 24;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorMakeupKey(), (v + 12) / 24)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.makeup, (v + 12) / 24)
                         Layout.fillWidth: true
                     }
 
@@ -169,9 +169,9 @@ EffectDialog {
                         to: 10
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorLookaheadKey()) * 10;
+                            return effectRackController.parameterValue(root.effectIndex, NahdXml.lookahead) * 10;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorLookaheadKey(), v / 10)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.lookahead, v / 10)
                         Layout.fillWidth: true
                     }
 
@@ -191,9 +191,9 @@ EffectDialog {
                             model: [qsTr("Peak"), qsTr("RMS")]
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorModeKey());
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.mode);
                             }
-                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorModeKey(), index)
+                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, index)
                         }
                     }
 
@@ -233,17 +233,17 @@ EffectDialog {
                             }
                             currentIndex: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorSideChainSourceDeviceKey()) + 1;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.sideChainSourceDevice) + 1;
                             }
-                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorSideChainSourceDeviceKey(), index - 1)
+                            onActivated: index => effectRackController.setParameterValue(root.effectIndex, NahdXml.sideChainSourceDevice, index - 1)
                         }
                         FilterKnob {
                             label: qsTr("LPF")
                             value: {
                                 effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorSideChainLpfKey()) * Constants.uiInternalScaling;
+                                return effectRackController.parameterValue(root.effectIndex, NahdXml.sideChainLpf) * Constants.uiInternalScaling;
                             }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorSideChainLpfKey(), v / Constants.uiInternalScaling)
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.sideChainLpf, v / Constants.uiInternalScaling)
                         }
                     }
                 }
