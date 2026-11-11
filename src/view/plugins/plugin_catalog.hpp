@@ -27,7 +27,7 @@
 namespace noteahead {
 
 class AudioService;
-class DeviceController;
+class DeviceDialogModel;
 class DeviceService;
 
 //! What the UI knows of each effect and device that registers itself: its gallery entry, its dialog
@@ -75,7 +75,7 @@ public:
         QString dialogFile;
     };
 
-    using DeviceControllerS = std::shared_ptr<DeviceController>;
+    using DeviceDialogModelS = std::shared_ptr<DeviceDialogModel>;
     using DeviceServiceS = std::shared_ptr<DeviceService>;
 
     //! What a controller may need once the application is up, given to Device::connectServices.
@@ -96,9 +96,9 @@ public:
         //! The context property the dialog reaches its controller by.
         QString controllerProperty;
         //! Makes the one controller the device type's dialogs share.
-        std::function<DeviceControllerS(const DeviceServiceS & deviceService)> createController;
+        std::function<DeviceDialogModelS(const DeviceServiceS & deviceService)> createDialogModel;
         //! Hands the controller the services that do not exist yet when it is made, if it needs any.
-        std::function<void(DeviceController & controller, const Services & services)> connectServices {};
+        std::function<void(DeviceDialogModel & controller, const Services & services)> connectServices {};
         //! Registers the device's own QML types, if it has any.
         std::function<void()> registerQmlTypes {};
     };

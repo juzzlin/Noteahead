@@ -1,0 +1,45 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+#ifndef SAMPLER_DIALOG_MODEL_TEST_HPP
+#define SAMPLER_DIALOG_MODEL_TEST_HPP
+
+#include <QObject>
+
+namespace noteahead {
+
+class SamplerDialogModelTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void test_sampleRateChange_shouldUpdateHzValues();
+    void test_properties_shouldUpdateDeviceAndEmitSignals();
+    void test_selectedPadLoopStart_secondsAndMilliseconds_shouldCombineIntoOneOffset();
+    void test_selectedPadStartOffset_wholeSecond_shouldReadBackWhole();
+    void test_selectedPadStartOffset_pastTheSampleEnd_shouldClampAndStayClearable();
+    void test_selectedPadLoop_enabled_shouldDropTheLoopPointInTheMiddleOfTheRange();
+    void test_selectedPadLoop_enabled_shouldKeepALoopPointThePadAlreadyHas();
+    void test_reset_shouldRestoreDefaultValues();
+    void test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance();
+    void test_loadedPads_shouldListOnlyLoadedPads();
+    void test_copyPad_shouldCopyPadToTarget();
+    void test_copyPad_samePad_shouldDoNothing();
+    void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
+    void test_recordingSeconds_notRecording_shouldBeZero();
+    void test_metronomeSettings_shouldClampAndSayWhenTheyChange();
+    void test_startRecording_shouldEmptyThePadStraightAway();
+    void test_selectedPadMono_shouldBePerPadAndSayWhenItChanges();
+    void test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad();
+    void test_setPadNote_shouldMoveThePadAndItsAudio();
+    void test_setPadNote_occupiedNote_shouldBeRefused();
+    void test_setPadNote_outOfRange_shouldBeRefused();
+    void test_setPadNote_drumMode_shouldBeRefused();
+    void test_noteName_shouldNameTheNote();
+    void test_meterLevels_notRecording_shouldReadTheSamplerOutput();
+};
+
+} // namespace noteahead
+
+#endif // SAMPLER_DIALOG_MODEL_TEST_HPP

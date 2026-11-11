@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "electric_bass_controller.hpp"
 #include "electric_bass_device.hpp"
+#include "electric_bass_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerElectricBassDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "ElectricBassDialog.qml",
       .controllerProperty = "electricBassController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<ElectricBassController>(std::make_shared<ElectricBassDevice>("Default ElectricBass")); },
-      .registerQmlTypes = [] { qmlRegisterType<ElectricBassController>("Noteahead", 1, 0, "ElectricBassController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<ElectricBassDialogModel>(std::make_shared<ElectricBassDevice>("Default ElectricBass")); },
+      .registerQmlTypes = [] { qmlRegisterType<ElectricBassDialogModel>("Noteahead", 1, 0, "ElectricBassDialogModel"); },
     });
 }
 

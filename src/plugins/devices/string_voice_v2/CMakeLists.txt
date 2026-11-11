@@ -4,8 +4,8 @@ noteahead_add_device(
         string_voice_v2_device.hpp
         string_voice_v2_registration.cpp
     VIEW_SOURCES
-        string_voice_v2_controller.cpp
-        string_voice_v2_controller.hpp
+        string_voice_v2_dialog_model.cpp
+        string_voice_v2_dialog_model.hpp
         string_voice_v2_view_registration.cpp
     QML_FILES
         StringVoiceV2Dialog.qml

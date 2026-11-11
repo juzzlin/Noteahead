@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "drum_synth_controller.hpp"
 #include "drum_synth_device.hpp"
+#include "drum_synth_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,8 +31,8 @@ void registerDrumSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "DrumSynthDialog.qml",
       .controllerProperty = "drumSynthController",
-      .createController = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<DrumSynthController>(deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<DrumSynthController>("Noteahead", 1, 0, "DrumSynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<DrumSynthDialogModel>(deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<DrumSynthDialogModel>("Noteahead", 1, 0, "DrumSynthDialogModel"); },
     });
 }
 

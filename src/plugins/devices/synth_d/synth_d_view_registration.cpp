@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "synth_d_controller.hpp"
 #include "synth_d_device.hpp"
+#include "synth_d_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerSynthDDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "SynthDDialog.qml",
       .controllerProperty = "synthDController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SynthDController>(std::make_shared<SynthDDevice>("Default Synth D")); },
-      .registerQmlTypes = [] { qmlRegisterType<SynthDController>("Noteahead", 1, 0, "SynthDController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SynthDDialogModel>(std::make_shared<SynthDDevice>("Default Synth D")); },
+      .registerQmlTypes = [] { qmlRegisterType<SynthDDialogModel>("Noteahead", 1, 0, "SynthDDialogModel"); },
     });
 }
 

@@ -17,7 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/drum/fm_drum_engine.hpp"
-#include "../../plugins/devices/fm_drums/fm_drums_controller.hpp"
+#include "../../plugins/devices/fm_drums/fm_drums_dialog_model.hpp"
 #include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
 
 #include <algorithm>
@@ -26,7 +26,7 @@ namespace noteahead {
 
 namespace NahdXml = Constants::NahdXml;
 
-FmDrumOperatorController::FmDrumOperatorController(size_t index, FmDrumsController & owner)
+FmDrumOperatorController::FmDrumOperatorController(size_t index, FmDrumsDialogModel & owner)
   : QObject { &owner }
   , m_index { index }
   , m_owner { owner }

@@ -16,8 +16,8 @@
 #include "noise_fx_sweep_controller.hpp"
 
 #include "../../../common/constants.hpp"
-#include "noise_fx_controller.hpp"
 #include "noise_fx_device.hpp"
+#include "noise_fx_dialog_model.hpp"
 
 #include <cmath>
 
@@ -25,7 +25,7 @@ namespace noteahead {
 
 namespace NahdXml = Constants::NahdXml;
 
-NoiseFxSweepController::NoiseFxSweepController(size_t index, NoiseFxController & owner)
+NoiseFxSweepController::NoiseFxSweepController(size_t index, NoiseFxDialogModel & owner)
   : QObject { &owner }
   , m_index { index }
   , m_owner { owner }

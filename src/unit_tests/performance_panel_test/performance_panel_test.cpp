@@ -25,8 +25,8 @@
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../plugins/devices/lfo/lfo_device.hpp"
-#include "../../plugins/devices/xy_pad/xy_pad_controller.hpp"
 #include "../../plugins/devices/xy_pad/xy_pad_device.hpp"
+#include "../../plugins/devices/xy_pad/xy_pad_dialog_model.hpp"
 #include "../../plugins/effects/panner/panner.hpp"
 #include "../../view/controllers/performance_panel_controller.hpp"
 #include "../../view/qml/Components/level_meter_renderer.hpp"
@@ -357,7 +357,7 @@ void PerformancePanelTest::test_xyPadController_shouldPlayThatDevice()
     PerformancePanelController controller { deviceService, model };
     const auto uuid = QString::fromStdString(pad->uuid());
 
-    auto * xyPadController = qobject_cast<XyPadController *>(controller.xyPadController(uuid));
+    auto * xyPadController = qobject_cast<XyPadDialogModel *>(controller.xyPadController(uuid));
     QVERIFY(xyPadController);
     QCOMPARE(controller.xyPadController(uuid), xyPadController);
     xyPadController->press(1, 0.5, 0.5);

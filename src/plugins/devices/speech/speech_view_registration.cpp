@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "speech_controller.hpp"
 #include "speech_device.hpp"
+#include "speech_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerSpeechDeviceView()
       .category = PluginCatalog::DeviceCategory::StringsAndVoice,
       .dialogFile = "SpeechDialog.qml",
       .controllerProperty = "speechController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SpeechController>(std::make_shared<SpeechDevice>("Default Speech")); },
-      .registerQmlTypes = [] { qmlRegisterType<SpeechController>("Noteahead", 1, 0, "SpeechController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<SpeechDialogModel>(std::make_shared<SpeechDevice>("Default Speech")); },
+      .registerQmlTypes = [] { qmlRegisterType<SpeechDialogModel>("Noteahead", 1, 0, "SpeechDialogModel"); },
     });
 }
 

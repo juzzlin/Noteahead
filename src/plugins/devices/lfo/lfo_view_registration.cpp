@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "lfo_controller.hpp"
 #include "lfo_device.hpp"
+#include "lfo_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,8 +31,8 @@ void registerLfoDeviceView()
       .category = PluginCatalog::DeviceCategory::Modulators,
       .dialogFile = "LfoDialog.qml",
       .controllerProperty = "lfoController",
-      .createController = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<LfoController>(deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<LfoController>("Noteahead", 1, 0, "LfoController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS & deviceService) { return std::make_shared<LfoDialogModel>(deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<LfoDialogModel>("Noteahead", 1, 0, "LfoDialogModel"); },
     });
 }
 

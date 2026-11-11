@@ -116,16 +116,16 @@ namespace noteahead {
 namespace {
 
 //! One controller per device type that registers itself, made from its PluginCatalog entry
-std::vector<std::shared_ptr<DeviceController>> createPluginDeviceControllers(const std::shared_ptr<DeviceService> & deviceService)
+std::vector<std::shared_ptr<DeviceDialogModel>> createPluginDeviceDialogModels(const std::shared_ptr<DeviceService> & deviceService)
 {
-    std::vector<std::shared_ptr<DeviceController>> controllers;
+    std::vector<std::shared_ptr<DeviceDialogModel>> controllers;
     for (auto && device : PluginCatalog::devices()) {
-        controllers.push_back(device.createController(deviceService));
+        controllers.push_back(device.createDialogModel(deviceService));
     }
     return controllers;
 }
 
-DeviceRackController::ControllerList withPluginControllers(DeviceRackController::ControllerList controllers, const std::vector<std::shared_ptr<DeviceController>> & pluginControllers)
+DeviceRackController::DialogModelList withPluginDialogModels(DeviceRackController::DialogModelList controllers, const std::vector<std::shared_ptr<DeviceDialogModel>> & pluginControllers)
 {
     controllers.insert(controllers.end(), pluginControllers.begin(), pluginControllers.end());
     return controllers;
@@ -153,11 +153,11 @@ Application::Application(int & argc, char ** argv)
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine, m_dataService) }
   , m_presetService { std::make_shared<PresetService>() }
-  , m_pluginDeviceControllers { createPluginDeviceControllers(m_deviceService) }
+  , m_pluginDeviceDialogModels { createPluginDeviceDialogModels(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginControllers(std::vector<DeviceController::DeviceControllerS> {}, m_pluginDeviceControllers), m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginDialogModels(std::vector<DeviceDialogModel::DeviceDialogModelS> {}, m_pluginDeviceDialogModels), m_editorService) }
   , m_performancePanelModel { std::make_unique<PerformancePanelModel>() }
   , m_performancePanelController { std::make_unique<PerformancePanelController>(m_deviceService, *m_performancePanelModel) }
   , m_knobController { std::make_shared<KnobController>() }
@@ -329,7 +329,7 @@ void Application::setContextProperties()
         if (pluginDevices.at(i).registerQmlTypes) {
             pluginDevices.at(i).registerQmlTypes();
         }
-        m_engine->rootContext()->setContextProperty(pluginDevices.at(i).controllerProperty, m_pluginDeviceControllers.at(i).get());
+        m_engine->rootContext()->setContextProperty(pluginDevices.at(i).controllerProperty, m_pluginDeviceDialogModels.at(i).get());
     }
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
     m_engine->rootContext()->setContextProperty("songOverviewController", m_songOverviewController.get());
@@ -463,7 +463,7 @@ void Application::connectDeviceService()
     const PluginCatalog::Services services { m_deviceService, m_audioService };
     for (size_t i = 0; i < PluginCatalog::devices().size(); i++) {
         if (const auto & connectServices = PluginCatalog::devices().at(i).connectServices; connectServices) {
-            connectServices(*m_pluginDeviceControllers.at(i), services);
+            connectServices(*m_pluginDeviceDialogModels.at(i), services);
         }
     }
 
@@ -1028,7 +1028,7 @@ void Application::retranslateUi()
 
     // What retranslate() cannot reach: strings built in C++ and handed to QML through properties
     // that it has no reason to re-read on its own.
-    for (auto && controller : m_pluginDeviceControllers) {
+    for (auto && controller : m_pluginDeviceDialogModels) {
         controller->retranslate();
     }
     m_effectRackController->retranslate();

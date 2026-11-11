@@ -22,7 +22,7 @@ import Noteahead 1.0
 //! so the range and the readout are the same everywhere.
 Knob {
     id: root
-    //! The device's controller: anything with the octave property DeviceController gives it.
+    //! The device's controller: anything with the octave property DeviceDialogModel gives it.
     property var controller
     label: qsTr("Octave")
     // Whole octaves only: read out as a count, and snapped to one on the way to the device

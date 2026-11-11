@@ -20,7 +20,7 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 
 // Reusable stereo oscilloscope: two live traces (L / R) side by side, driven by any
-// DeviceController. Capture runs only while "active" is true.
+// DeviceDialogModel. Capture runs only while "active" is true.
 //
 // "active" defaults to this item's visibility, but a nested item's visible property is not a
 // reliable signal inside a Popup/Dialog (closing the dialog does not always propagate to it).

@@ -15,7 +15,7 @@
 
 #include "xy_pad_renderer.hpp"
 
-#include "xy_pad_controller.hpp"
+#include "xy_pad_dialog_model.hpp"
 
 #include <QPainter>
 
@@ -64,7 +64,7 @@ QObject * XyPadRenderer::controller() const
 
 void XyPadRenderer::setController(QObject * controller)
 {
-    if (const auto xyPadController = qobject_cast<XyPadController *>(controller); xyPadController != m_controller) {
+    if (const auto xyPadController = qobject_cast<XyPadDialogModel *>(controller); xyPadController != m_controller) {
         letGo();
         if (m_controller) {
             disconnect(m_controller, nullptr, this, nullptr);
@@ -73,8 +73,8 @@ void XyPadRenderer::setController(QObject * controller)
         m_trail.clear();
         if (m_controller) {
             // The same pad can be shown twice, in its dialog and on the performance panel
-            connect(m_controller, &XyPadController::padPressed, this, &XyPadRenderer::onPadPressed);
-            connect(m_controller, &XyPadController::padsAutomated, this, &XyPadRenderer::onPadsAutomated);
+            connect(m_controller, &XyPadDialogModel::padPressed, this, &XyPadRenderer::onPadPressed);
+            connect(m_controller, &XyPadDialogModel::padsAutomated, this, &XyPadRenderer::onPadsAutomated);
         }
         emit controllerChanged();
         update();

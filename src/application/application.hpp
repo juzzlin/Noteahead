@@ -45,7 +45,7 @@ class AutomationCurveEditor;
 class AutomationService;
 class ColumnSettingsModel;
 class DataService;
-class DeviceController;
+class DeviceDialogModel;
 class DeviceRackController;
 class DeviceService;
 class PresetService;
@@ -173,7 +173,7 @@ private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::shared_ptr<PresetService> m_presetService;
     //! The controllers of the devices that register themselves, in PluginCatalog::devices() order.
-    std::vector<std::shared_ptr<DeviceController>> m_pluginDeviceControllers;
+    std::vector<std::shared_ptr<DeviceDialogModel>> m_pluginDeviceDialogModels;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<SongOverviewService> m_songOverviewService;
     std::shared_ptr<SongOverviewController> m_songOverviewController;

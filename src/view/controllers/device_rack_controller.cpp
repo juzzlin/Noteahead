@@ -22,39 +22,39 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../infra/audio/audio_engine.hpp"
-#include "../../plugins/devices/bass_synth/bass_synth_controller.hpp"
 #include "../../plugins/devices/bass_synth/bass_synth_device.hpp"
-#include "../../plugins/devices/drum_synth/drum_synth_controller.hpp"
+#include "../../plugins/devices/bass_synth/bass_synth_dialog_model.hpp"
 #include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
+#include "../../plugins/devices/drum_synth/drum_synth_dialog_model.hpp"
 #include "../../plugins/devices/drum_synth_v2/drum_synth_v2_device.hpp"
 #include "../../plugins/devices/electric_bass/electric_bass_device.hpp"
 #include "../../plugins/devices/fm_drums/fm_drums_device.hpp"
 #include "../../plugins/devices/fm_synth/fm_synth_device.hpp"
 #include "../../plugins/devices/ju_synth/ju_synth_device.hpp"
 #include "../../plugins/devices/ju_synth_08/ju_synth_08_device.hpp"
-#include "../../plugins/devices/kick_808/kick_808_controller.hpp"
 #include "../../plugins/devices/kick_808/kick_808_device.hpp"
+#include "../../plugins/devices/kick_808/kick_808_dialog_model.hpp"
 #include "../../plugins/devices/kick_909/kick_909_device.hpp"
 #include "../../plugins/devices/kick_synth/kick_synth_device.hpp"
 #include "../../plugins/devices/lfo/lfo_device.hpp"
 #include "../../plugins/devices/noise_fx/noise_fx_device.hpp"
-#include "../../plugins/devices/piano_synth/piano_synth_controller.hpp"
 #include "../../plugins/devices/piano_synth/piano_synth_device.hpp"
+#include "../../plugins/devices/piano_synth/piano_synth_dialog_model.hpp"
 #include "../../plugins/devices/piano_synth_acoustic/piano_synth_acoustic_device.hpp"
 #include "../../plugins/devices/piano_synth_v2/piano_synth_v2_device.hpp"
 #include "../../plugins/devices/piano_synth_v3/piano_synth_v3_device.hpp"
-#include "../../plugins/devices/sampler/sampler_controller.hpp"
 #include "../../plugins/devices/sampler/sampler_device.hpp"
-#include "../../plugins/devices/snare_synth/snare_synth_controller.hpp"
+#include "../../plugins/devices/sampler/sampler_dialog_model.hpp"
 #include "../../plugins/devices/snare_synth/snare_synth_device.hpp"
+#include "../../plugins/devices/snare_synth/snare_synth_dialog_model.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
 #include "../../plugins/devices/string_voice_v2/string_voice_v2_device.hpp"
 #include "../../plugins/devices/string_voice_v3/string_voice_v3_device.hpp"
 #include "../../plugins/devices/sub_mixer/sub_mixer_device.hpp"
-#include "../../plugins/devices/synth/synth_controller.hpp"
 #include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/devices/synth/synth_dialog_model.hpp"
 #include "../../plugins/devices/synth_d/synth_d_device.hpp"
 #include "../../plugins/devices/wavetable_synth/wavetable_synth_device.hpp"
 #include "../../plugins/devices/xy_pad/xy_pad_device.hpp"
@@ -66,10 +66,10 @@
 
 namespace noteahead {
 
-DeviceRackController::DeviceRackController(DeviceServiceS deviceService, ControllerList controllers, EditorServiceS editorService, QObject * parent)
+DeviceRackController::DeviceRackController(DeviceServiceS deviceService, DialogModelList controllers, EditorServiceS editorService, QObject * parent)
   : QAbstractListModel { parent }
   , m_deviceService { std::move(deviceService) }
-  , m_controllers { std::move(controllers) }
+  , m_dialogModels { std::move(controllers) }
   , m_editorService { std::move(editorService) }
 {
     if (m_deviceService) {
@@ -87,9 +87,9 @@ DeviceRackController::DeviceRackController(DeviceServiceS deviceService, Control
 
 DeviceRackController::~DeviceRackController() = default;
 
-void DeviceRackController::setPresetService(DeviceController::PresetServiceS presetService)
+void DeviceRackController::setPresetService(DeviceDialogModel::PresetServiceS presetService)
 {
-    for (auto && controller : m_controllers) {
+    for (auto && controller : m_dialogModels) {
         controller->setPresetService(presetService);
     }
 }
@@ -170,7 +170,7 @@ void DeviceRackController::openDevice(const QString & name)
             emit subMixerDialogRequested(static_cast<int>(device->id()));
             return;
         }
-        for (const auto & controller : m_controllers) {
+        for (const auto & controller : m_dialogModels) {
             if (controller->setDevice(device)) {
                 // Every device dialog is opened from here, so this is the one place that has to
                 // remember what its Cancel button puts back.

@@ -6,8 +6,8 @@ noteahead_add_device(
         noise_fx_presets.hpp
         noise_fx_registration.cpp
     VIEW_SOURCES
-        noise_fx_controller.cpp
-        noise_fx_controller.hpp
+        noise_fx_dialog_model.cpp
+        noise_fx_dialog_model.hpp
         noise_fx_sweep_controller.cpp
         noise_fx_sweep_controller.hpp
         noise_fx_view_registration.cpp

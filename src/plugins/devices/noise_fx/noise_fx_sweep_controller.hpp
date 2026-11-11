@@ -22,7 +22,7 @@
 
 namespace noteahead {
 
-class NoiseFxController;
+class NoiseFxDialogModel;
 
 //! One sweep of Noise FX, as QML sees it: the dialog shows one panel per sweep over these.
 //!
@@ -48,7 +48,7 @@ class NoiseFxSweepController : public QObject
     Q_PROPERTY(int depth2 READ depth2 WRITE setDepth2 NOTIFY changed)
 
 public:
-    NoiseFxSweepController(size_t index, NoiseFxController & owner);
+    NoiseFxSweepController(size_t index, NoiseFxDialogModel & owner);
 
     int index() const;
 
@@ -89,7 +89,7 @@ private:
     void setDepth(size_t destination, int value);
 
     size_t m_index;
-    NoiseFxController & m_owner;
+    NoiseFxDialogModel & m_owner;
 };
 
 } // namespace noteahead

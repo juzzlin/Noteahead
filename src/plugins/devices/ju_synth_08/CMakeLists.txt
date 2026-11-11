@@ -6,8 +6,8 @@ noteahead_add_device(
         ju_synth_08_presets.hpp
         ju_synth_08_registration.cpp
     VIEW_SOURCES
-        ju_synth_08_controller.cpp
-        ju_synth_08_controller.hpp
+        ju_synth_08_dialog_model.cpp
+        ju_synth_08_dialog_model.hpp
         ju_synth_08_view_registration.cpp
     QML_FILES
         JuSynth08Dialog.qml

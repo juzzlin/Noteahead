@@ -9,8 +9,8 @@ noteahead_add_device(
         kick_synth_preview.cpp
         kick_synth_preview.hpp
     VIEW_SOURCES
-        kick_synth_controller.cpp
-        kick_synth_controller.hpp
+        kick_synth_dialog_model.cpp
+        kick_synth_dialog_model.hpp
         kick_synth_view_registration.cpp
     QML_FILES
         KickSynthDialog.qml

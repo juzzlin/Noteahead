@@ -9,8 +9,8 @@ noteahead_add_device(
         electric_bass_preview.cpp
         electric_bass_preview.hpp
     VIEW_SOURCES
-        electric_bass_controller.cpp
-        electric_bass_controller.hpp
+        electric_bass_dialog_model.cpp
+        electric_bass_dialog_model.hpp
         electric_bass_view_registration.cpp
     QML_FILES
         ElectricBassDialog.qml

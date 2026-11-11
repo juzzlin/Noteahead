@@ -26,7 +26,7 @@ WaveformView {
 
     //! The dialog holding this, so nothing is rendered while it is shut.
     property bool dialogVisible: false
-    //! The DrumPadController of the drum machine this belongs to.
+    //! The DrumPadDialogModel of the drum machine this belongs to.
     required property var controller
 
     Layout.fillWidth: true

@@ -16304,7 +16304,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
-    <name>noteahead::FmSynthController</name>
+    <name>noteahead::FmSynthDialogModel</name>
     <message>
         <source>Poly</source>
         <translation>复音</translation>
@@ -16525,7 +16525,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
-    <name>noteahead::SynthController</name>
+    <name>noteahead::SynthDialogModel</name>
     <message>
         <source>Poly</source>
         <translation>复音</translation>
@@ -16663,7 +16663,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
-    <name>noteahead::WavetableSynthController</name>
+    <name>noteahead::WavetableSynthDialogModel</name>
     <message>
         <source>Poly</source>
         <translation>复音</translation>

@@ -27,7 +27,7 @@ import ".."
 AppButton {
     id: rootItem
 
-    //! The dialog's own DeviceController. Everything is resolved from its device when the menu
+    //! The dialog's own DeviceDialogModel. Everything is resolved from its device when the menu
     //! opens, never cached: the name is the only handle the UiService requests take.
     property var controller
     //! The dialog this button sits in. Needed only to close it when an import replaces the device.

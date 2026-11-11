@@ -29,7 +29,7 @@ namespace noteahead {
 class DeviceService;
 class PerformancePanelModel;
 class Effect;
-class XyPadController;
+class XyPadDialogModel;
 
 //! What the Performance Panel's elements point at: finds a device by the id an element keeps, and
 //! hands each XY pad element a controller of its own, so that the panel can play every pad device
@@ -96,7 +96,7 @@ signals:
 private:
     std::shared_ptr<DeviceService> m_deviceService;
     PerformancePanelModel & m_model;
-    std::map<QString, QPointer<XyPadController>> m_xyPadControllers;
+    std::map<QString, QPointer<XyPadDialogModel>> m_xyPadControllers;
     //! What setAnalysisActive() took, so that it lets go of the same meter
     std::map<QString, std::weak_ptr<Effect>> m_analysedEffects;
     int m_revision { 0 };

@@ -30,13 +30,13 @@
 #include "../../plugins/devices/drum_synth/drum_synth_device.hpp"
 #include "../../plugins/devices/kick_808/kick_808_device.hpp"
 #include "../../plugins/devices/piano_synth/piano_synth_device.hpp"
-#include "../../plugins/devices/sampler/sampler_controller.hpp"
 #include "../../plugins/devices/sampler/sampler_device.hpp"
+#include "../../plugins/devices/sampler/sampler_dialog_model.hpp"
 #include "../../plugins/devices/snare_synth/snare_synth_device.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
 #include "../../plugins/devices/sub_mixer/sub_mixer_device.hpp"
-#include "../../plugins/devices/synth/synth_controller.hpp"
 #include "../../plugins/devices/synth/synth_device.hpp"
+#include "../../plugins/devices/synth/synth_dialog_model.hpp"
 #include "../../plugins/effects/gain/gain.hpp"
 #include "../../view/controllers/device_rack_controller.hpp"
 
@@ -973,7 +973,7 @@ void DeviceRackControllerTest::test_openDevice_shouldSnapshotStateForCancel()
     deviceService->setDevice(0, synth);
     synth->setLpfCutoff(0.4f);
 
-    const auto synthController = std::make_shared<SynthController>(nullptr);
+    const auto synthController = std::make_shared<SynthDialogModel>(nullptr);
     DeviceRackController controller { deviceService, { synthController }, editorService };
 
     // Opening the dialog is what has to leave the device restorable, so that a Cancel further on

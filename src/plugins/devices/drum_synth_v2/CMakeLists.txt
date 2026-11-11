@@ -6,8 +6,8 @@ noteahead_add_device(
         drum_synth_v2_device.hpp
         drum_synth_v2_registration.cpp
     VIEW_SOURCES
-        drum_synth_v2_controller.cpp
-        drum_synth_v2_controller.hpp
+        drum_synth_v2_dialog_model.cpp
+        drum_synth_v2_dialog_model.hpp
         drum_synth_v2_view_registration.cpp
     QML_FILES
         DrumSynthV2Dialog.qml

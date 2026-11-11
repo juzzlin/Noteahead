@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "fm_synth_controller.hpp"
 #include "fm_synth_device.hpp"
+#include "fm_synth_dialog_model.hpp"
 
 #include "../../../application/service/device_service.hpp"
 #include "../../../view/plugins/plugin_catalog.hpp"
@@ -31,9 +31,9 @@ void registerFmSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "FmSynthDialog.qml",
       .controllerProperty = "fmSynthController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<FmSynthController>(std::make_shared<FmSynthDevice>("Default FmSynth")); },
-      .connectServices = [](DeviceController & controller, const PluginCatalog::Services & services) { static_cast<FmSynthController &>(controller).setDeviceService(services.deviceService); },
-      .registerQmlTypes = [] { qmlRegisterType<FmSynthController>("Noteahead", 1, 0, "FmSynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<FmSynthDialogModel>(std::make_shared<FmSynthDevice>("Default FmSynth")); },
+      .connectServices = [](DeviceDialogModel & controller, const PluginCatalog::Services & services) { static_cast<FmSynthDialogModel &>(controller).setDeviceService(services.deviceService); },
+      .registerQmlTypes = [] { qmlRegisterType<FmSynthDialogModel>("Noteahead", 1, 0, "FmSynthDialogModel"); },
     });
 }
 

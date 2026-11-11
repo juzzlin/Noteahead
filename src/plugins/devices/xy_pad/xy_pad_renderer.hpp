@@ -27,7 +27,7 @@
 
 namespace noteahead {
 
-class XyPadController;
+class XyPadDialogModel;
 
 //! One pad of an XY pad device, played with the mouse: a press puts the hand on the pad, a drag
 //! moves it and a release lets the pad glide home. The crosshair shows where the audio thread has
@@ -37,7 +37,7 @@ class XyPadRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    //! The XyPadController to play. A QObject, since QML drops a forward-declared pointer type.
+    //! The XyPadDialogModel to play. A QObject, since QML drops a forward-declared pointer type.
     Q_PROPERTY(QObject * controller READ controller WRITE setController NOTIFY controllerChanged)
     Q_PROPERTY(int pad READ pad WRITE setPad NOTIFY padChanged)
     //! What each axis moves, written along its edge. Empty for none.
@@ -102,7 +102,7 @@ private:
     QPointF toItem(const QPointF & padPosition) const;
     void paintTrail(QPainter * painter) const;
 
-    QPointer<XyPadController> m_controller;
+    QPointer<XyPadDialogModel> m_controller;
     int m_pad { 0 };
     //! Until when an automation is known to move the pad: redraws go on at least as long.
     std::chrono::steady_clock::time_point m_automatedUntil;

@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "kick_synth_controller.hpp"
 #include "kick_synth_device.hpp"
+#include "kick_synth_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerKickSynthDeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "KickSynthDialog.qml",
       .controllerProperty = "kickSynthController",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<KickSynthController>(std::make_shared<KickSynthDevice>("Default KickSynth")); },
-      .registerQmlTypes = [] { qmlRegisterType<KickSynthController>("Noteahead", 1, 0, "KickSynthController"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<KickSynthDialogModel>(std::make_shared<KickSynthDevice>("Default KickSynth")); },
+      .registerQmlTypes = [] { qmlRegisterType<KickSynthDialogModel>("Noteahead", 1, 0, "KickSynthDialogModel"); },
     });
 }
 

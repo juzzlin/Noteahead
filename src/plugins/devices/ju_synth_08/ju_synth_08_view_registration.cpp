@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "ju_synth_08_controller.hpp"
 #include "ju_synth_08_device.hpp"
+#include "ju_synth_08_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerJuSynth08DeviceView()
       .category = PluginCatalog::DeviceCategory::Synths,
       .dialogFile = "JuSynth08Dialog.qml",
       .controllerProperty = "juSynth08Controller",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<JuSynth08Controller>(std::make_shared<JuSynth08Device>("Default JU Synth 08")); },
-      .registerQmlTypes = [] { qmlRegisterType<JuSynth08Controller>("Noteahead", 1, 0, "JuSynth08Controller"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<JuSynth08DialogModel>(std::make_shared<JuSynth08Device>("Default JU Synth 08")); },
+      .registerQmlTypes = [] { qmlRegisterType<JuSynth08DialogModel>("Noteahead", 1, 0, "JuSynth08DialogModel"); },
     });
 }
 

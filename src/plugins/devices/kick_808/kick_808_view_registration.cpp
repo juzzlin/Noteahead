@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "kick_808_controller.hpp"
 #include "kick_808_device.hpp"
+#include "kick_808_dialog_model.hpp"
 
 #include "../../../view/plugins/plugin_catalog.hpp"
 
@@ -30,8 +30,8 @@ void registerKick808DeviceView()
       .category = PluginCatalog::DeviceCategory::Drums,
       .dialogFile = "Kick808Dialog.qml",
       .controllerProperty = "kick808Controller",
-      .createController = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<Kick808Controller>(std::make_shared<Kick808Device>("Default Kick808")); },
-      .registerQmlTypes = [] { qmlRegisterType<Kick808Controller>("Noteahead", 1, 0, "Kick808Controller"); },
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) { return std::make_shared<Kick808DialogModel>(std::make_shared<Kick808Device>("Default Kick808")); },
+      .registerQmlTypes = [] { qmlRegisterType<Kick808DialogModel>("Noteahead", 1, 0, "Kick808DialogModel"); },
     });
 }
 
