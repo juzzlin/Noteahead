@@ -38,6 +38,7 @@ private slots:
     void test_hat_tune_shouldPlayTheSpectrumFaster();
     void test_hat_decay_shouldMatchTheRd9();
     void test_cymbal_tune_shouldShortenTheSample();
+    void test_crash_shouldBloomFromTheStrikeAndKeepItsSplashPartials();
     void test_reverseCrash_shouldEndOnTheStrike();
     void test_xmlSerialization_shouldRestoreTheSound();
 };

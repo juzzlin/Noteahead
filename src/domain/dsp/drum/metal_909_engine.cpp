@@ -122,23 +122,23 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
         .partials = Metal909Sources::crashPartials(),
         .bands = Metal909Sources::crashBands(),
         // From where the sample ends at each Tune setting, which moves as its speed does
-        .tuneRatio = { 0.7578, 0.8197, 1.0, 1.3224, 1.5231 },
+        .tuneRatio = { 0.7586, 0.8201, 1.0, 1.3184, 1.5170 },
         .hasDecay = false,
-        .attackSeconds = 0.0,
-        .chickLevel = 0.0,
+        .attackSeconds = 0.055,
+        .chickLevel = 0.42,
         .chickSeconds = { 0.001, 0.001, 0.001, 0.001, 0.001 },
         .decaySeconds = { 1.0, 1.0, 1.0, 1.0, 1.0 },
         .decayCurve = { 1.0, 1.0, 1.0, 1.0, 1.0 },
         .gain = { 1.0, 1.0, 1.0, 1.0, 1.0 },
         .independentBands = true,
-        .strikeLevel = 0.3409,
-        .strikeHz = 1107.5,
-        .strikeQ = 7.056,
-        .strikeSeconds = 0.01636,
-        .lowPassHz = 13000.0,
+        .strikeLevel = 0.2624,
+        .strikeHz = 540.0,
+        .strikeQ = 1.80,
+        .strikeSeconds = 0.030,
+        .lowPassHz = 8500.0,
         .sampleSeconds = 0.83,
         .fadeSeconds = 0.02,
-        .outputLevel = 12.27,
+        .outputLevel = 18.4,
     };
     static const Metal909Engine::Voicing ride {
         .partials = Metal909Sources::ridePartials(),
@@ -252,11 +252,13 @@ double Metal909Engine::sampleSeconds() const
 double Metal909Engine::envelope(double seconds) const
 {
     if (!m_voicing.hasDecay) {
-        if (m_reversed) {
-            return std::min(1.0, seconds / ReverseFadeInSeconds);
-        }
         const double position = sampleSeconds();
-        return position < m_voicing.sampleSeconds ? 1.0 : std::exp(-(position - m_voicing.sampleSeconds) / m_voicing.fadeSeconds);
+        const double bloom = m_voicing.attackSeconds > 0.0 ? 1.0 - (1.0 - m_voicing.chickLevel) * std::exp(-std::max(0.0, position) / m_voicing.attackSeconds) : 1.0;
+        if (m_reversed) {
+            return bloom * std::min(1.0, seconds / ReverseFadeInSeconds);
+        }
+        const double fade = position < m_voicing.sampleSeconds ? 1.0 : std::exp(-(position - m_voicing.sampleSeconds) / m_voicing.fadeSeconds);
+        return bloom * fade;
     }
     const double chick = m_voicing.chickLevel * std::exp(-seconds / m_chickSeconds);
     const double body = (1.0 - m_voicing.chickLevel) * std::exp(-std::pow(seconds / m_decaySeconds, m_decayCurve));
@@ -300,13 +302,16 @@ void Metal909Engine::start()
         }
     }
     m_bands.clear();
+    // Moving a constant-Q band's centre by m_tuneRatio widens its passband by the same factor, so
+    // an independent band's level is scaled by the root of the speed to keep its energy invariant
+    const double bandScale = m_voicing.independentBands ? 1.0 / std::sqrt(m_tuneRatio) : 1.0;
     uint32_t seed = NoiseSeed;
     for (auto && band : m_voicing.bands) {
         const double hz = band.hz * m_tuneRatio;
         if (hz < 0.45 * rate) {
             NoiseBand noise;
             noise.filter.setBandPass(hz, BandQ, rate);
-            noise.level = band.gain * startLevel(band.seconds);
+            noise.level = band.gain * bandScale * startLevel(band.seconds);
             noise.decay = decayStep(band.seconds, m_tuneRatio, rate, m_reversed);
             seed = seed * 1664525u + 1013904223u;
             noise.seed = seed | 1u;
@@ -316,15 +321,16 @@ void Metal909Engine::start()
     m_strike = NoiseBand {};
     if (m_voicing.strikeLevel > 0.0) {
         m_strike.filter.setBandPass(std::min(m_voicing.strikeHz * m_tuneRatio, 0.45 * rate), m_voicing.strikeQ, rate);
-        m_strike.level = m_voicing.strikeLevel * startLevel(m_voicing.strikeSeconds);
+        m_strike.level = m_voicing.strikeLevel * bandScale * startLevel(m_voicing.strikeSeconds);
         m_strike.decay = decayStep(m_voicing.strikeSeconds, m_tuneRatio, rate, m_reversed);
         m_strike.seed = 0x5BD1E995u;
     }
     if (m_voicing.lowPassHz > 0.0) {
         m_lowPass1 = Biquad {};
         m_lowPass2 = Biquad {};
-        m_lowPass1.setLowPass(std::min(m_voicing.lowPassHz * m_tuneRatio, 0.45 * rate), rate);
-        m_lowPass2.setLowPass(std::min(m_voicing.lowPassHz * m_tuneRatio, 0.45 * rate), rate);
+        const double cutoffHz = std::min(m_voicing.lowPassHz, 0.45 * rate);
+        m_lowPass1.setLowPass(cutoffHz, rate);
+        m_lowPass2.setLowPass(cutoffHz, rate);
     }
     m_source.reset();
     m_started = true;
