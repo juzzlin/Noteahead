@@ -29,7 +29,9 @@
 
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
+#include <ranges>
 
 namespace noteahead {
 
