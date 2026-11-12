@@ -356,6 +356,27 @@ void DrumSynth909Test::test_cymbal_tune_shouldShortenTheSample()
     QVERIFY2(std::abs(noonEnd / highEnd - 1.52) < 0.12, qPrintable(QString::number(noonEnd / highEnd)));
 }
 
+void DrumSynth909Test::test_crash_shouldBloomFromTheStrikeAndKeepItsSplashPartials()
+{
+    // On the RD-9 the crash starts on a low-mid strike near 540 Hz while the 4 to 7 kHz splash
+    // opens out over the first 80 ms, its main partials at 4342.8 Hz and 6378.5 Hz standing clear
+    // of the noise around them
+    Metal909Engine noon { Metal909Engine::Sound::Crash };
+    const auto hit = render(noon, 1.0);
+    const double strikeEarly = levelDb(hit, 0.0, 0.04, 540.0);
+    const double strikeLate = levelDb(hit, 0.15, 0.19, 540.0);
+    QVERIFY2(strikeEarly > strikeLate + 6.0, qPrintable(QString::number(strikeEarly - strikeLate)));
+
+    const double splashAttack = levelDb(hit, 0.0, 0.04, 6379.1);
+    const double splashBloom = levelDb(hit, 0.08, 0.12, 6379.1);
+    QVERIFY2(splashBloom > splashAttack + 1.5, qPrintable(QString::number(splashBloom - splashAttack)));
+
+    const double partialHz = strongestHz(hit, 0.08, 0.50, 6350.0, 6400.0);
+    QVERIFY2(std::abs(partialHz - 6378.5) < 2.0, qPrintable(QString::number(partialHz)));
+    const double partialOverNoise = levelDb(hit, 0.08, 0.50, partialHz) - levelDb(hit, 0.08, 0.50, 6320.0);
+    QVERIFY2(partialOverNoise > 12.0, qPrintable(QString::number(partialOverNoise)));
+}
+
 void DrumSynth909Test::test_reverseCrash_shouldEndOnTheStrike()
 {
     // Backwards, the crash swells to its loudest at the very end
