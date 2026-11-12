@@ -113,7 +113,7 @@ Dialog {
         target: root.footer
         property: "alignment"
         value: 0
-        when: root.footer !== null
+        when: root.footer instanceof DialogButtonBox
         restoreMode: Binding.RestoreNone
     }
 
@@ -121,7 +121,7 @@ Dialog {
         target: root.footer
         property: "leftPadding"
         value: root.footer.count === 1 ? Math.max(root.footer.rightPadding, root.footer.width * 0.75 - root.footer.rightPadding) : root.footer.rightPadding
-        when: root.footer !== null
+        when: root.footer instanceof DialogButtonBox
         restoreMode: Binding.RestoreNone
     }
 
