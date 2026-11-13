@@ -464,6 +464,11 @@ QString tremolo()
     return "tremolo";
 }
 
+QString roomMics()
+{
+    return "roommics";
+}
+
 QString dimension()
 {
     return "dimension";
@@ -4059,6 +4064,76 @@ QString xmlKeyEnv2DecaySwitch()
 QString xmlKeyNotePriority()
 {
     return "notePriority";
+}
+
+QString xmlKeyRoomWidth()
+{
+    return "roomWidth";
+}
+
+QString xmlKeyRoomDepth()
+{
+    return "roomDepth";
+}
+
+QString xmlKeyRoomHeight()
+{
+    return "roomHeight";
+}
+
+QString xmlKeyWallMaterial()
+{
+    return "wallMaterial";
+}
+
+QString xmlKeyFloorMaterial()
+{
+    return "floorMaterial";
+}
+
+QString xmlKeyCeilingMaterial()
+{
+    return "ceilingMaterial";
+}
+
+QString xmlKeySourceX()
+{
+    return "sourceX";
+}
+
+QString xmlKeySourceY()
+{
+    return "sourceY";
+}
+
+QString xmlKeyMicX(size_t micIndex)
+{
+    return QString { "mic%1X" }.arg(micIndex + 1);
+}
+
+QString xmlKeyMicY(size_t micIndex)
+{
+    return QString { "mic%1Y" }.arg(micIndex + 1);
+}
+
+QString xmlKeyMicSpacing(size_t micIndex)
+{
+    return QString { "mic%1Spacing" }.arg(micIndex + 1);
+}
+
+QString xmlKeyMicAngle(size_t micIndex)
+{
+    return QString { "mic%1Angle" }.arg(micIndex + 1);
+}
+
+QString xmlKeyMicPattern(size_t micIndex)
+{
+    return QString { "mic%1Pattern" }.arg(micIndex + 1);
+}
+
+QString xmlKeyMicLevel(size_t micIndex)
+{
+    return QString { "mic%1Level" }.arg(micIndex + 1);
 }
 
 } // namespace NahdXml

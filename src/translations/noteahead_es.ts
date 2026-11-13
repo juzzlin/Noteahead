@@ -9871,6 +9871,74 @@
         <source>Loudness Sustain</source>
         <translation>Sustain de volumen</translation>
     </message>
+    <message>
+        <source>Height</source>
+        <translation>Altura</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>Fuente X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>Fuente Y</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Dispersión</translation>
+    </message>
+    <message>
+        <source>Close Level</source>
+        <translation>Nivel cercano</translation>
+    </message>
+    <message>
+        <source>Room Level</source>
+        <translation>Nivel de sala</translation>
+    </message>
+    <message>
+        <source>Far Level</source>
+        <translation>Nivel lejano</translation>
+    </message>
+    <message>
+        <source>Close X</source>
+        <translation>Cercano X</translation>
+    </message>
+    <message>
+        <source>Room X</source>
+        <translation>Sala X</translation>
+    </message>
+    <message>
+        <source>Far X</source>
+        <translation>Lejano X</translation>
+    </message>
+    <message>
+        <source>Close Y</source>
+        <translation>Cercano Y</translation>
+    </message>
+    <message>
+        <source>Room Y</source>
+        <translation>Sala Y</translation>
+    </message>
+    <message>
+        <source>Far Y</source>
+        <translation>Lejano Y</translation>
+    </message>
+    <message>
+        <source>Room Spacing</source>
+        <translation>Separación de sala</translation>
+    </message>
+    <message>
+        <source>Far Spacing</source>
+        <translation>Separación lejana</translation>
+    </message>
+    <message>
+        <source>Room Angle</source>
+        <translation>Ángulo de sala</translation>
+    </message>
+    <message>
+        <source>Far Angle</source>
+        <translation>Ángulo lejano</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10983,6 +11051,149 @@
     <message>
         <source>Release</source>
         <translation>Liberación</translation>
+    </message>
+</context>
+<context>
+    <name>RoomMicsDialog</name>
+    <message>
+        <source>Room Mics (Slot %1)</source>
+        <translation>Room Mics (Ranura %1)</translation>
+    </message>
+    <message>
+        <source>Stone</source>
+        <translation>Piedra</translation>
+    </message>
+    <message>
+        <source>Concrete</source>
+        <translation>Hormigón</translation>
+    </message>
+    <message>
+        <source>Brick</source>
+        <translation>Ladrillo</translation>
+    </message>
+    <message>
+        <source>Plaster</source>
+        <translation>Yeso</translation>
+    </message>
+    <message>
+        <source>Wood</source>
+        <translation>Madera</translation>
+    </message>
+    <message>
+        <source>Glass</source>
+        <translation>Vidrio</translation>
+    </message>
+    <message>
+        <source>Carpet</source>
+        <translation>Moqueta</translation>
+    </message>
+    <message>
+        <source>Curtain</source>
+        <translation>Cortina</translation>
+    </message>
+    <message>
+        <source>Acoustic Panel</source>
+        <translation>Panel acústico</translation>
+    </message>
+    <message>
+        <source>Audience</source>
+        <translation>Público</translation>
+    </message>
+    <message>
+        <source>Omni</source>
+        <translation>Omni</translation>
+    </message>
+    <message>
+        <source>Cardioid</source>
+        <translation>Cardioide</translation>
+    </message>
+    <message>
+        <source>Figure-8</source>
+        <translation>Figura 8</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Cercano</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Sala</translation>
+    </message>
+    <message>
+        <source>Far</source>
+        <translation>Lejano</translation>
+    </message>
+    <message>
+        <source>Records the sound again in a room: drag the source and the mics. Shift picks up the Close mics while they stand on the source.</source>
+        <translation>Vuelve a grabar el sonido en una sala: arrastra la fuente y los micrófonos. Mayús toma los micrófonos cercanos mientras están sobre la fuente.</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Anchura</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Profundidad</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Altura</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Dispersión</translation>
+    </message>
+    <message>
+        <source>How far apart the left and the right of the input play, as two speakers</source>
+        <translation>A qué distancia suenan la izquierda y la derecha de la entrada, como dos altavoces</translation>
+    </message>
+    <message>
+        <source>Walls</source>
+        <translation>Paredes</translation>
+    </message>
+    <message>
+        <source>Floor</source>
+        <translation>Suelo</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Techo</translation>
+    </message>
+    <message>
+        <source>Mics</source>
+        <translation>Micrófonos</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Nivel</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Separación</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>How far each mic of the pair turns outwards from the source</source>
+        <translation>Cuánto gira hacia fuera cada micrófono del par respecto a la fuente</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mezcla</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the effect changes, without the input</source>
+        <translation>Deja pasar solo lo que cambia el efecto, sin la entrada</translation>
     </message>
 </context>
 <context>

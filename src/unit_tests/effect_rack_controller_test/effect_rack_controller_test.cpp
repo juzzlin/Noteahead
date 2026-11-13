@@ -38,6 +38,7 @@
 #include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224_dialog_model.hpp"
+#include "../../plugins/effects/room_mics/room_mics.hpp"
 #include "../../plugins/effects/saturator/saturator.hpp"
 #include "../../plugins/effects/simple_eq/simple_eq.hpp"
 #include "../../plugins/effects/tremolo/tremolo.hpp"
@@ -1398,6 +1399,25 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
     controller.setEffect(0, controller.ambienceType());
     QCOMPARE(controller.effectType(0), controller.ambienceType());
     QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheRoomMics()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    const auto type = QString::fromStdString(RoomMics::typeIdString());
+    QStringList types;
+    for (auto && entry : controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    // And the factory can make what the gallery offers
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, type);
+    QCOMPARE(controller.effectType(0), Constants::RackEffectType::roomMics());
+    QVERIFY2(controller.effectParametersSummary(0).startsWith("(9.0x7.0x3.5 m, RT60 "), qPrintable(controller.effectParametersSummary(0)));
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()

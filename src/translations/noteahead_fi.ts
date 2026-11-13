@@ -9871,6 +9871,74 @@
         <source>Loudness Sustain</source>
         <translation>Voimakkuuden sustain</translation>
     </message>
+    <message>
+        <source>Height</source>
+        <translation>Korkeus</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>Lähde X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>Lähde Y</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Levitys</translation>
+    </message>
+    <message>
+        <source>Close Level</source>
+        <translation>Lähitaso</translation>
+    </message>
+    <message>
+        <source>Room Level</source>
+        <translation>Huonetaso</translation>
+    </message>
+    <message>
+        <source>Far Level</source>
+        <translation>Kaukotaso</translation>
+    </message>
+    <message>
+        <source>Close X</source>
+        <translation>Lähi X</translation>
+    </message>
+    <message>
+        <source>Room X</source>
+        <translation>Huone X</translation>
+    </message>
+    <message>
+        <source>Far X</source>
+        <translation>Kauko X</translation>
+    </message>
+    <message>
+        <source>Close Y</source>
+        <translation>Lähi Y</translation>
+    </message>
+    <message>
+        <source>Room Y</source>
+        <translation>Huone Y</translation>
+    </message>
+    <message>
+        <source>Far Y</source>
+        <translation>Kauko Y</translation>
+    </message>
+    <message>
+        <source>Room Spacing</source>
+        <translation>Huoneväli</translation>
+    </message>
+    <message>
+        <source>Far Spacing</source>
+        <translation>Kaukoväli</translation>
+    </message>
+    <message>
+        <source>Room Angle</source>
+        <translation>Huonekulma</translation>
+    </message>
+    <message>
+        <source>Far Angle</source>
+        <translation>Kaukokulma</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10983,6 +11051,149 @@
     <message>
         <source>Release</source>
         <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>RoomMicsDialog</name>
+    <message>
+        <source>Room Mics (Slot %1)</source>
+        <translation>Room Mics (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Stone</source>
+        <translation>Kivi</translation>
+    </message>
+    <message>
+        <source>Concrete</source>
+        <translation>Betoni</translation>
+    </message>
+    <message>
+        <source>Brick</source>
+        <translation>Tiili</translation>
+    </message>
+    <message>
+        <source>Plaster</source>
+        <translation>Rappaus</translation>
+    </message>
+    <message>
+        <source>Wood</source>
+        <translation>Puu</translation>
+    </message>
+    <message>
+        <source>Glass</source>
+        <translation>Lasi</translation>
+    </message>
+    <message>
+        <source>Carpet</source>
+        <translation>Matto</translation>
+    </message>
+    <message>
+        <source>Curtain</source>
+        <translation>Verho</translation>
+    </message>
+    <message>
+        <source>Acoustic Panel</source>
+        <translation>Akustolevy</translation>
+    </message>
+    <message>
+        <source>Audience</source>
+        <translation>Yleisö</translation>
+    </message>
+    <message>
+        <source>Omni</source>
+        <translation>Pallo</translation>
+    </message>
+    <message>
+        <source>Cardioid</source>
+        <translation>Hertta</translation>
+    </message>
+    <message>
+        <source>Figure-8</source>
+        <translation>Kahdeksikko</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Lähi</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Huone</translation>
+    </message>
+    <message>
+        <source>Far</source>
+        <translation>Kauko</translation>
+    </message>
+    <message>
+        <source>Records the sound again in a room: drag the source and the mics. Shift picks up the Close mics while they stand on the source.</source>
+        <translation>Äänittää äänen uudelleen huoneessa: vedä lähdettä ja mikrofoneja. Shift tarttuu lähimikrofoneihin, kun ne ovat lähteen päällä.</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Leveys</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Syvyys</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Korkeus</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Levitys</translation>
+    </message>
+    <message>
+        <source>How far apart the left and the right of the input play, as two speakers</source>
+        <translation>Kuinka kaukana toisistaan tulon vasen ja oikea soivat, kuin kaksi kaiutinta</translation>
+    </message>
+    <message>
+        <source>Walls</source>
+        <translation>Seinät</translation>
+    </message>
+    <message>
+        <source>Floor</source>
+        <translation>Lattia</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Katto</translation>
+    </message>
+    <message>
+        <source>Mics</source>
+        <translation>Mikrofonit</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Taso</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Väli</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Kulma</translation>
+    </message>
+    <message>
+        <source>How far each mic of the pair turns outwards from the source</source>
+        <translation>Kuinka paljon parin kumpikin mikrofoni kääntyy lähteestä ulospäin</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Soolo</translation>
+    </message>
+    <message>
+        <source>Pass only what the effect changes, without the input</source>
+        <translation>Päästä läpi vain se, mitä efekti muuttaa, ilman tuloa</translation>
     </message>
 </context>
 <context>

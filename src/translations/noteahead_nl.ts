@@ -9871,6 +9871,74 @@
         <source>Loudness Sustain</source>
         <translation>Volume-sustain</translation>
     </message>
+    <message>
+        <source>Height</source>
+        <translation>Hoogte</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>Bron X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>Bron Y</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Spreiding</translation>
+    </message>
+    <message>
+        <source>Close Level</source>
+        <translation>Nabij-niveau</translation>
+    </message>
+    <message>
+        <source>Room Level</source>
+        <translation>Ruimte-niveau</translation>
+    </message>
+    <message>
+        <source>Far Level</source>
+        <translation>Veraf-niveau</translation>
+    </message>
+    <message>
+        <source>Close X</source>
+        <translation>Nabij X</translation>
+    </message>
+    <message>
+        <source>Room X</source>
+        <translation>Ruimte X</translation>
+    </message>
+    <message>
+        <source>Far X</source>
+        <translation>Veraf X</translation>
+    </message>
+    <message>
+        <source>Close Y</source>
+        <translation>Nabij Y</translation>
+    </message>
+    <message>
+        <source>Room Y</source>
+        <translation>Ruimte Y</translation>
+    </message>
+    <message>
+        <source>Far Y</source>
+        <translation>Veraf Y</translation>
+    </message>
+    <message>
+        <source>Room Spacing</source>
+        <translation>Ruimte-afstand</translation>
+    </message>
+    <message>
+        <source>Far Spacing</source>
+        <translation>Veraf-afstand</translation>
+    </message>
+    <message>
+        <source>Room Angle</source>
+        <translation>Ruimte-hoek</translation>
+    </message>
+    <message>
+        <source>Far Angle</source>
+        <translation>Veraf-hoek</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10983,6 +11051,149 @@
     <message>
         <source>Release</source>
         <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>RoomMicsDialog</name>
+    <message>
+        <source>Room Mics (Slot %1)</source>
+        <translation>Room Mics (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Stone</source>
+        <translation>Steen</translation>
+    </message>
+    <message>
+        <source>Concrete</source>
+        <translation>Beton</translation>
+    </message>
+    <message>
+        <source>Brick</source>
+        <translation>Baksteen</translation>
+    </message>
+    <message>
+        <source>Plaster</source>
+        <translation>Pleister</translation>
+    </message>
+    <message>
+        <source>Wood</source>
+        <translation>Hout</translation>
+    </message>
+    <message>
+        <source>Glass</source>
+        <translation>Glas</translation>
+    </message>
+    <message>
+        <source>Carpet</source>
+        <translation>Tapijt</translation>
+    </message>
+    <message>
+        <source>Curtain</source>
+        <translation>Gordijn</translation>
+    </message>
+    <message>
+        <source>Acoustic Panel</source>
+        <translation>Akoestisch paneel</translation>
+    </message>
+    <message>
+        <source>Audience</source>
+        <translation>Publiek</translation>
+    </message>
+    <message>
+        <source>Omni</source>
+        <translation>Omni</translation>
+    </message>
+    <message>
+        <source>Cardioid</source>
+        <translation>Cardioïde</translation>
+    </message>
+    <message>
+        <source>Figure-8</source>
+        <translation>Achtvorm</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Nabij</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Ruimte</translation>
+    </message>
+    <message>
+        <source>Far</source>
+        <translation>Veraf</translation>
+    </message>
+    <message>
+        <source>Records the sound again in a room: drag the source and the mics. Shift picks up the Close mics while they stand on the source.</source>
+        <translation>Neemt het geluid opnieuw op in een ruimte: sleep de bron en de microfoons. Shift pakt de nabije microfoons zolang ze op de bron staan.</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breedte</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Diepte</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Hoogte</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Spreiding</translation>
+    </message>
+    <message>
+        <source>How far apart the left and the right of the input play, as two speakers</source>
+        <translation>Hoe ver links en rechts van de ingang uit elkaar spelen, als twee luidsprekers</translation>
+    </message>
+    <message>
+        <source>Walls</source>
+        <translation>Wanden</translation>
+    </message>
+    <message>
+        <source>Floor</source>
+        <translation>Vloer</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Plafond</translation>
+    </message>
+    <message>
+        <source>Mics</source>
+        <translation>Microfoons</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Niveau</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Afstand</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Hoek</translation>
+    </message>
+    <message>
+        <source>How far each mic of the pair turns outwards from the source</source>
+        <translation>Hoe ver elke microfoon van het paar van de bron naar buiten draait</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pass only what the effect changes, without the input</source>
+        <translation>Alleen doorlaten wat het effect verandert, zonder de ingang</translation>
     </message>
 </context>
 <context>

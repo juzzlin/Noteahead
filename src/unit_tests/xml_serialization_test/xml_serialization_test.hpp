@@ -123,6 +123,7 @@ private slots:
     void test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dynamicEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_ambienceEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_roomMicsEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_reverb224Effect_shouldLoadCorrectly();
     void test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly();

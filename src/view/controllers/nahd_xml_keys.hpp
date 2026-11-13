@@ -42,6 +42,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString blend MEMBER m_blend CONSTANT)
     Q_PROPERTY(QString boost MEMBER m_boost CONSTANT)
     Q_PROPERTY(QString ceiling MEMBER m_ceiling CONSTANT)
+    Q_PROPERTY(QString ceilingMaterial MEMBER m_ceilingMaterial CONSTANT)
     Q_PROPERTY(QString channelMode MEMBER m_channelMode CONSTANT)
     Q_PROPERTY(QString color MEMBER m_color CONSTANT)
     Q_PROPERTY(QString converters MEMBER m_converters CONSTANT)
@@ -69,6 +70,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString fftRate MEMBER m_fftRate CONSTANT)
     Q_PROPERTY(QString filterSlope MEMBER m_filterSlope CONSTANT)
     Q_PROPERTY(QString filterType MEMBER m_filterType CONSTANT)
+    Q_PROPERTY(QString floorMaterial MEMBER m_floorMaterial CONSTANT)
     Q_PROPERTY(QString freeze MEMBER m_freeze CONSTANT)
     Q_PROPERTY(QString frequency MEMBER m_frequency CONSTANT)
     Q_PROPERTY(QString fuzz MEMBER m_fuzz CONSTANT)
@@ -125,6 +127,9 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString release MEMBER m_release CONSTANT)
     Q_PROPERTY(QString resonance MEMBER m_resonance CONSTANT)
     Q_PROPERTY(QString room MEMBER m_room CONSTANT)
+    Q_PROPERTY(QString roomDepth MEMBER m_roomDepth CONSTANT)
+    Q_PROPERTY(QString roomHeight MEMBER m_roomHeight CONSTANT)
+    Q_PROPERTY(QString roomWidth MEMBER m_roomWidth CONSTANT)
     Q_PROPERTY(QString sampleRate MEMBER m_sampleRate CONSTANT)
     Q_PROPERTY(QString shape MEMBER m_shape CONSTANT)
     Q_PROPERTY(QString showGuides MEMBER m_showGuides CONSTANT)
@@ -133,6 +138,8 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString sideChainSourceDevice MEMBER m_sideChainSourceDevice CONSTANT)
     Q_PROPERTY(QString size MEMBER m_size CONSTANT)
     Q_PROPERTY(QString solo MEMBER m_solo CONSTANT)
+    Q_PROPERTY(QString sourceX MEMBER m_sourceX CONSTANT)
+    Q_PROPERTY(QString sourceY MEMBER m_sourceY CONSTANT)
     Q_PROPERTY(QString speed MEMBER m_speed CONSTANT)
     Q_PROPERTY(QString splitFreq MEMBER m_splitFreq CONSTANT)
     Q_PROPERTY(QString spread MEMBER m_spread CONSTANT)
@@ -146,6 +153,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString tone MEMBER m_tone CONSTANT)
     Q_PROPERTY(QString trebleDecay MEMBER m_trebleDecay CONSTANT)
     Q_PROPERTY(QString tune MEMBER m_tune CONSTANT)
+    Q_PROPERTY(QString wallMaterial MEMBER m_wallMaterial CONSTANT)
     Q_PROPERTY(QString waveform MEMBER m_waveform CONSTANT)
     Q_PROPERTY(QString width MEMBER m_width CONSTANT)
     Q_PROPERTY(QString zeroFill MEMBER m_zeroFill CONSTANT)
@@ -170,6 +178,13 @@ public:
     Q_INVOKABLE QString bandType(quint32 index) const;
     Q_INVOKABLE QString bandWidth(quint32 index) const;
     Q_INVOKABLE QString crossoverFreq(quint32 index) const;
+    //! A mic pair's controls, the pair numbered from zero.
+    Q_INVOKABLE QString micAngle(quint32 index) const;
+    Q_INVOKABLE QString micLevel(quint32 index) const;
+    Q_INVOKABLE QString micPattern(quint32 index) const;
+    Q_INVOKABLE QString micSpacing(quint32 index) const;
+    Q_INVOKABLE QString micX(quint32 index) const;
+    Q_INVOKABLE QString micY(quint32 index) const;
 
 private:
     QString m_airFreq;
@@ -187,6 +202,7 @@ private:
     QString m_blend;
     QString m_boost;
     QString m_ceiling;
+    QString m_ceilingMaterial;
     QString m_channelMode;
     QString m_color;
     QString m_converters;
@@ -214,6 +230,7 @@ private:
     QString m_fftRate;
     QString m_filterSlope;
     QString m_filterType;
+    QString m_floorMaterial;
     QString m_freeze;
     QString m_frequency;
     QString m_fuzz;
@@ -270,6 +287,9 @@ private:
     QString m_release;
     QString m_resonance;
     QString m_room;
+    QString m_roomDepth;
+    QString m_roomHeight;
+    QString m_roomWidth;
     QString m_sampleRate;
     QString m_shape;
     QString m_showGuides;
@@ -278,6 +298,8 @@ private:
     QString m_sideChainSourceDevice;
     QString m_size;
     QString m_solo;
+    QString m_sourceX;
+    QString m_sourceY;
     QString m_speed;
     QString m_splitFreq;
     QString m_spread;
@@ -291,6 +313,7 @@ private:
     QString m_tone;
     QString m_trebleDecay;
     QString m_tune;
+    QString m_wallMaterial;
     QString m_waveform;
     QString m_width;
     QString m_zeroFill;
