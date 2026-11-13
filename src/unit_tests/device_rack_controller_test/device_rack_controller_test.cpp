@@ -538,6 +538,25 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
     QVERIFY(!device->meter().active());
 }
 
+void DeviceRackControllerTest::test_setMetersActive_twoViews_shouldStayOnUntilBothTurnThemOff()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto device = std::make_shared<MockDevice>(Constants::internalDevicePortPrefix().toStdString() + " 1");
+    deviceService->setDevice(0, device);
+    DeviceMetersController meters { deviceService, std::make_shared<MockEditorService>() };
+
+    // Ctrl+M from the Device Rack: the mixer opens while the rack is still closing, so the rack
+    // turns the meters off after the mixer has turned them on
+    meters.setMetersActive(true);
+    meters.setMetersActive(true);
+    meters.setMetersActive(false);
+    QVERIFY(device->meter().active());
+
+    meters.setMetersActive(false);
+    QVERIFY(!device->meter().active());
+}
+
 void DeviceRackControllerTest::test_deviceOutputMeters_shouldCarryEveryReadingOfTheOutputTaps()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

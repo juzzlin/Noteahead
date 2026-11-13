@@ -54,7 +54,8 @@ public:
     Q_INVOKABLE void resetDeviceLoudness(int slotIndex);
     Q_INVOKABLE void resetAllDeviceLoudness();
     //! Gates every device's level, loudness and load tap. Keep it enabled only while meters are on
-    //! screen.
+    //! screen. Counted per view: each view that turns them on must turn them off, and they stay on
+    //! while any view still has them on, as when the mixer opens while the rack is still closing.
     Q_INVOKABLE void setMetersActive(bool active);
     //! Whether the device's output has hit full scale since the indicator was last cleared. Latches
     //! regardless of whether meters are on screen, so it also reports clipping you were not watching.
@@ -81,6 +82,8 @@ private:
     DeviceServiceS m_deviceService;
     QStringList m_devices;
     bool m_metersActive { false };
+    //! How many views have the meters on
+    int m_meterViewCount { 0 };
 };
 
 } // namespace noteahead
