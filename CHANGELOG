@@ -23,6 +23,10 @@ Bug fixes:
 
 * Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
 
+* Device scopes draw their traces about twenty times faster, so they no longer stutter
+
+* Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
+
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
 
 * Auto Panner keeps its waveform when a project is reloaded
