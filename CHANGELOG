@@ -19,6 +19,8 @@ Bug fixes:
 
 * Drum machines' keyboard no longer lights the pedal hi-hat key, which plays nothing
 
+* Parameter automation targets name devices as the gallery does, not by their internal type
+
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
 
 * Auto Panner keeps its waveform when a project is reloaded
