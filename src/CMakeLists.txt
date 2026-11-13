@@ -310,6 +310,19 @@ add_subdirectory(view)
 # Last, as each plugin adds itself to the libraries and the QML module above
 add_subdirectory(plugins)
 
+# The plugins' dialogs join the QML module here, in the directory that defines it, rather than in
+# their own folders. qmlcachegen's custom commands are made in the directory that adds the files,
+# and Ninja only gets a rule for a generated source from a target in that same directory: Qt 6.4
+# (Ubuntu 24.04) makes one command per file, so added from a plugin folder the cached .cpp files
+# were never generated and the build failed on them. The resource alias is set here too, as source
+# file properties belong to the directory they are set in.
+get_property(PLUGIN_QML_FILES GLOBAL PROPERTY NOTEAHEAD_PLUGIN_QML_FILES)
+foreach(QML_FILE ${PLUGIN_QML_FILES})
+    get_filename_component(QML_FILE_NAME ${QML_FILE} NAME)
+    set_source_files_properties(${QML_FILE} PROPERTIES QT_RESOURCE_ALIAS view/qml/Dialogs/${QML_FILE_NAME})
+endforeach()
+qt_target_qml_sources(${BINARY_NAME} QML_FILES ${PLUGIN_QML_FILES})
+
 # Not a QML module resource, deliberately. The QML module's resource prefix is Qt's to choose and it
 # has changed under us: everything in it sat at :/${URI}/... up to Qt 6.4 and at :/qt/qml/${URI}/...
 # from 6.5 on. The QML files and the graphics do not care, because QML addresses them relatively,
