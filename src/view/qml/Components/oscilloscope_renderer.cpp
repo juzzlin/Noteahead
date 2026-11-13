@@ -19,10 +19,9 @@
 #include <cmath>
 
 #include <QPainter>
-#include <QPainterPath>
 #include <QPen>
 
-#include <algorithm>
+#include <vector>
 
 namespace noteahead {
 
@@ -123,22 +122,25 @@ void OscilloscopeRenderer::paint(QPainter * painter)
         return;
     }
 
-    // Map samples to a path: x across the width, y centered with vertical gain, clamped to bounds.
-    QPainterPath path;
+    // Separate segments rather than one path: a joined, antialiased path of a thousand points is
+    // stroked about twenty times slower, which held the scope to a few frames a second. With the
+    // points a pixel or so apart, the joints a path would add are not visible.
+    std::vector<QLineF> segments;
+    segments.reserve(static_cast<size_t>(n - 1));
+    QPointF previous;
     for (int i = 0; i < n; i++) {
         const qreal x = w * static_cast<qreal>(i) / static_cast<qreal>(n - 1);
         const qreal value = std::clamp(m_samples[i].toReal() * m_gain, -1.0, 1.0);
-        const qreal y = h * 0.5 - value * (h * 0.5 - 2.0);
-        if (i == 0) {
-            path.moveTo(x, y);
-        } else {
-            path.lineTo(x, y);
+        const QPointF point { x, h * 0.5 - value * (h * 0.5 - 2.0) };
+        if (i > 0) {
+            segments.emplace_back(previous, point);
         }
+        previous = point;
     }
 
     painter->setPen(QPen(m_accentColor, 1.5));
     painter->setBrush(Qt::NoBrush);
-    painter->drawPath(path);
+    painter->drawLines(segments.data(), static_cast<int>(segments.size()));
 
     // Border
     painter->setPen(QPen(QColor("#444444"), 1));
