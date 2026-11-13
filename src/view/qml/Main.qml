@@ -639,6 +639,8 @@ ApplicationWindow {
             if (addMidiCcAutomationDialog.cycles() > 0 || addMidiCcAutomationDialog.amplitude() > 0 || addMidiCcAutomationDialog.offset() !== 0) {
                 automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.modulationType(), addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.offset(), addMidiCcAutomationDialog.inverted());
             }
+            // Undoable once complete, curve and modulation included
+            editorService.commitAutomationAdd(Constants.automationKindMidiCc, automationId);
             selectionService.clear();
             bottomBar.setStatusText(qsTr("MIDI CC automation added"));
         }
@@ -665,6 +667,8 @@ ApplicationWindow {
             if (addPitchBendAutomationDialog.cycles() > 0 || addPitchBendAutomationDialog.amplitude() > 0 || addPitchBendAutomationDialog.offset() !== 0) {
                 automationService.addPitchBendModulation(automationId, addPitchBendAutomationDialog.modulationType(), addPitchBendAutomationDialog.cycles(), addPitchBendAutomationDialog.amplitude(), addPitchBendAutomationDialog.offset(), addPitchBendAutomationDialog.inverted());
             }
+            // Undoable once complete, curve and modulation included
+            editorService.commitAutomationAdd(Constants.automationKindPitchBend, automationId);
             selectionService.clear();
             bottomBar.setStatusText(qsTr("Pitch Bend automation added"));
         }
@@ -736,6 +740,8 @@ ApplicationWindow {
             if (form.cycles() > 0 || form.amplitude() > 0 || form.offset() !== 0) {
                 automationService.addParameterModulation(automationId, form.modulationType(), form.cycles(), form.amplitude(), form.offset(), form.inverted());
             }
+            // Undoable once complete, curve and modulation included
+            editorService.commitAutomationAdd(Constants.automationKindParameter, automationId);
             selectionService.clear();
             bottomBar.setStatusText(qsTr("Parameter automation added"));
         }

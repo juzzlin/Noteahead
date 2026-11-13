@@ -76,6 +76,14 @@ AutomationCommand::AutomationCommand(AutomationServiceS automationService, Autom
 {
 }
 
+std::shared_ptr<AutomationCommand> AutomationCommand::applied(AutomationServiceS automationService, AutomationSet additions, AutomationSet deletions)
+{
+    auto command = std::make_shared<AutomationCommand>(std::move(automationService), std::move(additions), std::move(deletions));
+    command->m_idsAssigned = true;
+    command->m_skipNextRedo = true;
+    return command;
+}
+
 void AutomationCommand::undo()
 {
     auto & service = *m_automationService;
@@ -85,6 +93,10 @@ void AutomationCommand::undo()
 
 void AutomationCommand::redo()
 {
+    if (m_skipNextRedo) {
+        m_skipNextRedo = false;
+        return;
+    }
     auto & service = *m_automationService;
     m_deletions.forEach([&service](auto && automation) { remove(service, automation); });
 
