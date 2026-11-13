@@ -436,6 +436,9 @@ public:
     //! Deletes one automation, undoably. @p kind is an AutomationService::AutomationKind, as the
     //! editor's curves name it.
     Q_INVOKABLE void requestAutomationDelete(int kind, quint64 automationId);
+    //! Makes an automation an add dialog has just added undoable, once it is complete: the add
+    //! takes the dialog several calls. @p kind is an AutomationService::AutomationKind.
+    Q_INVOKABLE void commitAutomationAdd(int kind, quint64 automationId);
 
     using LineListCR = const LineList &;
 

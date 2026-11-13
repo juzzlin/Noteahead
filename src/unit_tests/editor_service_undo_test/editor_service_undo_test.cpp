@@ -88,6 +88,30 @@ void EditorServiceUndoTest::test_requestAutomationDelete_otherKind_shouldDeleteN
     QVERIFY(!editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_commitAutomationAdd_shouldUndoAndRedoTheWholeAutomation()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), automationService, std::make_shared<DataService>() };
+
+    // As the add dialog makes one: added, then given its modulation, then committed
+    const auto id = automationService->addParameterAutomation(0, 0, 0, "device", "uuid", "cutoff", 0, 0, 8, 0.0, 1.0, 0, "Sweep", 0, 0);
+    automationService->addParameterModulation(id, 0, 4, 0.5f, 0.0f, false);
+    editorService.commitAutomationAdd(static_cast<int>(AutomationService::AutomationKind::Parameter), id);
+    QCOMPARE(automationService->parameterAutomations().size(), size_t { 1 });
+    QVERIFY(editorService.canUndo());
+    QVERIFY(editorService.isModified());
+
+    editorService.undo();
+    QVERIFY(automationService->parameterAutomations().empty());
+
+    editorService.redo();
+    QCOMPARE(automationService->parameterAutomations().size(), size_t { 1 });
+    const auto automation = automationService->parameterAutomations().front();
+    QCOMPARE(automation.id(), id);
+    QCOMPARE(automation.comment(), QString { "Sweep" });
+    QCOMPARE(automation.modulation().cycles, 4.0f);
+}
+
 void EditorServiceUndoTest::test_undo_automationDelete_shouldKeepTheCurveColors()
 {
     const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());

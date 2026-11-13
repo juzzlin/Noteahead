@@ -34,6 +34,11 @@ public:
 
     AutomationCommand(AutomationServiceS automationService, AutomationSet additions, AutomationSet deletions);
 
+    //! For an edit made already, as a dialog makes one in several calls: the first redo, the one
+    //! the undo stack runs as it is pushed, leaves the automations as they are. The additions must
+    //! carry the ids they were added under.
+    static std::shared_ptr<AutomationCommand> applied(AutomationServiceS automationService, AutomationSet additions, AutomationSet deletions);
+
     void undo() override;
     void redo() override;
 
@@ -42,6 +47,7 @@ private:
     AutomationSet m_additions;
     AutomationSet m_deletions;
     bool m_idsAssigned = false;
+    bool m_skipNextRedo = false;
 };
 
 } // namespace noteahead

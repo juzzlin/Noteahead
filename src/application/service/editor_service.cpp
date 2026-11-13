@@ -2001,6 +2001,17 @@ void EditorService::requestAutomationDelete(int kind, quint64 automationId)
     }
 }
 
+void EditorService::commitAutomationAdd(int kind, quint64 automationId)
+{
+    if (!m_automationService) {
+        return;
+    }
+    if (auto added = m_automationService->automationById(static_cast<AutomationService::AutomationKind>(kind), automationId); !added.empty()) {
+        m_undoStack->push(AutomationCommand::applied(m_automationService, std::move(added), {}));
+        setIsModified(true);
+    }
+}
+
 void EditorService::pushNoteAndAutomationEdit(NoteChangeList changes, AutomationSet additions, AutomationSet deletions)
 {
     auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
