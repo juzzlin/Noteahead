@@ -23,7 +23,7 @@ Bug fixes:
 
 * Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
 
-* Device scopes draw their traces about twenty times faster, so they no longer stutter
+* Device scopes and the Phase Scope draw their traces about twenty times faster, so they no longer stutter
 
 * Adding a parameter, MIDI CC or Pitch Bend automation can be undone
 
