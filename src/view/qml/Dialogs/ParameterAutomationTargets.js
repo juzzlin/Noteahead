@@ -28,7 +28,7 @@ function targetLabel(target) {
         return target.label;
     }
     if (target.owner === "device") {
-        const device = qsTr("Device %1 (%2)").arg(target.deviceSlot + 1).arg(target.deviceTypeName);
+        const device = qsTr("Device %1 (%2)").arg(target.deviceSlot + 1).arg(deviceRackController.deviceDisplayName(target.deviceSlot));
         // The tracks it plays on, as the device rack sums them up, which is what tells two of the
         // same kind apart
         const tracks = deviceRackController.usageSummary(target.deviceSlot);
@@ -40,9 +40,9 @@ function targetLabel(target) {
     const name = effectRackController.effectDisplayName(target.type);
     switch (target.rack) {
     case 0:
-        return qsTr("Device %1 (%2) / Insert %3: %4").arg(target.deviceSlot + 1).arg(target.deviceTypeName).arg(target.effectSlot + 1).arg(name);
+        return qsTr("Device %1 (%2) / Insert %3: %4").arg(target.deviceSlot + 1).arg(deviceRackController.deviceDisplayName(target.deviceSlot)).arg(target.effectSlot + 1).arg(name);
     case 1:
-        return qsTr("Device %1 (%2) / Rack %3, insert %4: %5").arg(target.deviceSlot + 1).arg(target.deviceTypeName).arg(target.rackIndex + 1).arg(target.effectSlot + 1).arg(name);
+        return qsTr("Device %1 (%2) / Rack %3, insert %4: %5").arg(target.deviceSlot + 1).arg(deviceRackController.deviceDisplayName(target.deviceSlot)).arg(target.rackIndex + 1).arg(target.effectSlot + 1).arg(name);
     case 2:
         return qsTr("Master / Insert %1: %2").arg(target.effectSlot + 1).arg(name);
     case 3:
