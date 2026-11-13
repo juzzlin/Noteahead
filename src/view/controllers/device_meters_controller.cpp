@@ -21,6 +21,8 @@
 #include "../../domain/devices/device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
 
 DeviceMetersController::DeviceMetersController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
@@ -88,7 +90,8 @@ void DeviceMetersController::resetAllDeviceLoudness()
 
 void DeviceMetersController::setMetersActive(bool active)
 {
-    m_metersActive = active;
+    m_meterViewCount = std::max(0, m_meterViewCount + (active ? 1 : -1));
+    m_metersActive = m_meterViewCount > 0;
     applyMetersActive();
 }
 
