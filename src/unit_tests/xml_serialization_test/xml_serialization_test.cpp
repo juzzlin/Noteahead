@@ -111,6 +111,7 @@
 #include "../../plugins/effects/reference/reference_environments.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
+#include "../../plugins/effects/room_mics/room_mics.hpp"
 #include "../../plugins/effects/saturator/saturator.hpp"
 #include "../../plugins/effects/simple_eq/simple_eq.hpp"
 #include "../../plugins/effects/stereo_enhancer/stereo_enhancer.hpp"
@@ -3053,6 +3054,62 @@ void XmlSerializationTest::test_toXmlFromXml_ambienceEffect_shouldLoadCorrectly(
         QVERIFY2(p, qPrintable(key));
         // Pre-delay and width are stored in whole milliseconds and percent
         QVERIFY2(std::abs(p->get().value() - value) < 0.006f, qPrintable(key + ": " + QString::number(p->get().value())));
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_roomMicsEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    namespace C = Constants::NahdXml;
+    std::vector<std::pair<QString, float>> values {
+        { C::xmlKeyRoomWidth(), 0.61f },
+        { C::xmlKeyRoomDepth(), 0.42f },
+        { C::xmlKeyRoomHeight(), 0.17f },
+        { C::xmlKeyWallMaterial(), 2.0f },
+        { C::xmlKeyFloorMaterial(), 6.0f },
+        { C::xmlKeyCeilingMaterial(), 8.0f },
+        { C::xmlKeySourceX(), 0.33f },
+        { C::xmlKeySourceY(), 0.21f },
+        { C::xmlKeySpread(), 0.12f },
+        { C::xmlKeyMix(), 0.44f },
+        { C::xmlKeySolo(), 1.0f },
+    };
+    for (size_t g = 0; g < 3; g++) {
+        values.emplace_back(C::xmlKeyMicX(g), 0.3f + 0.1f * static_cast<float>(g));
+        values.emplace_back(C::xmlKeyMicY(g), 0.6f + 0.1f * static_cast<float>(g));
+        values.emplace_back(C::xmlKeyMicPattern(g), static_cast<float>(g));
+        values.emplace_back(C::xmlKeyMicLevel(g), 0.2f + 0.2f * static_cast<float>(g));
+        if (g > 0) {
+            values.emplace_back(C::xmlKeyMicSpacing(g), 0.15f * static_cast<float>(g));
+            values.emplace_back(C::xmlKeyMicAngle(g), 0.25f * static_cast<float>(g));
+        }
+    }
+    auto roomMics = std::make_shared<RoomMics>();
+    for (auto && [key, value] : values) {
+        auto p = roomMics->parameter(key.toStdString());
+        QVERIFY2(p, qPrintable(key));
+        p->get().setValue(value);
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, roomMics);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<RoomMics>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY2(p, qPrintable(key));
+        QVERIFY2(std::abs(p->get().value() - value) < 0.001f, qPrintable(key + ": " + QString::number(p->get().value())));
     }
 }
 

@@ -9870,6 +9870,74 @@
         <source>Loudness Sustain</source>
         <translation>响度延持</translation>
     </message>
+    <message>
+        <source>Height</source>
+        <translation>高度</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>声源 X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>声源 Y</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>扩散度</translation>
+    </message>
+    <message>
+        <source>Close Level</source>
+        <translation>近距电平</translation>
+    </message>
+    <message>
+        <source>Room Level</source>
+        <translation>房间电平</translation>
+    </message>
+    <message>
+        <source>Far Level</source>
+        <translation>远距电平</translation>
+    </message>
+    <message>
+        <source>Close X</source>
+        <translation>近距 X</translation>
+    </message>
+    <message>
+        <source>Room X</source>
+        <translation>房间 X</translation>
+    </message>
+    <message>
+        <source>Far X</source>
+        <translation>远距 X</translation>
+    </message>
+    <message>
+        <source>Close Y</source>
+        <translation>近距 Y</translation>
+    </message>
+    <message>
+        <source>Room Y</source>
+        <translation>房间 Y</translation>
+    </message>
+    <message>
+        <source>Far Y</source>
+        <translation>远距 Y</translation>
+    </message>
+    <message>
+        <source>Room Spacing</source>
+        <translation>房间间距</translation>
+    </message>
+    <message>
+        <source>Far Spacing</source>
+        <translation>远距间距</translation>
+    </message>
+    <message>
+        <source>Room Angle</source>
+        <translation>房间角度</translation>
+    </message>
+    <message>
+        <source>Far Angle</source>
+        <translation>远距角度</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10982,6 +11050,149 @@
     <message>
         <source>Release</source>
         <translation>释音</translation>
+    </message>
+</context>
+<context>
+    <name>RoomMicsDialog</name>
+    <message>
+        <source>Room Mics (Slot %1)</source>
+        <translation>Room Mics（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Stone</source>
+        <translation>石材</translation>
+    </message>
+    <message>
+        <source>Concrete</source>
+        <translation>混凝土</translation>
+    </message>
+    <message>
+        <source>Brick</source>
+        <translation>砖</translation>
+    </message>
+    <message>
+        <source>Plaster</source>
+        <translation>灰泥</translation>
+    </message>
+    <message>
+        <source>Wood</source>
+        <translation>木材</translation>
+    </message>
+    <message>
+        <source>Glass</source>
+        <translation>玻璃</translation>
+    </message>
+    <message>
+        <source>Carpet</source>
+        <translation>地毯</translation>
+    </message>
+    <message>
+        <source>Curtain</source>
+        <translation>窗帘</translation>
+    </message>
+    <message>
+        <source>Acoustic Panel</source>
+        <translation>吸音板</translation>
+    </message>
+    <message>
+        <source>Audience</source>
+        <translation>观众</translation>
+    </message>
+    <message>
+        <source>Omni</source>
+        <translation>全指向</translation>
+    </message>
+    <message>
+        <source>Cardioid</source>
+        <translation>心形</translation>
+    </message>
+    <message>
+        <source>Figure-8</source>
+        <translation>8字形</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>近距</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>房间</translation>
+    </message>
+    <message>
+        <source>Far</source>
+        <translation>远距</translation>
+    </message>
+    <message>
+        <source>Records the sound again in a room: drag the source and the mics. Shift picks up the Close mics while they stand on the source.</source>
+        <translation>在房间中重新录制声音：拖动声源和话筒。话筒位于声源上时，按住 Shift 可拖动近距话筒。</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>宽度</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>深度</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>高度</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>扩散度</translation>
+    </message>
+    <message>
+        <source>How far apart the left and the right of the input play, as two speakers</source>
+        <translation>输入的左右声道相距多远，如同两只音箱</translation>
+    </message>
+    <message>
+        <source>Walls</source>
+        <translation>墙面</translation>
+    </message>
+    <message>
+        <source>Floor</source>
+        <translation>地面</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>天花板</translation>
+    </message>
+    <message>
+        <source>Mics</source>
+        <translation>话筒</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>电平</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>间距</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>角度</translation>
+    </message>
+    <message>
+        <source>How far each mic of the pair turns outwards from the source</source>
+        <translation>每对话筒中的每只话筒从声源向外偏转多少</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>独奏</translation>
+    </message>
+    <message>
+        <source>Pass only what the effect changes, without the input</source>
+        <translation>只输出效果改变的部分，不含输入</translation>
     </message>
 </context>
 <context>

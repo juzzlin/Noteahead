@@ -331,6 +331,7 @@ QString gate();
 QString bitCrusher();
 QString flanger();
 QString tremolo();
+QString roomMics();
 } // namespace RackEffectType
 
 //! What a Performance Panel element shows. Saved in projects: never rename.
@@ -1106,6 +1107,21 @@ QString xmlKeyKeyboardControl2();
 QString xmlKeyEnv1DecaySwitch();
 QString xmlKeyEnv2DecaySwitch();
 QString xmlKeyNotePriority();
+QString xmlKeyRoomWidth();
+QString xmlKeyRoomDepth();
+QString xmlKeyRoomHeight();
+QString xmlKeyWallMaterial();
+QString xmlKeyFloorMaterial();
+QString xmlKeyCeilingMaterial();
+QString xmlKeySourceX();
+QString xmlKeySourceY();
+//! A mic pair's controls, the pair numbered from zero
+QString xmlKeyMicX(size_t micIndex);
+QString xmlKeyMicY(size_t micIndex);
+QString xmlKeyMicSpacing(size_t micIndex);
+QString xmlKeyMicAngle(size_t micIndex);
+QString xmlKeyMicPattern(size_t micIndex);
+QString xmlKeyMicLevel(size_t micIndex);
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

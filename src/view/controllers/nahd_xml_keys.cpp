@@ -36,6 +36,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_blend { Constants::NahdXml::xmlKeyBlend() }
   , m_boost { Constants::NahdXml::xmlKeyBoost() }
   , m_ceiling { Constants::NahdXml::xmlKeyCeiling() }
+  , m_ceilingMaterial { Constants::NahdXml::xmlKeyCeilingMaterial() }
   , m_channelMode { Constants::NahdXml::xmlKeyChannelMode() }
   , m_color { Constants::NahdXml::xmlKeyColor() }
   , m_converters { Constants::NahdXml::xmlKeyConverters() }
@@ -63,6 +64,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_fftRate { Constants::NahdXml::xmlKeyFftRate() }
   , m_filterSlope { Constants::NahdXml::xmlKeyFilterSlope() }
   , m_filterType { Constants::NahdXml::xmlKeyFilterType() }
+  , m_floorMaterial { Constants::NahdXml::xmlKeyFloorMaterial() }
   , m_freeze { Constants::NahdXml::xmlKeyFreeze() }
   , m_frequency { Constants::NahdXml::xmlKeyFrequency() }
   , m_fuzz { Constants::NahdXml::xmlKeyFuzz() }
@@ -119,6 +121,9 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_release { Constants::NahdXml::xmlKeyRelease() }
   , m_resonance { Constants::NahdXml::xmlKeyResonance() }
   , m_room { Constants::NahdXml::xmlKeyRoom() }
+  , m_roomDepth { Constants::NahdXml::xmlKeyRoomDepth() }
+  , m_roomHeight { Constants::NahdXml::xmlKeyRoomHeight() }
+  , m_roomWidth { Constants::NahdXml::xmlKeyRoomWidth() }
   , m_sampleRate { Constants::NahdXml::xmlKeySampleRate() }
   , m_shape { Constants::NahdXml::xmlKeyShape() }
   , m_showGuides { Constants::NahdXml::xmlKeyShowGuides() }
@@ -127,6 +132,8 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_sideChainSourceDevice { Constants::NahdXml::xmlKeySideChainSourceDevice() }
   , m_size { Constants::NahdXml::xmlKeySize() }
   , m_solo { Constants::NahdXml::xmlKeySolo() }
+  , m_sourceX { Constants::NahdXml::xmlKeySourceX() }
+  , m_sourceY { Constants::NahdXml::xmlKeySourceY() }
   , m_speed { Constants::NahdXml::xmlKeySpeed() }
   , m_splitFreq { Constants::NahdXml::xmlKeySplitFreq() }
   , m_spread { Constants::NahdXml::xmlKeySpread() }
@@ -140,6 +147,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_tone { Constants::NahdXml::xmlKeyTone() }
   , m_trebleDecay { Constants::NahdXml::xmlKeyTrebleDecay() }
   , m_tune { Constants::NahdXml::xmlKeyTune() }
+  , m_wallMaterial { Constants::NahdXml::xmlKeyWallMaterial() }
   , m_waveform { Constants::NahdXml::xmlKeyWaveform() }
   , m_width { Constants::NahdXml::xmlKeyWidth() }
   , m_zeroFill { Constants::NahdXml::xmlKeyZeroFill() }
@@ -220,6 +228,36 @@ QString NahdXmlKeys::bandWidth(quint32 index) const
 QString NahdXmlKeys::crossoverFreq(quint32 index) const
 {
     return Constants::NahdXml::xmlKeyCrossoverFreq(index);
+}
+
+QString NahdXmlKeys::micAngle(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicAngle(index);
+}
+
+QString NahdXmlKeys::micLevel(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicLevel(index);
+}
+
+QString NahdXmlKeys::micPattern(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicPattern(index);
+}
+
+QString NahdXmlKeys::micSpacing(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicSpacing(index);
+}
+
+QString NahdXmlKeys::micX(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicX(index);
+}
+
+QString NahdXmlKeys::micY(quint32 index) const
+{
+    return Constants::NahdXml::xmlKeyMicY(index);
 }
 
 } // namespace noteahead

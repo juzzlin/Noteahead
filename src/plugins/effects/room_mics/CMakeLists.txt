@@ -1,0 +1,20 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        room_acoustics.cpp
+        room_acoustics.hpp
+        room_convolver.cpp
+        room_convolver.hpp
+        room_mics.cpp
+        room_mics.hpp
+        room_mics_registration.cpp
+        room_tail.cpp
+        room_tail.hpp
+    VIEW_SOURCES
+        room_mics_dialog_model.cpp
+        room_mics_dialog_model.hpp
+        room_mics_view_registration.cpp
+        room_view_renderer.cpp
+        room_view_renderer.hpp
+    QML_FILES
+        RoomMicsDialog.qml
+)

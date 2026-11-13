@@ -11,6 +11,8 @@ New features:
 
 * Drum Synth 909: a TR-909 modelled on an RD-9, each drum with the RD-9's own knobs
 
+* Room Mics: records a device again in a room, its source and three mic pairs placed by dragging
+
 Bug fixes:
 
 * Kick 909: Decay is an RD-9's, up to 1.7 s instead of 0.45 s
