@@ -19,8 +19,10 @@
 #include "../../application/service/theme_service.hpp"
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QSet>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace noteahead {
@@ -184,6 +186,60 @@ void ManualServiceTest::test_bundledManual_html_shouldCarryNoHardCodedColors()
     // section out of following the accent.
     QVERIFY2(!manual.contains("style=\""), "Manual.html must not carry inline styles");
     QVERIFY2(!manual.contains("<style>"), "Manual.html must not carry its own stylesheet");
+}
+
+void ManualServiceTest::test_webPage_headings_shouldCarryTheirAnchors()
+{
+    const auto page = ManualService::webPage("<h1>Manual</h1><h2>Device Rack</h2><p>See <a href=\"#device-rack\">it</a></p><h3>Kick &amp; Snare</h3>", "1.2.3");
+    QVERIFY(page.startsWith("<!DOCTYPE html>"));
+    QVERIFY(page.contains("<h1 id=\"manual\">Manual</h1>"));
+    QVERIFY(page.contains("<h2 id=\"device-rack\">Device Rack</h2>"));
+    QVERIFY(page.contains("<h3 id=\"kick-snare\">Kick &amp; Snare</h3>"));
+    QVERIFY(page.contains("<p>See <a href=\"#device-rack\">it</a></p>"));
+    QVERIFY(page.contains("<title>Noteahead 1.2.3 User Manual</title>"));
+}
+
+void ManualServiceTest::test_webPage_contents_shouldListHeadingsBelowTheTitle()
+{
+    const auto page = ManualService::webPage("<h1>Manual</h1><h2>Mixer</h2><h3>Kick &amp; Snare</h3>", "1.2.3");
+    QVERIFY(!page.contains("href=\"#manual\""));
+    QVERIFY(page.contains("<li class=\"level-2\"><a href=\"#mixer\">Mixer</a></li>"));
+    QVERIFY(page.contains("<li class=\"level-3\"><a href=\"#kick-snare\">Kick &amp; Snare</a></li>"));
+}
+
+void ManualServiceTest::test_webPage_bundledManual_crossReferencesShouldResolve()
+{
+    const auto page = ManualService::webPage(bundledManual(), "1.2.3");
+
+    QSet<QString> ids;
+    auto idIterator = QRegularExpression { "id=\"([^\"]+)\"" }.globalMatch(page);
+    while (idIterator.hasNext()) {
+        ids.insert(idIterator.next().captured(1));
+    }
+    QVERIFY(ids.size() > 1);
+
+    auto linkIterator = QRegularExpression { "href=\"#([^\"]+)\"" }.globalMatch(page);
+    while (linkIterator.hasNext()) {
+        const auto anchor = linkIterator.next().captured(1);
+        QVERIFY2(ids.contains(anchor), qPrintable("Nothing carries the anchor: " + anchor));
+    }
+}
+
+void ManualServiceTest::test_exportWebPage_missingSource_shouldReturnError()
+{
+    QTemporaryDir dir;
+    QVERIFY(ManualService::exportWebPage("/nonexistent/Manual.html", dir.filePath("manual.html"), "1.2.3").has_value());
+}
+
+void ManualServiceTest::test_exportWebPage_bundledManual_shouldWriteThePage()
+{
+    QTemporaryDir dir;
+    const auto target = dir.filePath("manual.html");
+    QVERIFY(!ManualService::exportWebPage(MANUAL_HTML_PATH, target, "1.2.3").has_value());
+
+    QFile file { target };
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    QCOMPARE(QString::fromUtf8(file.readAll()), ManualService::webPage(bundledManual(), "1.2.3"));
 }
 
 } // namespace noteahead

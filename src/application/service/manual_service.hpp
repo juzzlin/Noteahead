@@ -21,6 +21,7 @@
 #include <QVariantList>
 
 #include <memory>
+#include <optional>
 
 namespace noteahead {
 
@@ -84,6 +85,15 @@ public:
 
     //! The stylesheet prepended to the manual, built from the current theme.
     QString styleSheet() const;
+
+    //! The manual as a page of its own, for the web site: a table of contents and an id on every
+    //! heading, the same anchors the dialog resolves cross references with, and the default theme's
+    //! colors. Pure, so it can be exercised without touching the filesystem.
+    static QString webPage(const QString & manual, const QString & version);
+
+    //! Reads the manual from @p source, a URL or a path, and writes webPage() to @p target.
+    //! @return What went wrong, or nothing when the page was written.
+    static std::optional<QString> exportWebPage(const QString & source, const QString & target, const QString & version);
 
 signals:
     void tableOfContentsChanged();
