@@ -447,6 +447,13 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         }
         m_updateService->pretendToBe(QString::fromStdString(value)); }, false, "Pretend to be this version, so that the check for a new version finds the latest release newer. For testing the notice.");
 
+    ae.addOption({ "--export-manual" }, [](const std::string & value) {
+        if (const auto error = ManualService::exportWebPage(QML_ROOT_DIR + QString { "/Manual.html" }, QString::fromStdString(value), VERSION); error) {
+            throw std::runtime_error { error->toStdString() };
+        }
+        std::cout << "Manual written to " << value << std::endl;
+        std::exit(EXIT_SUCCESS); }, false, "Write the user manual as a web page to the given file and exit.");
+
     ae.addOption({ "--screenshots" }, [this](const std::string & value) { m_applicationService->setScreenshotDirectory(QString::fromStdString(value)); }, false, "Open the example, save the main view and every dialog as PNGs into the given directory, and quit. For reviewing UI changes.");
 
     ae.setPositionalArgumentCallback([this](const std::vector<std::string> & args) {

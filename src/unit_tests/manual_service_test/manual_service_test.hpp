@@ -41,6 +41,12 @@ private slots:
     void test_bundledManual_headings_shouldHaveUniqueTitles();
     void test_bundledManual_sections_shouldAllBeReachableByAnchor();
     void test_bundledManual_html_shouldCarryNoHardCodedColors();
+
+    void test_webPage_headings_shouldCarryTheirAnchors();
+    void test_webPage_contents_shouldListHeadingsBelowTheTitle();
+    void test_webPage_bundledManual_crossReferencesShouldResolve();
+    void test_exportWebPage_missingSource_shouldReturnError();
+    void test_exportWebPage_bundledManual_shouldWriteThePage();
 };
 
 } // namespace noteahead

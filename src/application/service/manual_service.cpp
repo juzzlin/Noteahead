@@ -49,6 +49,37 @@ QString toLocalPath(const QString & source)
     return source;
 }
 
+//! The rules the dialog and the web page share, in the given colors.
+QString styleRules(const QString & text, const QString & accent, const QString & rule, const QString & codeBackground, const QString & footer)
+{
+    // Only the title, the section headings and the links take the accent. The manual runs to
+    // thirty-odd sub-headings, and coloring those too turns the page into a wall of accent.
+    return QString {
+        "  body { font-size: 1.1em; line-height: 1.4; color: %1; }"
+        "  h1 { color: %2; border-bottom: 2px solid %2; }"
+        "  h2 { color: %2; border-bottom: 1px solid %3; margin-top: 20px; }"
+        "  h3 { color: %1; }"
+        // Text has no linkColor of its own, so cross references are colored here
+        "  a { color: %2; }"
+        "  li { margin-bottom: 8px; }"
+        "  th { color: %1; }"
+        "  td { border-bottom: 1px solid %3; }"
+        "  code { font-family: monospace; }"
+        "  .example { font-family: monospace; background-color: %4; padding: 10px; }"
+        "  .footer { margin-top: 30px; font-size: 0.8em; color: %5; }"
+    }
+      .arg(text, accent, rule, codeBackground, footer);
+}
+
+std::optional<QString> readFile(const QString & source)
+{
+    QFile file { toLocalPath(source) };
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return {};
+    }
+    return QString::fromUtf8(file.readAll());
+}
+
 } // namespace
 
 ManualService::ManualService(ThemeServiceS themeService, QObject * parent)
@@ -114,31 +145,100 @@ QString ManualService::styleSheet() const
         return {};
     }
 
-    const auto accent = m_themeService->accentColor().name();
-    const auto rule = m_themeService->manualRuleColor().name();
-    const auto text = m_themeService->noteColumnTextColor().name();
-    const auto codeBackground = m_themeService->manualCodeBackgroundColor().name();
-    const auto footer = m_themeService->manualFooterTextColor().name();
+    return "<style>"
+      + styleRules(m_themeService->noteColumnTextColor().name(), m_themeService->accentColor().name(), m_themeService->manualRuleColor().name(),
+                   m_themeService->manualCodeBackgroundColor().name(), m_themeService->manualFooterTextColor().name())
+      + "</style>";
+}
 
-    // Only the title, the section headings and the links take the accent. The manual runs to
-    // thirty-odd sub-headings, and coloring those too turns the page into a wall of accent.
-    return QString {
-        "<style>"
-        "  body { font-size: 1.1em; line-height: 1.4; color: %1; }"
-        "  h1 { color: %2; border-bottom: 2px solid %2; }"
-        "  h2 { color: %2; border-bottom: 1px solid %3; margin-top: 20px; }"
-        "  h3 { color: %1; }"
-        // Text has no linkColor of its own, so cross references are colored here
-        "  a { color: %2; }"
-        "  li { margin-bottom: 8px; }"
-        "  th { color: %1; }"
-        "  td { border-bottom: 1px solid %3; }"
-        "  code { font-family: monospace; }"
-        "  .example { font-family: monospace; background-color: %4; padding: 10px; }"
-        "  .footer { margin-top: 30px; font-size: 0.8em; color: %5; }"
-        "</style>"
+QString ManualService::webPage(const QString & manual, const QString & version)
+{
+    // The default theme, not whatever accent the one exporting has picked
+    const ThemeService theme;
+    const auto text = theme.noteColumnTextColor().name();
+    const auto rule = theme.manualRuleColor().name();
+    // As the dialog the manual is read in
+    const QString background { "#1e1e1e" };
+
+    QString body;
+    QString contents;
+    qsizetype position = 0;
+    auto iterator = headingExpression().globalMatch(manual);
+    while (iterator.hasNext()) {
+        const auto match = iterator.next();
+        const auto title = renderedText(match.captured(2));
+        if (title.isEmpty()) {
+            continue;
+        }
+        const auto level = match.captured(1);
+        const auto anchor = anchorFor(title);
+        body += manual.mid(position, match.capturedStart() - position);
+        body += QString { "<h%1 id=\"%2\">%3</h%1>" }.arg(level, anchor, match.captured(2));
+        position = match.capturedEnd();
+        // The title is the page's own heading, so the contents start below it
+        if (level != "1") {
+            contents += QString { "<li class=\"level-%1\"><a href=\"#%2\">%3</a></li>\n" }.arg(level, anchor, title.toHtmlEscaped());
+        }
     }
-      .arg(text, accent, rule, codeBackground, footer);
+    body += manual.mid(position);
+
+    const auto title = QString { "Noteahead %1 User Manual" }.arg(version).toHtmlEscaped();
+    return QString {
+        "<!DOCTYPE html>\n"
+        "<html lang=\"en\">\n"
+        "<head>\n"
+        "<meta charset=\"utf-8\">\n"
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        "<title>%1</title>\n"
+        "<style>\n"
+        "%2\n"
+        "  html { background-color: %3; }"
+        "  body { font-family: sans-serif; margin: 0; }"
+        // The contents run to over a hundred entries, so they sit beside the manual and scroll on
+        // their own rather than pushing it off the first screen
+        "  .page { display: grid; grid-template-columns: 18em minmax(0, 1fr); gap: 2em; max-width: 80em; margin: 0 auto; padding: 0 2em; }"
+        "  nav { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 1em 0; font-size: 0.9em; border-right: 1px solid %4; }"
+        "  nav a { text-decoration: none; }"
+        "  nav ul { list-style: none; padding-left: 0; margin: 0; }"
+        "  nav li { margin-bottom: 2px; }"
+        "  nav .level-2 { margin-top: 0.6em; font-weight: bold; }"
+        "  nav .level-3 { padding-left: 1em; }"
+        "  main { padding: 1em 0 3em; }"
+        "  code { background-color: %5; padding: 0 0.2em; }"
+        "  @media (max-width: 50em) {"
+        "    .page { display: block; padding: 0 1em; }"
+        "    nav { position: static; height: auto; border-right: none; border-bottom: 1px solid %4; }"
+        "  }"
+        "\n</style>\n"
+        "</head>\n"
+        "<body>\n"
+        "<div class=\"page\">\n"
+        "<nav>\n<p class=\"footer\">Noteahead %6</p>\n<ul>\n%7</ul>\n</nav>\n"
+        "<main>\n%8</main>\n"
+        "</div>\n"
+        "</body>\n"
+        "</html>\n"
+    }
+      .arg(title,
+           styleRules(text, ThemeService::defaultAccentColor().name(), rule, theme.manualCodeBackgroundColor().name(), theme.manualFooterTextColor().name()),
+           background, rule, theme.manualCodeBackgroundColor().name(), version.toHtmlEscaped(), contents, body);
+}
+
+std::optional<QString> ManualService::exportWebPage(const QString & source, const QString & target, const QString & version)
+{
+    const auto manual = readFile(source);
+    if (!manual) {
+        return QString { "Cannot read the manual from '%1'" }.arg(source);
+    }
+
+    QFile file { target };
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        return QString { "Cannot write '%1': %2" }.arg(target, file.errorString());
+    }
+    if (file.write(webPage(*manual, version).toUtf8()) < 0) {
+        return QString { "Cannot write '%1': %2" }.arg(target, file.errorString());
+    }
+    return {};
 }
 
 void ManualService::load(const QString & source)

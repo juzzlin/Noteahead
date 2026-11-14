@@ -63,6 +63,8 @@ Other:
 
 * Two AppImages, built on Ubuntu 24.04 and on 26.04 for a newer Qt
 
+* `--export-manual <file>` writes the user manual as a web page
+
 * Column Flash is on by default, and the device gallery is alphabetical
 
 * Drum Synth V2 and FM Drums start mixed
