@@ -28,9 +28,12 @@ namespace noteahead {
 //! The late reverberation of a room: what follows the early reflections once they arrive too
 //! densely to tell apart.
 //!
-//! An eight-line feedback network mixed by a Hadamard matrix, which loses no energy of its own, so
-//! that only the absorption in each line decides the decay. The absorption is a gain and two
-//! shelves, set per line from the room's reverberation time in the low, middle and high bands.
+//! An eight-line feedback network behind an input low-cut and a four-stage Schroeder all-pass
+//! diffuser cascade, mixed by a Hadamard matrix and tapped with orthogonal circular stereo
+//! weights. Each line is read with cubic fractional interpolation, slowly modulated to break up
+//! static eigenmodes, and smoothed per sample so room and mic adjustments never click. The
+//! absorption in each line is a gain and two shelves, set from the room's reverberation time in
+//! the low, middle and high bands.
 //!
 //! Its level is not a setting but follows from the room: the diffuse field a unit impulse leaves
 //! has a known energy at every moment (RoomAcoustics::diffuseEnergyRate), the network stores what
@@ -44,6 +47,7 @@ class RoomTail
 {
 public:
     static constexpr size_t LineCount { 8 };
+    static constexpr size_t DiffuserCount { 4 };
 
     //! Sizes everything for @p sampleRate, which allocates.
     void configure(double sampleRate);
@@ -60,16 +64,33 @@ public:
     bool isRinging() const;
 
 private:
+    struct Allpass
+    {
+        std::vector<double> buffer;
+        size_t size { 1 };
+        size_t writePos { 0 };
+        double coeff { 0.62 };
+
+        double process(double input);
+        void reset();
+    };
+
     struct Line
     {
         std::vector<double> buffer;
-        size_t length { 1 };
+        double currentLength { 1.0 };
+        double targetLength { 1.0 };
+        double lfoPhase { 0.0 };
+        double lfoInc { 0.0 };
         size_t writePos { 0 };
-        double gain { 1.0 };
+        double currentGain { 1.0 };
+        double targetGain { 1.0 };
         double lowShelf { 1.0 };
         double highShelf { 1.0 };
         OnePoleFilter low;
         OnePoleFilter high;
+
+        double read(double delaySamples) const;
     };
 
     struct Input
@@ -78,15 +99,24 @@ private:
         size_t writePos { 0 };
         OnePoleFilter low;
         OnePoleFilter high;
+        OnePoleFilter lowCut;
+        std::array<Allpass, DiffuserCount> diffusers;
+
+        double read(double delaySamples) const;
     };
 
     double m_sampleRate { 0.0 };
     std::array<Line, LineCount> m_lines;
     std::array<Input, 2> m_inputs;
-    size_t m_preDelay { 0 };
-    double m_inputGain { 0.0 };
+    double m_currentPreDelay { 1.0 };
+    double m_targetPreDelay { 1.0 };
+    double m_currentInputGain { 0.0 };
+    double m_targetInputGain { 0.0 };
     double m_inputLowShelf { 1.0 };
     double m_inputHighShelf { 1.0 };
+    double m_smoothCoeff { 0.001 };
+    double m_modDepthSamples { 0.0 };
+    bool m_initialized { false };
     //! The loudest output lately, falling away, and how long the input has been silent: what is in
     //! the pre-delay has not reached the lines yet.
     double m_peak { 0.0 };

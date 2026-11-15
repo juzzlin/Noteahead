@@ -46,8 +46,8 @@ enum class Material
 };
 constexpr size_t MaterialCount { 10 };
 
-//! The share of the energy hitting the surface that it absorbs, per band: the textbook
-//! coefficients, the 4 kHz one carried on to 8 kHz.
+//! The share of the energy hitting the surface that it absorbs, per octave band from 125 Hz to
+//! 8 kHz.
 const Bands & absorption(Material material);
 
 //! What air takes off over a metre, in decibels, per band: ISO 9613-1 at 20 degrees and 70 %.
@@ -169,12 +169,14 @@ double diffuseEnergyRate(double seconds, double reverbTime, double volume);
 //! The impulse responses from each source to each mic, worked out a slice at a time.
 //!
 //! The early part only: the direct sound and every reflection, by the image-source method, up to
-//! a window that covers the furthest mic's direct sound and the 80 ms after it. Past that the
-//! reflections arrive too densely to tell apart, and a feedback network matched to the room's
-//! decay takes over (see RoomTail). Each reflection is the image of the source in the walls,
-//! weighed by what each wall it bounced off absorbed, what the air took and the mic's pattern in
-//! the direction it arrives from, per octave band; the bands are joined into one response by a
-//! complementary filter bank.
+//! a window that covers the room diagonal or the furthest mic's direct sound and the 80 ms after
+//! it. Past that the reflections arrive too densely to tell apart, and a feedback network matched
+//! to the room's decay takes over (see RoomTail). Each reflected image is slightly scattered off
+//! the shoebox grid with balanced polarity to break up flutter echoes and coherent low-frequency
+//! buildup, weighed by what each wall it bounced off absorbed, what the air took, the mic's
+//! pattern and off-axis capsule rolloff in the direction it arrives from, per octave band; the
+//! bands are joined by a complementary 1st-order filter bank and passed through a low-cut and a
+//! short all-pass diffuser chain while the direct wave stays phase-coherent.
 //!
 //! Far too much work for an audio block, so it is done as a job advanced by advance() with a
 //! budget of work, counted rather than timed, which keeps a render the same on every run however
@@ -192,6 +194,7 @@ public:
     static constexpr double WindowAfterDirectSeconds { 0.08 };
     //! The early part fades out over the end of its window while the tail fades in.
     static constexpr double CrossoverSeconds { 0.03 };
+    static constexpr size_t DiffuserCount { 3 };
 
     //! Sizes everything for @p sampleRate, which allocates.
     void configure(double sampleRate);
@@ -223,6 +226,7 @@ private:
         Vec3 position;
         //! What the walls it bounced off left of it, as an amplitude, per band.
         Bands reflection {};
+        bool isDirect { false };
     };
 
     enum class Stage
@@ -234,18 +238,38 @@ private:
         Done
     };
 
-    struct Biquad
+    struct Crossover
     {
         double b0 { 1.0 };
         double b1 { 0.0 };
-        double b2 { 0.0 };
         double a1 { 0.0 };
-        double a2 { 0.0 };
         double z1 { 0.0 };
-        double z2 { 0.0 };
 
         void setLowPass(double hz, double sampleRate);
         double process(double input);
+        void reset();
+    };
+
+    struct HighPass
+    {
+        double coeff { 0.99 };
+        double prevIn { 0.0 };
+        double prevOut { 0.0 };
+
+        void setCutoff(double hz, double sampleRate);
+        double process(double input);
+        void reset();
+    };
+
+    struct Allpass
+    {
+        std::vector<double> buffer;
+        size_t size { 1 };
+        size_t writePos { 0 };
+        double coeff { 0.48 };
+
+        double process(double input);
+        void reset();
     };
 
     void prepare();
@@ -254,7 +278,7 @@ private:
     void filterSamples(size_t count);
     void finishResponse();
     void computeNormalization();
-    void deposit(size_t band, double delaySamples, double value);
+    void deposit(std::vector<double> & buffer, double delaySamples, double value);
 
     double m_sampleRate { 0.0 };
     size_t m_capacity { 0 };
@@ -273,7 +297,9 @@ private:
     std::array<std::vector<Image>, SourceCount> m_images;
     std::array<std::vector<double>, BandCount> m_bandBuffers;
     std::array<std::vector<double>, ResponseCount> m_responses;
-    std::array<Biquad, BandCount - 1> m_crossovers {};
+    std::array<Crossover, BandCount - 1> m_crossovers {};
+    HighPass m_reflectionHighPass {};
+    std::array<std::array<Allpass, DiffuserCount>, 2> m_diffusers {};
     std::array<double, ResponseCount> m_energies {};
     std::array<double, MicGroupCount> m_normalization { 1.0, 1.0, 1.0 };
 

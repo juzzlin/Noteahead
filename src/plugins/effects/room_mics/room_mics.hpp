@@ -103,6 +103,8 @@ private:
 
     std::array<std::vector<double>, RoomConvolver::KernelCount> m_kernels;
     double m_lateGain { 0.0 };
+    double m_targetLateGain { 0.0 };
+    double m_lateGainSmooth { 0.001 };
 
     bool m_shouldSyncParameters { true };
     double m_configuredSampleRate { 0.0 };

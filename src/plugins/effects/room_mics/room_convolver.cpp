@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -63,7 +64,7 @@ void RoomConvolver::configure(size_t maxLength)
     m_active = 0;
     m_hasKernels = false;
     m_swapPending = false;
-    m_fading = false;
+    m_fadeRemaining = 0;
     m_loading = false;
     m_stagingLength = 0;
     m_loadCursor = 0;
@@ -92,7 +93,7 @@ void RoomConvolver::reset()
     m_recentIndex = 0;
     m_historyIndex = 0;
     m_position = 0;
-    m_fading = false;
+    m_fadeRemaining = 0;
     m_blockPeak = 0.0;
     m_lastBlockPeak = 0.0;
     m_silentFrames = static_cast<size_t>(-1) / 2;
@@ -120,13 +121,13 @@ void RoomConvolver::startLoad(const std::array<const double *, KernelCount> & ke
 
 bool RoomConvolver::isLoading() const
 {
-    return m_loading || m_swapPending;
+    return m_loading || m_swapPending || m_fadeRemaining > 0;
 }
 
 void RoomConvolver::advanceLoad(size_t partitions)
 {
     // The set being loaded is the one a crossfade is still reading
-    if (!m_loading || m_fading) {
+    if (!m_loading || m_fadeRemaining > 0) {
         return;
     }
     auto && set = m_sets[1 - m_active];
@@ -210,13 +211,15 @@ void RoomConvolver::process(double & left, double & right)
     for (size_t o = 0; o < OutputCount; o++) {
         output[o] = directPart(active, o) + m_tail[o][m_position];
     }
-    if (m_fading) {
+    if (m_fadeRemaining > 0) {
         const auto & previous = m_sets[1 - m_active];
-        const double t = static_cast<double>(m_position + 1) / static_cast<double>(BlockSize);
+        const size_t progressed = FadeSamples - m_fadeRemaining + 1;
+        const double t = 0.5 * (1.0 - std::cos(std::numbers::pi * static_cast<double>(progressed) / static_cast<double>(FadeSamples)));
         for (size_t o = 0; o < OutputCount; o++) {
             const double old = directPart(previous, o) + m_fadeTail[o][m_position];
             output[o] = old * (1.0 - t) + output[o] * t;
         }
+        m_fadeRemaining--;
     }
     m_recentIndex = (m_recentIndex + 1) % BlockSize;
     left = output[0];
@@ -263,11 +266,10 @@ void RoomConvolver::processBlock()
 {
     m_lastBlockPeak = m_blockPeak;
     m_blockPeak = 0.0;
-    m_fading = false;
-    if (m_swapPending) {
+    if (m_swapPending && m_fadeRemaining == 0) {
         m_active = 1 - m_active;
         // Faded in from what was playing, or straight in when nothing was
-        m_fading = m_hasKernels;
+        m_fadeRemaining = m_hasKernels ? FadeSamples : 0;
         m_hasKernels = true;
         m_swapPending = false;
     }
@@ -280,7 +282,7 @@ void RoomConvolver::processBlock()
     }
     for (size_t o = 0; o < OutputCount; o++) {
         convolve(m_sets[m_active], o, m_tail[o]);
-        if (m_fading) {
+        if (m_fadeRemaining > 0) {
             convolve(m_sets[1 - m_active], o, m_fadeTail[o]);
         }
     }

@@ -33,7 +33,8 @@ using namespace RoomAcoustics;
 //! anything, at about four percent of a core while it runs.
 constexpr double designWorkPerFrame { 16.0 };
 //! The partitions loaded per frame: a transform each.
-constexpr double loadPartitionsPerFrame { 1.0 / 8.0 };
+constexpr double loadPartitionsPerFrame { 1.0 };
+constexpr double lateGainSmoothSeconds { 0.02 };
 
 std::string key(const QString & name)
 {
@@ -263,10 +264,12 @@ void RoomMics::configure()
         kernel.assign(maxLength, 0.0);
     }
     m_configuredSampleRate = rate;
+    m_lateGainSmooth = 1.0 - std::exp(-1.0 / std::max(1.0, lateGainSmoothSeconds * rate));
     m_designReady = false;
     m_hasDesign = false;
     m_hasCombined = false;
     m_lateGain = 0.0;
+    m_targetLateGain = 0.0;
 }
 
 void RoomMics::combineAndLoad()
@@ -274,11 +277,16 @@ void RoomMics::combineAndLoad()
     // Each mic's response at its pair's level, summed per source and output
     const size_t length = m_designer.length();
     std::array<double, MicGroupCount> gains {};
-    m_lateGain = 0.0;
+    double lateEnergy = 0.0;
     for (size_t g = 0; g < MicGroupCount; g++) {
         const auto group = static_cast<MicGroup>(g);
         gains[g] = m_requested.groups[g].level * m_designer.normalization(group);
-        m_lateGain += gains[g] * std::sqrt(randomEnergyEfficiency(m_designer.settings().groups[g].pattern));
+        const double groupLate = gains[g] * std::sqrt(randomEnergyEfficiency(m_designer.settings().groups[g].pattern));
+        lateEnergy += groupLate * groupLate;
+    }
+    m_targetLateGain = std::sqrt(lateEnergy);
+    if (!m_convolver.hasKernels()) {
+        m_lateGain = m_targetLateGain;
     }
     for (size_t source = 0; source < ImpulseDesigner::SourceCount; source++) {
         for (size_t output = 0; output < 2; output++) {
@@ -300,7 +308,9 @@ void RoomMics::combineAndLoad()
         kernels[k] = m_kernels[k].data();
     }
     m_convolver.startLoad(kernels, length);
-    m_tail.set(m_designer.settings(), m_designer.reverbTimes(), m_designer.windowSeconds() - m_designer.crossoverSeconds());
+    if (m_designReady || !m_hasCombined) {
+        m_tail.set(m_designer.settings(), m_designer.reverbTimes(), m_designer.windowSeconds() - m_designer.crossoverSeconds());
+    }
 
     m_combined = m_designer.settings();
     for (size_t g = 0; g < MicGroupCount; g++) {
@@ -352,6 +362,7 @@ void RoomMics::advanceJobs(size_t frames, bool complete)
 
 void RoomMics::renderFrame(double & left, double & right)
 {
+    m_lateGain += m_lateGainSmooth * (m_targetLateGain - m_lateGain);
     double lateLeft = 0.0;
     double lateRight = 0.0;
     m_tail.process(left, right, lateLeft, lateRight);
@@ -385,6 +396,9 @@ void RoomMics::processBlock(AudioContext & context)
         m_shouldSyncParameters = false;
     }
     advanceJobs(context.frameCount, context.offline);
+    if (context.offline) {
+        m_lateGain = m_targetLateGain;
+    }
     for (uint32_t i = 0; i < context.frameCount; i++) {
         renderFrame(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
@@ -403,18 +417,21 @@ void RoomMics::finishDesign()
     for (int i = 0; i < 2; i++) {
         advanceJobs(0, true);
         // The new responses go live at a block boundary: run silence up to it
-        for (size_t n = 0; n < RoomConvolver::BlockSize && m_convolver.isLoading(); n++) {
+        for (size_t n = 0; n < RoomConvolver::BlockSize * (RoomConvolver::FadeBlocks + 1) && m_convolver.isLoading(); n++) {
             double left = 0.0;
             double right = 0.0;
             m_convolver.process(left, right);
         }
     }
+    m_lateGain = m_targetLateGain;
+    m_tail.reset();
 }
 
 void RoomMics::reset()
 {
     m_convolver.reset();
     m_tail.reset();
+    m_lateGain = m_targetLateGain;
 }
 
 void RoomMics::sync()
