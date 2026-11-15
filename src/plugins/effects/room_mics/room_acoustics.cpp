@@ -38,10 +38,35 @@ constexpr size_t maxBounces { 256 };
 //! The crossovers of the band filter bank, halfway between the bands on a log scale.
 constexpr std::array<double, BandCount - 1> crossoverHz { 176.8, 353.6, 707.1, 1414.2, 2828.4, 5656.9 };
 
+//! Short all-pass diffuser lengths and alternating coefficients for the early reflection field.
+constexpr std::array<double, ImpulseDesigner::DiffuserCount> earlyDiffuserMs { 0.73, 1.31, 2.09 };
+constexpr std::array<double, ImpulseDesigner::DiffuserCount> earlyDiffuserCoeffs { 0.52, -0.48, 0.44 };
+constexpr double rightDiffuserStretch { 1.11 };
+constexpr double reflectionLowCutHz { 65.0 };
+
 //! What one step of each stage costs in work units, an image deposited into one response being
 //! one. Measured, roughly: what keeps the job evenly spread over the audio.
 constexpr double enumerateCandidateWork { 0.05 };
 constexpr double filterSampleWork { 0.25 };
+
+uint64_t hashImage(int nx, int px, int ny, int py, int nz, int pz)
+{
+    uint64_t h = static_cast<uint64_t>(nx + 1024) * 0x9E3779B185EBCA87ULL;
+    h ^= static_cast<uint64_t>(ny + 1024) * 0xC2B2AE3D27D4EB4FULL;
+    h ^= static_cast<uint64_t>(nz + 1024) * 0x165667B19E3779F9ULL;
+    h ^= static_cast<uint64_t>((px << 2) | (py << 1) | pz) * 0x27D4EB2F165667C5ULL;
+    h ^= h >> 33;
+    h *= 0xFF51AFD7ED558CCDULL;
+    h ^= h >> 33;
+    h *= 0xC4CEB9FE1A85EC53ULL;
+    h ^= h >> 33;
+    return h;
+}
+
+double hashUnitSigned(uint64_t bits)
+{
+    return static_cast<double>(static_cast<int64_t>(bits & 0xFFFFULL) - 32768) / 32768.0;
+}
 
 double length2d(double x, double y)
 {
@@ -69,18 +94,18 @@ Vec3 aimFrom(const Vec3 & from, const Vec3 & to)
 
 const Bands & absorption(Material material)
 {
-    // 125 Hz to 4 kHz from the common tables, 8 kHz taken as 4 kHz
+    // 125 Hz to 8 kHz, with natural high-frequency studio absorption and surface scattering
     static const std::array<Bands, MaterialCount> table { {
-      { 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02 }, // Stone: marble, glazed tile
-      { 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03 }, // Concrete, poured and sealed
-      { 0.03, 0.03, 0.03, 0.04, 0.05, 0.07, 0.07 }, // Brick, unglazed
-      { 0.01, 0.02, 0.02, 0.03, 0.04, 0.05, 0.05 }, // Plaster on masonry
-      { 0.15, 0.11, 0.10, 0.07, 0.06, 0.07, 0.07 }, // Wood: boards on joists
-      { 0.35, 0.25, 0.18, 0.12, 0.07, 0.04, 0.04 }, // Glass: ordinary window
-      { 0.02, 0.06, 0.14, 0.37, 0.60, 0.65, 0.65 }, // Carpet on concrete
-      { 0.14, 0.35, 0.55, 0.72, 0.70, 0.65, 0.65 }, // Curtain: heavy velour, draped
-      { 0.50, 0.70, 0.60, 0.70, 0.70, 0.50, 0.50 }, // Acoustic panel
-      { 0.39, 0.57, 0.80, 0.94, 0.92, 0.87, 0.87 }, // Audience on upholstered seats
+      { 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.03 }, // Stone: marble, glazed tile
+      { 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.04 }, // Concrete, poured and sealed
+      { 0.03, 0.03, 0.03, 0.04, 0.05, 0.07, 0.09 }, // Brick, unglazed
+      { 0.02, 0.02, 0.02, 0.03, 0.04, 0.05, 0.07 }, // Plaster on masonry
+      { 0.15, 0.11, 0.10, 0.08, 0.08, 0.10, 0.13 }, // Wood: boards on joists
+      { 0.35, 0.25, 0.18, 0.12, 0.07, 0.05, 0.06 }, // Glass: ordinary window
+      { 0.02, 0.06, 0.14, 0.37, 0.60, 0.65, 0.70 }, // Carpet on concrete
+      { 0.14, 0.35, 0.55, 0.72, 0.70, 0.68, 0.72 }, // Curtain: heavy velour, draped
+      { 0.50, 0.70, 0.65, 0.75, 0.78, 0.75, 0.78 }, // Acoustic panel
+      { 0.39, 0.57, 0.80, 0.94, 0.92, 0.88, 0.88 }, // Audience on upholstered seats
     } };
     return table.at(std::min(static_cast<size_t>(material), MaterialCount - 1));
 }
@@ -228,28 +253,63 @@ double diffuseEnergyRate(double seconds, double reverbTime, double volume)
     return 4.0 * std::numbers::pi * SpeedOfSound * ReferenceDistanceM * ReferenceDistanceM / volume * std::exp(-sixtyDbNepers * seconds / reverbTime);
 }
 
-void ImpulseDesigner::Biquad::setLowPass(double hz, double sampleRate)
+void ImpulseDesigner::Crossover::setLowPass(double hz, double sampleRate)
 {
-    // Butterworth, by the bilinear transform
+    // First-order bilinear low-pass: strictly complementary (LP + HP = 1) with no resonant peak
     const double k = std::tan(std::numbers::pi * std::min(hz, sampleRate * 0.45) / sampleRate);
-    const double q = std::numbers::sqrt2 * 0.5;
-    const double norm = 1.0 / (1.0 + k / q + k * k);
-    b0 = k * k * norm;
-    b1 = 2.0 * b0;
-    b2 = b0;
-    a1 = 2.0 * (k * k - 1.0) * norm;
-    a2 = (1.0 - k / q + k * k) * norm;
+    const double norm = 1.0 / (1.0 + k);
+    b0 = k * norm;
+    b1 = b0;
+    a1 = (k - 1.0) * norm;
     z1 = 0.0;
-    z2 = 0.0;
 }
 
-double ImpulseDesigner::Biquad::process(double input)
+double ImpulseDesigner::Crossover::process(double input)
 {
-    // Transposed direct form II
     const double output = b0 * input + z1;
-    z1 = b1 * input - a1 * output + z2;
-    z2 = b2 * input - a2 * output;
+    z1 = b1 * input - a1 * output;
     return output;
+}
+
+void ImpulseDesigner::Crossover::reset()
+{
+    z1 = 0.0;
+}
+
+void ImpulseDesigner::HighPass::setCutoff(double hz, double sampleRate)
+{
+    const double k = std::tan(std::numbers::pi * std::min(hz, sampleRate * 0.45) / sampleRate);
+    coeff = 1.0 / (1.0 + k);
+    reset();
+}
+
+double ImpulseDesigner::HighPass::process(double input)
+{
+    const double output = coeff * (prevOut + input - prevIn);
+    prevIn = input;
+    prevOut = output;
+    return output;
+}
+
+void ImpulseDesigner::HighPass::reset()
+{
+    prevIn = 0.0;
+    prevOut = 0.0;
+}
+
+double ImpulseDesigner::Allpass::process(double input)
+{
+    const double buffered = buffer[writePos];
+    const double stored = input + buffered * coeff;
+    buffer[writePos] = stored;
+    writePos = (writePos + 1) % size;
+    return buffered - stored * coeff;
+}
+
+void ImpulseDesigner::Allpass::reset()
+{
+    std::ranges::fill(buffer, 0.0);
+    writePos = 0;
 }
 
 void ImpulseDesigner::configure(double sampleRate)
@@ -270,6 +330,18 @@ void ImpulseDesigner::configure(double sampleRate)
         for (auto && powers : slot) {
             powers.assign(maxBounces + 1, 0.0);
         }
+    }
+    for (size_t d = 0; d < DiffuserCount; d++) {
+        const auto sizeL = std::max<size_t>(1, static_cast<size_t>(std::lround(earlyDiffuserMs[d] * 0.001 * sampleRate)));
+        const auto sizeR = std::max<size_t>(1, static_cast<size_t>(std::lround(earlyDiffuserMs[d] * rightDiffuserStretch * 0.001 * sampleRate)));
+        m_diffusers[0][d].buffer.assign(sizeL, 0.0);
+        m_diffusers[0][d].size = sizeL;
+        m_diffusers[0][d].writePos = 0;
+        m_diffusers[0][d].coeff = earlyDiffuserCoeffs[d];
+        m_diffusers[1][d].buffer.assign(sizeR, 0.0);
+        m_diffusers[1][d].size = sizeR;
+        m_diffusers[1][d].writePos = 0;
+        m_diffusers[1][d].coeff = earlyDiffuserCoeffs[d];
     }
     m_stage = Stage::Idle;
     m_length = 0;
@@ -299,9 +371,9 @@ void ImpulseDesigner::prepare()
     m_layout = RoomLayout::from(m_settings);
     m_reverbTimes = RoomAcoustics::reverbTimes(m_settings);
 
-    // The window covers the furthest direct sound and what follows it, as long as the images it
-    // takes fit: a small room fills with them quickly
-    double furthest = 0.0;
+    // Anchored to the room's floor diagonal so dragging a mic within the room does not shift the
+    // early-to-late crossover window or the tail's pre-delay on every move
+    double furthest = 0.85 * std::hypot(m_settings.widthM, m_settings.depthM);
     for (auto && pair : m_layout.mics) {
         for (auto && mic : pair) {
             for (auto && source : m_layout.sources) {
@@ -340,8 +412,17 @@ void ImpulseDesigner::prepare()
     for (size_t b = 0; b < m_crossovers.size(); b++) {
         m_crossovers[b].setLowPass(crossoverHz[b], m_sampleRate);
     }
+    m_reflectionHighPass.setCutoff(reflectionLowCutHz, m_sampleRate);
+    for (auto && channel : m_diffusers) {
+        for (auto && diffuser : channel) {
+            diffuser.reset();
+        }
+    }
     for (auto && buffer : m_bandBuffers) {
         std::fill(buffer.begin(), buffer.begin() + static_cast<std::ptrdiff_t>(m_length + 4), 0.0);
+    }
+    for (auto && response : m_responses) {
+        std::fill(response.begin(), response.begin() + static_cast<std::ptrdiff_t>(m_length + 4), 0.0);
     }
     for (auto && images : m_images) {
         images.clear();
@@ -368,6 +449,7 @@ void ImpulseDesigner::enumerateSlab()
     const double radius = m_window * SpeedOfSound + halfDiagonal;
     const int ny = static_cast<int>(std::ceil((radius + depth) / (2.0 * depth)));
     const int nz = static_cast<int>(std::ceil((radius + height) / (2.0 * height)));
+    const double minDim = std::min({ width, depth, height });
     auto && images = m_images.at(m_source);
     const int nx = m_slab;
     for (int px = 0; px < 2; px++) {
@@ -394,10 +476,26 @@ void ImpulseDesigner::enumerateSlab()
                         }
                         const auto floorHits = std::min(maxBounces, static_cast<size_t>(std::abs(k - pz)));
                         const auto ceilingHits = std::min(maxBounces, static_cast<size_t>(std::abs(k)));
+                        const size_t totalHits = wallHits + floorHits + ceilingHits;
                         Image image;
-                        image.position = { x, y, z };
-                        for (size_t b = 0; b < BandCount; b++) {
-                            image.reflection[b] = m_reflectionPowers[0][b][wallHits] * m_reflectionPowers[1][b][floorHits] * m_reflectionPowers[2][b][ceilingHits];
+                        image.isDirect = (totalHits == 0);
+                        if (image.isDirect) {
+                            image.position = { x, y, z };
+                            image.reflection.fill(1.0);
+                        } else {
+                            // Surface scattering and phase dispersion: breaks shoebox flutter echoes,
+                            // center-line degeneracy and low-frequency constructive DC pile-up
+                            const uint64_t h = hashImage(nx, px, j, py, k, pz);
+                            const double scatterScale = std::min(0.18, 0.02 + 0.035 * static_cast<double>(totalHits - 1)) * std::min(1.0, minDim / 3.5);
+                            image.position = {
+                                x + hashUnitSigned(h) * scatterScale,
+                                y + hashUnitSigned(h >> 16) * scatterScale,
+                                z + hashUnitSigned(h >> 32) * scatterScale
+                            };
+                            const double polarity = ((h >> 48) & 1ULL) != 0 ? 1.0 : -1.0;
+                            for (size_t b = 0; b < BandCount; b++) {
+                                image.reflection[b] = polarity * m_reflectionPowers[0][b][wallHits] * m_reflectionPowers[1][b][floorHits] * m_reflectionPowers[2][b][ceilingHits];
+                            }
                         }
                         images.push_back(image);
                     }
@@ -407,10 +505,9 @@ void ImpulseDesigner::enumerateSlab()
     }
 }
 
-void ImpulseDesigner::deposit(size_t band, double delaySamples, double value)
+void ImpulseDesigner::deposit(std::vector<double> & buffer, double delaySamples, double value)
 {
     // Cubic Lagrange, so that a reflection lands between samples without losing its top
-    auto && buffer = m_bandBuffers[band];
     const auto whole = static_cast<std::ptrdiff_t>(std::floor(delaySamples));
     const double mu = delaySamples - static_cast<double>(whole);
     const auto end = static_cast<std::ptrdiff_t>(m_length);
@@ -457,16 +554,34 @@ void ImpulseDesigner::depositImages(size_t count)
         if (std::abs(gain) < 1.0e-9) {
             continue;
         }
+        const double delay = distance / SpeedOfSound * m_sampleRate;
+        if (image.isDirect) {
+            // The direct sound arrives clean and unscattered; with distance the air and off-axis
+            // dispersion gently soften the top end via a zero-phase 3-tap kernel
+            const double directGain = gain * std::exp(-m_airNepersPerMetre[3] * distance);
+            const double alpha = std::min(0.20, 0.03 * std::max(0.0, distance - 0.2));
+            if (alpha > 1.0e-6 && delay >= 1.0) {
+                deposit(m_responses[m_response], delay - 1.0, directGain * alpha);
+                deposit(m_responses[m_response], delay, directGain * (1.0 - 2.0 * alpha));
+                deposit(m_responses[m_response], delay + 1.0, directGain * alpha);
+            } else {
+                deposit(m_responses[m_response], delay, directGain);
+            }
+            continue;
+        }
+        // Off-axis arrivals lose a little more high-frequency sheen at the capsule
+        const double offAxisHf = 0.7 + 0.3 * std::max(0.0, cosine);
         Bands bands {};
         for (size_t b = 0; b < BandCount; b++) {
             bands[b] = gain * image.reflection[b] * std::exp(-m_airNepersPerMetre[b] * distance);
         }
+        bands[5] *= offAxisHf;
+        bands[6] *= offAxisHf * offAxisHf;
         // The bank sums low-passed differences: each band's gain against the next one up
-        const double delay = distance / SpeedOfSound * m_sampleRate;
         for (size_t b = 0; b + 1 < BandCount; b++) {
-            deposit(b, delay, bands[b] - bands[b + 1]);
+            deposit(m_bandBuffers[b], delay, bands[b] - bands[b + 1]);
         }
-        deposit(BandCount - 1, delay, bands[BandCount - 1]);
+        deposit(m_bandBuffers[BandCount - 1], delay, bands[BandCount - 1]);
     }
 }
 
@@ -475,6 +590,8 @@ void ImpulseDesigner::filterSamples(size_t count)
     // y = sum of LP_b(d_b) + d_top: each crossover hands one band over to the next, and with every
     // band at the same gain the differences vanish and the bank passes the response whole
     auto && response = m_responses[m_response];
+    const size_t mic = m_response % 2;
+    auto && diffusers = m_diffusers[mic];
     const size_t end = std::min(m_length, m_cursor + count);
     for (; m_cursor < end; m_cursor++) {
         double sum = m_bandBuffers[BandCount - 1][m_cursor];
@@ -483,7 +600,11 @@ void ImpulseDesigner::filterSamples(size_t count)
             sum += m_crossovers[b].process(m_bandBuffers[b][m_cursor]);
             m_bandBuffers[b][m_cursor] = 0.0;
         }
-        response[m_cursor] = sum;
+        sum = m_reflectionHighPass.process(sum);
+        for (auto && diffuser : diffusers) {
+            sum = diffuser.process(sum);
+        }
+        response[m_cursor] += sum;
     }
 }
 
@@ -502,12 +623,16 @@ void ImpulseDesigner::finishResponse()
         energy += response[n] * response[n];
     }
     // Clear what the deposit spilled past the end, so the next response starts clean
+    std::fill(response.begin() + static_cast<std::ptrdiff_t>(m_length), response.begin() + static_cast<std::ptrdiff_t>(m_length + 4), 0.0);
     for (auto && buffer : m_bandBuffers) {
         std::fill(buffer.begin() + static_cast<std::ptrdiff_t>(m_length), buffer.begin() + static_cast<std::ptrdiff_t>(m_length + 4), 0.0);
     }
     for (auto && crossover : m_crossovers) {
-        crossover.z1 = 0.0;
-        crossover.z2 = 0.0;
+        crossover.reset();
+    }
+    m_reflectionHighPass.reset();
+    for (auto && diffuser : m_diffusers[m_response % 2]) {
+        diffuser.reset();
     }
     m_energies[m_response] = energy;
 }

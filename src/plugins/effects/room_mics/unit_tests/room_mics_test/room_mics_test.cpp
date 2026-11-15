@@ -171,7 +171,7 @@ void RoomMicsTest::test_convolver_shouldMatchDirectConvolution()
 void RoomMicsTest::test_convolver_newResponses_shouldTakeOverWithoutAJump()
 {
     // A constant input through a unit kernel, then through half of one: the output steps down
-    // over one block rather than at once
+    // over FadeBlocks blocks rather than at once
     constexpr size_t length = 500;
     std::vector<double> unit(length, 0.0);
     std::vector<double> half(length, 0.0);
@@ -182,7 +182,7 @@ void RoomMicsTest::test_convolver_newResponses_shouldTakeOverWithoutAJump()
     convolver.startLoad({ unit.data(), unit.data(), unit.data(), unit.data() }, length);
     convolver.finishLoad();
     std::vector<double> outputs;
-    for (size_t n = 0; n < RoomConvolver::BlockSize * 4; n++) {
+    for (size_t n = 0; n < RoomConvolver::BlockSize * (3 + RoomConvolver::FadeBlocks); n++) {
         if (n == RoomConvolver::BlockSize * 2) {
             convolver.startLoad({ half.data(), half.data(), half.data(), half.data() }, length);
             convolver.finishLoad();
@@ -199,7 +199,7 @@ void RoomMicsTest::test_convolver_newResponses_shouldTakeOverWithoutAJump()
     for (size_t n = RoomConvolver::BlockSize + 1; n < outputs.size(); n++) {
         largestStep = std::max(largestStep, std::abs(outputs[n] - outputs[n - 1]));
     }
-    QVERIFY2(largestStep < 0.02, qPrintable(QString::number(largestStep)));
+    QVERIFY2(largestStep < 0.005, qPrintable(QString::number(largestStep)));
 }
 
 void RoomMicsTest::test_designer_closeMicOnTheSource_shouldHearItAtUnity()
@@ -475,6 +475,57 @@ void RoomMicsTest::test_processBlock_live_shouldRedesignWithinAFifthOfASecond()
         worst = std::max(worst, std::abs(heard[n] - expected[n]));
     }
     QVERIFY2(worst < 1.0e-9, qPrintable(QString::number(worst)));
+}
+
+void RoomMicsTest::test_processBlock_liveAdjustments_shouldNotCrackle()
+{
+    auto effect = makeRoomMics();
+    effect->finishDesign();
+
+    // Feed a continuous low-frequency sine wave while sweeping mic positions, room size and levels
+    constexpr size_t totalBlocks = 80;
+    constexpr size_t blockFrames = 128;
+    double phase = 0.0;
+    const double phaseInc = 2.0 * std::numbers::pi * 110.0 / rate;
+    double prevLeft = 0.0;
+    double prevRight = 0.0;
+    double maxSecondDiff = 0.0;
+    double prevDiffL = 0.0;
+    double prevDiffR = 0.0;
+
+    for (size_t b = 0; b < totalBlocks; b++) {
+        const float progress = static_cast<float>(b) / static_cast<float>(totalBlocks);
+        setParameter(*effect, C::xmlKeyMicY(static_cast<size_t>(MicGroup::Far)), 0.5f + 0.4f * progress);
+        setParameter(*effect, C::xmlKeyRoomWidth(), 0.3f + 0.3f * progress);
+        setParameter(*effect, C::xmlKeyMicLevel(static_cast<size_t>(MicGroup::Room)), 0.4f + 0.4f * progress);
+
+        std::vector<double> buffer(blockFrames * 2);
+        for (size_t i = 0; i < blockFrames; i++) {
+            const double s = 0.5 * std::sin(phase);
+            phase += phaseInc;
+            buffer[i * 2] = s;
+            buffer[i * 2 + 1] = s;
+        }
+        AudioContext context;
+        context.buffer = std::span(buffer.data(), buffer.size());
+        context.frameCount = blockFrames;
+        context.sampleRate = static_cast<uint32_t>(rate);
+        context.offline = false;
+        effect->processBlock(context);
+
+        for (size_t i = 0; i < blockFrames; i++) {
+            const double diffL = buffer[i * 2] - prevLeft;
+            const double diffR = buffer[i * 2 + 1] - prevRight;
+            if (b > 2) {
+                maxSecondDiff = std::max({ maxSecondDiff, std::abs(diffL - prevDiffL), std::abs(diffR - prevDiffR) });
+            }
+            prevDiffL = diffL;
+            prevDiffR = diffR;
+            prevLeft = buffer[i * 2];
+            prevRight = buffer[i * 2 + 1];
+        }
+    }
+    QVERIFY2(maxSecondDiff < 0.05, qPrintable(QString::number(maxSecondDiff)));
 }
 
 void RoomMicsTest::test_isSettled_shouldWaitForTheTail()

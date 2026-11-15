@@ -40,6 +40,7 @@ private slots:
     void test_processBlock_tail_shouldJoinTheEarlyPartWithoutAStep();
     void test_processBlock_levels_shouldMatchBetweenNearAndFarPairs();
     void test_processBlock_live_shouldRedesignWithinAFifthOfASecond();
+    void test_processBlock_liveAdjustments_shouldNotCrackle();
     void test_isSettled_shouldWaitForTheTail();
     void test_factoryPresets_shouldNameRealParametersAndPlay();
 };

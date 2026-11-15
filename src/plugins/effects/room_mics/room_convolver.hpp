@@ -30,11 +30,13 @@ namespace noteahead {
 //! block behind, which is exactly the delay of the taps it covers, so the two join without a gap.
 //!
 //! New responses are loaded a partition at a time by advanceLoad(), each one a transform, and
-//! crossfaded in over one block once all are in, so that moving a mic never clicks.
+//! crossfaded in over FadeBlocks blocks once all are in, so that moving a mic never clicks.
 class RoomConvolver
 {
 public:
     static constexpr size_t BlockSize { 128 };
+    static constexpr size_t FadeBlocks { 8 };
+    static constexpr size_t FadeSamples { BlockSize * FadeBlocks };
     static constexpr size_t InputCount { 2 };
     static constexpr size_t OutputCount { 2 };
     static constexpr size_t KernelCount { InputCount * OutputCount };
@@ -90,8 +92,8 @@ private:
     bool m_hasKernels { false };
     //! The new set is loaded and goes live at the next block boundary.
     bool m_swapPending { false };
-    //! Crossfading from the other set over the current block.
-    bool m_fading { false };
+    //! Samples left in the crossfade from the other set.
+    size_t m_fadeRemaining { 0 };
 
     // The load under way
     bool m_loading { false };
