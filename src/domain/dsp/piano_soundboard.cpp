@@ -34,12 +34,12 @@ struct BodyMode
     double level;
 };
 
-constexpr std::array<BodyMode, 12> Body { { { 58.0, 0.35, 1.0 }, { 92.0, 0.30, 0.9 }, { 138.0, 0.25, 0.85 }, { 186.0, 0.22, 0.7 }, { 245.0, 0.20, 0.6 }, { 330.0, 0.16, 0.5 }, { 440.0, 0.13, 0.4 }, { 600.0, 0.10, 0.32 }, { 820.0, 0.08, 0.25 }, { 1150.0, 0.06, 0.2 }, { 1600.0, 0.05, 0.15 }, { 2300.0, 0.04, 0.1 } } };
+constexpr std::array<BodyMode, 12> Body { { { 58.0, 0.065, 1.0 }, { 92.0, 0.055, 0.9 }, { 138.0, 0.048, 0.85 }, { 186.0, 0.042, 0.7 }, { 245.0, 0.036, 0.6 }, { 330.0, 0.030, 0.5 }, { 440.0, 0.025, 0.4 }, { 600.0, 0.022, 0.32 }, { 820.0, 0.018, 0.25 }, { 1150.0, 0.016, 0.2 }, { 1600.0, 0.014, 0.15 }, { 2300.0, 0.012, 0.1 } } };
 
 //! How much of the soundboard's motion reaches a free string, and how much of the strings is heard
 constexpr double Coupling = 0.0015;
 constexpr double ResonanceGain = 2.0;
-constexpr double KnockGain = 0.6;
+constexpr double KnockGain = 0.52;
 //! The free strings' loop low-pass: their upper partials die faster, as the struck strings' do
 constexpr double CombLowpass = 0.7;
 //! What the low-pass delays the loop by at low frequencies, in samples, taken off the line's length
@@ -104,12 +104,14 @@ void PianoSoundboard::knock(uint8_t note, double strength)
     }
     const double noteHz = 440.0 * std::exp2((static_cast<int>(note) - 69) / 12.0);
     for (size_t i = 0; i < Body.size(); i++) {
-        // A key nearer a resonance in pitch is struck nearer where that resonance moves the board
-        const double distance = std::log2(Body.at(i).hz / noteHz) / 2.0;
-        const double weight = Body.at(i).level * (0.3 + std::exp(-0.5 * distance * distance));
+        // A key nearer a resonance in pitch is struck nearer where that resonance moves the board,
+        // while every strike also shakes the low woody plate modes
+        const double distance = std::log2(Body.at(i).hz / noteHz) / 2.2;
+        const double weight = Body.at(i).level * (0.42 + 0.85 * std::exp(-0.5 * distance * distance));
         const double omega = 2.0 * Pi * Body.at(i).hz / m_sampleRate;
+        const double polarity = (i % 2 == 0) ? 1.0 : -1.0;
         // Added to whatever is ringing: the board is one, however many keys strike it
-        m_bodyY2.at(i) -= strength * weight * std::sin(omega) / -m_bodyA2.at(i);
+        m_bodyY2.at(i) -= polarity * strength * weight * std::sin(omega) / -m_bodyA2.at(i);
     }
     m_bodyEnergy = std::max(m_bodyEnergy, strength * strength);
 }

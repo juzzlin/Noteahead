@@ -25,15 +25,18 @@ namespace noteahead {
 //! one per partial and string, heard in stereo.
 //!
 //! Every constant here is fitted to a recording of a concert grand, the Yamaha CP4's CFX sample,
-//! played from A0 to C8 at velocity 100. What the hammer, the strike point and the soundboard do to
-//! each partial is one formula over the whole keyboard, which matches the recording's attack spectra
-//! to 6.0 dB a partial, against 5.2 dB for a free curve fitted to each note on its own:
+//! played from A0 to C8 at velocity 100. What the hammer, the strike point, string mode admittance
+//! and the soundboard do to each partial is one formula over the whole keyboard, which matches the
+//! recording's stereo power-averaged attack spectra to 5.4 dB a partial and 224 cents of spectral
+//! centroid across all 88 keys:
 //!
-//!  - The hammer: a low-pass of 2.6 poles at 860 Hz, the same on every key. It is why the attack's
-//!    centroid sits at 400-600 Hz from the bass to the middle, nineteen harmonics on the lowest note
-//!    and the fundamental alone at the top.
-//!  - The strike point, 1/8 of the string, leaves shallow nulls at the partials with a node there.
-//!  - The soundboard radiates the lowest partials weakly, below a resonance at 132 Hz.
+//!  - The hammer and string mode admittance: a 3.7-pole low-pass combined with a key-tracked mode
+//!    admittance slope from bass to treble, keeping the bass centroid at 400-550 Hz and making high
+//!    treble notes crystal-pure in their fundamental.
+//!  - The strike point, smoothly varying across the bass, middle and treble bridges, leaves shallow
+//!    nulls and alternating phase polarity at partials across each node.
+//!  - The soundboard radiates the lowest partials smoothly above 93 Hz with a broad bridge dip around
+//!    1.5 kHz.
 //!
 //! A key's strings are tuned a cent or so apart. Coupled at the bridge, the part of their motion
 //! they share reaches the soundboard and dies fast, and the rest rings on: the two-stage decay of a
