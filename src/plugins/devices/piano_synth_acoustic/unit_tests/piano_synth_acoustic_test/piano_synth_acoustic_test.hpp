@@ -27,6 +27,7 @@ class PianoSynthAcousticTest : public QObject
 private slots:
     void test_string_strike_shouldSoundAtTheStretchedPitch();
     void test_string_strike_stretchOff_shouldSoundEqualTempered();
+    void test_string_partialLevel_shouldFollowRecordingHarmonicBalance();
     void test_string_damp_shouldDieFasterThanHeld();
     void test_string_damp_undampedNote_shouldKeepRinging();
     void test_device_sustainPedal_shouldHoldReleasedNotes();

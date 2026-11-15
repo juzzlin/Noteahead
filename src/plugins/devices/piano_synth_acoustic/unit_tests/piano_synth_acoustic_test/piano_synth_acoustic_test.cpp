@@ -168,6 +168,7 @@ void PianoSynthAcousticTest::test_string_strike_shouldSoundAtTheStretchedPitch()
     const auto x = renderString(string, 0.5);
     const double expected = noteHz(96) * std::exp2(ModalGrandString::stretchCents(96) / 1200.0);
     QVERIFY(ModalGrandString::stretchCents(96) > 10.0);
+    QVERIFY(ModalGrandString::stretchCents(108) > ModalGrandString::stretchCents(96));
     QVERIFY(std::abs(1200.0 * std::log2(peakHz(x, expected) / expected)) < 1.0);
 }
 
@@ -180,6 +181,20 @@ void PianoSynthAcousticTest::test_string_strike_stretchOff_shouldSoundEqualTempe
     string.strike(96, 0.8f, settings, false);
     const auto x = renderString(string, 0.5);
     QVERIFY(std::abs(1200.0 * std::log2(peakHz(x, noteHz(96)) / noteHz(96))) < 1.0);
+}
+
+void PianoSynthAcousticTest::test_string_partialLevel_shouldFollowRecordingHarmonicBalance()
+{
+    const auto h1OverH2Db = [](int note) {
+        const double f0 = noteHz(note);
+        const double h1 = ModalGrandString::partialLevel(note, 1, f0, 860.0);
+        const double h2 = ModalGrandString::partialLevel(note, 2, 2.0 * f0, 860.0);
+        return db(h1) - db(h2);
+    };
+    // Low bass (A1): overtones stronger than fundamental; high treble (C7): fundamental dominates by > 18 dB
+    QVERIFY(h1OverH2Db(33) < -15.0);
+    QVERIFY(h1OverH2Db(60) > h1OverH2Db(33));
+    QVERIFY(h1OverH2Db(96) > 18.0);
 }
 
 void PianoSynthAcousticTest::test_string_damp_shouldDieFasterThanHeld()
