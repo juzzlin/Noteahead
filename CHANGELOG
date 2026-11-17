@@ -7,6 +7,19 @@ New features:
 
 Bug fixes:
 
+Other:
+
+12.1.1
+======
+
+Release date:
+
+Tue, 17 Nov 2026 08:18:51 +0200
+
+New features:
+
+Bug fixes:
+
 * File dialogs no longer fail to open on desktops without native ones, such as KDE, in the AppImage and the Ubuntu 24.04 package
 
 Other:
