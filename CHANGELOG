@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* File dialogs no longer fail to open on desktops without native ones, such as KDE, in the AppImage and the Ubuntu 24.04 package
+
 Other:
 
 12.1.0

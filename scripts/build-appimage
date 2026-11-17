@@ -49,6 +49,14 @@ SYSTEM_LIBRARIES=(
     libuuid.so.1
 )
 
+# QML modules that the import scanner does not find on its own, because only Qt's own QML imports
+# them. Qt.labs.folderlistmodel is what Qt's QML file dialog lists folders with, the dialog Qt falls
+# back to wherever the desktop offers no native one (KDE, for one); without it every file dialog
+# fails to load there. Given as paths under QT_INSTALL_QML.
+ADDITIONAL_QML_MODULES=(
+    Qt/labs/folderlistmodel
+)
+
 # Plugins that the Qt import scanner does not find on its own.
 ADDITIONAL_QT_PLUGINS=(
     platformthemes/libqgtk3.so
@@ -203,6 +211,37 @@ for plugin in "${COPIED_QT_PLUGINS[@]}"; do
     while IFS= read -r -d '' library; do
         "${PATCHELF}" --set-rpath '$ORIGIN/../../lib:$ORIGIN' "${library}" || exit 1
     done < <(find "${plugin}" -name '*.so' -type f -print0)
+done
+
+# The QML modules the scanner missed are copied in the same way. A module's plugin gets the runpath
+# linuxdeploy gives the plugins it deploys itself, back up to usr/lib from wherever the module sits,
+# and any Qt library it needs that is not bundled yet is copied into usr/lib, with that directory as
+# its own runpath. A module that is not installed fails the build: shipping without it is the bug
+# this is here to prevent.
+QT_QML_DIR=$("${QMAKE}" -query QT_INSTALL_QML)
+for module in "${ADDITIONAL_QML_MODULES[@]}"; do
+    if [[ ! -d "${QT_QML_DIR}/${module}" ]]; then
+        echo "$0: QML module ${module} not found in ${QT_QML_DIR}, install qml6-module-$(echo "${module}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')"
+        exit 1
+    fi
+    mkdir -p "${APPDIR}/usr/qml/$(dirname "${module}")"
+    rm -rf "${APPDIR}/usr/qml/${module}"
+    cp -Lr "${QT_QML_DIR}/${module}" "${APPDIR}/usr/qml/${module}"
+
+    # usr/qml/<module> is one level more than the module path has components
+    up=$(printf '../%.0s' $(seq 0 "$(echo "${module}" | tr -cd '/' | wc -c)"))
+    up="${up}../"
+    while IFS= read -r -d '' plugin; do
+        "${PATCHELF}" --set-rpath "\$ORIGIN/${up}lib:\$ORIGIN" "${plugin}" || exit 1
+        for library in $(ldd "${plugin}" | sed -n 's/^[[:space:]]*\(libQt6[^ ]*\) => \(.*\) (.*/\1:\2/p'); do
+            name=${library%%:*}
+            if [[ ! -e "${APPDIR}/usr/lib/${name}" ]]; then
+                cp -L "${library#*:}" "${APPDIR}/usr/lib/${name}"
+                "${PATCHELF}" --set-rpath '$ORIGIN' "${APPDIR}/usr/lib/${name}" || exit 1
+                echo "Bundled ${name} for QML module ${module}."
+            fi
+        done
+    done < <(find "${APPDIR}/usr/qml/${module}" -name '*.so' -type f -print0)
 done
 
 for library in "${SYSTEM_LIBRARIES[@]}"; do

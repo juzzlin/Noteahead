@@ -17,7 +17,11 @@ set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jussi Lind <jussi.lind@iki.fi>")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
+# Qt.labs.folderlistmodel is never imported by Noteahead itself: Qt's own QML file dialog needs it,
+# the one Qt falls back to where the desktop offers no native dialog (KDE, for one). Newer dialogs
+# packages depend on it, but Ubuntu 24.04's (Qt 6.4) does not, and there every file dialog failed.
 set(QML_RUNTIME_PACKAGES
+    qml6-module-qt-labs-folderlistmodel
     qml6-module-qtcore
     qml6-module-qtqml
     qml6-module-qtqml-workerscript
