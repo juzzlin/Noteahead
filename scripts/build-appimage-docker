@@ -46,7 +46,9 @@ PACKAGES=(
 
     # Needed as runtime files rather than to build against: these are the QML
     # modules that get copied into the AppDir. The -dev packages above do not
-    # bring them in.
+    # bring them in. Qt.labs.folderlistmodel is copied in by hand: only Qt's
+    # own file dialog imports it, so the import scanner never sees it.
+    qml6-module-qt-labs-folderlistmodel
     qml6-module-qtcore
     qml6-module-qtqml
     qml6-module-qtqml-workerscript
