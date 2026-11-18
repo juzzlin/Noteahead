@@ -35,7 +35,7 @@
 *.user
 
 # AppImage
-AppDir
+AppDir*
 AppDir-ubuntu-*
 .appimage-tools
 *.AppImage
@@ -52,4 +52,6 @@ Testing/
 memory
 plans
 
+.qt-tools
 
+samples
