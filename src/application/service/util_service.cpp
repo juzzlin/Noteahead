@@ -44,18 +44,22 @@ QColor UtilService::scaledColor(QColor color, double scale) const
 
 double UtilService::indexHighlightOpacity(int index, int linesPerBeat) const
 {
+    if (linesPerBeat <= 0) {
+        return 0.0;
+    }
+
     const auto beatLine1 = linesPerBeat;
     const auto beatLine2 = beatLine1 % 3 ? beatLine1 / 2 : beatLine1 / 3;
     const auto beatLine3 = beatLine1 % 6 ? beatLine1 / 4 : beatLine1 / 6;
 
     if (!(index % beatLine1)) {
         return 0.25;
-    } else if (!(index % beatLine3) && !(index % beatLine2)) {
+    } else if (beatLine3 > 0 && beatLine2 > 0 && !(index % beatLine3) && !(index % beatLine2)) {
         return 0.10;
-    } else if (!(index % beatLine3)) {
+    } else if (beatLine3 > 0 && !(index % beatLine3)) {
         return 0.05;
     } else {
-        return 0;
+        return 0.0;
     }
 }
 
