@@ -93,7 +93,7 @@ public:
     QString skipped;
 };
 
-const QDateTime Now { QDate { 2026, 11, 17 }, QTime { 12, 0 }, QTimeZone::UTC };
+const QDateTime Now { QDate { 2026, 11, 17 }, QTime { 12, 0 }, QTimeZone::utc() };
 const QString CurrentVersion { "12.1.1" };
 
 struct Fixture
