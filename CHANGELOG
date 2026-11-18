@@ -19,6 +19,8 @@ New features:
 
 Bug fixes:
 
+* Bass Synth: presets sweep the filter through the bass range instead of pinning at the top
+
 * Bass Synth: Resonance is a TD-3-MO's, without self-oscillating or losing the fundamental
 
 * Settings: the controls of every General section line up
