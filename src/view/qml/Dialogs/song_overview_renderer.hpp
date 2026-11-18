@@ -103,6 +103,8 @@ public:
     //! The content x of @p songLine on the timeline, and the content y of @p lane's top.
     Q_INVOKABLE qreal songLineX(double songLine) const;
     Q_INVOKABLE qreal laneY(int lane) const;
+    //! The content y of the middle of @p pitch's bar in @p lane.
+    Q_INVOKABLE qreal pitchY(int lane, int pitch) const;
 
     //! What is under view point (@p x, @p y): SongOverviewController::targetAt()'s map, plus row
     //! and lane, and for a note its bar as barX, barY, barWidth and barHeight in content coordinates.

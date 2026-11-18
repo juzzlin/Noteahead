@@ -22,6 +22,8 @@
 #include <QVariantMap>
 
 #include <memory>
+#include <optional>
+#include <utility>
 
 namespace noteahead {
 
@@ -79,6 +81,10 @@ public:
     //! and for a note trackName and noteName.
     Q_INVOKABLE QVariantMap targetAt(int row, int lane, double line, double pitch, double pitchTolerance) const;
 
+    //! The audible notes of @p row that start in [@p fromLine, @p toLine), as maps of lane, pitch,
+    //! velocity and songLine: what the playhead has just reached.
+    QVariantList notesStartingIn(int row, double fromLine, double toLine) const;
+
     //! Rebuilds from the song now.
     Q_INVOKABLE void refresh();
 
@@ -86,6 +92,9 @@ signals:
     void activeChanged();
     void overviewChanged();
     void playheadChanged();
+    //! During playback, the notes the playhead has just reached (see notesStartingIn()), so the view
+    //! can light them up.
+    void notesStarted(const QVariantList & notes);
     //! A mute or solo changed: nothing to rebuild, only to repaint.
     void mixChanged();
 
@@ -106,6 +115,9 @@ private:
     bool m_refreshScheduled { false };
     int m_playheadRow { 0 };
     double m_playheadLine { 0.0 };
+    //! The last line a tick reached, so that the notes of every line are announced once, those of
+    //! lines the ticks skipped included. Cleared when playback starts or stops.
+    std::optional<std::pair<int, double>> m_lastTickedLine;
 };
 
 } // namespace noteahead

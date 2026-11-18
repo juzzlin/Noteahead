@@ -199,6 +199,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Mixer View
   - Every device side by side as channel strips, with the same Gain, Fader and Pan as the device's own dialog, its meter and clip LED, and shortcuts to the device, its insert rack and its sends.
 - Song Overview
+  - The whole song at a glance: a lane per track with its notes drawn as a piano roll, the play order running across them. A playhead follows the song and lights up each note it reaches with a circle sized by its velocity; clicking a note puts the editor on it.
+- Audio Overview
   - A signal-flow map of the whole project, drawn as the engine actually runs it. Each device's chain is laid out in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first, and sends leave from the tap they are taken at, labelled pre- or post-fader. Hovering a device lights its whole route to the master and dims the rest; clicking a box opens that device's editor.
 
 ### Effects Racks

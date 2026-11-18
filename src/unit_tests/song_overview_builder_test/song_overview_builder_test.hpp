@@ -45,6 +45,7 @@ private slots:
     void test_controller_targetAt_repeatedPattern_shouldGoToTheClickedRow();
     void test_controller_playhead_whenStopped_shouldFollowTheEditor();
     void test_controller_inactive_shouldNotBuild();
+    void test_controller_notesStartingIn_shouldReturnTheNotesOfTheLines();
 };
 
 } // namespace noteahead

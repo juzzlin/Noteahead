@@ -95,6 +95,63 @@ AnimatedDialog {
                 root.followPlayhead();
             }
         }
+        function onNotesStarted(notes) {
+            if (!root.visible) {
+                return;
+            }
+            for (const note of notes) {
+                // A dense chord on every lane is still only so many circles
+                if (flashLayer.children.length >= root.maxFlashes) {
+                    break;
+                }
+                noteFlashComponent.createObject(flashLayer, {
+                    "x": renderer.songLineX(note.songLine),
+                    "y": renderer.pitchY(note.lane, note.pitch),
+                    "tint": renderer.trackColor(note.lane),
+                    "strength": note.velocity / 127
+                });
+            }
+        }
+    }
+
+    readonly property int maxFlashes: 96
+
+    // A circle where the playhead meets a note: a dot that fades and a ring that spreads, both
+    // bigger, brighter and longer for a louder note
+    Component {
+        id: noteFlashComponent
+        Item {
+            id: flash
+            property color tint: themeService.accentColor
+            property real strength: 1.0
+            property real progress: 0.0
+            readonly property real maxDiameter: 10 + 34 * strength
+            Rectangle {
+                anchors.centerIn: parent
+                width: flash.maxDiameter * (0.25 + 0.2 * (1 - flash.progress))
+                height: width
+                radius: width / 2
+                color: flash.tint
+                opacity: (0.35 + 0.65 * flash.strength) * (1 - flash.progress)
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: flash.maxDiameter * (0.25 + 0.75 * flash.progress)
+                height: width
+                radius: width / 2
+                color: "transparent"
+                border.color: flash.tint
+                border.width: 1 + 2 * flash.strength
+                opacity: (0.4 + 0.6 * flash.strength) * (1 - flash.progress)
+            }
+            NumberAnimation on progress {
+                from: 0
+                to: 1
+                duration: 350 + 350 * flash.strength
+                easing.type: Easing.OutCubic
+                onFinished: flash.destroy()
+            }
+        }
     }
 
     background: Rectangle {
@@ -220,6 +277,12 @@ AnimatedDialog {
                             width: 2
                             height: parent.height
                             color: themeService.accentColor
+                        }
+                        // The note flashes, placed in content coordinates
+                        Item {
+                            id: flashLayer
+                            x: -flickable.contentX - renderer.trackColumnWidth
+                            y: -flickable.contentY - renderer.stripHeight
                         }
                         Rectangle {
                             x: root.hover.barX !== undefined ? root.hover.barX - flickable.contentX - renderer.trackColumnWidth - 1 : 0

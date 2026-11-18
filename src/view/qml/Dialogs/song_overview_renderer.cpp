@@ -259,6 +259,15 @@ qreal SongOverviewRenderer::laneY(int lane) const
     return StripHeight + static_cast<qreal>(lane) * (m_laneHeight + LaneSpacing);
 }
 
+qreal SongOverviewRenderer::pitchY(int lane, int pitch) const
+{
+    if (!m_controller || lane < 0 || static_cast<size_t>(lane) >= m_controller->overview().tracks.size()) {
+        return laneY(std::max(lane, 0)) + m_laneHeight / 2.0;
+    }
+    const auto scale = pitchScale(static_cast<size_t>(lane));
+    return scale.top + (scale.highest - pitch + 0.5) * scale.pixelsPerSemitone;
+}
+
 SongOverviewRenderer::PitchScale SongOverviewRenderer::pitchScale(size_t lane) const
 {
     const auto & track = m_controller->overview().tracks.at(lane);

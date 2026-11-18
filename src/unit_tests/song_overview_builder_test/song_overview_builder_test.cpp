@@ -332,6 +332,33 @@ void SongOverviewBuilderTest::test_controller_inactive_shouldNotBuild()
     QCOMPARE(controller.rowCount(), 0);
 }
 
+void SongOverviewBuilderTest::test_controller_notesStartingIn_shouldReturnTheNotesOfTheLines()
+{
+    const auto editorService = std::make_shared<EditorService>();
+    const auto song = editorService->song();
+    song->setLength(3);
+    song->setSkipped(2, true);
+    setNoteOn(*song, 0, 1, 0, 0, 60, 127);
+    setNoteOn(*song, 0, 0, 0, 4, 48, 64);
+    SongOverviewController controller { editorService, nullptr, nullptr };
+    controller.setActive(true);
+
+    // The second time the pattern plays, on the timeline after the first
+    const auto atStart = controller.notesStartingIn(1, 0.0, 1.0);
+    QCOMPARE(atStart.size(), 1);
+    const auto note = atStart.at(0).toMap();
+    QCOMPARE(note["lane"].toInt(), 1);
+    QCOMPARE(note["pitch"].toInt(), 60);
+    QCOMPARE(note["velocity"].toInt(), 127);
+    QCOMPARE(note["songLine"].toDouble(), static_cast<double>(song->lineCount(0)));
+
+    // A range of lines takes every note in it, and none past it
+    QCOMPARE(controller.notesStartingIn(0, 0.0, 5.0).size(), 2);
+    QCOMPARE(controller.notesStartingIn(0, 1.0, 4.0).size(), 0);
+    // A skipped position plays nothing
+    QCOMPARE(controller.notesStartingIn(2, 0.0, 5.0).size(), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongOverviewBuilderTest)
