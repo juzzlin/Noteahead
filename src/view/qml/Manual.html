@@ -87,7 +87,7 @@
 
 <h2>Effect Racks</h2>
 <h3>Effect Rack</h3>
-<p>Accessed via <code>Effects => Master effect rack...</code>, the Effect Rack is the central hub for global audio processing. It has two tabs: <strong>Insert Effects</strong>, processed in order on the master output, and <strong>Send Effects</strong>, which all internal instruments can share via their sends.</p>
+<p>Accessed via <code>View => Master effect rack...</code>, the Effect Rack is the central hub for global audio processing. It has two tabs: <strong>Insert Effects</strong>, processed in order on the master output, and <strong>Send Effects</strong>, which all internal instruments can share via their sends.</p>
 <p>The same rack appears in several places, and works identically everywhere:</p>
 <ul>
     <li><strong>Master rack</strong>: insert and send effects for the whole mix.</li>
@@ -528,8 +528,17 @@
 </ul>
 <p>The meter shows the gain being applied at any moment, growing upwards when the shaper lifts and downwards when it tames.</p>
 
+<h3>Song Overview</h3>
+<p>The whole song at a glance, from <strong>View &gt; Song Overview</strong>. Each track has a lane, and the song runs across them in play order, each lane's notes drawn as a piano roll in the track's colour. A strip along the top shows the play order, a block per position as wide as its pattern. A note lasts until the next note or note-off in its column, or to the end of its pattern. Muted tracks are dimmed and skipped positions shaded.</p>
+<ul>
+    <li><strong>Playhead:</strong> the active position is marked, and a line shows where the song is, moving while it plays and scrolling the view along. <strong>Space</strong> or the <strong>Play</strong> button plays and stops from here.</li>
+    <li><strong>Jumping:</strong> click a note to put the editor on it, empty space in a lane to go to that line on its track, or a block in the strip to go to the start of that position. Double-click to also close the overview.</li>
+    <li><strong>Tracks:</strong> click a track's name to open its device if it is an internal one, or its <strong>Track Settings</strong> otherwise.</li>
+    <li><strong>Zoom:</strong> the song fits the width to begin with; <strong>Ctrl + wheel</strong> zooms in about the pointer.</li>
+</ul>
+<p>It shows the song but does not edit it.</p>
 <h3>Audio Overview</h3>
-<p>A map of the project's signal flow, from <strong>Song &gt; Audio Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
+<p>A map of the project's signal flow, from <strong>View &gt; Audio Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
 <p>The point of it is that the chain is drawn <em>as the engine runs it</em>, and that order is not fixed. A device's <strong>Fader Position</strong> decides whether the fader comes before or after its insert rack, so a map that drew one order for everything would misreport half the setting it exists to show. Two things worth knowing, both visible here and hard to see anywhere else:</p>
 <ul>
     <li><strong>"Pre-fader" means different things depending on where the fader is.</strong> The send is captured immediately before the fader either way — but with the fader ahead of the inserts, a pre-fader send has not been through them, and with the fader behind them, it has. Same setting, different signal.</li>
@@ -653,7 +662,7 @@
 
 <h2>Internal Devices</h2>
 <h3>Device Rack</h3>
-<p>Accessed via <code>Devices => Device rack...</code>, <code>Right-click => Song => Device Rack...</code>, or the <strong>Device Rack...</strong> button in <strong>Track Settings</strong>, the rack is the central hub for all internal instruments in Noteahead. Opening it from Track Settings is the quickest route when you are setting up a track: add the device, then pick its internal port for the track. For a track that has no device yet there is a quicker one still: click the faded device icon in the track header, or right-click the track and choose <strong>Assign a device...</strong>, add the device in the rack, and close it to be offered the new device for that track straight away. A device already in the rack is assigned through Track Settings.</p>
+<p>Accessed via <code>View => Device rack...</code>, <code>Right-click => Song => Device Rack...</code>, or the <strong>Device Rack...</strong> button in <strong>Track Settings</strong>, the rack is the central hub for all internal instruments in Noteahead. Opening it from Track Settings is the quickest route when you are setting up a track: add the device, then pick its internal port for the track. For a track that has no device yet there is a quicker one still: click the faded device icon in the track header, or right-click the track and choose <strong>Assign a device...</strong>, add the device in the rack, and close it to be offered the new device for that track straight away. A device already in the rack is assigned through Track Settings.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
     <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available devices — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>FM Synth</strong>, <strong>JU Synth</strong>, <strong>JU Synth 08</strong>, <strong>Synth D</strong>, <strong>Bass Synth</strong>, <strong>Electric Bass</strong>, <strong>Drum Synth</strong>, <strong>Drum Synth V2</strong>, <strong>Drum Synth 909</strong>, <strong>FM Drums</strong>, <strong>Piano Synth</strong>, <strong>Piano Synth V2</strong>, <strong>Piano Synth V3</strong>, <strong>Piano Synth Acoustic</strong>, <strong>Kick 808</strong>, <strong>Kick 909</strong>, <strong>Kick Synth</strong>, <strong>Snare Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String &amp; Voice V2</strong>, <strong>String &amp; Voice V3</strong>, <strong>String Ensemble</strong>, <strong>Speech</strong>, <strong>Noise FX</strong>, <strong>Sub Mixer</strong>, <strong>LFO</strong> and <strong>XY Pad</strong>, each listed with its category — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
@@ -1275,7 +1284,7 @@
 </ul>
 
 <h3>Performance Panel</h3>
-<p>A strip under the editor, shown and hidden with <strong>Ctrl + P</strong> or <code>Devices => Performance panel</code>. Unlike a dialog it leaves the editor usable and never takes the keyboard, so you can play pads and watch the spectrum while you write and while the song plays.</p>
+<p>A strip under the editor, shown and hidden with <strong>Ctrl + P</strong> or <code>View => Performance panel</code>. Unlike a dialog it leaves the editor usable and never takes the keyboard, so you can play pads and watch the spectrum while you write and while the song plays.</p>
 <ul>
     <li><strong>Elements</strong>: <strong>(+)</strong> lists the XY Pads in the rack and the RTAs and LUFS, dBTP and Stereo Field meters anywhere in the project, and offers <strong>New XY Pad</strong>, which puts one in the first free rack slot, and a new RTA or meter, which goes in the first free master insert slot. An XY Pad element shows its four pads, with each axis's target along its edges; an RTA element shows the spectrum with the RTA's own settings.</li>
     <li><strong>Title bar</strong>: names the device or where the effect sits. <strong>...</strong> opens its dialog and <strong>×</strong> takes it off the panel without removing it from the project. An element whose device or effect has been removed reads <em>Device missing</em> or <em>Effect missing</em>.</li>
@@ -1285,7 +1294,7 @@
 </ul>
 
 <h3>Mixer</h3>
-<p>Opened from <code>Devices => Mixer...</code>, the Mixer shows every device in the rack side by side as channel strips, so a whole mix can be balanced without opening each device in turn.</p>
+<p>Opened from <code>View => Mixer...</code>, the Mixer shows every device in the rack side by side as channel strips, so a whole mix can be balanced without opening each device in turn.</p>
 <ul>
     <li><strong>Strips</strong>: each carries the same <strong>Gain</strong>, <strong>Fader</strong> and <strong>Pan</strong> controls as the device's own dialog — Gain trims the device into its insert effects, the Fader balances it, Pan places it — plus its level meter and clip LED. A strip is labelled with the device name and the tracks that play it.</li>
     <li><strong>Buttons</strong>: <strong>Device</strong> opens the instrument's editor, <strong>Insert FX</strong> its own effect rack, and <strong>Sends</strong> its levels to the master send effects.</li>

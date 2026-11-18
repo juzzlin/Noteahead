@@ -7162,25 +7162,6 @@
     </message>
 </context>
 <context>
-    <name>MainMenu_Devices</name>
-    <message>
-        <source>&amp;Devices</source>
-        <translation>&amp;Apparaten</translation>
-    </message>
-    <message>
-        <source>Device rack...</source>
-        <translation>Apparatenrek...</translation>
-    </message>
-    <message>
-        <source>Performance panel</source>
-        <translation>Performancepaneel</translation>
-    </message>
-    <message>
-        <source>Mixer...</source>
-        <translation>Mixer...</translation>
-    </message>
-</context>
-<context>
     <name>MainMenu_Edit</name>
     <message>
         <source>&amp;Edit</source>
@@ -7217,17 +7198,6 @@
     <message>
         <source>Settings...</source>
         <translation>Instellingen...</translation>
-    </message>
-</context>
-<context>
-    <name>MainMenu_Effects</name>
-    <message>
-        <source>&amp;Effects</source>
-        <translation>&amp;Effecten</translation>
-    </message>
-    <message>
-        <source>Master effect rack...</source>
-        <translation>Master-effectenrek...</translation>
     </message>
 </context>
 <context>
@@ -7346,10 +7316,6 @@
         <source>Settings...</source>
         <translation>Instellingen...</translation>
     </message>
-    <message>
-        <source>Audio Overview...</source>
-        <translation>Audio-overzicht...</translation>
-    </message>
 </context>
 <context>
     <name>MainMenu_Tools</name>
@@ -7372,6 +7338,37 @@
     <message>
         <source>Analyse audio files...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainMenu_View</name>
+    <message>
+        <source>&amp;View</source>
+        <translation>Beel&amp;d</translation>
+    </message>
+    <message>
+        <source>Song Overview...</source>
+        <translation>Songoverzicht...</translation>
+    </message>
+    <message>
+        <source>Audio Overview...</source>
+        <translation>Audio-overzicht...</translation>
+    </message>
+    <message>
+        <source>Device rack...</source>
+        <translation>Apparatenrek...</translation>
+    </message>
+    <message>
+        <source>Performance panel</source>
+        <translation>Performancepaneel</translation>
+    </message>
+    <message>
+        <source>Mixer...</source>
+        <translation>Mixer...</translation>
+    </message>
+    <message>
+        <source>Master effect rack...</source>
+        <translation>Master-effectenrek...</translation>
     </message>
 </context>
 <context>
@@ -12813,6 +12810,41 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Saved inside the project file. Never written into rendered audio.</source>
         <translation>Wordt in het projectbestand opgeslagen. Wordt nooit in gerenderde audio geschreven.</translation>
+    </message>
+</context>
+<context>
+    <name>SongOverviewDialog</name>
+    <message>
+        <source>Song Overview</source>
+        <translation>Songoverzicht</translation>
+    </message>
+    <message>
+        <source>Open %1</source>
+        <translation>%1 openen</translation>
+    </message>
+    <message>
+        <source>Open track settings</source>
+        <translation>Trackinstellingen openen</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>The song as it plays: a lane per track, the play order across. Click a note to go to it in the editor, or a lane to go to that line on its track; double-click to also close this. Ctrl+wheel zooms.</source>
+        <translation>De song zoals hij speelt: een baan per track, de afspeelvolgorde van links naar rechts. Klik op een noot om er in de editor naartoe te gaan, of op een baan om naar die regel van zijn track te gaan; dubbelklik om dit ook te sluiten. Ctrl+scrollwiel zoomt.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stoppen</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation>Afspelen</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Regel</translation>
     </message>
 </context>
 <context>

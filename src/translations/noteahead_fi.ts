@@ -7162,25 +7162,6 @@
     </message>
 </context>
 <context>
-    <name>MainMenu_Devices</name>
-    <message>
-        <source>&amp;Devices</source>
-        <translation>&amp;Laitteet</translation>
-    </message>
-    <message>
-        <source>Device rack...</source>
-        <translation>Laiteräkki...</translation>
-    </message>
-    <message>
-        <source>Performance panel</source>
-        <translation>Esityspaneeli</translation>
-    </message>
-    <message>
-        <source>Mixer...</source>
-        <translation>Mikseri...</translation>
-    </message>
-</context>
-<context>
     <name>MainMenu_Edit</name>
     <message>
         <source>&amp;Edit</source>
@@ -7217,17 +7198,6 @@
     <message>
         <source>Settings...</source>
         <translation>Asetukset...</translation>
-    </message>
-</context>
-<context>
-    <name>MainMenu_Effects</name>
-    <message>
-        <source>&amp;Effects</source>
-        <translation>&amp;Efektit</translation>
-    </message>
-    <message>
-        <source>Master effect rack...</source>
-        <translation>Masterin efektiräkki...</translation>
     </message>
 </context>
 <context>
@@ -7346,10 +7316,6 @@
         <source>Settings...</source>
         <translation>Asetukset...</translation>
     </message>
-    <message>
-        <source>Audio Overview...</source>
-        <translation>Äänen yleiskatsaus...</translation>
-    </message>
 </context>
 <context>
     <name>MainMenu_Tools</name>
@@ -7372,6 +7338,37 @@
     <message>
         <source>Analyse audio files...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainMenu_View</name>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Näytä</translation>
+    </message>
+    <message>
+        <source>Song Overview...</source>
+        <translation>Kappaleen yleiskatsaus...</translation>
+    </message>
+    <message>
+        <source>Audio Overview...</source>
+        <translation>Äänen yleiskatsaus...</translation>
+    </message>
+    <message>
+        <source>Device rack...</source>
+        <translation>Laiteräkki...</translation>
+    </message>
+    <message>
+        <source>Performance panel</source>
+        <translation>Esityspaneeli</translation>
+    </message>
+    <message>
+        <source>Mixer...</source>
+        <translation>Mikseri...</translation>
+    </message>
+    <message>
+        <source>Master effect rack...</source>
+        <translation>Masterin efektiräkki...</translation>
     </message>
 </context>
 <context>
@@ -12813,6 +12810,41 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Saved inside the project file. Never written into rendered audio.</source>
         <translation>Tallennetaan projektitiedostoon. Ei koskaan kirjoiteta renderöityyn ääneen.</translation>
+    </message>
+</context>
+<context>
+    <name>SongOverviewDialog</name>
+    <message>
+        <source>Song Overview</source>
+        <translation>Kappaleen yleiskatsaus</translation>
+    </message>
+    <message>
+        <source>Open %1</source>
+        <translation>Avaa %1</translation>
+    </message>
+    <message>
+        <source>Open track settings</source>
+        <translation>Avaa raidan asetukset</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>The song as it plays: a lane per track, the play order across. Click a note to go to it in the editor, or a lane to go to that line on its track; double-click to also close this. Ctrl+wheel zooms.</source>
+        <translation>Kappale soittojärjestyksessä: kaista kullekin raidalle, soittojärjestys vasemmalta oikealle. Napsauta nuottia siirtyäksesi siihen editorissa tai kaistaa siirtyäksesi sen raidan riville; kaksoisnapsautus myös sulkee tämän. Ctrl+rulla zoomaa.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Pysäytä</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation>Toista</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Rivi</translation>
     </message>
 </context>
 <context>

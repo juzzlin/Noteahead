@@ -491,6 +491,10 @@ ApplicationWindow {
         id: audioOverviewDialog
         anchors.centerIn: parent
     }
+    SongOverviewDialog {
+        id: songOverviewDialog
+        anchors.centerIn: parent
+    }
     SongSettingsDialog {
         id: songSettingsDialog
         anchors.centerIn: parent
@@ -1061,6 +1065,7 @@ ApplicationWindow {
             songNotesDialog.open();
         });
         UiService.audioOverviewDialogRequested.connect(audioOverviewDialog.open);
+        UiService.songOverviewDialogRequested.connect(songOverviewDialog.open);
         // The map opens the editors that already exist rather than carrying its own.
         audioOverviewController.deviceOpenRequested.connect(slotIndex => {
             audioOverviewDialog.close();

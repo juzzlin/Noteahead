@@ -7161,25 +7161,6 @@
     </message>
 </context>
 <context>
-    <name>MainMenu_Devices</name>
-    <message>
-        <source>&amp;Devices</source>
-        <translation>设备(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Device rack...</source>
-        <translation>设备架...</translation>
-    </message>
-    <message>
-        <source>Performance panel</source>
-        <translation>演奏面板</translation>
-    </message>
-    <message>
-        <source>Mixer...</source>
-        <translation>混音器...</translation>
-    </message>
-</context>
-<context>
     <name>MainMenu_Edit</name>
     <message>
         <source>&amp;Edit</source>
@@ -7216,17 +7197,6 @@
     <message>
         <source>Settings...</source>
         <translation>设置...</translation>
-    </message>
-</context>
-<context>
-    <name>MainMenu_Effects</name>
-    <message>
-        <source>&amp;Effects</source>
-        <translation>效果(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Master effect rack...</source>
-        <translation>主效果架...</translation>
     </message>
 </context>
 <context>
@@ -7345,10 +7315,6 @@
         <source>Settings...</source>
         <translation>设置...</translation>
     </message>
-    <message>
-        <source>Audio Overview...</source>
-        <translation>音频概览...</translation>
-    </message>
 </context>
 <context>
     <name>MainMenu_Tools</name>
@@ -7371,6 +7337,37 @@
     <message>
         <source>Analyse audio files...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainMenu_View</name>
+    <message>
+        <source>&amp;View</source>
+        <translation>视图(&amp;V)</translation>
+    </message>
+    <message>
+        <source>Song Overview...</source>
+        <translation>乐曲概览...</translation>
+    </message>
+    <message>
+        <source>Audio Overview...</source>
+        <translation>音频概览...</translation>
+    </message>
+    <message>
+        <source>Device rack...</source>
+        <translation>设备架...</translation>
+    </message>
+    <message>
+        <source>Performance panel</source>
+        <translation>演奏面板</translation>
+    </message>
+    <message>
+        <source>Mixer...</source>
+        <translation>混音器...</translation>
+    </message>
+    <message>
+        <source>Master effect rack...</source>
+        <translation>主效果架...</translation>
     </message>
 </context>
 <context>
@@ -12811,6 +12808,41 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Saved inside the project file. Never written into rendered audio.</source>
         <translation>保存在项目文件内。绝不会写入渲染后的音频。</translation>
+    </message>
+</context>
+<context>
+    <name>SongOverviewDialog</name>
+    <message>
+        <source>Song Overview</source>
+        <translation>乐曲概览</translation>
+    </message>
+    <message>
+        <source>Open %1</source>
+        <translation>打开 %1</translation>
+    </message>
+    <message>
+        <source>Open track settings</source>
+        <translation>打开轨道设置</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>The song as it plays: a lane per track, the play order across. Click a note to go to it in the editor, or a lane to go to that line on its track; double-click to also close this. Ctrl+wheel zooms.</source>
+        <translation>按播放顺序显示乐曲：每个音轨一条通道，播放顺序从左到右。单击音符可在编辑器中跳转到该音符，单击通道可跳转到该音轨的那一行；双击还会关闭此窗口。Ctrl+滚轮缩放。</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation>播放</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>行</translation>
     </message>
 </context>
 <context>

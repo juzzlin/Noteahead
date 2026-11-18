@@ -16,6 +16,7 @@ set(HEADER_FILES
     controllers/nahd_xml_keys.hpp
     controllers/performance_panel_controller.hpp
     controllers/send_controller.hpp
+    controllers/song_overview_controller.hpp
     plugins/effect_summary.hpp
     plugins/plugin_catalog.hpp
     qml/Components/level_meter_renderer.hpp
@@ -26,6 +27,7 @@ set(HEADER_FILES
     qml/Dialogs/automation_curve_renderer.hpp
     qml/Dialogs/eq_curve_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
+    qml/Dialogs/song_overview_renderer.hpp
     qml/Dialogs/spectrum_compare_renderer.hpp
     qml/Dialogs/stereo_field_renderer.hpp
     qml/Editor/line_number_renderer.hpp
@@ -50,6 +52,7 @@ set(SOURCE_FILES
     controllers/nahd_xml_keys.cpp
     controllers/performance_panel_controller.cpp
     controllers/send_controller.cpp
+    controllers/song_overview_controller.cpp
     plugins/effect_summary.cpp
     plugins/plugin_catalog.cpp
     qml/Components/level_meter_renderer.cpp
@@ -60,6 +63,7 @@ set(SOURCE_FILES
     qml/Dialogs/automation_curve_renderer.cpp
     qml/Dialogs/eq_curve_renderer.cpp
     qml/Dialogs/rta_renderer.cpp
+    qml/Dialogs/song_overview_renderer.cpp
     qml/Dialogs/spectrum_compare_renderer.cpp
     qml/Dialogs/stereo_field_renderer.cpp
     qml/Editor/line_number_renderer.cpp

@@ -30,9 +30,8 @@ Item {
         anchors.fill: parent
         MainMenu_File {}
         MainMenu_Edit {}
+        MainMenu_View {}
         MainMenu_Song {}
-        MainMenu_Devices {}
-        MainMenu_Effects {}
         MainMenu_Tools {}
         MainMenu_Help {}
     }
