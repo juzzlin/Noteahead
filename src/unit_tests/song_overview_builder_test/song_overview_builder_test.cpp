@@ -49,6 +49,24 @@ const SongOverview::Pattern & patternOf(const SongOverview & overview, size_t pa
     return overview.patterns.at(pattern);
 }
 
+struct ControllerContext
+{
+    std::shared_ptr<EditorService> editorService;
+    std::shared_ptr<Song> song;
+    std::unique_ptr<SongOverviewController> controller;
+};
+
+ControllerContext createControllerContext()
+{
+    const auto editorService = std::make_shared<EditorService>();
+    auto controller = std::make_unique<SongOverviewController>(editorService, nullptr, nullptr);
+    return ControllerContext {
+        editorService,
+        editorService->song(),
+        std::move(controller)
+    };
+}
+
 } // namespace
 
 void SongOverviewBuilderTest::test_build_note_shouldLastUntilTheNextNote()
@@ -240,12 +258,11 @@ void SongOverviewBuilderTest::test_noteAt_outsideTolerance_shouldReturnNothing()
 
 void SongOverviewBuilderTest::test_controller_targetAt_note_shouldGoToItsTrackColumnAndStart()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    setNoteOn(*editorService->song(), 0, 3, 0, 8, 60);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    setNoteOn(*context.song, 0, 3, 0, 8, 60);
+    context.controller->setActive(true);
 
-    const auto target = controller.targetAt(0, 3, 10.5, 60.0, 0.5);
+    const auto target = context.controller->targetAt(0, 3, 10.5, 60.0, 0.5);
 
     QVERIFY(target["valid"].toBool());
     QVERIFY(target["isNote"].toBool());
@@ -257,12 +274,11 @@ void SongOverviewBuilderTest::test_controller_targetAt_note_shouldGoToItsTrackCo
 
 void SongOverviewBuilderTest::test_controller_targetAt_emptyLane_shouldGoToTheLanesTrack()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    editorService->requestPosition(0, 5, 0, 0, 0);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    context.editorService->requestPosition(0, 5, 0, 0, 0);
+    context.controller->setActive(true);
 
-    const auto target = controller.targetAt(0, 2, 12.7, 60.0, 0.5);
+    const auto target = context.controller->targetAt(0, 2, 12.7, 60.0, 0.5);
 
     QVERIFY(target["valid"].toBool());
     QVERIFY(!target["isNote"].toBool());
@@ -273,12 +289,11 @@ void SongOverviewBuilderTest::test_controller_targetAt_emptyLane_shouldGoToTheLa
 
 void SongOverviewBuilderTest::test_controller_targetAt_strip_shouldKeepTheCursorsTrack()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    editorService->requestPosition(0, 5, 0, 0, 0);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    context.editorService->requestPosition(0, 5, 0, 0, 0);
+    context.controller->setActive(true);
 
-    const auto target = controller.targetAt(0, -1, 0.0, 0.0, 0.0);
+    const auto target = context.controller->targetAt(0, -1, 0.0, 0.0, 0.0);
 
     QVERIFY(target["valid"].toBool());
     QCOMPARE(target["track"].toULongLong(), quint64 { 5 });
@@ -287,16 +302,14 @@ void SongOverviewBuilderTest::test_controller_targetAt_strip_shouldKeepTheCursor
 
 void SongOverviewBuilderTest::test_controller_targetAt_repeatedPattern_shouldGoToTheClickedRow()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    const auto song = editorService->song();
-    song->createPattern(1);
-    song->setLength(3);
-    song->setPatternAtSongPosition(1, 1);
-    song->setPatternAtSongPosition(2, 0);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    context.song->createPattern(1);
+    context.song->setLength(3);
+    context.song->setPatternAtSongPosition(1, 1);
+    context.song->setPatternAtSongPosition(2, 0);
+    context.controller->setActive(true);
 
-    const auto target = controller.targetAt(2, 0, 0.0, 60.0, 0.5);
+    const auto target = context.controller->targetAt(2, 0, 0.0, 60.0, 0.5);
 
     QCOMPARE(target["position"].toULongLong(), quint64 { 2 });
     QCOMPARE(target["pattern"].toULongLong(), quint64 { 0 });
@@ -304,59 +317,54 @@ void SongOverviewBuilderTest::test_controller_targetAt_repeatedPattern_shouldGoT
 
 void SongOverviewBuilderTest::test_controller_playhead_whenStopped_shouldFollowTheEditor()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    const auto song = editorService->song();
-    song->createPattern(1);
-    song->setLength(2);
-    song->setPatternAtSongPosition(1, 1);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    context.song->createPattern(1);
+    context.song->setLength(2);
+    context.song->setPatternAtSongPosition(1, 1);
+    context.controller->setActive(true);
 
-    editorService->setSongPosition(1);
-    editorService->requestPosition(1, 0, 0, 6, 0);
+    context.editorService->setSongPosition(1);
+    context.editorService->requestPosition(1, 0, 0, 6, 0);
 
-    QCOMPARE(controller.playheadRow(), 1);
-    QCOMPARE(controller.playheadLine(), 6.0);
-    QCOMPARE(controller.playheadSongLine(), static_cast<double>(song->lineCount(0)) + 6.0);
+    QCOMPARE(context.controller->playheadRow(), 1);
+    QCOMPARE(context.controller->playheadLine(), 6.0);
+    QCOMPARE(context.controller->playheadSongLine(), static_cast<double>(context.song->lineCount(0)) + 6.0);
 }
 
 void SongOverviewBuilderTest::test_controller_inactive_shouldNotBuild()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    SongOverviewController controller { editorService, nullptr, nullptr };
+    const auto context = createControllerContext();
 
-    QCOMPARE(controller.rowCount(), 0);
-    controller.setActive(true);
-    QCOMPARE(controller.rowCount(), 1);
-    controller.setActive(false);
-    QCOMPARE(controller.rowCount(), 0);
+    QCOMPARE(context.controller->rowCount(), 0);
+    context.controller->setActive(true);
+    QCOMPARE(context.controller->rowCount(), 1);
+    context.controller->setActive(false);
+    QCOMPARE(context.controller->rowCount(), 0);
 }
 
 void SongOverviewBuilderTest::test_controller_notesStartingIn_shouldReturnTheNotesOfTheLines()
 {
-    const auto editorService = std::make_shared<EditorService>();
-    const auto song = editorService->song();
-    song->setLength(3);
-    song->setSkipped(2, true);
-    setNoteOn(*song, 0, 1, 0, 0, 60, 127);
-    setNoteOn(*song, 0, 0, 0, 4, 48, 64);
-    SongOverviewController controller { editorService, nullptr, nullptr };
-    controller.setActive(true);
+    const auto context = createControllerContext();
+    context.song->setLength(3);
+    context.song->setSkipped(2, true);
+    setNoteOn(*context.song, 0, 1, 0, 0, 60, 127);
+    setNoteOn(*context.song, 0, 0, 0, 4, 48, 64);
+    context.controller->setActive(true);
 
     // The second time the pattern plays, on the timeline after the first
-    const auto atStart = controller.notesStartingIn(1, 0.0, 1.0);
+    const auto atStart = context.controller->notesStartingIn(1, 0.0, 1.0);
     QCOMPARE(atStart.size(), 1);
     const auto note = atStart.at(0).toMap();
     QCOMPARE(note["lane"].toInt(), 1);
     QCOMPARE(note["pitch"].toInt(), 60);
     QCOMPARE(note["velocity"].toInt(), 127);
-    QCOMPARE(note["songLine"].toDouble(), static_cast<double>(song->lineCount(0)));
+    QCOMPARE(note["songLine"].toDouble(), static_cast<double>(context.song->lineCount(0)));
 
     // A range of lines takes every note in it, and none past it
-    QCOMPARE(controller.notesStartingIn(0, 0.0, 5.0).size(), 2);
-    QCOMPARE(controller.notesStartingIn(0, 1.0, 4.0).size(), 0);
+    QCOMPARE(context.controller->notesStartingIn(0, 0.0, 5.0).size(), 2);
+    QCOMPARE(context.controller->notesStartingIn(0, 1.0, 4.0).size(), 0);
     // A skipped position plays nothing
-    QCOMPARE(controller.notesStartingIn(2, 0.0, 5.0).size(), 0);
+    QCOMPARE(context.controller->notesStartingIn(2, 0.0, 5.0).size(), 0);
 }
 
 } // namespace noteahead
