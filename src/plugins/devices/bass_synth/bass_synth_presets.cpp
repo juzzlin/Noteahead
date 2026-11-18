@@ -118,42 +118,42 @@ const std::vector<SynthPreset> & BassSynthPresets::presets()
 
         // The sound the instrument is famous for: a resonant ladder opened by the envelope of every
         // note, and enough drive to keep the peak from thinning out.
-        preset("Acid Lead", Patch { PolyBlepOscillator::Waveform::Saw, 600.0, 80.0, 75.0, 0.35, 70.0, 0.06, 0.0, 45.0, 60.0 }),
+        preset("Acid Lead", Patch { PolyBlepOscillator::Waveform::Saw, 180.0, 78.0, 36.0, 0.32, 35.0, 0.06, 0.0, 22.0, 65.0 }),
 
         // The same idea taken past the point of politeness: nearly self-oscillating, a short decay
         // and a square, which is where the hollow squelch comes from.
-        preset("Acid Squelch", Patch { PolyBlepOscillator::Waveform::Square, 350.0, 92.0, 90.0, 0.25, 85.0, 0.05, 0.0, 60.0, 55.0 }),
+        preset("Acid Squelch", Patch { PolyBlepOscillator::Waveform::Square, 140.0, 95.0, 42.0, 0.24, 40.0, 0.05, 0.0, 30.0, 60.0 }),
 
         // Nothing but the fundamental and the octave below it. No resonance and almost no envelope:
         // a sub is a level, not a movement.
-        preset("Deep Sub", Patch { PolyBlepOscillator::Waveform::Triangle, 220.0, 8.0, 12.0, 0.9, 30.0, 0.0, 80.0, 0.0, 50.0 }),
+        preset("Deep Sub", Patch { PolyBlepOscillator::Waveform::Triangle, 110.0, 5.0, 5.0, 1.2, 15.0, 0.0, 85.0, 0.0, 50.0 }),
 
         // Slow, round and slid into: the envelope opens a little and takes its time closing, and
         // the sub carries the weight the filter takes away.
-        preset("Dub Bass", Patch { PolyBlepOscillator::Waveform::Triangle, 180.0, 25.0, 30.0, 1.2, 40.0, 0.12, 50.0, 0.0, 45.0 }),
+        preset("Dub Bass", Patch { PolyBlepOscillator::Waveform::Triangle, 130.0, 25.0, 14.0, 1.4, 20.0, 0.12, 65.0, 0.0, 45.0 }),
 
         // A saw kept wide open, thickened underneath rather than by resonance, with just enough
         // drive to give it an edge on a small speaker.
-        preset("Fat Saw", Patch { PolyBlepOscillator::Waveform::Saw, 900.0, 30.0, 35.0, 0.6, 50.0, 0.0, 40.0, 25.0, 55.0 }),
+        preset("Fat Saw", Patch { PolyBlepOscillator::Waveform::Saw, 550.0, 22.0, 20.0, 0.65, 25.0, 0.0, 45.0, 15.0, 55.0 }),
 
         // Driven hard into a dark tone control, so the distortion adds weight rather than fizz.
-        preset("Growl", Patch { PolyBlepOscillator::Waveform::Square, 450.0, 70.0, 60.0, 0.5, 60.0, 0.0, 20.0, 70.0, 35.0 }),
+        preset("Growl", Patch { PolyBlepOscillator::Waveform::Square, 200.0, 70.0, 29.0, 0.5, 30.0, 0.0, 25.0, 55.0, 32.0 }),
 
         // A short, bright blip: the envelope does nearly all of it, which is what makes the note
         // read as plucked rather than as filtered.
-        preset("Plucked", Patch { PolyBlepOscillator::Waveform::Saw, 1200.0, 50.0, 80.0, 0.14, 45.0, 0.0, 0.0, 0.0, 60.0 }),
+        preset("Plucked", Patch { PolyBlepOscillator::Waveform::Saw, 140.0, 42.0, 39.0, 0.22, 25.0, 0.0, 0.0, 0.0, 60.0 }),
 
         // Mid resonance and a long slide: the patch for a line that walks between its notes instead
         // of stepping.
-        preset("Rubber", Patch { PolyBlepOscillator::Waveform::Triangle, 500.0, 55.0, 50.0, 0.4, 50.0, 0.25, 25.0, 15.0, 50.0 }),
+        preset("Rubber", Patch { PolyBlepOscillator::Waveform::Square, 180.0, 62.0, 28.0, 0.45, 25.0, 0.22, 25.0, 12.0, 50.0 }),
 
-        // The high pass is the point: everything under 90 Hz is gone, so the part sits over a kick
+        // The high pass is the point: everything under 100 Hz is gone, so the part sits over a kick
         // and a sub without fighting either.
-        preset("Skinny Stab", Patch { PolyBlepOscillator::Waveform::Square, 1400.0, 40.0, 55.0, 0.2, 55.0, 0.0, 0.0, 20.0, 60.0, 90.0 }),
+        preset("Skinny Stab", Patch { PolyBlepOscillator::Waveform::Square, 360.0, 50.0, 30.0, 0.22, 25.0, 0.0, 0.0, 18.0, 62.0, 100.0 }),
 
         // Open, hollow and long enough to hold a note: the square used as a bass line rather than
         // as an acid line.
-        preset("Square Lead", Patch { PolyBlepOscillator::Waveform::Square, 1500.0, 35.0, 40.0, 0.8, 50.0, 0.0, 30.0, 20.0, 55.0 })
+        preset("Square Lead", Patch { PolyBlepOscillator::Waveform::Square, 480.0, 35.0, 22.0, 0.85, 25.0, 0.0, 25.0, 15.0, 55.0 })
     };
 
     return presets;
