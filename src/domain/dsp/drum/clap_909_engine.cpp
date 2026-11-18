@@ -26,7 +26,7 @@ namespace {
 
 //! When each burst starts and how loud it is
 constexpr std::array<double, 4> BurstSeconds { 0.0, 0.011067, 0.023435, 0.032523 };
-constexpr std::array<double, 4> BurstLevel { 0.09214, 0.09866, 0.09698, 0.16456 };
+constexpr std::array<double, 4> BurstLevel { 0.13677, 0.13361, 0.14139, 0.16456 };
 //! How fast a burst dies, and the band it is in
 constexpr double BurstDecaySeconds = 0.0040145;
 constexpr double BurstHz = 1110.8;
@@ -34,14 +34,14 @@ constexpr double BurstQ = 1.241;
 //! The tail, from the last burst: (1 - exp(-t / attack)) exp(-(t / decay)^curve)
 constexpr double TailLevel = 0.14650;
 constexpr double TailAttackSeconds = 0.0033637;
-constexpr double TailDecaySeconds = 0.016994;
+constexpr double TailDecaySeconds = 0.011800;
 constexpr double TailCurve = 0.51672;
 constexpr double TailHz = 1073.7;
 constexpr double TailQ = 1.9609;
 //! Where the tail is 80 dB down
 constexpr double LengthSeconds = 0.9;
 //! Brings it to the level the device mixes its drums from, the kick's peak
-constexpr double OutputLevel = 18.4;
+constexpr double OutputLevel = 13.70;
 //! The rate the noise was fitted at; held to the same spectrum at any other
 constexpr double ReferenceSampleRate = 48000.0;
 constexpr uint32_t BurstSeed = 0x68E31DA4u;
