@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SONG_OVERVIEW_SERVICE_TEST_HPP
-#define SONG_OVERVIEW_SERVICE_TEST_HPP
+#ifndef AUDIO_OVERVIEW_SERVICE_TEST_HPP
+#define AUDIO_OVERVIEW_SERVICE_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class SongOverviewServiceTest : public QObject
+class AudioOverviewServiceTest : public QObject
 {
     Q_OBJECT
 
@@ -42,4 +42,4 @@ private slots:
 
 } // namespace noteahead
 
-#endif // SONG_OVERVIEW_SERVICE_TEST_HPP
+#endif // AUDIO_OVERVIEW_SERVICE_TEST_HPP

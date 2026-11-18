@@ -1,5 +1,6 @@
 set(HEADER_FILES
     controllers/audio_analysis_controller.hpp
+    controllers/audio_overview_controller.hpp
     controllers/automation_refresh_throttle.hpp
     controllers/device_dialog_model.hpp
     controllers/device_meters_controller.hpp
@@ -15,17 +16,16 @@ set(HEADER_FILES
     controllers/nahd_xml_keys.hpp
     controllers/performance_panel_controller.hpp
     controllers/send_controller.hpp
-    controllers/song_overview_controller.hpp
     plugins/effect_summary.hpp
     plugins/plugin_catalog.hpp
     qml/Components/level_meter_renderer.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Components/wave_shape_renderer.hpp
     qml/Components/waveform_renderer.hpp
+    qml/Dialogs/audio_overview_renderer.hpp
     qml/Dialogs/automation_curve_renderer.hpp
     qml/Dialogs/eq_curve_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
-    qml/Dialogs/song_overview_renderer.hpp
     qml/Dialogs/spectrum_compare_renderer.hpp
     qml/Dialogs/stereo_field_renderer.hpp
     qml/Editor/line_number_renderer.hpp
@@ -34,6 +34,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     controllers/audio_analysis_controller.cpp
+    controllers/audio_overview_controller.cpp
     controllers/automation_refresh_throttle.cpp
     controllers/device_dialog_model.cpp
     controllers/device_meters_controller.cpp
@@ -49,17 +50,16 @@ set(SOURCE_FILES
     controllers/nahd_xml_keys.cpp
     controllers/performance_panel_controller.cpp
     controllers/send_controller.cpp
-    controllers/song_overview_controller.cpp
     plugins/effect_summary.cpp
     plugins/plugin_catalog.cpp
     qml/Components/level_meter_renderer.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Components/wave_shape_renderer.cpp
     qml/Components/waveform_renderer.cpp
+    qml/Dialogs/audio_overview_renderer.cpp
     qml/Dialogs/automation_curve_renderer.cpp
     qml/Dialogs/eq_curve_renderer.cpp
     qml/Dialogs/rta_renderer.cpp
-    qml/Dialogs/song_overview_renderer.cpp
     qml/Dialogs/spectrum_compare_renderer.cpp
     qml/Dialogs/stereo_field_renderer.cpp
     qml/Editor/line_number_renderer.cpp

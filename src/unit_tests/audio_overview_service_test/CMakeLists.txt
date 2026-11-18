@@ -1,5 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
-set(NAME song_overview_service_test)
+set(NAME audio_overview_service_test)
 set(SRC
 ${NAME}.cpp
     ${NAME}.hpp)

@@ -103,6 +103,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddParameterAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AudioOverviewDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutomationCurveDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml
@@ -169,7 +170,6 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
     ${QML_BASE_DIR}/Dialogs/SongMetadataDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongNotesDialog.qml
-    ${QML_BASE_DIR}/Dialogs/SongOverviewDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

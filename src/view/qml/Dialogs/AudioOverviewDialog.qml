@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: "<strong>" + qsTr("Song Overview") + "</strong>"
+    title: "<strong>" + qsTr("Audio Overview") + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 900
@@ -34,7 +34,7 @@ AnimatedDialog {
     // Nothing is cached in the controller, so the map is built fresh each time it is shown and
     // cannot show a rack that has since been changed.
     onAboutToShow: {
-        songOverviewController.refresh();
+        audioOverviewController.refresh();
         mapRenderer.hoveredNode = -1;
     }
 
@@ -77,18 +77,18 @@ AnimatedDialog {
             ScrollBar.vertical: ScrollBar {}
             ScrollBar.horizontal: ScrollBar {}
 
-            SongOverviewRenderer {
+            AudioOverviewRenderer {
                 id: mapRenderer
                 width: flickable.contentWidth
                 height: flickable.contentHeight
                 accentColor: themeService.accentColor
                 nodes: {
-                    songOverviewController.graphChanged;
-                    return songOverviewController.nodes;
+                    audioOverviewController.graphChanged;
+                    return audioOverviewController.nodes;
                 }
                 edges: {
-                    songOverviewController.graphChanged;
-                    return songOverviewController.edges;
+                    audioOverviewController.graphChanged;
+                    return audioOverviewController.edges;
                 }
 
                 // Hit testing lives here rather than in the painter: the renderer hands back the
@@ -113,7 +113,7 @@ AnimatedDialog {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: songOverviewController.openNode(parent.index)
+                            onClicked: audioOverviewController.openNode(parent.index)
                             // Lighting the whole downstream route is the renderer's job; all this
                             // has to say is which box the pointer is over.
                             onEntered: mapRenderer.hoveredNode = parent.index

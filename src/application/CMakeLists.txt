@@ -29,6 +29,7 @@ set(HEADER_FILES
     service/audio_analysis.hpp
     service/audio_analysis_service.hpp
     service/audio_analysis_worker.hpp
+    service/audio_overview_service.hpp
     service/audio_service.hpp
     service/drum_voice_preview.hpp
     service/audio_worker.hpp
@@ -59,7 +60,6 @@ set(HEADER_FILES
     service/selection_service.hpp
     service/session_timer_service.hpp
     service/settings_service.hpp
-    service/song_overview_service.hpp
     service/side_chain_service.hpp
     service/theme_service.hpp
     service/tip_service.hpp
@@ -97,6 +97,7 @@ set(SOURCE_FILES
     service/application_service.cpp
     service/audio_analysis_service.cpp
     service/audio_analysis_worker.cpp
+    service/audio_overview_service.cpp
     service/audio_service.cpp
     service/drum_voice_preview.cpp
     service/audio_worker.cpp
@@ -127,7 +128,6 @@ set(SOURCE_FILES
     service/selection_service.cpp
     service/session_timer_service.cpp
     service/settings_service.cpp
-    service/song_overview_service.cpp
     service/side_chain_service.cpp
     service/theme_service.cpp
     service/tip_service.cpp

@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SONG_OVERVIEW_SERVICE_HPP
-#define SONG_OVERVIEW_SERVICE_HPP
+#ifndef AUDIO_OVERVIEW_SERVICE_HPP
+#define AUDIO_OVERVIEW_SERVICE_HPP
 
 #include <QObject>
 #include <QString>
@@ -27,7 +27,7 @@ namespace noteahead {
 class DeviceService;
 class EditorService;
 
-//! Builds the song's signal flow as a laid-out graph, for the Song Overview to draw.
+//! Builds the song's signal flow as a laid-out graph, for the Audio Overview to draw.
 //!
 //! Deliberately produces grid coordinates -- column and row indices -- rather than pixels, so that
 //! the shape of the graph can be tested without a window and the renderer is free to size cells
@@ -36,7 +36,7 @@ class EditorService;
 //! The chain of each device is assembled in the order the engine actually runs it, which is not
 //! fixed: Device::faderPosition() decides whether the fader comes before or after the insert rack.
 //! A map that drew one order for everything would misreport half the settings it exists to show.
-class SongOverviewService : public QObject
+class AudioOverviewService : public QObject
 {
     Q_OBJECT
 
@@ -44,7 +44,7 @@ public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
 
-    SongOverviewService(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent = nullptr);
+    AudioOverviewService(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent = nullptr);
 
     enum class NodeKind
     {
@@ -146,4 +146,4 @@ private:
 
 } // namespace noteahead
 
-#endif // SONG_OVERVIEW_SERVICE_HPP
+#endif // AUDIO_OVERVIEW_SERVICE_HPP

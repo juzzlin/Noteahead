@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "song_overview_renderer.hpp"
+#include "audio_overview_renderer.hpp"
 
 #include <QFontMetricsF>
 #include <QPainter>
@@ -27,7 +27,7 @@ namespace noteahead {
 
 namespace {
 
-// Node kinds and cell kinds, as SongOverviewService orders them. Kept as plain values because the
+// Node kinds and cell kinds, as AudioOverviewService orders them. Kept as plain values because the
 // graph arrives from QML as variants, and reaching into the service from a painter would tie the
 // two together for nothing.
 constexpr int KindDevice = 0;
@@ -102,18 +102,18 @@ qreal cellWidth(const QFontMetricsF & fm, const QVariantMap & cell)
 
 } // namespace
 
-SongOverviewRenderer::SongOverviewRenderer(QQuickItem * parent)
+AudioOverviewRenderer::AudioOverviewRenderer(QQuickItem * parent)
   : QQuickPaintedItem { parent }
 {
     setAntialiasing(true);
 }
 
-QVariantList SongOverviewRenderer::nodes() const
+QVariantList AudioOverviewRenderer::nodes() const
 {
     return m_nodes;
 }
 
-void SongOverviewRenderer::setNodes(const QVariantList & nodes)
+void AudioOverviewRenderer::setNodes(const QVariantList & nodes)
 {
     m_nodes = nodes;
     updateLayout();
@@ -121,12 +121,12 @@ void SongOverviewRenderer::setNodes(const QVariantList & nodes)
     update();
 }
 
-QVariantList SongOverviewRenderer::edges() const
+QVariantList AudioOverviewRenderer::edges() const
 {
     return m_edges;
 }
 
-void SongOverviewRenderer::setEdges(const QVariantList & edges)
+void AudioOverviewRenderer::setEdges(const QVariantList & edges)
 {
     m_edges = edges;
     updateHighlight();
@@ -134,12 +134,12 @@ void SongOverviewRenderer::setEdges(const QVariantList & edges)
     update();
 }
 
-QColor SongOverviewRenderer::accentColor() const
+QColor AudioOverviewRenderer::accentColor() const
 {
     return m_accentColor;
 }
 
-void SongOverviewRenderer::setAccentColor(const QColor & color)
+void AudioOverviewRenderer::setAccentColor(const QColor & color)
 {
     if (m_accentColor != color) {
         m_accentColor = color;
@@ -148,12 +148,12 @@ void SongOverviewRenderer::setAccentColor(const QColor & color)
     }
 }
 
-int SongOverviewRenderer::hoveredNode() const
+int AudioOverviewRenderer::hoveredNode() const
 {
     return m_hoveredNode;
 }
 
-void SongOverviewRenderer::setHoveredNode(int nodeIndex)
+void AudioOverviewRenderer::setHoveredNode(int nodeIndex)
 {
     if (m_hoveredNode != nodeIndex) {
         m_hoveredNode = nodeIndex;
@@ -163,7 +163,7 @@ void SongOverviewRenderer::setHoveredNode(int nodeIndex)
     }
 }
 
-void SongOverviewRenderer::updateHighlight()
+void AudioOverviewRenderer::updateHighlight()
 {
     m_highlightedNodes.clear();
     m_highlightedEdges.clear();
@@ -192,22 +192,22 @@ void SongOverviewRenderer::updateHighlight()
     }
 }
 
-QVariantList SongOverviewRenderer::boxRects() const
+QVariantList AudioOverviewRenderer::boxRects() const
 {
     return m_boxRects;
 }
 
-qreal SongOverviewRenderer::contentWidth() const
+qreal AudioOverviewRenderer::contentWidth() const
 {
     return m_contentWidth;
 }
 
-qreal SongOverviewRenderer::contentHeight() const
+qreal AudioOverviewRenderer::contentHeight() const
 {
     return m_contentHeight;
 }
 
-QString SongOverviewRenderer::titleText(const QVariantMap & node) const
+QString AudioOverviewRenderer::titleText(const QVariantMap & node) const
 {
     const auto kind = node["kind"].toInt();
     return kind == KindDevice || kind == KindSubMixer
@@ -215,7 +215,7 @@ QString SongOverviewRenderer::titleText(const QVariantMap & node) const
       : node["name"].toString();
 }
 
-QString SongOverviewRenderer::notesText(const QVariantMap & node) const
+QString AudioOverviewRenderer::notesText(const QVariantMap & node) const
 {
     QStringList notes;
     if (const auto tracks = node["trackNames"].toString(); !tracks.isEmpty()) {
@@ -232,7 +232,7 @@ QString SongOverviewRenderer::notesText(const QVariantMap & node) const
     return notes.join(" · ");
 }
 
-void SongOverviewRenderer::updateLayout()
+void AudioOverviewRenderer::updateLayout()
 {
     m_boxRects.clear();
     m_contentWidth = 0.0;
@@ -299,7 +299,7 @@ void SongOverviewRenderer::updateLayout()
     emit boxRectsChanged();
 }
 
-void SongOverviewRenderer::paint(QPainter * painter)
+void AudioOverviewRenderer::paint(QPainter * painter)
 {
     painter->fillRect(boundingRect(), Background);
     if (m_nodes.isEmpty() || m_boxRects.size() != m_nodes.size()) {

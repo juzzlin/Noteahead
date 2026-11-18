@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "song_overview_service_test.hpp"
+#include "audio_overview_service_test.hpp"
 
+#include "../../application/service/audio_overview_service.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
-#include "../../application/service/song_overview_service.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
@@ -27,8 +27,8 @@
 #include "../../plugins/effects/all_pass_filter/all_pass_filter.hpp"
 #include "../../plugins/effects/gain/gain.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
+#include "../../view/controllers/audio_overview_controller.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
-#include "../../view/controllers/song_overview_controller.hpp"
 
 #include <QTest>
 
@@ -102,7 +102,7 @@ struct Fixture
       : engine { std::make_shared<AudioEngine>() }
       , deviceService { std::make_shared<DeviceService>(engine, std::make_shared<DataService>()) }
       , editorService { std::make_shared<EditorService>() }
-      , service { std::make_shared<SongOverviewService>(deviceService, editorService) }
+      , service { std::make_shared<AudioOverviewService>(deviceService, editorService) }
     {
         EffectFactory::init();
     }
@@ -123,12 +123,12 @@ struct Fixture
     std::shared_ptr<AudioEngine> engine;
     std::shared_ptr<DeviceService> deviceService;
     std::shared_ptr<EditorService> editorService;
-    std::shared_ptr<SongOverviewService> service;
+    std::shared_ptr<AudioOverviewService> service;
 };
 
-using Kind = SongOverviewService::CellKind;
+using Kind = AudioOverviewService::CellKind;
 
-std::vector<Kind> kindsOf(const SongOverviewService::Node & node)
+std::vector<Kind> kindsOf(const AudioOverviewService::Node & node)
 {
     std::vector<Kind> kinds;
     for (const auto & cell : node.chain) {
@@ -137,26 +137,26 @@ std::vector<Kind> kindsOf(const SongOverviewService::Node & node)
     return kinds;
 }
 
-const SongOverviewService::Node & nodeForSlot(const SongOverviewService::Graph & graph, int slot)
+const AudioOverviewService::Node & nodeForSlot(const AudioOverviewService::Graph & graph, int slot)
 {
     const auto it = std::ranges::find_if(graph.nodes, [slot](const auto & node) {
-        return node.slot == slot && node.kind != SongOverviewService::NodeKind::SendEffect;
+        return node.slot == slot && node.kind != AudioOverviewService::NodeKind::SendEffect;
     });
     Q_ASSERT(it != graph.nodes.end());
     return *it;
 }
 
-int indexOfSlot(const SongOverviewService::Graph & graph, int slot)
+int indexOfSlot(const AudioOverviewService::Graph & graph, int slot)
 {
     const auto it = std::ranges::find_if(graph.nodes, [slot](const auto & node) {
-        return node.slot == slot && node.kind != SongOverviewService::NodeKind::SendEffect;
+        return node.slot == slot && node.kind != AudioOverviewService::NodeKind::SendEffect;
     });
     return it == graph.nodes.end() ? -1 : static_cast<int>(std::distance(graph.nodes.begin(), it));
 }
 
 } // namespace
 
-void SongOverviewServiceTest::test_chain_preInserts_shouldPutTheFaderBeforeTheInserts()
+void AudioOverviewServiceTest::test_chain_preInserts_shouldPutTheFaderBeforeTheInserts()
 {
     Fixture fixture;
     const auto device = fixture.addDevice(0, "Device 1");
@@ -168,7 +168,7 @@ void SongOverviewServiceTest::test_chain_preInserts_shouldPutTheFaderBeforeTheIn
     QCOMPARE(kindsOf(nodeForSlot(graph, 0)), expected);
 }
 
-void SongOverviewServiceTest::test_chain_postInserts_shouldPutTheFaderAfterTheInserts()
+void AudioOverviewServiceTest::test_chain_postInserts_shouldPutTheFaderAfterTheInserts()
 {
     Fixture fixture;
     const auto device = fixture.addDevice(0, "Device 1");
@@ -180,7 +180,7 @@ void SongOverviewServiceTest::test_chain_postInserts_shouldPutTheFaderAfterTheIn
     QCOMPARE(kindsOf(nodeForSlot(graph, 0)), expected);
 }
 
-void SongOverviewServiceTest::test_sendTap_postFader_shouldLeaveFromTheEndOfTheChain()
+void AudioOverviewServiceTest::test_sendTap_postFader_shouldLeaveFromTheEndOfTheChain()
 {
     Fixture fixture;
     fixture.addSendEffect(0);
@@ -191,14 +191,14 @@ void SongOverviewServiceTest::test_sendTap_postFader_shouldLeaveFromTheEndOfTheC
     const auto graph = fixture.service->build();
     const auto & node = nodeForSlot(graph, 0);
     const auto send = std::ranges::find_if(graph.edges, [](const auto & edge) {
-        return edge.kind == SongOverviewService::EdgeKind::Send;
+        return edge.kind == AudioOverviewService::EdgeKind::Send;
     });
     QVERIFY(send != graph.edges.end());
     QVERIFY(!send->preFader);
     QCOMPARE(send->tapCellIndex, static_cast<int>(node.chain.size()));
 }
 
-void SongOverviewServiceTest::test_sendTap_preFader_shouldLeaveFromJustBeforeTheFader()
+void AudioOverviewServiceTest::test_sendTap_preFader_shouldLeaveFromJustBeforeTheFader()
 {
     // The subtlety this view exists to show: the capture happens immediately before the fader
     // whichever side of the insert rack the fader sits, so the tap index is the fader's own -- but
@@ -216,7 +216,7 @@ void SongOverviewServiceTest::test_sendTap_preFader_shouldLeaveFromJustBeforeThe
         const auto graph = fixture.service->build();
         const auto & node = nodeForSlot(graph, 0);
         const auto send = std::ranges::find_if(graph.edges, [](const auto & edge) {
-            return edge.kind == SongOverviewService::EdgeKind::Send;
+            return edge.kind == AudioOverviewService::EdgeKind::Send;
         });
         Q_ASSERT(send != graph.edges.end());
         const auto fader = std::ranges::find_if(node.chain, [](const auto & cell) { return cell.kind == Kind::Fader; });
@@ -236,7 +236,7 @@ void SongOverviewServiceTest::test_sendTap_preFader_shouldLeaveFromJustBeforeThe
     QVERIFY(postTap > preTap);
 }
 
-void SongOverviewServiceTest::test_subMixerMember_shouldRouteThroughTheGroupAndKeepItsSends()
+void AudioOverviewServiceTest::test_subMixerMember_shouldRouteThroughTheGroupAndKeepItsSends()
 {
     Fixture fixture;
     fixture.addSendEffect(0);
@@ -251,21 +251,21 @@ void SongOverviewServiceTest::test_subMixerMember_shouldRouteThroughTheGroupAndK
 
     // Its own path to the master is taken over by the group.
     const auto out = std::ranges::find_if(graph.edges, [&](const auto & edge) {
-        return edge.fromNode == memberIndex && edge.kind != SongOverviewService::EdgeKind::Send;
+        return edge.fromNode == memberIndex && edge.kind != AudioOverviewService::EdgeKind::Send;
     });
     QVERIFY(out != graph.edges.end());
-    QCOMPARE(out->kind, SongOverviewService::EdgeKind::SubMixerMember);
+    QCOMPARE(out->kind, AudioOverviewService::EdgeKind::SubMixerMember);
     QCOMPARE(out->toNode, groupIndex);
 
     // But its sends survive: a send bus is a parallel tap, so nothing is heard twice.
     const auto send = std::ranges::find_if(graph.edges, [&](const auto & edge) {
-        return edge.fromNode == memberIndex && edge.kind == SongOverviewService::EdgeKind::Send;
+        return edge.fromNode == memberIndex && edge.kind == AudioOverviewService::EdgeKind::Send;
     });
     QVERIFY2(send != graph.edges.end(), "A claimed device lost its sends");
     QVERIFY(std::abs(send->amount - 0.3f) < 0.001f);
 }
 
-void SongOverviewServiceTest::test_ranking_shouldPlaceGroupsRightOfMembersAndMasterLast()
+void AudioOverviewServiceTest::test_ranking_shouldPlaceGroupsRightOfMembersAndMasterLast()
 {
     Fixture fixture;
     fixture.addDevice(0, "Device 1");
@@ -279,31 +279,31 @@ void SongOverviewServiceTest::test_ranking_shouldPlaceGroupsRightOfMembersAndMas
              qPrintable(QString { "Group at column %1, member at %2" }.arg(group.column).arg(member.column)));
 
     const auto master = std::ranges::find_if(graph.nodes, [](const auto & node) {
-        return node.kind == SongOverviewService::NodeKind::Master;
+        return node.kind == AudioOverviewService::NodeKind::Master;
     });
     QVERIFY(master != graph.nodes.end());
     for (const auto & node : graph.nodes) {
-        if (node.kind != SongOverviewService::NodeKind::Master) {
+        if (node.kind != AudioOverviewService::NodeKind::Master) {
             QVERIFY2(master->column > node.column,
                      qPrintable(QString { "Master at column %1 is not right of %2" }.arg(master->column).arg(node.name)));
         }
     }
 }
 
-void SongOverviewServiceTest::test_emptyProject_shouldStillHaveAMaster()
+void AudioOverviewServiceTest::test_emptyProject_shouldStillHaveAMaster()
 {
     Fixture fixture;
     const auto graph = fixture.service->build();
 
     QCOMPARE(graph.nodes.size(), size_t { 1 });
-    QCOMPARE(graph.nodes.at(0).kind, SongOverviewService::NodeKind::Master);
+    QCOMPARE(graph.nodes.at(0).kind, AudioOverviewService::NodeKind::Master);
     QVERIFY(graph.edges.empty());
     // And no empty columns held open for devices and sends that are not there.
     QCOMPARE(graph.columnCount, 1);
     QCOMPARE(graph.rowCount, 1);
 }
 
-void SongOverviewServiceTest::test_controller_shouldResolveEffectNamesRegisteredByEitherKey()
+void AudioOverviewServiceTest::test_controller_shouldResolveEffectNamesRegisteredByEitherKey()
 {
     Fixture fixture;
     const auto device = fixture.addDevice(0, "Device 1");
@@ -313,7 +313,7 @@ void SongOverviewServiceTest::test_controller_shouldResolveEffectNamesRegistered
     device->insertEffectRack().setEffect(1, EffectFactory::createEffect(AllPassFilter::typeIdString()));
 
     const auto effectRackController = std::make_shared<EffectRackController>(fixture.deviceService, fixture.editorService);
-    SongOverviewController controller { fixture.service, effectRackController };
+    AudioOverviewController controller { fixture.service, effectRackController };
     controller.refresh();
 
     QStringList labels;
@@ -331,4 +331,4 @@ void SongOverviewServiceTest::test_controller_shouldResolveEffectNamesRegistered
 
 } // namespace noteahead
 
-QTEST_GUILESS_MAIN(noteahead::SongOverviewServiceTest)
+QTEST_GUILESS_MAIN(noteahead::AudioOverviewServiceTest)

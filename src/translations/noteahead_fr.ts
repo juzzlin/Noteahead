@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>Vue d&apos;ensemble audio</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>Le flux du signal tel que le moteur l&apos;exécute. La chaîne de chaque appareil est dessinée dans son ordre réel : un appareil dont le fader suit ses inserts se lit donc autrement qu&apos;un appareil dont le fader vient en premier. Cliquez sur une case pour ouvrir son éditeur.</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7332,8 +7347,8 @@
         <translation>Paramètres...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>Vue d&apos;ensemble...</translation>
+        <source>Audio Overview...</source>
+        <translation>Vue d&apos;ensemble audio...</translation>
     </message>
 </context>
 <context>
@@ -12801,21 +12816,6 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>Vue d&apos;ensemble du morceau</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>Le flux du signal tel que le moteur l&apos;exécute. La chaîne de chaque appareil est dessinée dans son ordre réel : un appareil dont le fader suit ses inserts se lit donc autrement qu&apos;un appareil dont le fader vient en premier. Cliquez sur une case pour ouvrir son éditeur.</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16379,6 +16379,28 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>fader après les inserts</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>départs pré-fader</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>FADER</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>Master</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16755,28 +16777,6 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>Ports MIDI %1 hors ligne </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>fader après les inserts</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>départs pré-fader</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>FADER</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>Master</translation>
     </message>
 </context>
 <context>

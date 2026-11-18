@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SONG_OVERVIEW_CONTROLLER_HPP
-#define SONG_OVERVIEW_CONTROLLER_HPP
+#ifndef AUDIO_OVERVIEW_CONTROLLER_HPP
+#define AUDIO_OVERVIEW_CONTROLLER_HPP
 
 #include <QObject>
 #include <QVariantList>
@@ -24,15 +24,15 @@
 namespace noteahead {
 
 class EffectRackController;
-class SongOverviewService;
+class AudioOverviewService;
 
-//! Hands the Song Overview's graph to QML.
+//! Hands the Audio Overview's graph to QML.
 //!
 //! Thin on purpose: the graph and its layout are the service's, and everything here is translation.
 //! The one thing it adds is resolving an effect's raw type to the name the gallery shows, which it
 //! can do and the service cannot -- that list lives in a controller, and a service must not reach up
 //! into the view.
-class SongOverviewController : public QObject
+class AudioOverviewController : public QObject
 {
     Q_OBJECT
 
@@ -42,10 +42,10 @@ class SongOverviewController : public QObject
     Q_PROPERTY(int rowCount READ rowCount NOTIFY graphChanged)
 
 public:
-    using SongOverviewServiceS = std::shared_ptr<SongOverviewService>;
+    using AudioOverviewServiceS = std::shared_ptr<AudioOverviewService>;
     using EffectRackControllerS = std::shared_ptr<EffectRackController>;
 
-    SongOverviewController(SongOverviewServiceS songOverviewService, EffectRackControllerS effectRackController, QObject * parent = nullptr);
+    AudioOverviewController(AudioOverviewServiceS audioOverviewService, EffectRackControllerS effectRackController, QObject * parent = nullptr);
 
     //! Rebuilds from the current devices. Nothing is cached, so this is also how the view refreshes.
     Q_INVOKABLE void refresh();
@@ -70,7 +70,7 @@ public slots:
 private:
     QString effectDisplayName(const QString & type, const QString & typeId) const;
 
-    SongOverviewServiceS m_songOverviewService;
+    AudioOverviewServiceS m_audioOverviewService;
     EffectRackControllerS m_effectRackController;
 
     QVariantList m_nodes;
@@ -81,4 +81,4 @@ private:
 
 } // namespace noteahead
 
-#endif // SONG_OVERVIEW_CONTROLLER_HPP
+#endif // AUDIO_OVERVIEW_CONTROLLER_HPP

@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>Audio-overzicht</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>De signaalstroom zoals de engine hem uitvoert. De keten van elk apparaat wordt in de werkelijke volgorde getekend, dus een apparaat waarvan de fader na de inserts komt leest anders dan een waarvan de fader vooraan staat. Klik op een vakje om de editor ervan te openen.</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7332,8 +7347,8 @@
         <translation>Instellingen...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>Overzicht...</translation>
+        <source>Audio Overview...</source>
+        <translation>Audio-overzicht...</translation>
     </message>
 </context>
 <context>
@@ -12801,21 +12816,6 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>Songoverzicht</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>De signaalstroom zoals de engine hem uitvoert. De keten van elk apparaat wordt in de werkelijke volgorde getekend, dus een apparaat waarvan de fader na de inserts komt leest anders dan een waarvan de fader vooraan staat. Klik op een vakje om de editor ervan te openen.</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16379,6 +16379,28 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>fader na de inserts</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>sends pre-fader</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>FADER</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>Master</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16755,28 +16777,6 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>MIDI %1-poorten zijn offline gegaan </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>fader na de inserts</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>sends pre-fader</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>FADER</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>Master</translation>
     </message>
 </context>
 <context>

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "song_overview_service.hpp"
+#include "audio_overview_service.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
@@ -27,14 +27,14 @@
 
 namespace noteahead {
 
-SongOverviewService::SongOverviewService(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
+AudioOverviewService::AudioOverviewService(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
   , m_editorService { std::move(editorService) }
 {
 }
 
-QString SongOverviewService::trackNames(int slotIndex) const
+QString AudioOverviewService::trackNames(int slotIndex) const
 {
     if (!m_deviceService || !m_editorService) {
         return {};
@@ -52,7 +52,7 @@ QString SongOverviewService::trackNames(int slotIndex) const
     return {};
 }
 
-std::vector<SongOverviewService::Cell> SongOverviewService::buildChain(int slotIndex) const
+std::vector<AudioOverviewService::Cell> AudioOverviewService::buildChain(int slotIndex) const
 {
     std::vector<Cell> chain;
     const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
@@ -86,7 +86,7 @@ std::vector<SongOverviewService::Cell> SongOverviewService::buildChain(int slotI
     return chain;
 }
 
-SongOverviewService::Graph SongOverviewService::build() const
+AudioOverviewService::Graph AudioOverviewService::build() const
 {
     Graph graph;
     if (!m_deviceService) {

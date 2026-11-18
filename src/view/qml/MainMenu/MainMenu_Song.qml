@@ -56,8 +56,8 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Overview...")
-        onTriggered: UiService.requestSongOverviewDialog()
+        text: qsTr("Audio Overview...")
+        onTriggered: UiService.requestAudioOverviewDialog()
     }
     delegate: MenuItemDelegate {}
 }
