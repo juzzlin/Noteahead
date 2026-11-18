@@ -39,7 +39,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"
        set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=native")
    endif()
    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${RELEASE_FLAGS}")
-   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
+   # The debug info level comes from CMake's own default (-g), so that a build can ask for less:
+   # CI passes -DCMAKE_CXX_FLAGS_DEBUG=-g1, line tables only, to keep its test binaries small.
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
    find_program(CCACHE_FOUND ccache)
    if(CCACHE_FOUND)
        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
