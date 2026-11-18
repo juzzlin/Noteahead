@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>音频概览</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>引擎实际运行的信号流。每个设备的链路都按真实顺序绘制，因此推子位于插入之后的设备与推子在前的设备读法不同。点击方框可打开其编辑器。</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7331,8 +7346,8 @@
         <translation>设置...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>概览...</translation>
+        <source>Audio Overview...</source>
+        <translation>音频概览...</translation>
     </message>
 </context>
 <context>
@@ -12799,21 +12814,6 @@ Audio files will appear next to the current project file.</source>
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>乐曲概览</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>确定</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>引擎实际运行的信号流。每个设备的链路都按真实顺序绘制，因此推子位于插入之后的设备与推子在前的设备读法不同。点击方框可打开其编辑器。</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16377,6 +16377,28 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>推子在插入之后</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>发送在推子前</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>推子</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>主输出</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16753,28 +16775,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>MIDI %1 端口已离线 </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>推子在插入之后</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>发送在推子前</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>推子</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>主输出</translation>
     </message>
 </context>
 <context>

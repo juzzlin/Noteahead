@@ -487,8 +487,8 @@ ApplicationWindow {
         id: songNotesDialog
         anchors.centerIn: parent
     }
-    SongOverviewDialog {
-        id: songOverviewDialog
+    AudioOverviewDialog {
+        id: audioOverviewDialog
         anchors.centerIn: parent
     }
     SongSettingsDialog {
@@ -1060,14 +1060,14 @@ ApplicationWindow {
             songNotesDialog.initialize();
             songNotesDialog.open();
         });
-        UiService.songOverviewDialogRequested.connect(songOverviewDialog.open);
+        UiService.audioOverviewDialogRequested.connect(audioOverviewDialog.open);
         // The map opens the editors that already exist rather than carrying its own.
-        songOverviewController.deviceOpenRequested.connect(slotIndex => {
-            songOverviewDialog.close();
+        audioOverviewController.deviceOpenRequested.connect(slotIndex => {
+            audioOverviewDialog.close();
             deviceRackController.openDevice(slotIndex);
         });
-        songOverviewController.masterEffectsOpenRequested.connect(() => {
-            songOverviewDialog.close();
+        audioOverviewController.masterEffectsOpenRequested.connect(() => {
+            audioOverviewDialog.close();
             applicationService.requestMasterEffectsDialog();
         });
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {

@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>Przegląd dźwięku</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>Przepływ sygnału tak, jak realizuje go silnik. Łańcuch każdego urządzenia jest rysowany w rzeczywistej kolejności, więc urządzenie z suwakiem za insertami czyta się inaczej niż takie, w którym suwak jest pierwszy. Kliknij prostokąt, aby otworzyć jego edytor.</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7333,8 +7348,8 @@
         <translation>Ustawienia...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>Przegląd...</translation>
+        <source>Audio Overview...</source>
+        <translation>Przegląd dźwięku...</translation>
     </message>
 </context>
 <context>
@@ -12803,21 +12818,6 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>Przegląd utworu</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>Przepływ sygnału tak, jak realizuje go silnik. Łańcuch każdego urządzenia jest rysowany w rzeczywistej kolejności, więc urządzenie z suwakiem za insertami czyta się inaczej niż takie, w którym suwak jest pierwszy. Kliknij prostokąt, aby otworzyć jego edytor.</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16381,6 +16381,28 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>suwak po insertach</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>wysyłki pre-fader</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>SUWAK</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>Master</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16757,28 +16779,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>Porty MIDI %1 przeszły w tryb offline </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>suwak po insertach</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>wysyłki pre-fader</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>SUWAK</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>Master</translation>
     </message>
 </context>
 <context>

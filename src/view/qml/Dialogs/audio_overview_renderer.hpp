@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SONG_OVERVIEW_RENDERER_HPP
-#define SONG_OVERVIEW_RENDERER_HPP
+#ifndef AUDIO_OVERVIEW_RENDERER_HPP
+#define AUDIO_OVERVIEW_RENDERER_HPP
 
 #include <QColor>
 #include <QQuickPaintedItem>
@@ -31,7 +31,7 @@ namespace noteahead {
 //! Takes the graph already laid out in grid coordinates and only turns it into pixels. The rects it
 //! works out are handed back through boxRects() so that QML can put its own mouse areas over them:
 //! hit testing stays declarative, where the rest of this application keeps it.
-class SongOverviewRenderer : public QQuickPaintedItem
+class AudioOverviewRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
 
@@ -49,7 +49,7 @@ class SongOverviewRenderer : public QQuickPaintedItem
     Q_PROPERTY(qreal contentHeight READ contentHeight NOTIFY boxRectsChanged)
 
 public:
-    explicit SongOverviewRenderer(QQuickItem * parent = nullptr);
+    explicit AudioOverviewRenderer(QQuickItem * parent = nullptr);
 
     QVariantList nodes() const;
     void setNodes(const QVariantList & nodes);
@@ -104,4 +104,4 @@ private:
 
 } // namespace noteahead
 
-#endif // SONG_OVERVIEW_RENDERER_HPP
+#endif // AUDIO_OVERVIEW_RENDERER_HPP

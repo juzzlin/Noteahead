@@ -13,23 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "song_overview_controller.hpp"
+#include "audio_overview_controller.hpp"
 
-#include "../../application/service/song_overview_service.hpp"
+#include "../../application/service/audio_overview_service.hpp"
 #include "effect_rack_controller.hpp"
 
 #include <QVariantMap>
 
 namespace noteahead {
 
-SongOverviewController::SongOverviewController(SongOverviewServiceS songOverviewService, EffectRackControllerS effectRackController, QObject * parent)
+AudioOverviewController::AudioOverviewController(AudioOverviewServiceS audioOverviewService, EffectRackControllerS effectRackController, QObject * parent)
   : QObject { parent }
-  , m_songOverviewService { std::move(songOverviewService) }
+  , m_audioOverviewService { std::move(audioOverviewService) }
   , m_effectRackController { std::move(effectRackController) }
 {
 }
 
-QString SongOverviewController::effectDisplayName(const QString & type, const QString & typeId) const
+QString AudioOverviewController::effectDisplayName(const QString & type, const QString & typeId) const
 {
     if (!m_effectRackController) {
         return type;
@@ -45,17 +45,17 @@ QString SongOverviewController::effectDisplayName(const QString & type, const QS
     return type;
 }
 
-void SongOverviewController::refresh()
+void AudioOverviewController::refresh()
 {
     m_nodes.clear();
     m_edges.clear();
 
-    if (!m_songOverviewService) {
+    if (!m_audioOverviewService) {
         emit graphChanged();
         return;
     }
 
-    const auto graph = m_songOverviewService->build();
+    const auto graph = m_audioOverviewService->build();
 
     for (const auto & node : graph.nodes) {
         QVariantMap map;
@@ -64,7 +64,7 @@ void SongOverviewController::refresh()
         // A send node is titled by the effect standing in it, and the service can only name that by
         // its raw type -- resolving it is this layer's job, so it happens here rather than leaving
         // "earlyReflections" on the map.
-        map["name"] = node.kind == SongOverviewService::NodeKind::SendEffect && !node.chain.empty()
+        map["name"] = node.kind == AudioOverviewService::NodeKind::SendEffect && !node.chain.empty()
           ? effectDisplayName(node.chain.front().effectType, node.chain.front().effectTypeId)
           : node.name;
         map["typeName"] = node.typeName;
@@ -78,7 +78,7 @@ void SongOverviewController::refresh()
         for (const auto & cell : node.chain) {
             QVariantMap cellMap;
             cellMap["kind"] = static_cast<int>(cell.kind);
-            cellMap["label"] = cell.kind == SongOverviewService::CellKind::Insert
+            cellMap["label"] = cell.kind == AudioOverviewService::CellKind::Insert
               ? effectDisplayName(cell.effectType, cell.effectTypeId)
               : QString {};
             chain.append(cellMap);
@@ -105,39 +105,39 @@ void SongOverviewController::refresh()
     emit graphChanged();
 }
 
-QVariantList SongOverviewController::nodes() const
+QVariantList AudioOverviewController::nodes() const
 {
     return m_nodes;
 }
 
-QVariantList SongOverviewController::edges() const
+QVariantList AudioOverviewController::edges() const
 {
     return m_edges;
 }
 
-int SongOverviewController::columnCount() const
+int AudioOverviewController::columnCount() const
 {
     return m_columnCount;
 }
 
-int SongOverviewController::rowCount() const
+int AudioOverviewController::rowCount() const
 {
     return m_rowCount;
 }
 
-void SongOverviewController::openNode(int nodeIndex)
+void AudioOverviewController::openNode(int nodeIndex)
 {
     if (nodeIndex < 0 || nodeIndex >= m_nodes.size()) {
         return;
     }
     const auto node = m_nodes.at(nodeIndex).toMap();
-    switch (static_cast<SongOverviewService::NodeKind>(node["kind"].toInt())) {
-    case SongOverviewService::NodeKind::Device:
-    case SongOverviewService::NodeKind::SubMixer:
+    switch (static_cast<AudioOverviewService::NodeKind>(node["kind"].toInt())) {
+    case AudioOverviewService::NodeKind::Device:
+    case AudioOverviewService::NodeKind::SubMixer:
         emit deviceOpenRequested(node["slot"].toInt());
         break;
-    case SongOverviewService::NodeKind::Master:
-    case SongOverviewService::NodeKind::SendEffect:
+    case AudioOverviewService::NodeKind::Master:
+    case AudioOverviewService::NodeKind::SendEffect:
         // Both live in the master racks, which one dialog covers.
         emit masterEffectsOpenRequested();
         break;

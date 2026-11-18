@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>Äänen yleiskatsaus</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>Signaalitie sellaisena kuin moottori sen ajaa. Kunkin laitteen ketju piirretään todellisessa järjestyksessään, joten laite jonka liuku on inserttien jälkeen näyttää erilaiselta kuin sellainen jonka liuku on ensin. Napsauta laatikkoa avataksesi sen editorin.</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7332,8 +7347,8 @@
         <translation>Asetukset...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>Yleiskatsaus...</translation>
+        <source>Audio Overview...</source>
+        <translation>Äänen yleiskatsaus...</translation>
     </message>
 </context>
 <context>
@@ -12801,21 +12816,6 @@ Audio files will appear next to the current project file.</source>
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>Kappaleen yleiskatsaus</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>Signaalitie sellaisena kuin moottori sen ajaa. Kunkin laitteen ketju piirretään todellisessa järjestyksessään, joten laite jonka liuku on inserttien jälkeen näyttää erilaiselta kuin sellainen jonka liuku on ensin. Napsauta laatikkoa avataksesi sen editorin.</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16379,6 +16379,28 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>liuku insertien jälkeen</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>lähdöt ennen liukua</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>LIUKU</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>Master</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16755,28 +16777,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>MIDI %1 -portteja siirtyi offline-tilaan </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>liuku insertien jälkeen</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>lähdöt ennen liukua</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>LIUKU</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>Master</translation>
     </message>
 </context>
 <context>

@@ -55,8 +55,8 @@ class DeviceService;
 class PresetService;
 class PerformancePanelController;
 class PerformancePanelModel;
-class SongOverviewController;
-class SongOverviewService;
+class AudioOverviewController;
+class AudioOverviewService;
 class EditorService;
 class EffectRackController;
 class EventSelectionModel;
@@ -180,8 +180,8 @@ private:
     //! The controllers of the devices that register themselves, in PluginCatalog::devices() order.
     std::vector<std::shared_ptr<DeviceDialogModel>> m_pluginDeviceDialogModels;
     std::shared_ptr<EffectRackController> m_effectRackController;
-    std::shared_ptr<SongOverviewService> m_songOverviewService;
-    std::shared_ptr<SongOverviewController> m_songOverviewController;
+    std::shared_ptr<AudioOverviewService> m_audioOverviewService;
+    std::shared_ptr<AudioOverviewController> m_audioOverviewController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
     std::shared_ptr<DeviceMixerController> m_deviceMixerController;
     std::shared_ptr<DeviceMetersController> m_deviceMetersController;

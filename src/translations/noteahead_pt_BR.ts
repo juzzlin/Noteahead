@@ -417,6 +417,21 @@
     </message>
 </context>
 <context>
+    <name>AudioOverviewDialog</name>
+    <message>
+        <source>Audio Overview</source>
+        <translation>Visão geral do áudio</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
+        <translation>O fluxo de sinal como o motor o executa. A cadeia de cada dispositivo é desenhada na ordem real, então um dispositivo cujo fader vem depois das inserções se lê de forma diferente de um cujo fader vem primeiro. Clique em uma caixa para abrir o editor dela.</translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -7332,8 +7347,8 @@
         <translation>Configurações...</translation>
     </message>
     <message>
-        <source>Overview...</source>
-        <translation>Visão geral...</translation>
+        <source>Audio Overview...</source>
+        <translation>Visão geral do áudio...</translation>
     </message>
 </context>
 <context>
@@ -12801,21 +12816,6 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
     </message>
 </context>
 <context>
-    <name>SongOverviewDialog</name>
-    <message>
-        <source>Song Overview</source>
-        <translation>Visão geral da música</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Signal flow as the engine runs it. Each device&apos;s chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.</source>
-        <translation>O fluxo de sinal como o motor o executa. A cadeia de cada dispositivo é desenhada na ordem real, então um dispositivo cujo fader vem depois das inserções se lê de forma diferente de um cujo fader vem primeiro. Clique em uma caixa para abrir o editor dela.</translation>
-    </message>
-</context>
-<context>
     <name>SongSettingsDialog</name>
     <message>
         <source>Song settings</source>
@@ -16379,6 +16379,28 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::AudioOverviewRenderer</name>
+    <message>
+        <source>fader post-inserts</source>
+        <translation>fader pós-inserções</translation>
+    </message>
+    <message>
+        <source>sends pre-fader</source>
+        <translation>envios pré-fader</translation>
+    </message>
+    <message>
+        <source>FADER</source>
+        <translation>FADER</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::AudioOverviewService</name>
+    <message>
+        <source>Master</source>
+        <translation>Master</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::DeviceRackController</name>
     <message>
         <source>Synths</source>
@@ -16755,28 +16777,6 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>Portas MIDI %1 ficaram offline </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewRenderer</name>
-    <message>
-        <source>fader post-inserts</source>
-        <translation>fader pós-inserções</translation>
-    </message>
-    <message>
-        <source>sends pre-fader</source>
-        <translation>envios pré-fader</translation>
-    </message>
-    <message>
-        <source>FADER</source>
-        <translation>FADER</translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::SongOverviewService</name>
-    <message>
-        <source>Master</source>
-        <translation>Master</translation>
     </message>
 </context>
 <context>

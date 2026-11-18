@@ -35,6 +35,7 @@
 #include "../plugins/devices/xy_pad/xy_pad_renderer.hpp"
 #include "../plugins/effects/phase_scope/phase_scope_renderer.hpp"
 #include "../view/controllers/audio_analysis_controller.hpp"
+#include "../view/controllers/audio_overview_controller.hpp"
 #include "../view/controllers/device_meters_controller.hpp"
 #include "../view/controllers/device_mixer_controller.hpp"
 #include "../view/controllers/device_rack_controller.hpp"
@@ -44,16 +45,15 @@
 #include "../view/controllers/nahd_xml_keys.hpp"
 #include "../view/controllers/performance_panel_controller.hpp"
 #include "../view/controllers/send_controller.hpp"
-#include "../view/controllers/song_overview_controller.hpp"
 #include "../view/plugins/plugin_catalog.hpp"
 #include "../view/qml/Components/level_meter_renderer.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Components/wave_shape_renderer.hpp"
 #include "../view/qml/Components/waveform_renderer.hpp"
+#include "../view/qml/Dialogs/audio_overview_renderer.hpp"
 #include "../view/qml/Dialogs/automation_curve_renderer.hpp"
 #include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
-#include "../view/qml/Dialogs/song_overview_renderer.hpp"
 #include "../view/qml/Dialogs/spectrum_compare_renderer.hpp"
 #include "../view/qml/Dialogs/stereo_field_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
@@ -76,6 +76,7 @@
 #include "note_converter.hpp"
 #include "service/application_service.hpp"
 #include "service/audio_analysis_service.hpp"
+#include "service/audio_overview_service.hpp"
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/device_service.hpp"
@@ -97,7 +98,6 @@
 #include "service/session_timer_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
-#include "service/song_overview_service.hpp"
 #include "service/theme_service.hpp"
 #include "service/tip_service.hpp"
 #include "service/util_service.hpp"
@@ -160,8 +160,8 @@ Application::Application(int & argc, char ** argv)
   , m_presetService { std::make_shared<PresetService>() }
   , m_pluginDeviceDialogModels { createPluginDeviceDialogModels(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
-  , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
-  , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
+  , m_audioOverviewService { std::make_shared<AudioOverviewService>(m_deviceService, m_editorService) }
+  , m_audioOverviewController { std::make_shared<AudioOverviewController>(m_audioOverviewService, m_effectRackController) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginDialogModels(std::vector<DeviceDialogModel::DeviceDialogModelS> {}, m_pluginDeviceDialogModels), m_editorService) }
   , m_deviceMixerController { std::make_shared<DeviceMixerController>(m_deviceService, m_editorService) }
   , m_deviceMetersController { std::make_shared<DeviceMetersController>(m_deviceService, m_editorService) }
@@ -292,7 +292,7 @@ void Application::registerTypes()
     qmlRegisterType<EqCurveRenderer>("Noteahead", majorVersion, minorVersion, "EqCurveRenderer");
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
-    qmlRegisterType<SongOverviewRenderer>("Noteahead", majorVersion, minorVersion, "SongOverviewRenderer");
+    qmlRegisterType<AudioOverviewRenderer>("Noteahead", majorVersion, minorVersion, "AudioOverviewRenderer");
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PhaseScopeRenderer>("Noteahead", majorVersion, minorVersion, "PhaseScopeRenderer");
     qmlRegisterType<WaveShapeRenderer>("Noteahead", majorVersion, minorVersion, "WaveShapeRenderer");
@@ -353,7 +353,7 @@ void Application::setContextProperties()
         m_engine->rootContext()->setContextProperty(pluginDevices.at(i).controllerProperty, m_pluginDeviceDialogModels.at(i).get());
     }
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
-    m_engine->rootContext()->setContextProperty("songOverviewController", m_songOverviewController.get());
+    m_engine->rootContext()->setContextProperty("audioOverviewController", m_audioOverviewController.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
