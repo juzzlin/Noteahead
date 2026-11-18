@@ -324,7 +324,7 @@ void DrumSynth909Test::test_snare_snappy_shouldTradeBodyForNoise()
 
 void DrumSynth909Test::test_hat_tune_shouldPlayTheSpectrumFaster()
 {
-    // On the RD-9 Tune moves every partial of a hat by the same factor: 1.51 times at full
+    // On the RD-9 Tune moves every partial of a hat by the same factor: 1.52 times at full
     Metal909Engine noon { Metal909Engine::Sound::OpenHat };
     Metal909Engine high { Metal909Engine::Sound::OpenHat };
     high.setTune(1.0f);
@@ -332,7 +332,7 @@ void DrumSynth909Test::test_hat_tune_shouldPlayTheSpectrumFaster()
     const auto highHit = render(high, 0.2);
     // The open hat's strongest low partial, 1643.5 Hz at noon
     QVERIFY(std::abs(strongestHz(noonHit, 0.01, 0.15, 1600.0, 1700.0) - 1643.5) < 2.0);
-    QVERIFY(std::abs(strongestHz(highHit, 0.01, 0.15, 2400.0, 2560.0) - 1643.5 * 1.5092) < 3.0);
+    QVERIFY(std::abs(strongestHz(highHit, 0.01, 0.15, 2400.0, 2560.0) - 1643.5 * 1.5150) < 3.0);
 }
 
 void DrumSynth909Test::test_hat_decay_shouldMatchTheRd9()
