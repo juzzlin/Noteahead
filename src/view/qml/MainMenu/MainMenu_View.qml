@@ -21,15 +21,6 @@ import "../Components"
 
 FittedMenu {
     title: qsTr("&View")
-    Action {
-        text: qsTr("Song Overview...")
-        onTriggered: UiService.requestSongOverviewDialog()
-    }
-    Action {
-        text: qsTr("Audio Overview...")
-        onTriggered: UiService.requestAudioOverviewDialog()
-    }
-    MenuSeparator {}
     // The sequences are registered as application shortcuts in Main.qml. See ShortcutHintAction.
     ShortcutHintAction {
         text: qsTr("Device rack...")
@@ -57,6 +48,15 @@ FittedMenu {
         text: qsTr("Mixer...")
         shortcutHint: "Ctrl+M"
         onTriggered: UiService.requestMixerDialog()
+    }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Song Overview...")
+        onTriggered: UiService.requestSongOverviewDialog()
+    }
+    Action {
+        text: qsTr("Audio Overview...")
+        onTriggered: UiService.requestAudioOverviewDialog()
     }
     delegate: MenuItemDelegate {}
 }
