@@ -75,6 +75,8 @@ Bug fixes:
 
 Other:
 
+* Two AppImages, built on Ubuntu 24.04 and on 26.04 for a newer Qt
+
 * Column Flash is on by default
 
 * Drum Synth V2 and FM Drums start mixed: levels and pans set against the kick

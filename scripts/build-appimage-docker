@@ -1,21 +1,24 @@
 #!/bin/bash
 
-# Runs scripts/build-appimage inside a stock Ubuntu container.
-# Must be run in the project root.
+# Runs scripts/build-appimage inside stock Ubuntu containers, one AppImage for
+# each release in IMAGES. Must be run in the project root.
 #
 # An AppImage only runs on a glibc at least as new as the one it was built
 # against, so the build environment decides how portable the result is. Building
 # on the host would tie the AppImage to whatever the host happens to be, and
 # would quietly make it less portable the moment the host is upgraded. The
-# container pins it to the oldest release we target instead.
+# containers pin it to the releases we target instead: the oldest one for the
+# widest reach, the newest one for its newer Qt.
 #
-# The image is stock Ubuntu rather than one of our own: nothing here needs to be
-# prebuilt, and a stock image cannot drift away from what the AppImage is meant
-# to be built against.
+# The images are stock Ubuntu rather than ones of our own: nothing here needs to
+# be prebuilt, and a stock image cannot drift away from what the AppImage is
+# meant to be built against.
+#
+# IMAGES=ubuntu:24.04 builds only the one.
 
 set -e
 
-IMAGE=${IMAGE:-ubuntu:24.04}
+IMAGES=${IMAGES:-${IMAGE:-ubuntu:24.04 ubuntu:26.04}}
 
 if [[ ! -f CMakeLists.txt ]]; then
     echo "$0: must be run in the project root"
@@ -60,22 +63,25 @@ PACKAGES=(
     qml6-module-qtquick-window
 )
 
-echo "Building the AppImage in ${IMAGE} .."
+for image in ${IMAGES}; do
+    echo "Building the AppImage in ${image} .."
 
-docker run --rm -i \
-    -v "${PWD}:/noteahead" \
-    -w /noteahead \
-    -e DEBIAN_FRONTEND=noninteractive \
-    -e PACKAGES="${PACKAGES[*]}" \
-    -e HOST_UID="$(id -u)" \
-    -e HOST_GID="$(id -g)" \
-    "${IMAGE}" bash -e -s <<'IN_CONTAINER'
+    docker run --rm -i \
+        -v "${PWD}:/noteahead" \
+        -w /noteahead \
+        -e DEBIAN_FRONTEND=noninteractive \
+        -e PACKAGES="${PACKAGES[*]}" \
+        -e HOST_UID="$(id -u)" \
+        -e HOST_GID="$(id -g)" \
+        "${image}" bash -e -s <<'IN_CONTAINER'
 # The container builds as root, so everything it created in the mounted working
 # tree has to be handed back or the caller cannot clean up after it. On a trap,
 # because a failed build leaves just as much behind as a successful one -- and a
-# workspace nobody can delete is worse than a build that merely failed.
+# workspace nobody can delete is worse than a build that merely failed. Named the
+# way build-appimage names them, after the release it runs on.
+BASE=$(. /etc/os-release && echo "${ID}-${VERSION_ID}")
 hand_back() {
-    for path in Noteahead-*.AppImage build-appimage AppDir .appimage-tools; do
+    for path in Noteahead-*-"${BASE##*-}".AppImage build-appimage-"${BASE}" AppDir-"${BASE}" .appimage-tools; do
         if [ -e "${path}" ]; then
             chown -R "${HOST_UID}:${HOST_GID}" "${path}"
         fi
@@ -88,3 +94,4 @@ apt-get install -y -qq ${PACKAGES}
 
 ./scripts/build-appimage
 IN_CONTAINER
+done

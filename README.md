@@ -380,19 +380,24 @@ Currently Debian packages for Ubuntu 24.04 LTS and Ubuntu 26.04 LTS are provided
 
     $ sudo apt install ./noteahead-0.1.0-ubuntu-24.04_amd64.deb
 
-On other distributions, use the AppImage. It carries its own Qt and needs nothing installed
+On other distributions, use an AppImage. It carries its own Qt and needs nothing installed
 beyond the graphics and audio libraries a desktop already has. JACK is optional: a copy is
 bundled and used only if the system has none, so the system's own JACK is always preferred
 when it is there.
 
-    $ chmod +x Noteahead-7.0.0-x86_64.AppImage
-    $ ./Noteahead-7.0.0-x86_64.AppImage
+There are two, named after the Ubuntu release they were built on:
 
-It requires glibc 2.38 or newer, which covers Ubuntu 24.04, Debian 13 and Fedora 39 onwards.
+* `24.04` runs on the most systems: it requires glibc 2.38 or newer, which covers
+  Ubuntu 24.04, Debian 13 and Fedora 39 onwards.
+* `26.04` carries a newer Qt, but requires glibc 2.43 or newer, which covers Ubuntu 26.04 onwards.
 
-To build one yourself, run `./scripts/build-appimage-docker` in the project root. It builds in an
-Ubuntu 24.04 container, so the AppImage stays portable whatever the host happens to be. There is
-also `./scripts/build-appimage`, which builds directly on the host: quicker to iterate on, but the
+    $ chmod +x Noteahead-12.1.1-x86_64-24.04.AppImage
+    $ ./Noteahead-12.1.1-x86_64-24.04.AppImage
+
+To build them yourself, run `./scripts/build-appimage-docker` in the project root. It builds one in
+an Ubuntu 24.04 and one in an Ubuntu 26.04 container, so the AppImages stay portable whatever the
+host happens to be; `IMAGES=ubuntu:24.04` builds only the one. There is also
+`./scripts/build-appimage`, which builds directly on the host: quicker to iterate on, but the
 result only runs on hosts at least as new as the one that built it.
 
 ##

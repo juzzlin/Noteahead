@@ -7,11 +7,26 @@
 # official upstream Qt binaries for 6.8 and 6.9 are themselves built on Ubuntu
 # 24.04 with glibc 2.39, so reaching for a newer Qt would raise the AppImage's
 # glibc floor rather than lower it.
+#
+# Each AppImage is named after the release it was built on, because that
+# release sets both its Qt and the oldest glibc it runs on: one built on Ubuntu
+# 24.04 runs on more systems, one built on 26.04 has a newer Qt. The file name
+# carries only the version, Noteahead-12.1.1-x86_64-24.04.AppImage, as other
+# projects shipping AppImages per release do. The build directory and the AppDir
+# carry the whole name, ubuntu-24.04, so builds on different releases can share
+# a working tree without either taking over a directory of some other name.
 
 set -e
 
-BUILD_DIR=${BUILD_DIR:-build-appimage}
-APPDIR=${APPDIR:-AppDir}
+# The release this is built on, read from the system itself: BASE is e.g.
+# ubuntu-24.04, BASE_VERSION 24.04.
+if [[ -z ${BASE} ]]; then
+    BASE=$(. /etc/os-release && echo "${ID}-${VERSION_ID}")
+fi
+BASE_VERSION=${BASE_VERSION:-${BASE##*-}}
+
+BUILD_DIR=${BUILD_DIR:-build-appimage-${BASE}}
+APPDIR=${APPDIR:-AppDir-${BASE}}
 TOOLS_DIR=${TOOLS_DIR:-.appimage-tools}
 export ARCH=${ARCH:-$(uname -m)}
 
@@ -24,7 +39,7 @@ VERSION_MAJOR=$(sed -n 's/^set(VERSION_MAJOR \([0-9]*\))/\1/p' CMakeLists.txt)
 VERSION_MINOR=$(sed -n 's/^set(VERSION_MINOR \([0-9]*\))/\1/p' CMakeLists.txt)
 VERSION_PATCH=$(sed -n 's/^set(VERSION_PATCH \([0-9]*\))/\1/p' CMakeLists.txt)
 VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
-APPIMAGE="Noteahead-${VERSION}-${ARCH}.AppImage"
+APPIMAGE="Noteahead-${VERSION}-${ARCH}-${BASE_VERSION}.AppImage"
 
 # Libraries that must come from the host rather than from the AppImage. A JACK
 # client library has to match the server it talks to, so the bundled copy is
@@ -65,7 +80,7 @@ ADDITIONAL_QT_PLUGINS=(
     wayland-shell-integration
 )
 
-echo "Building Noteahead ${VERSION} AppImage for ${ARCH} .."
+echo "Building Noteahead ${VERSION} AppImage for ${ARCH} on ${BASE} .."
 
 ##############################################################################
 # Fetch the AppImage tooling
