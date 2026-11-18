@@ -37,6 +37,7 @@ struct Metal909Engine::Voicing
     std::span<const Metal909Sources::Partial> partials;
     std::span<const Metal909Sources::Band> bands;
     std::array<double, 5> tuneRatio;
+    std::array<double, 5> tuneGain;
     //! Whether Decay shapes the sound, which only the hats have
     bool hasDecay;
     double attackSeconds;
@@ -80,13 +81,14 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
         .partials = Metal909Sources::closedHatPartials(),
         .bands = Metal909Sources::closedHatBands(),
         .tuneRatio = { 0.7611, 0.8437, 1.0, 1.2883, 1.5221 },
+        .tuneGain = { 1.1100, 1.1029, 1.0, 0.8913, 0.8111 },
         .hasDecay = true,
         .attackSeconds = 0.000698,
         .chickLevel = 0.6973,
-        .chickSeconds = { 0.0065, 0.0032, 0.0043, 0.0050, 0.0049 },
-        .decaySeconds = { 0.0012, 0.0321, 0.0607, 0.0820, 0.0845 },
-        .decayCurve = { 0.456, 1.385, 1.880, 2.475, 2.493 },
-        .gain = { 4.216, 4.1, 3.717, 3.493, 3.711 },
+        .chickSeconds = { 0.00554, 0.00346, 0.00345, 0.00469, 0.00440 },
+        .decaySeconds = { 0.00331, 0.02826, 0.05264, 0.07476, 0.07616 },
+        .decayCurve = { 0.556, 1.233, 1.483, 2.050, 2.150 },
+        .gain = { 4.372, 4.082, 3.893, 3.313, 3.546 },
         .independentBands = false,
         .strikeLevel = 0.0,
         .strikeHz = 1000.0,
@@ -95,19 +97,20 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
         .lowPassHz = 0.0,
         .sampleSeconds = 0.0,
         .fadeSeconds = 0.0,
-        .outputLevel = 23.05,
+        .outputLevel = 22.0,
     };
     static const Metal909Engine::Voicing openHat {
         .partials = Metal909Sources::openHatPartials(),
         .bands = Metal909Sources::openHatBands(),
         .tuneRatio = { 0.7546, 0.8176, 1.0, 1.3072, 1.5092 },
+        .tuneGain = { 1.1590, 1.1435, 1.0, 0.9603, 0.8583 },
         .hasDecay = true,
         .attackSeconds = 0.00013,
         .chickLevel = 0.0,
         .chickSeconds = { 0.001, 0.001, 0.001, 0.001, 0.001 },
-        .decaySeconds = { 0.0610, 0.06747, 0.07473, 0.1206, 0.1258 },
-        .decayCurve = { 1.12, 1.122, 1.099, 1.104, 1.104 },
-        .gain = { 1.688, 1.658, 1.659, 1.547, 1.538 },
+        .decaySeconds = { 0.0680, 0.0780, 0.0860, 0.1320, 0.1380 },
+        .decayCurve = { 1.16, 1.20, 1.18, 1.16, 1.16 },
+        .gain = { 1.643, 1.551, 1.639, 1.628, 1.647 },
         .independentBands = false,
         .strikeLevel = 0.0,
         .strikeHz = 1000.0,
@@ -116,13 +119,14 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
         .lowPassHz = 0.0,
         .sampleSeconds = 0.0,
         .fadeSeconds = 0.0,
-        .outputLevel = 34.0,
+        .outputLevel = 33.5,
     };
     static const Metal909Engine::Voicing crash {
         .partials = Metal909Sources::crashPartials(),
         .bands = Metal909Sources::crashBands(),
         // From where the sample ends at each Tune setting, which moves as its speed does
         .tuneRatio = { 0.7586, 0.8201, 1.0, 1.3184, 1.5170 },
+        .tuneGain = { 1.0, 1.0, 1.0, 1.0, 1.0 },
         .hasDecay = false,
         .attackSeconds = 0.055,
         .chickLevel = 0.42,
@@ -143,7 +147,8 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
     static const Metal909Engine::Voicing ride {
         .partials = Metal909Sources::ridePartials(),
         .bands = Metal909Sources::rideBands(),
-        .tuneRatio = { 0.7582, 0.8138, 1.0, 1.2861, 1.5603 },
+        .tuneRatio = { 0.7570, 0.8125, 1.0, 1.2889, 1.5674 },
+        .tuneGain = { 0.8958, 0.9277, 1.0, 1.0705, 1.1309 },
         .hasDecay = false,
         .attackSeconds = 0.0,
         .chickLevel = 0.0,
@@ -157,9 +162,9 @@ const Metal909Engine::Voicing & voicingOf(Metal909Engine::Sound sound)
         .strikeQ = 0.6292,
         .strikeSeconds = 0.01061,
         .lowPassHz = 13000.0,
-        .sampleSeconds = 0.87,
-        .fadeSeconds = 0.015,
-        .outputLevel = 24.7,
+        .sampleSeconds = 0.83,
+        .fadeSeconds = 0.035,
+        .outputLevel = 29.25,
     };
     switch (sound) {
     case Metal909Engine::Sound::ClosedHat:
@@ -216,7 +221,7 @@ void Metal909Engine::updateShape()
     m_decaySeconds = interpolate(m_voicing.decaySeconds, decay);
     m_decayCurve = interpolate(m_voicing.decayCurve, decay);
     m_chickSeconds = interpolate(m_voicing.chickSeconds, decay);
-    m_gain = interpolate(m_voicing.gain, decay);
+    m_gain = interpolate(m_voicing.gain, decay) * interpolate(m_voicing.tuneGain, tune);
 }
 
 void Metal909Engine::setTune(float tune)
@@ -255,10 +260,10 @@ double Metal909Engine::envelope(double seconds) const
         const double position = sampleSeconds();
         const double bloom = m_voicing.attackSeconds > 0.0 ? 1.0 - (1.0 - m_voicing.chickLevel) * std::exp(-std::max(0.0, position) / m_voicing.attackSeconds) : 1.0;
         if (m_reversed) {
-            return bloom * std::min(1.0, seconds / ReverseFadeInSeconds);
+            return m_gain * bloom * std::min(1.0, seconds / ReverseFadeInSeconds);
         }
         const double fade = position < m_voicing.sampleSeconds ? 1.0 : std::exp(-(position - m_voicing.sampleSeconds) / m_voicing.fadeSeconds);
-        return bloom * fade;
+        return m_gain * bloom * fade;
     }
     const double chick = m_voicing.chickLevel * std::exp(-seconds / m_chickSeconds);
     const double body = (1.0 - m_voicing.chickLevel) * std::exp(-std::pow(seconds / m_decaySeconds, m_decayCurve));
@@ -303,8 +308,8 @@ void Metal909Engine::start()
     }
     m_bands.clear();
     // Moving a constant-Q band's centre by m_tuneRatio widens its passband by the same factor, so
-    // an independent band's level is scaled by the root of the speed to keep its energy invariant
-    const double bandScale = m_voicing.independentBands ? 1.0 / std::sqrt(m_tuneRatio) : 1.0;
+    // a band's level is scaled by the root of the speed to keep its energy invariant
+    const double bandScale = 1.0 / std::sqrt(m_tuneRatio);
     uint32_t seed = NoiseSeed;
     for (auto && band : m_voicing.bands) {
         const double hz = band.hz * m_tuneRatio;

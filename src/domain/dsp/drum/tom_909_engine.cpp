@@ -54,25 +54,25 @@ namespace {
 constexpr Tom909Engine::Voicing LowTom {
     .lowHz = 57.07,
     .ratio = 1.488,
-    .sweepDepth = 0.3016,
-    .sweepSeconds = 0.05647,
-    .lowLevel = 0.06422,
-    .lowSeconds = 0.3098,
-    .lowCurve = 4.0,
-    .highSeconds = 0.1418,
-    .highCurve = 1.275,
-    .secondHarmonic = 0.05127,
-    .resonanceHz = 177.0,
-    .resonanceQ = 2.11,
-    .highPassHz = 416.2,
-    .noiseLevel = 0.2323,
-    .noiseSeconds = 0.02464,
-    .noiseHz = 429.2,
-    .noiseQ = 1.477,
-    .clickLevel = 0.005606,
-    .clickSeconds = 0.01,
-    .clickHz = 2875.0,
-    .gain = 4.420,
+    .sweepDepth = 0.2768,
+    .sweepSeconds = 0.05622,
+    .lowLevel = 0.04293,
+    .lowSeconds = 0.3013,
+    .lowCurve = 3.167,
+    .highSeconds = 0.1491,
+    .highCurve = 1.233,
+    .secondHarmonic = 0.06693,
+    .resonanceHz = 177.9,
+    .resonanceQ = 2.066,
+    .highPassHz = 488.3,
+    .noiseLevel = 0.2501,
+    .noiseSeconds = 0.02142,
+    .noiseHz = 529.5,
+    .noiseQ = 1.575,
+    .clickLevel = 0.001059,
+    .clickSeconds = 0.002056,
+    .clickHz = 6000.0,
+    .gain = 5.444,
 };
 constexpr Tom909Engine::Voicing MidTom {
     .lowHz = 79.84,
@@ -124,10 +124,12 @@ constexpr Tom909Engine::Voicing HighTom {
 //! Where the RD-9's Tune and Decay were measured, the low drum swept with the others at noon. The
 //! other two follow its curves: on a 909 all three move alike.
 constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
-//! Tune moves both oscillators, keeping their ratio, by about an octave in all
+//! Tune moves both oscillators, keeping their ratio, by about an octave in all, and the fixed
+//! resonator and high-pass make the drum louder as its fundamentals climb towards them
 constexpr std::array<double, 5> TuneRatio { 0.6704, 0.7855, 1.0, 1.229, 1.3168 };
+constexpr std::array<double, 5> TuneGain { 0.8070, 0.8025, 1.0, 1.1713, 1.1796 };
 //! Decay lengthens the upper oscillator's envelope, which is most of the drum, and the lower one's more
-constexpr std::array<double, 5> HighDecayRatio { 0.6244, 0.7688, 1.0, 1.0514, 1.0726 };
+constexpr std::array<double, 5> HighDecayRatio { 0.6790, 0.7676, 1.0, 1.1127, 1.1305 };
 constexpr std::array<double, 5> LowDecayRatio { 0.274, 0.613, 1.0, 1.194, 1.226 };
 
 //! The rate the noise was fitted at; held to the same spectrum at any other
@@ -196,6 +198,7 @@ void Tom909Engine::updateShape()
     const double tune = static_cast<double>(m_tune);
     const double decay = static_cast<double>(m_decay);
     m_lowHz = m_voicing.lowHz * interpolate(TuneRatio, tune);
+    m_tuneGain = interpolate(TuneGain, tune);
     m_highSeconds = m_voicing.highSeconds * interpolate(HighDecayRatio, decay);
     m_lowSeconds = m_voicing.lowSeconds * interpolate(LowDecayRatio, decay);
 }
@@ -280,7 +283,7 @@ float Tom909Engine::nextSample()
     const double density = std::sqrt(rate / ReferenceSampleRate);
     y += m_noise.process(nextNoise() * density) * m_voicing.noiseLevel * std::exp(-t / m_voicing.noiseSeconds);
     y += m_click.process(nextNoise() * density) * m_voicing.clickLevel * std::exp(-t / m_voicing.clickSeconds);
-    y *= m_voicing.gain * m_velocity;
+    y *= m_voicing.gain * m_tuneGain * m_velocity;
 
     m_time += 1.0 / rate;
     if (m_time > lengthSeconds()) {

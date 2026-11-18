@@ -240,6 +240,17 @@ void DrumSynth909Test::test_tom_tune_shouldFollowTheRd9()
     const double highHz = strongestHz(render(high, 0.4), 0.15, 0.35, 140.0, 190.0);
     QVERIFY2(std::abs(noonHz - 126.5) < 1.5, qPrintable(QString::number(noonHz)));
     QVERIFY2(std::abs(highHz / noonHz - 1.3168) < 0.02, qPrintable(QString::number(highHz / noonHz)));
+
+    // On the RD-9 the low tom grows louder as Tune brings its fundamentals up towards the resonator
+    Tom909Engine lowMin { Tom909Engine::Tom::Low };
+    lowMin.setTune(0.0f);
+    Tom909Engine lowMax { Tom909Engine::Tom::Low };
+    lowMax.setTune(1.0f);
+    const auto minHit = render(lowMin, 0.4);
+    const auto maxHit = render(lowMax, 0.4);
+    const double minPeak = *std::ranges::max_element(minHit);
+    const double maxPeak = *std::ranges::max_element(maxHit);
+    QVERIFY(20.0 * std::log10(maxPeak / minPeak) > 3.0);
 }
 
 void DrumSynth909Test::test_tom_decay_shouldMatchTheRd9()
@@ -354,6 +365,14 @@ void DrumSynth909Test::test_cymbal_tune_shouldShortenTheSample()
     const double highEnd = fallSeconds(render(high, 1.5), -40.0);
     QVERIFY2(noonEnd > 0.82 && noonEnd < 0.98, qPrintable(QString::number(noonEnd)));
     QVERIFY2(std::abs(noonEnd / highEnd - 1.52) < 0.12, qPrintable(QString::number(noonEnd / highEnd)));
+
+    Metal909Engine rideNoon { Metal909Engine::Sound::Ride };
+    Metal909Engine rideHigh { Metal909Engine::Sound::Ride };
+    rideHigh.setTune(1.0f);
+    const double rideNoonEnd = fallSeconds(render(rideNoon, 1.5), -40.0);
+    const double rideHighEnd = fallSeconds(render(rideHigh, 1.5), -40.0);
+    QVERIFY2(rideNoonEnd > 0.84 && rideNoonEnd < 1.02, qPrintable(QString::number(rideNoonEnd)));
+    QVERIFY2(std::abs(rideNoonEnd / rideHighEnd - 1.56) < 0.14, qPrintable(QString::number(rideNoonEnd / rideHighEnd)));
 }
 
 void DrumSynth909Test::test_crash_shouldBloomFromTheStrikeAndKeepItsSplashPartials()

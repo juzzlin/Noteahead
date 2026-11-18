@@ -51,12 +51,13 @@ constexpr std::array<Mode, Snare909Engine::ModeCount> Modes { {
 //! The modes start a little after the click
 constexpr double ModeStartSeconds = 0.000396;
 
-//! The noise, fitted on the spectrogram with the body above fixed, within 2 to 4 dB of the RD-9
-constexpr double NoiseHighPassHz = 1160.3;
-constexpr double NoiseLowPassHz = 3790.6;
-constexpr double NoiseAttackSeconds = 0.000362;
+//! The noise, fitted on the spectrogram across Tune, Tone and Snappy with the body above fixed
+constexpr double NoiseHighPassHz = 600.0;
+constexpr double NoiseLowPassHz = 6500.0;
+constexpr double NoiseFilterQ = 0.4321;
+constexpr double NoiseAttackSeconds = 0.004544;
 //! How the noise sags while the gate is open
-constexpr double NoiseSagSeconds = 0.9357;
+constexpr double NoiseSagSeconds = 0.3706;
 
 //! The stick on the head: high-passed noise over the first fraction of a millisecond
 constexpr double ClickLevel = 0.010293;
@@ -66,17 +67,17 @@ constexpr double ClickHighPassHz = 11716.6;
 //! Where the RD-9's knobs were measured, each with the others at noon
 constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
 constexpr std::array<double, 5> TuneRatio { 0.6595, 0.7606, 1.0, 1.2504, 1.3489 };
-constexpr std::array<double, 5> GateSeconds { 0.0804, 0.1002, 0.1608, 0.1955, 0.1940 };
-constexpr std::array<double, 5> ReleaseSeconds { 0.01373, 0.01624, 0.0236, 0.03398, 0.03615 };
-constexpr std::array<double, 5> BodyLevel { 1.243, 1.07, 0.9206, 0.771, 0.6933 };
-constexpr std::array<double, 5> NoiseLevel { 0.0, 0.008924, 0.02237, 0.03317, 0.035 };
+constexpr std::array<double, 5> GateSeconds { 0.0696, 0.0945, 0.1500, 0.2204, 0.2170 };
+constexpr std::array<double, 5> ReleaseSeconds { 0.0150, 0.0220, 0.0320, 0.0240, 0.0240 };
+constexpr std::array<double, 5> BodyLevel { 1.120, 0.995, 0.865, 0.735, 0.665 };
+constexpr std::array<double, 5> NoiseLevel { 0.0, 0.01594, 0.02359, 0.03080, 0.03124 };
 
 //! The rate the noise was fitted at; held to the same spectrum at any other
 constexpr double ReferenceSampleRate = 48000.0;
 //! Where the hit is over: the longest gate and release, and the longest mode 80 dB down
 constexpr double LengthSeconds = 0.5;
 //! Brings it to the level the device mixes its drums from, the kick's peak at noon
-constexpr double OutputLevel = 4.365;
+constexpr double OutputLevel = 4.646;
 constexpr uint32_t NoiseSeed = 0x6C8E9CF5u;
 
 double interpolate(const std::array<double, 5> & table, double knob)
@@ -226,7 +227,7 @@ void Snare909Engine::reset()
 void Snare909Engine::Biquad::setLowPass(double hz, double sampleRate)
 {
     const double w = 2.0 * std::numbers::pi * std::min(hz, 0.45 * sampleRate) / sampleRate;
-    const double alpha = std::sin(w) / (2.0 * std::numbers::sqrt2 / 2.0);
+    const double alpha = std::sin(w) / (2.0 * NoiseFilterQ);
     const double c = std::cos(w);
     const double a0 = 1.0 + alpha;
     b0 = 0.5 * (1.0 - c) / a0;
@@ -239,7 +240,7 @@ void Snare909Engine::Biquad::setLowPass(double hz, double sampleRate)
 void Snare909Engine::Biquad::setHighPass(double hz, double sampleRate)
 {
     const double w = 2.0 * std::numbers::pi * std::min(hz, 0.45 * sampleRate) / sampleRate;
-    const double alpha = std::sin(w) / (2.0 * std::numbers::sqrt2 / 2.0);
+    const double alpha = std::sin(w) / (2.0 * NoiseFilterQ);
     const double c = std::cos(w);
     const double a0 = 1.0 + alpha;
     b0 = 0.5 * (1.0 + c) / a0;
