@@ -11,6 +11,8 @@ New features:
 
 * Drum Synth 909: a TR-909 modelled on an RD-9, each drum with the RD-9's own knobs
 
+* Song Overview: the song's tracks as lanes of notes in play order, with a playhead; click to jump
+
 * Room Mics: records a device again in a room, its source and three mic pairs placed by dragging
 
 Bug fixes:
@@ -77,7 +79,7 @@ Other:
 
 * Less work per sample in several devices and effects
 
-* Song > Overview is now Song > Audio Overview
+* View menu: the Song and Audio Overviews, and what were the Devices and Effects menus
 
 12.1.1
 ======

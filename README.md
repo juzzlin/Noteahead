@@ -191,7 +191,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - XY Pad
   - A modulator played by hand: four pads, each axis moving any device's or effect's parameter. The centre of a pad is the knob's own setting, and letting go glides it back over a Return time, or holds it there at 0 ms. When an LFO and a pad move the same parameter, their moves add up, and the target picker says so. Choosing a device for an axis picks the next parameter nothing moves yet, and fills an empty other axis with the one after it: cutoff and resonance on a synth, then the next pair on the next pad.
 - Performance Panel
-  - A strip under the editor for playing while the song plays, without a dialog in the way: XY pads, RTAs and LUFS, dBTP and Stereo Field meters side by side, in an order set by dragging their title bars, saved with the project. Shown with Ctrl+P or from the Devices menu; it never takes the keyboard from the editor.
+  - A strip under the editor for playing while the song plays, without a dialog in the way: XY pads, RTAs and LUFS, dBTP and Stereo Field meters side by side, in an order set by dragging their title bars, saved with the project. Shown with Ctrl+P or from the View menu; it never takes the keyboard from the editor.
 - Phase LEDs
   - A red LED on every device LFO glows with its shape, so its rate and waveform can be read at a glance.
 - Dynamic Routing
@@ -490,7 +490,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, JU Synth, JU Synth 08, Synth D, Bass Synth, Electric Bass, Drum Synth, Drum Synth V2, Drum Synth 909, FM Drums, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Piano Synth Acoustic, Kick 808, Kick 909, Kick Synth, Snare Synth, String & Voice, String & Voice V2, String & Voice V3, String Ensemble, Speech or Noise FX, or the Sub Mixer, LFO or XY Pad — and then select its internal port (e.g. *Noteahead Internal Device 1 (Noteahead Synth)*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **View => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, JU Synth, JU Synth 08, Synth D, Bass Synth, Electric Bass, Drum Synth, Drum Synth V2, Drum Synth 909, FM Drums, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Piano Synth Acoustic, Kick 808, Kick 909, Kick Synth, Snare Synth, String & Voice, String & Voice V2, String & Voice V3, String Ensemble, Speech or Noise FX, or the Sub Mixer, LFO or XY Pad — and then select its internal port (e.g. *Noteahead Internal Device 1 (Noteahead Synth)*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
@@ -500,7 +500,7 @@ The section below is only a quick start — the manual is the authoritative refe
 
 **5) Build the song.** In the *Pattern* section, the **PAT** spinner selects the pattern being edited (increase it to create a new one) and **LEN** sets its length in lines — each pattern can have its own. Click the pattern name to rename it. In the *Song* section, **POS** selects the position in the play order, **PAT** the pattern assigned to it, and **LEN** the song length. Right-click a position button to mark it as skipped.
 
-**6) Mix.** Each device rack slot has **Insert FX** for its own effect rack, **Sends** for the shared send effects, and a fader with a level meter and clip LED for gain staging. **Devices => Mixer...** shows every device side by side as channel strips for balancing the whole thing at once. The master rack is under **Effects => Master effect rack...**.
+**6) Mix.** Each device rack slot has **Insert FX** for its own effect rack, **Sends** for the shared send effects, and a fader with a level meter and clip LED for gain staging. **View => Mixer...** shows every device side by side as channel strips for balancing the whole thing at once. The master rack is under **View => Master effect rack...**.
 
 **7) Export.** **File => Render audio...** renders offline to WAV or FLAC, either as a master mix or as per-track stems, with optional normalization and a loudness report. **File => Export MIDI file...** writes an SMF Type 1 file including automations.
 

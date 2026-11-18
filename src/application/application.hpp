@@ -79,6 +79,7 @@ class NoteColumnModelHandler;
 class ParameterAutomationsModel;
 class PitchBendAutomationsModel;
 class PlayerService;
+class SongOverviewController;
 class XyPadRecordingService;
 class SessionTimerService;
 class PropertyService;
@@ -206,6 +207,7 @@ private:
     std::shared_ptr<MixerService> m_mixerService;
     std::shared_ptr<SideChainService> m_sideChainService;
     std::shared_ptr<PlayerService> m_playerService;
+    std::shared_ptr<SongOverviewController> m_songOverviewController;
     std::shared_ptr<KeyboardService> m_keyboardService;
     std::shared_ptr<XyPadRecordingService> m_xyPadRecordingService;
     std::shared_ptr<MidiRecordingService> m_midiRecordingService;

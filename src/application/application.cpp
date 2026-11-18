@@ -45,6 +45,7 @@
 #include "../view/controllers/nahd_xml_keys.hpp"
 #include "../view/controllers/performance_panel_controller.hpp"
 #include "../view/controllers/send_controller.hpp"
+#include "../view/controllers/song_overview_controller.hpp"
 #include "../view/plugins/plugin_catalog.hpp"
 #include "../view/qml/Components/level_meter_renderer.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
@@ -54,6 +55,7 @@
 #include "../view/qml/Dialogs/automation_curve_renderer.hpp"
 #include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
+#include "../view/qml/Dialogs/song_overview_renderer.hpp"
 #include "../view/qml/Dialogs/spectrum_compare_renderer.hpp"
 #include "../view/qml/Dialogs/stereo_field_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
@@ -179,6 +181,7 @@ Application::Application(int & argc, char ** argv)
   , m_mixerService { std::make_shared<MixerService>() }
   , m_sideChainService { std::make_shared<SideChainService>() }
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
+  , m_songOverviewController { std::make_shared<SongOverviewController>(m_editorService, m_playerService, m_mixerService) }
   , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_xyPadRecordingService { std::make_shared<XyPadRecordingService>(m_deviceService, m_editorService, m_automationService) }
   , m_midiRecordingService { std::make_shared<MidiRecordingService>(m_editorService, m_automationService) }
@@ -293,6 +296,7 @@ void Application::registerTypes()
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
     qmlRegisterType<AudioOverviewRenderer>("Noteahead", majorVersion, minorVersion, "AudioOverviewRenderer");
+    qmlRegisterType<SongOverviewRenderer>("Noteahead", majorVersion, minorVersion, "SongOverviewRenderer");
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PhaseScopeRenderer>("Noteahead", majorVersion, minorVersion, "PhaseScopeRenderer");
     qmlRegisterType<WaveShapeRenderer>("Noteahead", majorVersion, minorVersion, "WaveShapeRenderer");
@@ -354,6 +358,7 @@ void Application::setContextProperties()
     }
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
     m_engine->rootContext()->setContextProperty("audioOverviewController", m_audioOverviewController.get());
+    m_engine->rootContext()->setContextProperty("songOverviewController", m_songOverviewController.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());

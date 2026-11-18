@@ -170,6 +170,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
     ${QML_BASE_DIR}/Dialogs/SongMetadataDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongNotesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SongOverviewDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
@@ -211,13 +212,12 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/LanguageMenu.qml
     ${QML_BASE_DIR}/MainMenu/LanguageSelector.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml
-    ${QML_BASE_DIR}/MainMenu/MainMenu_Devices.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
-    ${QML_BASE_DIR}/MainMenu/MainMenu_Effects.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Song.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_View.qml
     ${QML_BASE_DIR}/MainMenu/SessionTimerLabel.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/Panel/LevelMeterPanelElement.qml

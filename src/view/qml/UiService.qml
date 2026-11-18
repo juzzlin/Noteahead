@@ -100,6 +100,7 @@ QtObject {
     signal songMetadataDialogRequested
     signal songNotesDialogRequested
     signal audioOverviewDialogRequested
+    signal songOverviewDialogRequested
     signal songSettingsDialogRequested
     signal shortcutsDialogRequested
     signal whatsNewDialogRequested
@@ -307,6 +308,9 @@ QtObject {
     }
     function requestAudioOverviewDialog(): void {
         audioOverviewDialogRequested();
+    }
+    function requestSongOverviewDialog(): void {
+        songOverviewDialogRequested();
     }
     function requestColumnSettingsDialog(trackIndex, columnIndex): void {
         columnSettingsDialogRequested(trackIndex, columnIndex);

@@ -7162,25 +7162,6 @@
     </message>
 </context>
 <context>
-    <name>MainMenu_Devices</name>
-    <message>
-        <source>&amp;Devices</source>
-        <translation>&amp;Appareils</translation>
-    </message>
-    <message>
-        <source>Device rack...</source>
-        <translation>Rack d&apos;appareils...</translation>
-    </message>
-    <message>
-        <source>Performance panel</source>
-        <translation>Panneau de performance</translation>
-    </message>
-    <message>
-        <source>Mixer...</source>
-        <translation>Mixeur...</translation>
-    </message>
-</context>
-<context>
     <name>MainMenu_Edit</name>
     <message>
         <source>&amp;Edit</source>
@@ -7217,17 +7198,6 @@
     <message>
         <source>Settings...</source>
         <translation>Paramètres...</translation>
-    </message>
-</context>
-<context>
-    <name>MainMenu_Effects</name>
-    <message>
-        <source>&amp;Effects</source>
-        <translation>&amp;Effets</translation>
-    </message>
-    <message>
-        <source>Master effect rack...</source>
-        <translation>Rack d&apos;effets master...</translation>
     </message>
 </context>
 <context>
@@ -7346,10 +7316,6 @@
         <source>Settings...</source>
         <translation>Paramètres...</translation>
     </message>
-    <message>
-        <source>Audio Overview...</source>
-        <translation>Vue d&apos;ensemble audio...</translation>
-    </message>
 </context>
 <context>
     <name>MainMenu_Tools</name>
@@ -7372,6 +7338,37 @@
     <message>
         <source>Analyse audio files...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainMenu_View</name>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Affichage</translation>
+    </message>
+    <message>
+        <source>Song Overview...</source>
+        <translation>Vue d&apos;ensemble du morceau...</translation>
+    </message>
+    <message>
+        <source>Audio Overview...</source>
+        <translation>Vue d&apos;ensemble audio...</translation>
+    </message>
+    <message>
+        <source>Device rack...</source>
+        <translation>Rack d&apos;appareils...</translation>
+    </message>
+    <message>
+        <source>Performance panel</source>
+        <translation>Panneau de performance</translation>
+    </message>
+    <message>
+        <source>Mixer...</source>
+        <translation>Mixeur...</translation>
+    </message>
+    <message>
+        <source>Master effect rack...</source>
+        <translation>Rack d&apos;effets master...</translation>
     </message>
 </context>
 <context>
@@ -12813,6 +12810,41 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     <message>
         <source>Saved inside the project file. Never written into rendered audio.</source>
         <translation>Enregistré dans le fichier du projet. Jamais écrit dans l&apos;audio rendu.</translation>
+    </message>
+</context>
+<context>
+    <name>SongOverviewDialog</name>
+    <message>
+        <source>Song Overview</source>
+        <translation>Vue d&apos;ensemble du morceau</translation>
+    </message>
+    <message>
+        <source>Open %1</source>
+        <translation>Ouvrir %1</translation>
+    </message>
+    <message>
+        <source>Open track settings</source>
+        <translation>Ouvrir les paramètres de la piste</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>The song as it plays: a lane per track, the play order across. Click a note to go to it in the editor, or a lane to go to that line on its track; double-click to also close this. Ctrl+wheel zooms.</source>
+        <translation>Le morceau tel qu&apos;il est joué : une voie par piste, l&apos;ordre de lecture de gauche à droite. Cliquez sur une note pour y aller dans l&apos;éditeur, ou sur une voie pour aller à cette ligne de sa piste ; un double-clic ferme aussi cette fenêtre. Ctrl+molette zoome.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation>Lire</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Ligne</translation>
     </message>
 </context>
 <context>

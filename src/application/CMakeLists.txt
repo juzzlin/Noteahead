@@ -61,6 +61,7 @@ set(HEADER_FILES
     service/session_timer_service.hpp
     service/settings_service.hpp
     service/side_chain_service.hpp
+    service/song_overview_builder.hpp
     service/theme_service.hpp
     service/tip_service.hpp
     service/util_service.hpp
@@ -129,6 +130,7 @@ set(SOURCE_FILES
     service/session_timer_service.cpp
     service/settings_service.cpp
     service/side_chain_service.cpp
+    service/song_overview_builder.cpp
     service/theme_service.cpp
     service/tip_service.cpp
     service/util_service.cpp

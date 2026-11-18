@@ -7162,25 +7162,6 @@
     </message>
 </context>
 <context>
-    <name>MainMenu_Devices</name>
-    <message>
-        <source>&amp;Devices</source>
-        <translation>&amp;Dispositivi</translation>
-    </message>
-    <message>
-        <source>Device rack...</source>
-        <translation>Rack dispositivi...</translation>
-    </message>
-    <message>
-        <source>Performance panel</source>
-        <translation>Pannello performance</translation>
-    </message>
-    <message>
-        <source>Mixer...</source>
-        <translation>Mixer...</translation>
-    </message>
-</context>
-<context>
     <name>MainMenu_Edit</name>
     <message>
         <source>&amp;Edit</source>
@@ -7217,17 +7198,6 @@
     <message>
         <source>Settings...</source>
         <translation>Impostazioni...</translation>
-    </message>
-</context>
-<context>
-    <name>MainMenu_Effects</name>
-    <message>
-        <source>&amp;Effects</source>
-        <translation>&amp;Effetti</translation>
-    </message>
-    <message>
-        <source>Master effect rack...</source>
-        <translation>Rack effetti master...</translation>
     </message>
 </context>
 <context>
@@ -7346,10 +7316,6 @@
         <source>Settings...</source>
         <translation>Impostazioni...</translation>
     </message>
-    <message>
-        <source>Audio Overview...</source>
-        <translation>Panoramica audio...</translation>
-    </message>
 </context>
 <context>
     <name>MainMenu_Tools</name>
@@ -7372,6 +7338,37 @@
     <message>
         <source>Analyse audio files...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainMenu_View</name>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Visualizza</translation>
+    </message>
+    <message>
+        <source>Song Overview...</source>
+        <translation>Panoramica del brano...</translation>
+    </message>
+    <message>
+        <source>Audio Overview...</source>
+        <translation>Panoramica audio...</translation>
+    </message>
+    <message>
+        <source>Device rack...</source>
+        <translation>Rack dispositivi...</translation>
+    </message>
+    <message>
+        <source>Performance panel</source>
+        <translation>Pannello performance</translation>
+    </message>
+    <message>
+        <source>Mixer...</source>
+        <translation>Mixer...</translation>
+    </message>
+    <message>
+        <source>Master effect rack...</source>
+        <translation>Rack effetti master...</translation>
     </message>
 </context>
 <context>
@@ -12813,6 +12810,41 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
     <message>
         <source>Saved inside the project file. Never written into rendered audio.</source>
         <translation>Salvato all&apos;interno del file di progetto. Non viene mai scritto nell&apos;audio renderizzato.</translation>
+    </message>
+</context>
+<context>
+    <name>SongOverviewDialog</name>
+    <message>
+        <source>Song Overview</source>
+        <translation>Panoramica del brano</translation>
+    </message>
+    <message>
+        <source>Open %1</source>
+        <translation>Apri %1</translation>
+    </message>
+    <message>
+        <source>Open track settings</source>
+        <translation>Apri le impostazioni della traccia</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>The song as it plays: a lane per track, the play order across. Click a note to go to it in the editor, or a lane to go to that line on its track; double-click to also close this. Ctrl+wheel zooms.</source>
+        <translation>Il brano come viene suonato: una corsia per traccia, l&apos;ordine di riproduzione da sinistra a destra. Fai clic su una nota per raggiungerla nell&apos;editor, o su una corsia per andare a quella riga della sua traccia; con il doppio clic si chiude anche questa finestra. Ctrl+rotellina fa lo zoom.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Ferma</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation>Riproduci</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Riga</translation>
     </message>
 </context>
 <context>
