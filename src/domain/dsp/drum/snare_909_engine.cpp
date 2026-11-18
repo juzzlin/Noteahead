@@ -32,21 +32,21 @@ struct Mode
     double phase;
 };
 
-//! The RD-9's body at every knob's noon with Snappy at 0, decomposed by matrix pencil: within 1 to
-//! 2 dB of it from 10 ms on. The first two are the strikes, the next three the tones they settle
-//! into; the rest are harmonics and difference tones.
+//! The RD-9's body at every knob's noon with Snappy at 0, decomposed by matrix pencil: within a
+//! decibel of it from 10 ms on. The first and third are the strikes, the second and fifth the tones
+//! they settle into; the rest are harmonics and difference tones.
 constexpr std::array<Mode, Snare909Engine::ModeCount> Modes { {
-  { 195.85, 0.00752, 0.273824, 1.1594 },
-  { 264.48, 0.00675, 0.265568, -2.5946 },
-  { 194.08, 0.03731, 0.116600, -2.4342 },
-  { 401.06, 0.00687, 0.083625, -2.9055 },
-  { 258.26, 0.03445, 0.049936, 0.6777 },
-  { 388.76, 0.02783, 0.021217, 1.0982 },
-  { 541.62, 0.01660, 0.008666, 2.9150 },
-  { 126.42, 0.05100, 0.008324, -0.3759 },
-  { 291.38, 0.01755, 0.005874, 2.9507 },
-  { 514.37, 0.04541, 0.004745, 2.2067 },
-  { 66.65, 0.19723, 0.001287, -1.7553 },
+  { 207.02, 0.00739, 0.910597, 0.6231 },
+  { 192.56, 0.02781, 0.304530, -2.4566 },
+  { 283.47, 0.00786, 0.454295, 2.8113 },
+  { 251.50, 0.01258, 0.253483, 2.7002 },
+  { 259.14, 0.01984, 0.192479, -0.9010 },
+  { 413.83, 0.00616, 0.319188, 2.3621 },
+  { 126.29, 0.02047, 0.065847, -0.3399 },
+  { 384.95, 0.02551, 0.052802, 1.0324 },
+  { 505.38, 0.01857, 0.041930, 2.2410 },
+  { 667.53, 0.00314, 0.082014, -1.5363 },
+  { 534.73, 0.01961, 0.035755, 2.7726 },
 } };
 //! The modes start a little after the click
 constexpr double ModeStartSeconds = 0.000396;
@@ -55,9 +55,9 @@ constexpr double ModeStartSeconds = 0.000396;
 constexpr double NoiseHighPassHz = 600.0;
 constexpr double NoiseLowPassHz = 6500.0;
 constexpr double NoiseFilterQ = 0.4321;
-constexpr double NoiseAttackSeconds = 0.004544;
+constexpr double NoiseAttackSeconds = 0.003097;
 //! How the noise sags while the gate is open
-constexpr double NoiseSagSeconds = 0.3706;
+constexpr double NoiseSagSeconds = 0.0975;
 
 //! The stick on the head: high-passed noise over the first fraction of a millisecond
 constexpr double ClickLevel = 0.010293;
@@ -66,18 +66,18 @@ constexpr double ClickHighPassHz = 11716.6;
 
 //! Where the RD-9's knobs were measured, each with the others at noon
 constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
-constexpr std::array<double, 5> TuneRatio { 0.6595, 0.7606, 1.0, 1.2504, 1.3489 };
-constexpr std::array<double, 5> GateSeconds { 0.0696, 0.0945, 0.1500, 0.2204, 0.2170 };
-constexpr std::array<double, 5> ReleaseSeconds { 0.0150, 0.0220, 0.0320, 0.0240, 0.0240 };
-constexpr std::array<double, 5> BodyLevel { 1.120, 0.995, 0.865, 0.735, 0.665 };
-constexpr std::array<double, 5> NoiseLevel { 0.0, 0.01594, 0.02359, 0.03080, 0.03124 };
+constexpr std::array<double, 5> TuneRatio { 0.6504, 0.7417, 1.0, 1.2248, 1.3389 };
+constexpr std::array<double, 5> GateSeconds { 0.0484, 0.0564, 0.1188, 0.2070, 0.2279 };
+constexpr std::array<double, 5> ReleaseSeconds { 0.0309, 0.0415, 0.0800, 0.0800, 0.0800 };
+constexpr std::array<double, 5> BodyLevel { 1.0, 1.0, 1.0, 1.0, 1.0 };
+constexpr std::array<double, 5> NoiseLevel { 0.0, 0.03100, 0.10187, 0.16357, 0.19315 };
 
 //! The rate the noise was fitted at; held to the same spectrum at any other
 constexpr double ReferenceSampleRate = 48000.0;
 //! Where the hit is over: the longest gate and release, and the longest mode 80 dB down
 constexpr double LengthSeconds = 0.5;
 //! Brings it to the level the device mixes its drums from, the kick's peak at noon
-constexpr double OutputLevel = 4.646;
+constexpr double OutputLevel = 2.110;
 constexpr uint32_t NoiseSeed = 0x6C8E9CF5u;
 
 double interpolate(const std::array<double, 5> & table, double knob)
