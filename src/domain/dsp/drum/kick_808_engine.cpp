@@ -154,7 +154,12 @@ Kick808Engine::Kick808Engine()
 
 void Kick808Engine::setNote(float note)
 {
-    m_targetNote = note;
+    m_note = note;
+}
+
+void Kick808Engine::setTune(float tune)
+{
+    m_tune = tune;
 }
 
 void Kick808Engine::setDecay(float decay)
@@ -211,6 +216,8 @@ void Kick808Engine::trigger(float velocity)
     if (const double sr = sampleRate(); sr != m_lastSampleRate) {
         updateRates();
     }
+
+    m_targetNote = m_note + (m_tune - 0.5f) * 2.0f * TuneRangeSemitones;
 
     // A silent engine has no pitch to glide from, so the first hit of a phrase starts in tune.
     if (!m_active) {

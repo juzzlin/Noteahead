@@ -63,9 +63,17 @@ public:
     void reset() override;
     void stop() override;
 
-    //! Target pitch of the next trigger, in MIDI note units. Fractional values are allowed so the
-    //! device can fold its tuning offset in without quantizing to semitones.
+    //! Pitch the kick sits at when nothing plays it at a note, and the origin Tuning moves it from
+    static constexpr float ReferenceNote { 36.0f };
+    //! Tuning spans two octaves either side of the note
+    static constexpr float TuneRangeSemitones { 24.0f };
+
+    //! The note the next trigger is played at, in MIDI note units. A device that tracks the
+    //! keyboard sets it per note; a drum machine pad leaves it at ReferenceNote.
     void setNote(float note);
+    //! The panel's Tuning knob, 0..1 with the note itself at noon. Like the note, it is taken at
+    //! the next trigger and leaves a ringing hit where it is.
+    void setTune(float tune);
 
     void setDecay(float decay);
     void setTone(float tone);
@@ -101,7 +109,10 @@ private:
 
     // Frequency actually rendered, in Hz. Chases m_targetNote when glide is engaged.
     double m_currentFrequency { 0.0 };
-    float m_targetNote { 36.0f };
+    float m_note { ReferenceNote };
+    float m_tune { 0.5f };
+    // The pitch the last trigger took from the note and Tuning, in MIDI note units
+    float m_targetNote { ReferenceNote };
 
     float m_pulseEnv { 0.0f };
     float m_pitchEnv { 0.0f };

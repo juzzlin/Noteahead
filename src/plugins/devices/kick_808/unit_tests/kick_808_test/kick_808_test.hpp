@@ -38,6 +38,8 @@ private slots:
     void test_keyTrack_enabled_shouldFollowNotePitch();
     void test_keyTrack_disabled_shouldIgnoreNotePitch();
     void test_tune_raised_shouldRaisePitch();
+    void test_tune_changedWhileRinging_shouldNotBendHit();
+    void test_engine_tuneOnly_shouldTuneFromReferenceNote();
     void test_tone_full_shouldRaiseHighFrequencyContent();
     void test_tone_zero_shouldStillClick();
     void test_velocity_shouldAffectOutputLevel();
