@@ -53,12 +53,12 @@ constexpr int rowHeight = imageHeight / visibleLines;
 //! against was a run of one point producing a perfectly valid but entirely invisible polyline.
 std::set<int> paintedCurveRows(quint64 line0, quint64 line1)
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    const auto editorService = std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>());
+    const auto utilService = std::make_shared<UtilService>();
+    const auto helper = std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService);
 
     NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
     NoteColumnModel::LineList lines;

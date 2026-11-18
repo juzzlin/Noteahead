@@ -29,38 +29,57 @@
 
 namespace noteahead {
 
+namespace {
+
+struct TestContext
+{
+    std::shared_ptr<AutomationService> automationService;
+    std::shared_ptr<SelectionService> selectionService;
+    std::shared_ptr<SettingsService> settingsService;
+    std::shared_ptr<EditorService> editorService;
+    std::shared_ptr<UtilService> utilService;
+    NoteColumnLineContainerHelper helper;
+};
+
+TestContext createContext()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    const auto editorService = std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>());
+    const auto utilService = std::make_shared<UtilService>();
+    return TestContext {
+        automationService,
+        selectionService,
+        settingsService,
+        editorService,
+        utilService,
+        NoteColumnLineContainerHelper { automationService, editorService, selectionService, settingsService, utilService }
+    };
+}
+
+} // namespace
+
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_selected_shouldReturnSelectionColor()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
+    const auto context = createContext();
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
+    context.selectionService->requestSelectionStart(0, 0, 0, 0);
+    context.selectionService->requestSelectionEnd(0, 0, 0, 0);
 
-    selectionService->requestSelectionStart(0, 0, 0, 0);
-    selectionService->requestSelectionEnd(0, 0, 0, 0);
-
-    const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
+    const auto result = context.helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);
     QCOMPARE(result.at(1).toInt(), 0); // Border width for selection
 }
 
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasInstrumentSettings_shouldReturnInstrumentColor()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
+    const auto context = createContext();
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
+    context.editorService->requestPosition(0, 0, 0, 0, 0);
+    context.editorService->setInstrumentSettingsAtCurrentPosition(std::make_shared<InstrumentSettings>());
 
-    editorService->requestPosition(0, 0, 0, 0, 0);
-    editorService->setInstrumentSettingsAtCurrentPosition(std::make_shared<InstrumentSettings>());
-
-    const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
+    const auto result = context.helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);
     QCOMPARE(result.at(1).toInt(), 1); // Border width for instrument
     // We could check color too, but it depends on blendColors which we're not mocking.
@@ -68,52 +87,34 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasInstrume
 
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasAutomations_shouldReturnAutomationColor()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
+    const auto context = createContext();
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
+    context.automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 4, 0, 100, "Test", true, 8, 0);
 
-    automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 4, 0, 100, "Test", true, 8, 0);
-
-    const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
+    const auto result = context.helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);
     QCOMPARE(result.at(1).toInt(), 1);
 }
 
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_default_shouldReturnDefaultColor()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
+    const auto context = createContext();
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
-
-    const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
+    const auto result = context.helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);
     QCOMPARE(result.at(1).toInt(), 1);
 }
 
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_lowLinesPerBeat_shouldNotCrash()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
+    const auto context = createContext();
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
+    QCOMPARE(context.utilService->indexHighlightOpacity(0, 0), 0.0);
 
-    QCOMPARE(utilService->indexHighlightOpacity(0, 0), 0.0);
-
-    for (const quint64 lpb : { quint64 { 1 }, quint64 { 2 }, quint64 { 3 }, quint64 { 4 }, quint64 { 5 }, quint64 { 6 }, quint64 { 8 } }) {
-        editorService->setLinesPerBeat(lpb);
+    for (const quint64 lpb : { 1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 8ULL }) {
+        context.editorService->setLinesPerBeat(lpb);
         for (quint64 lineIndex = 0; lineIndex < 16; lineIndex++) {
-            const auto result = helper.lineColorAndBorderWidth(0, 0, 0, lineIndex);
+            const auto result = context.helper.lineColorAndBorderWidth(0, 0, 0, lineIndex);
             QCOMPARE(result.size(), 2);
             QCOMPARE(result.at(1).toInt(), 1);
         }
