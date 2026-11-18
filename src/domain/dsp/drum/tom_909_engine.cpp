@@ -52,15 +52,15 @@ struct Tom909Engine::Voicing
 namespace {
 
 constexpr Tom909Engine::Voicing LowTom {
-    .lowHz = 57.07,
-    .ratio = 1.488,
-    .sweepDepth = 0.2768,
-    .sweepSeconds = 0.05622,
+    .lowHz = 58.23,
+    .ratio = 1.4843,
+    .sweepDepth = 0.4006,
+    .sweepSeconds = 0.04062,
     .lowLevel = 0.04293,
-    .lowSeconds = 0.3013,
-    .lowCurve = 3.167,
-    .highSeconds = 0.1491,
-    .highCurve = 1.233,
+    .lowSeconds = 0.1571,
+    .lowCurve = 1.277,
+    .highSeconds = 0.1304,
+    .highCurve = 1.160,
     .secondHarmonic = 0.06693,
     .resonanceHz = 177.9,
     .resonanceQ = 2.066,
@@ -72,18 +72,18 @@ constexpr Tom909Engine::Voicing LowTom {
     .clickLevel = 0.001059,
     .clickSeconds = 0.002056,
     .clickHz = 6000.0,
-    .gain = 5.444,
+    .gain = 4.055,
 };
 constexpr Tom909Engine::Voicing MidTom {
-    .lowHz = 79.84,
-    .ratio = 1.5855,
-    .sweepDepth = 0.3317,
-    .sweepSeconds = 0.03953,
+    .lowHz = 73.97,
+    .ratio = 1.5842,
+    .sweepDepth = 0.3898,
+    .sweepSeconds = 0.03554,
     .lowLevel = 0.3022,
-    .lowSeconds = 0.1955,
-    .lowCurve = 2.254,
-    .highSeconds = 0.1629,
-    .highCurve = 1.912,
+    .lowSeconds = 0.1429,
+    .lowCurve = 1.427,
+    .highSeconds = 0.1224,
+    .highCurve = 1.361,
     .secondHarmonic = 0.0,
     .resonanceHz = 225.2,
     .resonanceQ = 1.924,
@@ -95,18 +95,18 @@ constexpr Tom909Engine::Voicing MidTom {
     .clickLevel = 0.1016,
     .clickSeconds = 0.000454,
     .clickHz = 271.7,
-    .gain = 5.793,
+    .gain = 5.040,
 };
 constexpr Tom909Engine::Voicing HighTom {
-    .lowHz = 109.86,
-    .ratio = 1.5769,
-    .sweepDepth = 0.2964,
-    .sweepSeconds = 0.05908,
+    .lowHz = 90.45,
+    .ratio = 1.5789,
+    .sweepDepth = 0.3406,
+    .sweepSeconds = 0.04420,
     .lowLevel = 0.1491,
-    .lowSeconds = 0.2396,
-    .lowCurve = 3.943,
-    .highSeconds = 0.2007,
-    .highCurve = 2.655,
+    .lowSeconds = 0.1182,
+    .lowCurve = 1.146,
+    .highSeconds = 0.1413,
+    .highCurve = 1.500,
     .secondHarmonic = 0.00174,
     .resonanceHz = 304.0,
     .resonanceQ = 3.889,
@@ -118,18 +118,17 @@ constexpr Tom909Engine::Voicing HighTom {
     .clickLevel = 0.00673,
     .clickSeconds = 0.01,
     .clickHz = 10000.0,
-    .gain = 4.523,
+    .gain = 4.252,
 };
 
-//! Where the RD-9's Tune and Decay were measured, the low drum swept with the others at noon. The
-//! other two follow its curves: on a 909 all three move alike.
+//! Where the RD-9's Tune and Decay were measured, each drum swept with the other knob at noon.
 constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
 //! Tune moves both oscillators, keeping their ratio, by about an octave in all, and the fixed
 //! resonator and high-pass make the drum louder as its fundamentals climb towards them
-constexpr std::array<double, 5> TuneRatio { 0.6704, 0.7855, 1.0, 1.229, 1.3168 };
-constexpr std::array<double, 5> TuneGain { 0.8070, 0.8025, 1.0, 1.1713, 1.1796 };
+constexpr std::array<double, 5> TuneRatio { 0.6752, 0.7820, 1.0, 1.2203, 1.3135 };
+constexpr std::array<double, 5> TuneGain { 0.6318, 0.7092, 1.0, 1.1424, 1.1857 };
 //! Decay lengthens the upper oscillator's envelope, which is most of the drum, and the lower one's more
-constexpr std::array<double, 5> HighDecayRatio { 0.6790, 0.7676, 1.0, 1.1127, 1.1305 };
+constexpr std::array<double, 5> HighDecayRatio { 0.6897, 0.7701, 1.0, 1.1609, 1.2184 };
 constexpr std::array<double, 5> LowDecayRatio { 0.274, 0.613, 1.0, 1.194, 1.226 };
 
 //! The rate the noise was fitted at; held to the same spectrum at any other
