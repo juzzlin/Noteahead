@@ -36,6 +36,7 @@
 
 # AppImage
 AppDir
+AppDir-ubuntu-*
 .appimage-tools
 *.AppImage
 
