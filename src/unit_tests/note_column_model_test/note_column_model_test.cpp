@@ -47,6 +47,36 @@ QTemporaryDir & settingsDirectory()
     return directory;
 }
 
+struct TestContext
+{
+    std::shared_ptr<AutomationService> automationService;
+    std::shared_ptr<SelectionService> selectionService;
+    std::shared_ptr<SettingsService> settingsService;
+    std::shared_ptr<EditorService> editorService;
+    std::shared_ptr<UtilService> utilService;
+    std::shared_ptr<NoteColumnLineContainerHelper> helper;
+    NoteColumnModel model;
+};
+
+TestContext createContext(size_t pattern = 0)
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    const auto editorService = std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>());
+    const auto utilService = std::make_shared<UtilService>();
+    const auto helper = std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService);
+    return TestContext {
+        automationService,
+        selectionService,
+        settingsService,
+        editorService,
+        utilService,
+        helper,
+        NoteColumnModel { { pattern, 0, 0 }, editorService, helper, settingsService }
+    };
+}
+
 } // namespace
 
 void NoteColumnModelTest::initTestCase()
@@ -67,144 +97,109 @@ void NoteColumnModelTest::cleanupTestCase()
 
 void NoteColumnModelTest::test_rowCount_shouldReturnCorrectValue()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
-
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    auto context = createContext();
 
     NoteColumnModel::LineList lines;
     for (int i = 0; i < 10; ++i) {
         lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
     }
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    QCOMPARE(model.rowCount(), 10 + settingsService->visibleLines());
+    QCOMPARE(context.model.rowCount(), 10 + context.settingsService->visibleLines());
 }
 
 void NoteColumnModelTest::test_data_shouldReturnCorrectValues()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+    auto context = createContext();
 
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
-
-    auto line { std::make_shared<Line>(0) };
+    auto line = std::make_shared<Line>(0);
     NoteData noteData {};
     noteData.setAsNoteOn(60, 100); // C-4
     line->setNoteData(noteData);
 
     NoteColumnModel::LineList lines { line };
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    const auto idx = model.index(editorService->positionBarLine(), 0);
-    QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "C-5" });
-    QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Velocity)).toString(), QString { "100" });
+    const auto idx = context.model.index(context.editorService->positionBarLine(), 0);
+    QCOMPARE(context.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "C-5" });
+    QCOMPARE(context.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Velocity)).toString(), QString { "100" });
 }
 
 void NoteColumnModelTest::test_data_LineRole_shouldReturnCorrectValue()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+    auto context = createContext();
 
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
-
-    auto line { std::make_shared<Line>(0) };
+    auto line = std::make_shared<Line>(0);
     NoteData noteData {};
     noteData.setAsNoteOn(60, 100); // C-5
     noteData.setDelay(12);
     line->setNoteData(noteData);
 
     NoteColumnModel::LineList lines { line, std::make_shared<Line>(1) };
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
 
     // Test filled line
-    const auto idx0 = model.index(barLine, 0);
-    QCOMPARE(model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12 ---" });
+    const auto idx0 = context.model.index(barLine, 0);
+    QCOMPARE(context.model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12 ---" });
 
     // Test empty line
-    const auto idx1 = model.index(barLine + 1, 0);
-    QCOMPARE(model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- -- ---" });
+    const auto idx1 = context.model.index(barLine + 1, 0);
+    QCOMPARE(context.model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- -- ---" });
 }
 
 void NoteColumnModelTest::test_data_GhostRow_shouldReturnNeighborLines()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+    auto context = createContext();
 
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
-
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(barLine >= 1); // The top offset area requires at least one virtual row above line 0
 
     // Two lines in the current column
-    model.setColumnData({ std::make_shared<Line>(0), std::make_shared<Line>(1) });
+    context.model.setColumnData({ std::make_shared<Line>(0), std::make_shared<Line>(1) });
 
     // Previous neighbor: two lines, the last one directly abutting the current line 0
-    auto previousTail { std::make_shared<Line>(1) };
+    auto previousTail = std::make_shared<Line>(1);
     NoteData previousNote {};
     previousNote.setAsNoteOn(62, 100); // D-5
     previousTail->setNoteData(previousNote);
 
     // Next neighbor: a single head line directly abutting the current last line
-    auto nextHead { std::make_shared<Line>(0) };
+    auto nextHead = std::make_shared<Line>(0);
     NoteData nextNote {};
     nextNote.setAsNoteOn(64, 100); // E-5
     nextHead->setNoteData(nextNote);
 
-    model.setGhostData({ std::make_shared<Line>(0), previousTail }, { nextHead });
+    context.model.setGhostData({ std::make_shared<Line>(0), previousTail }, { nextHead });
 
     // The row directly above line 0 shows the tail of the previous neighbor as a ghost
-    const auto topGhost = model.index(barLine - 1, 0);
-    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
-    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
-    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "D-5" });
+    const auto topGhost = context.model.index(barLine - 1, 0);
+    QCOMPARE(context.model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
+    QCOMPARE(context.model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
+    QCOMPARE(context.model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "D-5" });
 
     // The row directly below the last line shows the head of the next neighbor as a ghost
-    const auto bottomGhost = model.index(barLine + 2, 0);
-    QCOMPARE(model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
-    QCOMPARE(model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "E-5" });
+    const auto bottomGhost = context.model.index(barLine + 2, 0);
+    QCOMPARE(context.model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
+    QCOMPARE(context.model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "E-5" });
 
     // Beyond the neighbor's lines the offset area stays a plain (black) virtual row
-    const auto beyondGhost = model.index(barLine + 3, 0);
-    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), false);
-    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
-    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "" });
+    const auto beyondGhost = context.model.index(barLine + 3, 0);
+    QCOMPARE(context.model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), false);
+    QCOMPARE(context.model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
+    QCOMPARE(context.model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "" });
 }
 
 void NoteColumnModelTest::test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
-
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    auto context = createContext();
 
     NoteColumnModel::LineList lines { std::make_shared<Line>(0) };
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    QSignalSpy spy { &model, &NoteColumnModel::dataChanged };
-    model.updateNoteDataAtPosition(0);
+    QSignalSpy spy { &context.model, &NoteColumnModel::dataChanged };
+    context.model.updateNoteDataAtPosition(0);
 
     QCOMPARE(spy.count(), 1);
     const auto arguments = spy.takeFirst();
@@ -218,90 +213,69 @@ void NoteColumnModelTest::test_updateNoteDataAtPosition_shouldEmitDataChangedWit
 
 void NoteColumnModelTest::test_setLineFocused_shouldUpdateData()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
-
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    auto context = createContext();
 
     NoteColumnModel::LineList lines { std::make_shared<Line>(0) };
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    QSignalSpy spy { &model, &NoteColumnModel::dataChanged };
-    model.setLineFocused(0, 1);
+    QSignalSpy spy { &context.model, &NoteColumnModel::dataChanged };
+    context.model.setLineFocused(0, 1);
 
     QCOMPARE(spy.count(), 1);
-    const auto idx = model.index(editorService->positionBarLine(), 0);
-    QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool(), true);
-    QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt(), 1);
+    const auto idx = context.model.index(context.editorService->positionBarLine(), 0);
+    QCOMPARE(context.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool(), true);
+    QCOMPARE(context.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt(), 1);
 }
 
 void NoteColumnModelTest::test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
-
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    auto context = createContext();
 
     const int lineCount = 10;
     NoteColumnModel::LineList lines;
     for (int i = 0; i < lineCount; ++i) {
         lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
     }
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
-    QSignalSpy spy { &model, &NoteColumnModel::dataChanged };
-    model.updateIndexHighlights();
+    QSignalSpy spy { &context.model, &NoteColumnModel::dataChanged };
+    context.model.updateIndexHighlights();
 
     QCOMPARE(spy.count(), 1);
     const auto arguments = spy.takeFirst();
     const auto topLeft = arguments.at(0).value<QModelIndex>();
     const auto bottomRight = arguments.at(1).value<QModelIndex>();
 
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
     QCOMPARE(topLeft.row(), barLine);
     QCOMPARE(bottomRight.row(), barLine + lineCount - 1);
 }
 
 void NoteColumnModelTest::test_automationCurves_singleLineAutomation_shouldSetOneValue()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
-
-    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+    auto context = createContext();
 
     const int lineCount = 10;
     NoteColumnModel::LineList lines;
     for (int i = 0; i < lineCount; ++i) {
         lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
     }
-    model.setColumnData(lines);
+    context.model.setColumnData(lines);
 
     // An automation that starts and ends on the same line still has to reach the renderer: it is the
     // only value it will ever get, and the renderer draws it as a mark rather than as a polyline.
     const int automationLine = 4;
-    automationService->addMidiCcAutomation(0, 0, 0, 64, automationLine, automationLine, 0, 127, {}, true, 8, 0);
+    context.automationService->addMidiCcAutomation(0, 0, 0, 64, automationLine, automationLine, 0, 127, {}, true, 8, 0);
 
     const int startRow = 0, endRow = 20;
-    const auto curves = model.automationCurves(startRow, endRow);
+    const auto curves = context.model.automationCurves(startRow, endRow);
 
     QCOMPARE(curves.size(), size_t { 1 });
     const auto & values = curves.at(0).values;
     QCOMPARE(std::ranges::count_if(values, [](auto && value) { return value.has_value(); }), 1);
 
     // Row space, not line space: the model shifts the lines down by the position bar
-    const auto barLine = static_cast<int>(editorService->positionBarLine());
+    const auto barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(values.at(static_cast<size_t>(automationLine + barLine)).has_value());
 }
 
@@ -310,16 +284,9 @@ void NoteColumnModelTest::test_automationCurves_ghostRows_shouldDrawTheNeighborP
     // The offset areas peek at the play order neighbors, and an automation belongs to a pattern as
     // much as its notes do. They used to show the notes and drop the curves, because the curves were
     // clamped to the pattern being edited.
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
-    const auto utilService { std::make_shared<UtilService>() };
-    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+    auto context = createContext(1);
 
-    NoteColumnModel model { { 1, 0, 0 }, editorService, helper, settingsService };
-
-    const auto barLine = static_cast<int>(editorService->positionBarLine());
+    const auto barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(barLine >= 2);
 
     const int lineCount = 4;
@@ -332,16 +299,16 @@ void NoteColumnModelTest::test_automationCurves_ghostRows_shouldDrawTheNeighborP
     for (int i = 0; i < neighborLineCount; i++) {
         neighborLines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
     }
-    model.setColumnData(lines);
-    model.setGhostData(neighborLines, neighborLines, 0, 2);
+    context.model.setColumnData(lines);
+    context.model.setGhostData(neighborLines, neighborLines, 0, 2);
 
     // One automation on each pattern: the last line of the one above, the first of the one below.
-    automationService->addMidiCcAutomation(0, 0, 0, 64, neighborLineCount - 1, neighborLineCount - 1, 0, 127, {}, true, 8, 0);
-    automationService->addMidiCcAutomation(2, 0, 0, 64, 0, 0, 0, 127, {}, true, 8, 0);
+    context.automationService->addMidiCcAutomation(0, 0, 0, 64, neighborLineCount - 1, neighborLineCount - 1, 0, 127, {}, true, 8, 0);
+    context.automationService->addMidiCcAutomation(2, 0, 0, 64, 0, 0, 0, 127, {}, true, 8, 0);
 
     const int startRow = 0;
     const int endRow = barLine + lineCount + 4;
-    const auto curves = model.automationCurves(startRow, endRow);
+    const auto curves = context.model.automationCurves(startRow, endRow);
 
     QCOMPARE(curves.size(), size_t { 2 });
     QVERIFY(std::ranges::all_of(curves, [](auto && curve) { return curve.isGhost; }));

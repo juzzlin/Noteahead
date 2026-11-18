@@ -78,6 +78,30 @@ int lineRole()
     return static_cast<int>(NoteColumnModel::DataRole::Line);
 }
 
+struct TestContext
+{
+    std::shared_ptr<AutomationService> automationService;
+    std::shared_ptr<SelectionService> selectionService;
+    std::shared_ptr<SettingsService> settingsService;
+    std::shared_ptr<EditorService> editorService;
+    NoteColumnModelHandler handler;
+};
+
+TestContext createContext()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    const auto editorService = std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>());
+    return TestContext {
+        automationService,
+        selectionService,
+        settingsService,
+        editorService,
+        NoteColumnModelHandler { editorService, selectionService, automationService, settingsService }
+    };
+}
+
 } // namespace
 
 void NoteColumnModelHandlerTest::initTestCase()
@@ -98,57 +122,42 @@ void NoteColumnModelHandlerTest::cleanupTestCase()
 
 void NoteColumnModelHandlerTest::test_columnModel_shouldCreateAndReturnModel()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-
-    auto model { handler.columnModel(0, 0, 0) };
+    auto model = context.handler.columnModel(0, 0, 0);
     QVERIFY(model);
 
-    auto sameModel { handler.columnModel(0, 0, 0) };
+    auto sameModel = context.handler.columnModel(0, 0, 0);
     QCOMPARE(model, sameModel);
 }
 
 void NoteColumnModelHandlerTest::test_clear_shouldClearModels()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-
-    handler.columnModel(0, 0, 0);
-    handler.clear();
+    context.handler.columnModel(0, 0, 0);
+    context.handler.clear();
 
     // Since handler is cleared, it should create a new model for the same address
-    auto newModel { handler.columnModel(0, 0, 0) };
+    auto newModel = context.handler.columnModel(0, 0, 0);
     QVERIFY(newModel);
 }
 
 void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-
-    auto model { handler.columnModel(0, 0, 0) };
+    auto model = context.handler.columnModel(0, 0, 0);
 
     // Set position
-    editorService->requestPosition(0, 0, 0, 10, 0);
+    context.editorService->requestPosition(0, 0, 0, 10, 0);
 
     // Check if focused. Note: NoteColumnModel adds positionBarLine() to the row index.
-    const int row = 10 + static_cast<int>(editorService->positionBarLine());
+    const int row = 10 + static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(model->data(model->index(row, 0), static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());
 
     // Update pattern - this used to clear the focus state in the model
-    handler.updatePattern(0);
+    context.handler.updatePattern(0);
 
     // Verify focus is preserved
     QVERIFY(model->data(model->index(row, 0), static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());
@@ -156,69 +165,61 @@ void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
 
 void NoteColumnModelHandlerTest::test_patternPeek_middlePosition_shouldPreviewPlayOrderNeighbors()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    settingsService->setPatternPeekEnabled(true);
+    context.settingsService->setPatternPeekEnabled(true);
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-    setupThreePatternSong(*editorService);
+    setupThreePatternSong(*context.editorService);
 
-    editorService->setSongPosition(1); // Current pattern is 1; play order neighbors are patterns 0 and 2
+    context.editorService->setSongPosition(1); // Current pattern is 1; play order neighbors are patterns 0 and 2
 
-    auto model { handler.columnModel(1, 0, 0) };
+    auto model = context.handler.columnModel(1, 0, 0);
     QVERIFY(model);
 
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(barLine >= 1);
-    const int previousLineCount = static_cast<int>(editorService->lineCount(0));
-    const int currentLineCount = static_cast<int>(editorService->lineCount(1));
+    const int previousLineCount = static_cast<int>(context.editorService->lineCount(0));
+    const int currentLineCount = static_cast<int>(context.editorService->lineCount(1));
 
     // The row directly above line 0 shows the tail of the previous neighbor (pattern 0)
     const auto topGhost = model->index(barLine - 1, 0);
     QVERIFY(model->data(topGhost, ghostRole()).toBool());
-    QVERIFY(model->data(topGhost, noteRole()).toString() != editorService->noDataString());
-    QCOMPARE(model->data(topGhost, noteRole()).toString(), editorService->displayNoteAtPosition(0, 0, 0, static_cast<quint64>(previousLineCount - 1)));
+    QVERIFY(model->data(topGhost, noteRole()).toString() != context.editorService->noDataString());
+    QCOMPARE(model->data(topGhost, noteRole()).toString(), context.editorService->displayNoteAtPosition(0, 0, 0, static_cast<quint64>(previousLineCount - 1)));
 
     // The row directly below the last line shows the head of the next neighbor (pattern 2)
     const auto bottomGhost = model->index(barLine + currentLineCount, 0);
     QVERIFY(model->data(bottomGhost, ghostRole()).toBool());
-    QVERIFY(model->data(bottomGhost, noteRole()).toString() != editorService->noDataString());
-    QCOMPARE(model->data(bottomGhost, noteRole()).toString(), editorService->displayNoteAtPosition(2, 0, 0, 0));
+    QVERIFY(model->data(bottomGhost, noteRole()).toString() != context.editorService->noDataString());
+    QCOMPARE(model->data(bottomGhost, noteRole()).toString(), context.editorService->displayNoteAtPosition(2, 0, 0, 0));
 }
 
 void NoteColumnModelHandlerTest::test_patternPeek_songBoundaries_shouldStayBlack()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    settingsService->setPatternPeekEnabled(true);
+    context.settingsService->setPatternPeekEnabled(true);
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-    setupThreePatternSong(*editorService);
+    setupThreePatternSong(*context.editorService);
 
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(barLine >= 1);
 
     // First position: there is no previous neighbor, so the top offset area stays black
-    editorService->setSongPosition(0);
-    auto firstModel { handler.columnModel(0, 0, 0) };
+    context.editorService->setSongPosition(0);
+    auto firstModel = context.handler.columnModel(0, 0, 0);
     const auto topRow = firstModel->index(barLine - 1, 0);
     QVERIFY(!firstModel->data(topRow, ghostRole()).toBool());
     QVERIFY(firstModel->data(topRow, virtualRole()).toBool());
     QCOMPARE(firstModel->data(topRow, lineRole()).toString(), QString { "" });
     // ...but the next neighbor (pattern 1) still peeks at the bottom
-    const auto firstBottomRow = firstModel->index(barLine + static_cast<int>(editorService->lineCount(0)), 0);
+    const auto firstBottomRow = firstModel->index(barLine + static_cast<int>(context.editorService->lineCount(0)), 0);
     QVERIFY(firstModel->data(firstBottomRow, ghostRole()).toBool());
 
     // Last position: there is no next neighbor, so the bottom offset area stays black
-    editorService->setSongPosition(2);
-    auto lastModel { handler.columnModel(2, 0, 0) };
-    const auto lastBottomRow = lastModel->index(barLine + static_cast<int>(editorService->lineCount(2)), 0);
+    context.editorService->setSongPosition(2);
+    auto lastModel = context.handler.columnModel(2, 0, 0);
+    const auto lastBottomRow = lastModel->index(barLine + static_cast<int>(context.editorService->lineCount(2)), 0);
     QVERIFY(!lastModel->data(lastBottomRow, ghostRole()).toBool());
     QVERIFY(lastModel->data(lastBottomRow, virtualRole()).toBool());
     QCOMPARE(lastModel->data(lastBottomRow, lineRole()).toString(), QString { "" });
@@ -226,20 +227,16 @@ void NoteColumnModelHandlerTest::test_patternPeek_songBoundaries_shouldStayBlack
 
 void NoteColumnModelHandlerTest::test_patternPeek_disabled_shouldStayBlack()
 {
-    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    const auto selectionService { std::make_shared<SelectionService>() };
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    auto context = createContext();
 
-    settingsService->setPatternPeekEnabled(false);
+    context.settingsService->setPatternPeekEnabled(false);
 
-    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
-    setupThreePatternSong(*editorService);
+    setupThreePatternSong(*context.editorService);
 
-    editorService->setSongPosition(1);
+    context.editorService->setSongPosition(1);
 
-    auto model { handler.columnModel(1, 0, 0) };
-    const int barLine = static_cast<int>(editorService->positionBarLine());
+    auto model = context.handler.columnModel(1, 0, 0);
+    const int barLine = static_cast<int>(context.editorService->positionBarLine());
     QVERIFY(barLine >= 1);
     const auto topGhost = model->index(barLine - 1, 0);
 
@@ -248,9 +245,9 @@ void NoteColumnModelHandlerTest::test_patternPeek_disabled_shouldStayBlack()
     QCOMPARE(model->data(topGhost, lineRole()).toString(), QString { "" });
 
     // Enabling it live repaints the peek without any navigation
-    settingsService->setPatternPeekEnabled(true);
+    context.settingsService->setPatternPeekEnabled(true);
     QVERIFY(model->data(topGhost, ghostRole()).toBool());
-    QVERIFY(model->data(topGhost, noteRole()).toString() != editorService->noDataString());
+    QVERIFY(model->data(topGhost, noteRole()).toString() != context.editorService->noDataString());
 }
 
 } // namespace noteahead
