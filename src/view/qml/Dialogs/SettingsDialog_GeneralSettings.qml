@@ -31,26 +31,30 @@ SectionBox {
         SectionBox {
             title: qsTr("Editor")
             Layout.fillWidth: true
+            // Every section's grid is a label column and a control column of equal weight, so that the
+            // controls of all sections start at the same x whatever their labels say
             GridLayout {
-                columns: 9
+                columns: 2
                 rows: 7
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
                     text: qsTr("Number of lines visible:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 SpinBox {
                     id: visibleLinesSpinBox
                     from: 16
                     to: 32
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     value: settingsService.visibleLines
                     editable: true
                     onValueChanged: settingsService.setVisibleLines(value)
@@ -63,18 +67,20 @@ SectionBox {
                 Label {
                     text: qsTr("Track header font size:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 1
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 SpinBox {
                     id: trackHeaderFontSizeSpinBox
                     from: 8
                     to: 64
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 1
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     value: settingsService.trackHeaderFontSize
                     editable: true
                     onValueChanged: settingsService.setTrackHeaderFontSize(value)
@@ -87,16 +93,18 @@ SectionBox {
                 Label {
                     text: qsTr("Pattern Peek:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 2
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 CheckBox {
                     id: patternPeekCheckBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 2
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     checked: settingsService.patternPeekEnabled
                     onCheckedChanged: settingsService.setPatternPeekEnabled(checked)
                     ToolTip.delay: Constants.toolTipDelay
@@ -107,16 +115,18 @@ SectionBox {
                 Label {
                     text: qsTr("Automation display:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 3
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 ComboBox {
                     id: automationDisplayModeComboBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 3
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     model: [qsTr("Tint"), qsTr("Curve")]
                     currentIndex: settingsService.automationDisplayMode
                     onActivated: i => settingsService.automationDisplayMode = i
@@ -128,16 +138,18 @@ SectionBox {
                 Label {
                     text: qsTr("Automation line thickness:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 4
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 SpinBox {
                     id: automationCurveThicknessSpinBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 4
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     // Tenths of a pixel: the useful range is finer than a whole pixel
                     from: 5
                     to: 50
@@ -160,20 +172,23 @@ SectionBox {
                 }
                 LayoutSeparator {
                     Layout.row: 5
+                    Layout.columnSpan: 2
                 }
                 Label {
                     text: qsTr("Adaptive Track Count:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 6
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 CheckBox {
                     id: autoTrackCountCheckBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 6
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     checked: settingsService.autoTrackCount
                     onCheckedChanged: settingsService.setAutoTrackCount(checked)
                     ToolTip.delay: Constants.toolTipDelay
@@ -184,16 +199,18 @@ SectionBox {
                 Label {
                     text: qsTr("Bottom Bar Tips:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 7
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 CheckBox {
                     id: tipsCheckBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 7
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     checked: settingsService.tipsEnabled
                     onCheckedChanged: settingsService.setTipsEnabled(checked)
                     ToolTip.delay: Constants.toolTipDelay
@@ -208,23 +225,25 @@ SectionBox {
             title: qsTr("Device Rack")
             Layout.fillWidth: true
             GridLayout {
-                columns: 9
+                columns: 2
                 rows: 1
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
                     text: qsTr("Gain staging target (dBFS):")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 SpinBox {
                     id: gainStagingTargetSpinBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     from: -30
                     to: 0
                     stepSize: 1
@@ -244,22 +263,24 @@ SectionBox {
             title: qsTr("Session Timer")
             Layout.fillWidth: true
             GridLayout {
-                columns: 9
+                columns: 2
                 rows: 1
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
                     text: qsTr("Idle timeout (min):")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 SpinBox {
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     from: 1
                     to: 60
                     stepSize: 1
@@ -279,23 +300,25 @@ SectionBox {
             title: qsTr("Playback")
             Layout.fillWidth: true
             GridLayout {
-                columns: 9
+                columns: 2
                 rows: 1
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
                     text: qsTr("Disable UI updates during playback:")
                     Layout.column: 0
-                    Layout.columnSpan: 2
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
                 CheckBox {
                     id: uiUpdatesDisabledCheckBox
-                    Layout.column: 4
-                    Layout.columnSpan: 5
+                    Layout.column: 1
+                    Layout.columnSpan: 1
                     Layout.row: 0
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     checked: settingsService.uiUpdatesDisabledDuringPlayback
                     onCheckedChanged: settingsService.setUiUpdatesDisabledDuringPlayback(checked)
                     ToolTip.delay: Constants.toolTipDelay

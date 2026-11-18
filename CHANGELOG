@@ -17,6 +17,8 @@ New features:
 
 Bug fixes:
 
+* Settings: the controls of every General section line up
+
 * File dialogs no longer fail to open on desktops without native ones, such as KDE, in the AppImage and the Ubuntu 24.04 package
 
 * Kick 909: Decay is an RD-9's, up to 1.7 s instead of 0.45 s
