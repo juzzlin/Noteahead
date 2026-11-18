@@ -57,7 +57,7 @@ ColumnLayout {
         Layout.fillWidth: true
         ToolTip.visible: hovered
         ToolTip.delay: Constants.toolTipDelay
-        ToolTip.text: qsTr("The click at the start of the drum and the noise over it. The lower half is the 909's own; the top half goes beyond it, to a hard click.")
+        ToolTip.text: qsTr("The click at the start of the drum, from a subtle tick at 0 to a hard click 6.7 dB over the body at 10.")
     }
     Knob {
         label: qsTr("Decay")
@@ -70,6 +70,6 @@ ColumnLayout {
         Layout.fillWidth: true
         ToolTip.visible: hovered
         ToolTip.delay: Constants.toolTipDelay
-        ToolTip.text: qsTr("How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.")
+        ToolTip.text: qsTr("How long the drum sounds: about a quarter of a second at 0, 0.4 s at 5 and 1.7 s at 10. Use the amp envelope for longer.")
     }
 }

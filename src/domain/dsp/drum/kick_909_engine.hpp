@@ -22,23 +22,20 @@
 
 namespace noteahead {
 
-//! The TR-909 bass drum, modelled on recordings of one at every combination of Tune, Attack and
-//! Decay at 0, 3, 7 and 10.
+//! The TR-909 bass drum, modelled on recordings of an RD-9 with Tune, Attack, Decay, Pitch Depth
+//! and Pitch each at 0, 2, 5, 8 and 10, the others at noon.
 //!
-//! A rounded triangle swept down from two hundred hertz or so to its pitch, after a click: a small
-//! hump at the trigger and a sharp spike down 2 ms in, where the oscillator comes in, both an RD-9's
-//! and both deeper with Attack, and a burst of noise rides on the first few tens of milliseconds.
+//! A rounded triangle swept down from over three hundred hertz to its pitch, after a click: a small
+//! hump at the trigger and a sharp spike down 2 ms in, where the oscillator comes in, both deeper
+//! with Attack, and a burst of noise rides on the first few tens of milliseconds.
 //! What the recordings showed:
-//! - Tune is the length of the sweep, not its depth: every setting settles at the same 49.5 Hz,
-//!   and starts from about the same 210 to 250 Hz.
+//! - Tune is the length of the sweep, not its depth: every setting settles at the same 83 Hz,
+//!   and starts from about 330 to 347 Hz.
 //! - Decay changes the shape of the fall as well as its length: short settings fall away faster
 //!   than an exponential towards their end.
-//! - The waveform is the same in every recording once settled: lopsided, flatter-topped than a
-//!   triangle. The oscillator plays it from a table of its first twelve harmonics.
-//!
-//! The knobs are the RD-9's, 0..1 for its 0..10, with its two extra ones as recordings of an RD-9
-//! show them: Pitch multiplies the whole sweep, and Pitch Depth is where the sweep ends, down to
-//! 0 Hz.
+//! - Pitch multiplies the whole sweep, and Pitch Depth is where the sweep ends, down to 0 Hz.
+//! - The waveform is the same in every recording once settled: a rounded triangle, its third
+//!   harmonic 29 dB down. The oscillator plays it from a table of its first twelve harmonics.
 class Kick909Engine : public DrumEngine
 {
 public:
@@ -54,7 +51,7 @@ public:
     void setTune(float tune);
     void setAttack(float attack);
     void setDecay(float decay);
-    //! The RD-9's Pitch: the whole sweep, start and end, from 0.22 times at 0 to 2.45 at 10
+    //! The RD-9's Pitch: the whole sweep, start and end, from 0.24 times at 0 to 2.46 at 10
     void setPitch(float pitch);
     //! The RD-9's Pitch Depth: where the sweep ends, from 0 Hz at 0 to twice noon's at 10, the
     //! sweep itself staying about the same size
@@ -94,7 +91,7 @@ private:
     float m_tune { 0.5f };
     float m_attack { 0.5f };
     //! Attack along the RD-9's curve: how much of its full click it adds
-    double m_attackAmount { 0.25 };
+    double m_attackAmount { 0.247 };
     float m_decay { 0.5f };
     float m_pitch { 0.5f };
     float m_pitchDepth { 0.5f };
@@ -110,9 +107,6 @@ private:
     double m_sweepCurve { 1.0 };
     double m_decaySeconds { 0.0 };
     double m_decayCurve { 1.0 };
-    double m_swellDepth { 0.0 };
-    double m_stopLevel { 0.0 };
-    double m_bodyNormalization { 1.0 };
     double m_driveGain { 1.0 };
     double m_driveNormalization { 1.0 };
 
@@ -126,9 +120,6 @@ private:
     //! Fades a hit cut short by stop() out instead of leaving a step
     double m_choke { 1.0 };
     bool m_choking { false };
-    //! The oscillation's stop, from 1 to 0, once the amplitude has fallen to m_stopLevel
-    double m_stop { 1.0 };
-    bool m_stopping { false };
 };
 
 } // namespace noteahead
