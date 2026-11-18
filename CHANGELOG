@@ -19,6 +19,8 @@ New features:
 
 Bug fixes:
 
+* Bass Synth: Resonance is a TD-3-MO's, without self-oscillating or losing the fundamental
+
 * Settings: the controls of every General section line up
 
 * File dialogs no longer fail to open on desktops without native ones, such as KDE, in the AppImage and the Ubuntu 24.04 package
