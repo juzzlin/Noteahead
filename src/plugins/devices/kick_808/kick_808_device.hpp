@@ -92,13 +92,6 @@ protected:
     void syncParameters() override;
 
 private:
-    //! Pitch the voice sits at when Key Track is off, and the origin the Tune offset is applied to.
-    static constexpr float ReferenceNote = 36.0f;
-    //! Tune spans two octaves either side of the played note.
-    static constexpr float TuneRangeSemitones = 24.0f;
-
-    float effectiveNote(uint8_t note) const;
-
     Kick808Engine m_engine;
     // The voice is mono, so one filter each is enough: filtering ahead of the panner is equivalent
     // to a per-channel pair after it, at half the cost.

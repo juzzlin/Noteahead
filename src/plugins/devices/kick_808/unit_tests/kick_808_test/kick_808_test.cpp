@@ -339,6 +339,43 @@ void Kick808Test::test_tune_raised_shouldRaisePitch()
              QString("Tune ratio was %1 (%2 Hz vs %3 Hz)").arg(raisedFrequency / centredFrequency).arg(raisedFrequency).arg(centredFrequency).toUtf8().constData());
 }
 
+void Kick808Test::test_tune_changedWhileRinging_shouldNotBendHit()
+{
+    // Tuning is taken at the trigger, as the note is: moving it leaves a ringing hit where it is
+    Kick808Device kick { "Kick" };
+    makeSteady(kick);
+    kick.setKeyTrack(false);
+    kick.processMidiNoteOn(36, 127);
+    renderMono(kick, SampleRate / 10);
+    kick.setTune(1.0f);
+    const double frequency = estimateFrequency(renderMono(kick, SampleRate / 2), 0);
+
+    QVERIFY2(std::abs(frequency - 65.41) < 1.5,
+             QString("The ringing hit moved to %1 Hz").arg(frequency).toUtf8().constData());
+}
+
+void Kick808Test::test_engine_tuneOnly_shouldTuneFromReferenceNote()
+{
+    // A drum machine pad never sets a note, so Tuning alone has to place the kick: noon is C2 and
+    // 0.75 an octave up, as on the device with Key Track off
+    Kick808Engine engine;
+    engine.setSampleRate(SampleRate);
+    engine.setPitchDepth(0.0f);
+    engine.setDecay(1.0f);
+    engine.setTone(0.0f);
+    engine.setTune(0.75f);
+    engine.trigger(1.0f);
+
+    std::vector<double> samples(SampleRate / 2);
+    for (auto && sample : samples) {
+        sample = static_cast<double>(engine.nextSample());
+    }
+    const double frequency = estimateFrequency(samples, SampleRate / 10);
+
+    QVERIFY2(std::abs(frequency - 130.81) < 2.5,
+             QString("Tuning 0.75 put the kick at %1 Hz, expected C3").arg(frequency).toUtf8().constData());
+}
+
 void Kick808Test::test_tone_full_shouldRaiseHighFrequencyContent()
 {
     // Tone is the click's top-end tilt. It used to shorten the excitation pulse the click was tied

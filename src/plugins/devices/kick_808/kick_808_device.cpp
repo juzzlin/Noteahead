@@ -133,17 +133,12 @@ std::vector<MidiCcController> Kick808Device::deviceMidiCcControllers() const
     return controllers;
 }
 
-float Kick808Device::effectiveNote(uint8_t note) const
-{
-    const float base = m_keyTrack ? static_cast<float>(note) : ReferenceNote;
-    return base + (m_tune - 0.5f) * 2.0f * TuneRangeSemitones;
-}
-
 void Kick808Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.setSampleRate(sampleRate());
-    m_engine.setNote(effectiveNote(note));
+    // Off, Key Track pins the kick where the hardware's single tuned voice sits
+    m_engine.setNote(m_keyTrack ? static_cast<float>(note) : Kick808Engine::ReferenceNote);
     m_engine.trigger(static_cast<float>(velocity) / 127.0f);
 }
 
@@ -330,6 +325,7 @@ void Kick808Device::syncParameters()
         m_hpfCutoff = p->get().value();
     }
 
+    m_engine.setTune(m_tune);
     m_engine.setTone(m_tone);
     m_engine.setDecay(m_decay);
     m_engine.setPitchDepth(m_pitchDepth);
