@@ -27,7 +27,9 @@ option(ENABLE_JACK_SUPPORT "Enable JACK support." ON)
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
    # Base release flags common to both x86 and ARM
-   set(RELEASE_FLAGS "-O3 -ffast-math -fno-math-errno")
+   # -fno-finite-math-only keeps std::isnan() and std::isfinite() working: the DSP relies on them
+   # to reset a filter that has blown up, and -ffast-math alone compiles them to constants.
+   set(RELEASE_FLAGS "-O3 -ffast-math -fno-finite-math-only -fno-math-errno")
    # Check architecture and append the correct optimization flags
    if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|i386|AMD64)")
        set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=x86-64-v2")
