@@ -103,6 +103,7 @@ private:
 
     // What the knobs stand for, worked out when one is turned
     double m_lowHz { 0.0 };
+    double m_tuneGain { 1.0 };
     double m_lowSeconds { 0.0 };
     double m_highSeconds { 0.0 };
 
