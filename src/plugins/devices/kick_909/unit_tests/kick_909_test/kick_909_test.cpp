@@ -141,7 +141,7 @@ void Kick909Test::test_engine_tune_shouldLengthenTheSweep()
 
 void Kick909Test::test_engine_decay_shouldMatchTheRd9()
 {
-    // The RD-9's -40 dB at 0, noon and 10: 0.18 s, as it stops dead, 0.42 s and 1.76 s
+    // The RD-9's -40 dB at 0, noon and 10: 0.23 s, 0.39 s and 1.74 s
     Kick909Engine shortest;
     shortest.setDecay(0.0f);
     Kick909Engine noon;
@@ -150,67 +150,68 @@ void Kick909Test::test_engine_decay_shouldMatchTheRd9()
     const double shortSeconds = decaySeconds(render(shortest, 3.0));
     const double noonSeconds = decaySeconds(render(noon, 3.0));
     const double longSeconds = decaySeconds(render(longest, 3.0));
-    QVERIFY2(shortSeconds > 0.15 && shortSeconds < 0.21, qPrintable(QString::number(shortSeconds)));
-    QVERIFY2(noonSeconds > 0.36 && noonSeconds < 0.46, qPrintable(QString::number(noonSeconds)));
+    QVERIFY2(shortSeconds > 0.19 && shortSeconds < 0.25, qPrintable(QString::number(shortSeconds)));
+    QVERIFY2(noonSeconds > 0.35 && noonSeconds < 0.44, qPrintable(QString::number(noonSeconds)));
     QVERIFY2(longSeconds > 1.55 && longSeconds < 1.95, qPrintable(QString::number(longSeconds)));
 }
 
 void Kick909Test::test_engine_decay_short_shouldStopDead()
 {
-    // At Decay 0 the oscillation stops within a cycle at -31 dB, 0.18 s in, instead of fading out
+    // At Decay 0 the envelope curves down faster than an exponential (curve > 2), falling past
+    // -60 dB by 0.28 s instead of dragging out a long exponential tail
     Kick909Engine engine;
     engine.setDecay(0.0f);
     engine.setAttack(0.0f);
     const auto hit = render(engine, 0.4);
     const double before = peak(hit, static_cast<size_t>(0.150 * SampleRate), static_cast<size_t>(0.165 * SampleRate)) / peak(hit);
-    const double after = peak(hit, static_cast<size_t>(0.190 * SampleRate)) / peak(hit);
-    QVERIFY2(20.0 * std::log10(before) > -32.0, qPrintable(QString::number(20.0 * std::log10(before))));
+    const double after = peak(hit, static_cast<size_t>(0.280 * SampleRate)) / peak(hit);
+    QVERIFY2(20.0 * std::log10(before) > -25.0, qPrintable(QString::number(20.0 * std::log10(before))));
     QVERIFY2(20.0 * std::log10(after) < -60.0, qPrintable(QString::number(20.0 * std::log10(after))));
     QVERIFY(!engine.isActive());
 }
 
 void Kick909Test::test_engine_decay_shouldSwellOverTheFirstCycles()
 {
-    // Above Decay 0 the body builds to its peak 50 ms in: the RD-9 by 3.2 dB by this measure, ours a
-    // little less under the noise of its start
+    // Uncompressed, the RD-9's body starts at full level right after the click and holds nearly
+    // flat over the first 50 ms before decaying
     Kick909Engine engine;
     engine.setAttack(0.0f);
     const auto hit = render(engine, 0.1);
     const double start = peak(hit, static_cast<size_t>(0.004 * SampleRate), static_cast<size_t>(0.012 * SampleRate));
     const double later = peak(hit, static_cast<size_t>(0.045 * SampleRate), static_cast<size_t>(0.060 * SampleRate));
-    QVERIFY2(20.0 * std::log10(later / start) > 2.0, qPrintable(QString::number(20.0 * std::log10(later / start))));
+    QVERIFY2(std::abs(20.0 * std::log10(later / start)) < 2.0, qPrintable(QString::number(20.0 * std::log10(later / start))));
 }
 
 void Kick909Test::test_engine_attack_low_shouldLeaveTheClick()
 {
-    // The RD-9's Attack does nothing up to 2
+    // The RD-9's Attack adds only a tenth of its range up to 2, and most of its work between 5 and 8
     Kick909Engine none;
     none.setAttack(0.0f);
     Kick909Engine low;
     low.setAttack(0.2f);
     const double noneDb = 20.0 * std::log10(peak(render(none, 0.004)));
     const double lowDb = 20.0 * std::log10(peak(render(low, 0.004)));
-    QVERIFY2(std::abs(lowDb - noneDb) < 0.5, qPrintable(QString::number(lowDb - noneDb)));
+    QVERIFY2(lowDb - noneDb > 0.3 && lowDb - noneDb < 1.2, qPrintable(QString::number(lowDb - noneDb)));
 }
 
 void Kick909Test::test_engine_attack_full_shouldRaiseTheClick()
 {
-    // The click's spike over the body's peak: on the RD-9 4.7 dB at Attack 0 and 9.2 dB at full
+    // The click's spike over the body's peak: on the uncompressed RD-9 0.6 dB at Attack 0 and 6.7 dB at full
     const auto clickOverBodyDb = [](float attack) {
         Kick909Engine engine;
         engine.setAttack(attack);
         const auto hit = render(engine, 0.3);
-        return 20.0 * std::log10(peak(hit, 0, static_cast<size_t>(0.004 * SampleRate)) / peak(hit, static_cast<size_t>(0.03 * SampleRate)));
+        return 20.0 * std::log10(peak(hit, 0, static_cast<size_t>(0.004 * SampleRate)) / peak(hit, static_cast<size_t>(0.004 * SampleRate)));
     };
     const double noneDb = clickOverBodyDb(0.0f);
     const double fullDb = clickOverBodyDb(1.0f);
-    QVERIFY2(noneDb > 3.0 && noneDb < 6.0, qPrintable(QString::number(noneDb)));
-    QVERIFY2(fullDb > 7.5 && fullDb < 10.5, qPrintable(QString::number(fullDb)));
+    QVERIFY2(noneDb > 0.2 && noneDb < 2.0, qPrintable(QString::number(noneDb)));
+    QVERIFY2(fullDb > 5.5 && fullDb < 8.0, qPrintable(QString::number(fullDb)));
 }
 
 void Kick909Test::test_engine_pitch_shouldMoveTheWholeSweep()
 {
-    // The RD-9 at Pitch 8: 1.79 times noon, the sweep and its end alike
+    // The RD-9 at Pitch 8: 1.83 times noon, the sweep and its end alike
     Kick909Engine noon;
     noon.setAttack(0.0f);
     Kick909Engine high;
@@ -218,30 +219,29 @@ void Kick909Test::test_engine_pitch_shouldMoveTheWholeSweep()
     high.setPitch(0.8f);
     const auto noonHit = render(noon, 0.5);
     const auto highHit = render(high, 0.5);
-    QVERIFY(std::abs(pitchHz(highHit, 0.15, 0.4) / pitchHz(noonHit, 0.15, 0.4) - 1.79) < 0.05);
-    QVERIFY(std::abs(pitchHz(highHit, 0.015, 0.035) / pitchHz(noonHit, 0.015, 0.035) - 1.79) < 0.15);
+    QVERIFY(std::abs(pitchHz(highHit, 0.15, 0.4) / pitchHz(noonHit, 0.15, 0.4) - 1.83) < 0.05);
+    QVERIFY(std::abs(pitchHz(highHit, 0.015, 0.035) / pitchHz(noonHit, 0.015, 0.035) - 1.83) < 0.15);
 }
 
 void Kick909Test::test_engine_pitchDepth_zero_shouldFallToZeroHertz()
 {
-    // As on the RD-9: the sweep runs on down past the drum, to a standstill
+    // As on the RD-9: the sweep starts near 235 Hz at 6 ms and runs on down past the drum, to a standstill
     Kick909Engine engine;
     engine.setAttack(0.0f);
     engine.setPitchDepth(0.0f);
     const auto hit = render(engine, 0.5);
-    // The RD-9 at Pitch Depth 0: about 100 Hz at 6 to 12 ms, 80 Hz to 25 ms, 60 Hz to 50 ms
     const double early = pitchHz(hit, 0.006, 0.05);
-    QVERIFY2(early > 45.0 && early < 110.0, qPrintable(QString::number(early)));
+    QVERIFY2(early > 110.0 && early < 180.0, qPrintable(QString::number(early)));
     QVERIFY2(pitchHz(hit, 0.2, 0.5) < 10.0, qPrintable(QString::number(pitchHz(hit, 0.2, 0.5))));
 }
 
 void Kick909Test::test_engine_pitchDepth_full_shouldRaiseTheEnd()
 {
-    // The RD-9 at Pitch Depth 10 ends 2.11 times as high as at noon
+    // The RD-9 at Pitch Depth 10 ends 2.02 times as high as at noon
     Kick909Engine engine;
     engine.setAttack(0.0f);
     engine.setPitchDepth(1.0f);
-    QVERIFY(std::abs(pitchHz(render(engine, 0.5), 0.2, 0.45) - 2.114 * Kick909Engine::DefaultPitchHz) < 4.0);
+    QVERIFY(std::abs(pitchHz(render(engine, 0.5), 0.2, 0.45) - 2.018 * Kick909Engine::DefaultPitchHz) < 4.0);
 }
 
 void Kick909Test::test_engine_drive_full_shouldKeepTheBody()
