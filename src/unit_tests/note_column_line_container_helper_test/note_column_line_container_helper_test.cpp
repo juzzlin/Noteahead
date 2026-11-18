@@ -98,6 +98,28 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_default_sho
     QCOMPARE(result.at(1).toInt(), 1);
 }
 
+void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_lowLinesPerBeat_shouldNotCrash()
+{
+    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    const auto utilService { std::make_shared<UtilService>() };
+
+    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
+
+    QCOMPARE(utilService->indexHighlightOpacity(0, 0), 0.0);
+
+    for (const quint64 lpb : { quint64 { 1 }, quint64 { 2 }, quint64 { 3 }, quint64 { 4 }, quint64 { 5 }, quint64 { 6 }, quint64 { 8 } }) {
+        editorService->setLinesPerBeat(lpb);
+        for (quint64 lineIndex = 0; lineIndex < 16; lineIndex++) {
+            const auto result = helper.lineColorAndBorderWidth(0, 0, 0, lineIndex);
+            QCOMPARE(result.size(), 2);
+            QCOMPARE(result.at(1).toInt(), 1);
+        }
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::NoteColumnLineContainerHelperTest)

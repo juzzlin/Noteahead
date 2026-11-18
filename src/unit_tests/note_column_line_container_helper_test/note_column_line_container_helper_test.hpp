@@ -29,6 +29,7 @@ private slots:
     void test_lineColorAndBorderWidth_hasInstrumentSettings_shouldReturnInstrumentColor();
     void test_lineColorAndBorderWidth_hasAutomations_shouldReturnAutomationColor();
     void test_lineColorAndBorderWidth_default_shouldReturnDefaultColor();
+    void test_lineColorAndBorderWidth_lowLinesPerBeat_shouldNotCrash();
 };
 
 } // namespace noteahead
