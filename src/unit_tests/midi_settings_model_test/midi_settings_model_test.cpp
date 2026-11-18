@@ -36,6 +36,21 @@ QTemporaryDir & settingsDirectory()
     return directory;
 }
 
+struct TestContext
+{
+    std::shared_ptr<SettingsService> settingsService;
+    MidiSettingsModel model;
+};
+
+TestContext createContext()
+{
+    const auto settingsService = std::make_shared<SettingsService>();
+    return TestContext {
+        settingsService,
+        MidiSettingsModel { settingsService }
+    };
+}
+
 } // namespace
 
 void MidiSettingsModelTest::initTestCase()
@@ -56,52 +71,48 @@ void MidiSettingsModelTest::cleanupTestCase()
 
 void MidiSettingsModelTest::test_initialState_shouldHaveExpectedDefaults()
 {
-    const auto settingsService { std::make_shared<SettingsService>() };
-    const MidiSettingsModel model { settingsService };
+    const auto context = createContext();
 
-    QCOMPARE(model.midiInPorts(), QStringList {});
-    QCOMPARE(model.controllerPort(), settingsService->controllerPort());
-    QCOMPARE(model.debugData(), QString { "" });
+    QCOMPARE(context.model.midiInPorts(), QStringList {});
+    QCOMPARE(context.model.controllerPort(), context.settingsService->controllerPort());
+    QCOMPARE(context.model.debugData(), QString {});
 }
 
 void MidiSettingsModelTest::test_setMidiInPorts_shouldUpdateAndEmitSignal()
 {
-    const auto settingsService { std::make_shared<SettingsService>() };
-    MidiSettingsModel model { settingsService };
-    QSignalSpy spy { &model, &MidiSettingsModel::midiInPortsChanged };
+    auto context = createContext();
+    QSignalSpy spy { &context.model, &MidiSettingsModel::midiInPortsChanged };
 
     const QStringList ports { "Port 1", "Port 2" };
-    model.setMidiInPorts(ports);
+    context.model.setMidiInPorts(ports);
 
-    QCOMPARE(model.midiInPorts(), ports);
+    QCOMPARE(context.model.midiInPorts(), ports);
     QCOMPARE(spy.count(), 1);
 }
 
 void MidiSettingsModelTest::test_setControllerPort_shouldUpdateAndEmitSignalAndSaveToSettings()
 {
-    const auto settingsService { std::make_shared<SettingsService>() };
-    MidiSettingsModel model { settingsService };
-    QSignalSpy spy { &model, &MidiSettingsModel::controllerPortChanged };
+    auto context = createContext();
+    QSignalSpy spy { &context.model, &MidiSettingsModel::controllerPortChanged };
 
-    const QString portName { "Test Port" };
-    model.setControllerPort(portName);
+    const QString portName = "Test Port";
+    context.model.setControllerPort(portName);
 
-    QCOMPARE(model.controllerPort(), portName);
-    QCOMPARE(settingsService->controllerPort(), portName);
+    QCOMPARE(context.model.controllerPort(), portName);
+    QCOMPARE(context.settingsService->controllerPort(), portName);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.first().at(0).toString(), portName);
 }
 
 void MidiSettingsModelTest::test_setDebugData_shouldUpdateAndEmitSignal()
 {
-    const auto settingsService { std::make_shared<SettingsService>() };
-    MidiSettingsModel model { settingsService };
-    QSignalSpy spy { &model, &MidiSettingsModel::debugDataChanged };
+    auto context = createContext();
+    QSignalSpy spy { &context.model, &MidiSettingsModel::debugDataChanged };
 
-    const QString debugData { "Some debug data" };
-    model.setDebugData(debugData);
+    const QString debugData = "Some debug data";
+    context.model.setDebugData(debugData);
 
-    QCOMPARE(model.debugData(), debugData);
+    QCOMPARE(context.model.debugData(), debugData);
     QCOMPARE(spy.count(), 1);
 }
 
