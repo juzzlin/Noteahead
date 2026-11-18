@@ -112,43 +112,72 @@ public:
     }
 };
 
+namespace {
+
+struct WorkerContext
+{
+    std::shared_ptr<MockMidiService> midiService;
+    std::shared_ptr<MixerService> mixerService;
+    TestablePlayerWorker worker;
+};
+
+WorkerContext createWorkerContext()
+{
+    const auto midiService = std::make_shared<MockMidiService>();
+    const auto mixerService = std::make_shared<MixerService>();
+    return WorkerContext {
+        midiService,
+        mixerService,
+        TestablePlayerWorker { midiService, mixerService, nullptr }
+    };
+}
+
+std::shared_ptr<Instrument> makeInstrument(const QString & portName = "TestPort")
+{
+    const auto instrument = std::make_shared<Instrument>(portName);
+    instrument->setMidiAddress(MidiAddress { portName, 0 });
+    return instrument;
+}
+
+std::shared_ptr<Event> makeNoteOnEvent(const std::shared_ptr<Instrument> & instrument, size_t track = 0, size_t column = 0, uint8_t note = 60, uint8_t velocity = 100)
+{
+    NoteData noteData { track, column };
+    noteData.setAsNoteOn(note, velocity);
+    const auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    return event;
+}
+
+} // namespace
+
 void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
     // Configure Mixer: Track 0 enabled
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    // Create Instrument
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-
-    // Create Event on Track 0 to register instrument
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
 
     PlayerWorker::EventList events { event };
     PlayerWorker::Timing timing { 120, 4, 6 };
 
-    worker.initialize(events, timing);
+    context.worker.initialize(events, timing);
 
     // Simulate playback of the note to add it to m_activeNotes
-    worker.test_handleEvent(*event);
+    context.worker.test_handleEvent(*event);
 
     // Act: Mute Track 0
-    mixerService->muteTrack(0, true);
+    context.mixerService->muteTrack(0, true);
 
     // Simulate mixer change handling
-    worker.callCheckMixerState();
+    context.worker.callCheckMixerState();
 
     // Assert: stopNote should be called for the active note on the muted track
-    QCOMPARE(midiService->stopNoteCallCount, 1);
-    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+    QCOMPARE(context.midiService->stopNoteCallCount, 1);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 0);
 }
 
 //! A worker with one note-on on track 0, ready to be handed to test_handleEvent().
@@ -164,73 +193,55 @@ void PlayerWorkerTest::test_noteOn_shouldCarryTheNoteLengthInBeats()
     // A device that has to fit something inside the note -- a spoken line -- needs the length when
     // the note starts. In beats rather than seconds, so that a tempo change while it sounds moves
     // what was fitted inside it along with everything else.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
     // Four lines of six ticks is a beat, so two beats is forty-eight ticks.
     event->setNoteOffTick(48);
 
     const PlayerWorker::Timing timing { 120, 4, 6 };
-    worker.initialize(makeNoteOnEvents(event, *mixerService), timing);
-    worker.test_handleEvent(*event);
+    context.worker.initialize(makeNoteOnEvents(event, *context.mixerService), timing);
+    context.worker.test_handleEvent(*event);
 
-    QCOMPARE(midiService->playNoteCallCount, 1);
-    QVERIFY(midiService->lastNoteBeats.has_value());
-    QVERIFY(std::abs(*midiService->lastNoteBeats - 2.0) < 1.0e-9);
+    QCOMPARE(context.midiService->playNoteCallCount, 1);
+    QVERIFY(context.midiService->lastNoteBeats.has_value());
+    QVERIFY(std::abs(*context.midiService->lastNoteBeats - 2.0) < 1.0e-9);
 }
 
 void PlayerWorkerTest::test_noteOn_withoutANoteOffTick_shouldCarryNoLength()
 {
     // Nothing says how long it lasts, so nothing is claimed. What reads the length falls back to
     // whatever it would have done without one.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
 
     const PlayerWorker::Timing timing { 120, 4, 6 };
-    worker.initialize(makeNoteOnEvents(event, *mixerService), timing);
-    worker.test_handleEvent(*event);
+    context.worker.initialize(makeNoteOnEvents(event, *context.mixerService), timing);
+    context.worker.test_handleEvent(*event);
 
-    QCOMPARE(midiService->playNoteCallCount, 1);
-    QVERIFY(!midiService->lastNoteBeats.has_value());
+    QCOMPARE(context.midiService->playNoteCallCount, 1);
+    QVERIFY(!context.midiService->lastNoteBeats.has_value());
 }
 
 void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
     // Configure Mixer: Track 0 has 3 columns. Column 1 is muted.
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0, 1, 2 });
-    mixerService->muteColumn(0, 1, true);
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0, 1, 2 });
+    context.mixerService->muteColumn(0, 1, true);
 
     // Verify Mixer state
-    QVERIFY(mixerService->shouldTrackPlay(0));
-    QVERIFY(mixerService->shouldColumnPlay(0, 0));
-    QVERIFY(!mixerService->shouldColumnPlay(0, 1)); // Muted
-    QVERIFY(mixerService->shouldColumnPlay(0, 2));
+    QVERIFY(context.mixerService->shouldTrackPlay(0));
+    QVERIFY(context.mixerService->shouldColumnPlay(0, 0));
+    QVERIFY(!context.mixerService->shouldColumnPlay(0, 1)); // Muted
+    QVERIFY(context.mixerService->shouldColumnPlay(0, 2));
 
-    // Create Instrument
-    auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    const auto instrument = makeInstrument();
 
     // Create Note Events
     // Note on Column 1 (Muted)
@@ -240,14 +251,14 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     event1.setInstrument(instrument);
 
     // Act: Process Event on Muted Column
-    worker.test_handleEvent(event1);
+    context.worker.test_handleEvent(event1);
 
     // Assert:
     // 1. playNote should NOT be called (column is muted)
-    QCOMPARE(midiService->playNoteCallCount, 0);
+    QCOMPARE(context.midiService->playNoteCallCount, 0);
 
     // 2. stopAllNotes should NOT be called
-    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 0);
 
     // 3. The note-off is not sent either: nothing was started on the muted column, so
     // stopping it would only be a message to a port the song is not playing to.
@@ -255,25 +266,22 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     noteData2.setAsNoteOff(60);
     Event event2 { 0, noteData2 };
     event2.setInstrument(instrument);
-    worker.test_handleEvent(event2);
-    QCOMPARE(midiService->stopNoteCallCount, 0);
+    context.worker.test_handleEvent(event2);
+    QCOMPARE(context.midiService->stopNoteCallCount, 0);
 }
 
 void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
     // Configure Mixer: Track 0 is muted.
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0, 1, 2 });
-    mixerService->muteTrack(0, true);
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0, 1, 2 });
+    context.mixerService->muteTrack(0, true);
 
-    QVERIFY(mixerService->shouldTrackPlay(0) == false);
+    QVERIFY(context.mixerService->shouldTrackPlay(0) == false);
 
-    // Create Instrument
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    const auto instrument = std::make_shared<Instrument>("TestPort");
 
     // Note on Track 0
     NoteData noteData1 { 0, 0 };
@@ -282,62 +290,51 @@ void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
     event1.setInstrument(instrument);
 
     // Act
-    worker.test_handleEvent(event1);
+    context.worker.test_handleEvent(event1);
 
     // Assert
-    QCOMPARE(midiService->playNoteCallCount, 0);
+    QCOMPARE(context.midiService->playNoteCallCount, 0);
     // Should NOT call stopAllNotes anymore (new logic)
-    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_columnMute_shouldStopActiveNote()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0, 1 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0, 1 });
 
-    auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-
-    NoteData noteData { 0, 0 }; // Track 0, Col 0
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
 
     PlayerWorker::EventList events { event };
     PlayerWorker::Timing timing { 120, 4, 6 };
-    worker.initialize(events, timing);
+    context.worker.initialize(events, timing);
 
     // Play note
-    worker.test_handleEvent(*event);
+    context.worker.test_handleEvent(*event);
 
     // Mute Column 0
-    mixerService->muteColumn(0, 0, true);
+    context.mixerService->muteColumn(0, 0, true);
 
     // Check mixer state
-    worker.callCheckMixerState();
+    context.worker.callCheckMixerState();
 
     // Assert
-    QCOMPARE(midiService->stopNoteCallCount, 1);
-    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+    QCOMPARE(context.midiService->stopNoteCallCount, 1);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
     // Configure Mixer: Track 0 enabled
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    // Create Instrument
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    const auto instrument = makeInstrument();
 
     // Create Events
     // Note On
@@ -353,10 +350,10 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
     eventOff.setInstrument(instrument);
 
     // Act
-    worker.test_handleEvent(eventOn);
-    QCOMPARE(midiService->playNoteCallCount, 1);
-    worker.test_handleEvent(eventOff);
-    QCOMPARE(midiService->stopNoteCallCount, 1);
+    context.worker.test_handleEvent(eventOn);
+    QCOMPARE(context.midiService->playNoteCallCount, 1);
+    context.worker.test_handleEvent(eventOff);
+    QCOMPARE(context.midiService->stopNoteCallCount, 1);
 }
 
 namespace {
@@ -384,20 +381,19 @@ void PlayerWorkerTest::test_stop_shouldLeaveNothingToBeSentAfterItReturns()
     // What a stop clears -- automation above all -- must not be written again by a tick that was
     // still being sent when the stop came. A jump in the play order is a stop and a play back to
     // back, and a straggler there carried the old pattern's automation into the new one.
-    const auto midiService { std::make_shared<CountingMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
+    const auto midiService = std::make_shared<CountingMidiService>();
+    const auto mixerService = std::make_shared<MixerService>();
     PlayerWorker worker { midiService, mixerService, nullptr };
     mixerService->setTrackIndices({ 0 });
     mixerService->setColumnIndices(0, { 0 });
 
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    const auto instrument = makeInstrument();
     PlayerWorker::EventList events;
     // A note on every tick for far longer than the test runs, so there is always one being sent
     for (quint64 tick = 0; tick < 100000; tick++) {
         NoteData noteData { 0, 0 };
         noteData.setAsNoteOn(60, 100);
-        const auto event { std::make_shared<Event>(tick, noteData) };
+        const auto event = std::make_shared<Event>(tick, noteData);
         event->setInstrument(instrument);
         events.push_back(event);
     }
@@ -419,41 +415,29 @@ void PlayerWorkerTest::test_stop_shouldLeaveNothingToBeSentAfterItReturns()
 void PlayerWorkerTest::test_stop_songRunsToItsEnd_shouldKeepTheControllers()
 {
     // A song that ran to its end leaves its automation where it took it, over the tails
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    PlayerWorker worker { midiService, mixerService, nullptr };
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
-    worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
+    auto context = createWorkerContext();
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
+    context.worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
 
-    worker.play();
+    context.worker.play();
 
-    QVERIFY(!worker.isPlaying());
-    QCOMPARE(midiService->releaseAllNotesCallCount, 1);
-    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+    QVERIFY(!context.worker.isPlaying());
+    QCOMPARE(context.midiService->releaseAllNotesCallCount, 1);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_stop_askedFor_shouldResetTheControllers()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    PlayerWorker worker { midiService, mixerService, nullptr };
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
-    worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
+    auto context = createWorkerContext();
+    const auto instrument = makeInstrument();
+    const auto event = makeNoteOnEvent(instrument);
+    context.worker.initialize({ event }, PlayerWorker::Timing { 300, 4, 6 });
 
-    worker.stop();
+    context.worker.stop();
 
-    QCOMPARE(midiService->stopAllNotesCallCount, 1);
-    QCOMPARE(midiService->releaseAllNotesCallCount, 0);
+    QCOMPARE(context.midiService->stopAllNotesCallCount, 1);
+    QCOMPARE(context.midiService->releaseAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_noteOff_soloedElsewhere_shouldNotBeSent()
@@ -461,36 +445,33 @@ void PlayerWorkerTest::test_noteOff_soloedElsewhere_shouldNotBeSent()
     // The case this was written for: one track soloed, and the rest addressing gear that is
     // not connected. Their note-ons were already held back; their note-offs went out anyway,
     // and each one reached the backend for a port that is not there.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    mixerService->setTrackIndices({ 0, 1 });
-    mixerService->setColumnIndices(0, { 0 });
-    mixerService->setColumnIndices(1, { 0 });
-    mixerService->soloTrack(1, true);
+    context.mixerService->setTrackIndices({ 0, 1 });
+    context.mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setColumnIndices(1, { 0 });
+    context.mixerService->soloTrack(1, true);
 
-    QVERIFY(!mixerService->shouldColumnPlay(0, 0));
+    QVERIFY(!context.mixerService->shouldColumnPlay(0, 0));
 
-    const auto instrument { std::make_shared<Instrument>("MissingPort") };
-    instrument->setMidiAddress(MidiAddress { "MissingPort", 0 });
+    const auto instrument = makeInstrument("MissingPort");
 
     for (const uint8_t note : { 60, 62, 64 }) {
         NoteData on { 0, 0 };
         on.setAsNoteOn(note, 100);
         Event onEvent { 0, on };
         onEvent.setInstrument(instrument);
-        worker.test_handleEvent(onEvent);
+        context.worker.test_handleEvent(onEvent);
 
         NoteData off { 0, 0 };
         off.setAsNoteOff(note);
         Event offEvent { 1, off };
         offEvent.setInstrument(instrument);
-        worker.test_handleEvent(offEvent);
+        context.worker.test_handleEvent(offEvent);
     }
 
-    QCOMPARE(midiService->playNoteCallCount, 0);
-    QCOMPARE(midiService->stopNoteCallCount, 0);
+    QCOMPARE(context.midiService->playNoteCallCount, 0);
+    QCOMPARE(context.midiService->stopNoteCallCount, 0);
 }
 
 void PlayerWorkerTest::test_noteOff_mutedWhileSounding_shouldBeSentOnce()
@@ -498,111 +479,87 @@ void PlayerWorkerTest::test_noteOff_mutedWhileSounding_shouldBeSentOnce()
     // A note that was already sounding when its column was muted still has to be stopped, and
     // stopped exactly once: checkMixerState() takes it, and the note-off that follows must not
     // send a second one.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    const auto instrument { std::make_shared<Instrument>("TestPort") };
-    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    const auto instrument = makeInstrument();
 
     NoteData on { 0, 0 };
     on.setAsNoteOn(60, 100);
     Event onEvent { 0, on };
     onEvent.setInstrument(instrument);
-    worker.test_handleEvent(onEvent);
-    QCOMPARE(midiService->playNoteCallCount, 1);
+    context.worker.test_handleEvent(onEvent);
+    QCOMPARE(context.midiService->playNoteCallCount, 1);
 
-    mixerService->muteColumn(0, 0, true);
-    worker.callCheckMixerState();
-    QCOMPARE(midiService->stopNoteCallCount, 1);
+    context.mixerService->muteColumn(0, 0, true);
+    context.worker.callCheckMixerState();
+    QCOMPARE(context.midiService->stopNoteCallCount, 1);
 
     NoteData off { 0, 0 };
     off.setAsNoteOff(60);
     Event offEvent { 1, off };
     offEvent.setInstrument(instrument);
-    worker.test_handleEvent(offEvent);
-    QCOMPARE(midiService->stopNoteCallCount, 1);
+    context.worker.test_handleEvent(offEvent);
+    QCOMPARE(context.midiService->stopNoteCallCount, 1);
 }
 
 void PlayerWorkerTest::test_lookahead_externalInstruments_shouldStayZero()
 {
     // A song played out of a port keeps the timing it always had. Running ahead would only put the
     // hardware in front of everything else, since the port is written from this thread either way.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
 
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    const auto instrument { std::make_shared<Instrument>("HardwarePort") };
-    instrument->setMidiAddress(MidiAddress { "HardwarePort", 0 });
+    const auto instrument = makeInstrument("HardwarePort");
+    const auto event = makeNoteOnEvent(instrument);
 
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    context.worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
 
-    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
-
-    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
+    QCOMPARE(context.worker.lookahead(), std::chrono::steady_clock::duration::zero());
 }
 
 void PlayerWorkerTest::test_lookahead_internalInstruments_shouldRunAhead()
 {
-    const auto midiService { std::make_shared<MockMidiService>() };
-    midiService->internal = true;
-    midiService->lookahead = std::chrono::milliseconds { 31 };
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
+    context.midiService->internal = true;
+    context.midiService->lookahead = std::chrono::milliseconds { 31 };
 
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    const auto instrument { std::make_shared<Instrument>("Noteahead Internal Device 1") };
-    instrument->setMidiAddress(MidiAddress { "Noteahead Internal Device 1", 0 });
-
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    const auto instrument = makeInstrument("Noteahead Internal Device 1");
+    const auto event = makeNoteOnEvent(instrument);
 
     // Only known once the song is running: the lookahead comes from what the backend is doing.
-    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
-    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
+    context.worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+    QCOMPARE(context.worker.lookahead(), std::chrono::steady_clock::duration::zero());
 
-    worker.callResolveLookahead();
-    QCOMPARE(std::chrono::duration_cast<std::chrono::milliseconds>(worker.lookahead()).count(), 31LL);
+    context.worker.callResolveLookahead();
+    QCOMPARE(std::chrono::duration_cast<std::chrono::milliseconds>(context.worker.lookahead()).count(), 31LL);
 }
 
 void PlayerWorkerTest::test_lookahead_engineCannotSay_shouldNotRunAhead()
 {
     // A stream that is not rendering has no timeline to be early on, so the song plays the way it
     // always did rather than holding notes back for a frame that will never come.
-    const auto midiService { std::make_shared<MockMidiService>() };
-    midiService->internal = true;
-    midiService->lookahead = std::nullopt;
-    const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+    auto context = createWorkerContext();
+    context.midiService->internal = true;
+    context.midiService->lookahead = std::nullopt;
 
-    mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnIndices(0, { 0 });
+    context.mixerService->setTrackIndices({ 0 });
+    context.mixerService->setColumnIndices(0, { 0 });
 
-    const auto instrument { std::make_shared<Instrument>("Noteahead Internal Device 1") };
-    instrument->setMidiAddress(MidiAddress { "Noteahead Internal Device 1", 0 });
+    const auto instrument = makeInstrument("Noteahead Internal Device 1");
+    const auto event = makeNoteOnEvent(instrument);
 
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    const auto event { std::make_shared<Event>(0, noteData) };
-    event->setInstrument(instrument);
+    context.worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+    context.worker.callResolveLookahead();
 
-    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
-    worker.callResolveLookahead();
-
-    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
+    QCOMPARE(context.worker.lookahead(), std::chrono::steady_clock::duration::zero());
 }
 
 } // namespace noteahead
