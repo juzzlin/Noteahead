@@ -125,6 +125,31 @@ private:
     std::string m_name;
 };
 
+namespace {
+
+struct TestContext
+{
+    std::shared_ptr<AudioEngine> audioEngine;
+    std::shared_ptr<DeviceService> deviceService;
+    std::shared_ptr<EditorService> editorService;
+    EffectRackController controller;
+};
+
+TestContext createContext()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    return TestContext {
+        audioEngine,
+        deviceService,
+        editorService,
+        EffectRackController { deviceService, editorService }
+    };
+}
+
+} // namespace
+
 void EffectRackControllerTest::initTestCase()
 {
     EffectFactory::init();
@@ -137,215 +162,183 @@ void EffectRackControllerTest::cleanupTestCase()
 
 void EffectRackControllerTest::test_effectId_shouldNameTheEffectInThatSlot()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(2, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(2, QString::fromStdString(Reverb::typeIdString()));
 
-    QCOMPARE(controller.effectId(2), QString::fromStdString(deviceService->insertEffectRack().effect(2)->id()));
-    QVERIFY(controller.effectId(1).isEmpty());
+    QCOMPARE(context.controller.effectId(2), QString::fromStdString(context.deviceService->insertEffectRack().effect(2)->id()));
+    QVERIFY(context.controller.effectId(1).isEmpty());
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Default reverb: pre-delay 20ms, decay 1500ms
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(pre=20ms, decay=1500ms)" });
 
     // Change parameters
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 3000.0f / 10000.0f); // 3000ms
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 3000.0f / 10000.0f); // 3000ms
 
-    const auto summary2 = controller.effectParametersSummary(0);
+    const auto summary2 = context.controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, decay=3000ms)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_allPassFilter_shouldReportHertz()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AllPassFilter::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AllPassFilter::typeIdString()));
 
     // The frequency the filter runs at, not the knob position the project stores: 80 Hz read out
     // as 4036 before, which is where 80 Hz sits on the log knob spread linearly over 20..20000
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=40Hz, stages=1)" });
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyFrequency(), static_cast<float>(ParameterMapper::unmapLogFrequency(80.0, 20.0, 20000.0)));
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=80Hz, stages=1)" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(freq=40Hz, stages=1)" });
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyFrequency(), static_cast<float>(ParameterMapper::unmapLogFrequency(80.0, 20.0, 20000.0)));
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(freq=80Hz, stages=1)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_endlessReverb_shouldReportPreDelay()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(EndlessReverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(EndlessReverb::typeIdString()));
 
     // Defaults: pre-delay 20ms, size 70%, not frozen
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(pre=20ms, size=70%, freeze=off)" });
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyPreDelay(), 50.0f / 500.0f); // 50ms
 
-    const auto summary2 = controller.effectParametersSummary(0);
+    const auto summary2 = context.controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, size=70%, freeze=off)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldReturnFormattedSummary()
 {
-    const auto audioEngine { std::make_shared<AudioEngine>() };
-    const auto deviceService { std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>()) };
-    const auto editorService { std::make_shared<EditorService>() };
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
 
     // Default compressor: detector Peak, attack 0.2 internal -> ~0.5ms, ratio 0.15 internal -> 4:1, sidechain=None
-    const auto summary { controller.effectParametersSummary(0) };
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(Peak, attack=0.5ms, ratio=4:1, sidechain=None)" });
 
     // Change ratio to 10:1 (internal = (10-1)/19 = 0.473...)
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyRatio(), 9.0f / 19.0f);
-    const auto summary2 { controller.effectParametersSummary(0) };
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyRatio(), 9.0f / 19.0f);
+    const auto summary2 = context.controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=None)" });
 
     // Put a device in slot 1 and set it as sidechain source
-    const auto device1 { std::make_shared<MockDevice>("Device 1") };
-    deviceService->setDevice(1, device1);
+    const auto device1 = std::make_shared<MockDevice>("Device 1");
+    context.deviceService->setDevice(1, device1);
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeySideChainSourceDevice(), 1.0f);
-    const auto summary3 { controller.effectParametersSummary(0) };
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeySideChainSourceDevice(), 1.0f);
+    const auto summary3 = context.controller.effectParametersSummary(0);
     QCOMPARE(summary3, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMode(), 1.0f);
-    const auto summary4 { controller.effectParametersSummary(0) };
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyMode(), 1.0f);
+    const auto summary4 = context.controller.effectParametersSummary(0);
     QCOMPARE(summary4, QString { "(RMS, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoPanner::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoPanner::typeIdString()));
 
     // Default auto panner: rate 3.52Hz, intensity 100%.
     //
     // It read 1.00Hz until the summary was made to map the rate the way the LFO itself does. The two
     // mappings agree at both ends of the control and are out by three and a half times in the
     // middle, so what the number said and what the pan did were never the same thing.
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(rate=3.52Hz, int=100%)" });
 
     // The divider is reported in the rate, so a sweep stretched over bars reads as one.
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyRateDivider(), 4.0f);
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(rate=0.88Hz, int=100%)" });
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyRateDivider(), 4.0f);
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(rate=0.88Hz, int=100%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
 
     // Default auto filter: low pass at 2.5 kHz swept once a second at a quarter of the range
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(LPF, 2.5kHz, rate=1.00Hz, int=25%)" });
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyFilterType(), 1.0f);
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoMode(), static_cast<float>(Lfo::Mode::BPM));
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoRate(), 0.25f);
-    const auto syncedSummary = controller.effectParametersSummary(0);
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyFilterType(), 1.0f);
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoMode(), static_cast<float>(Lfo::Mode::BPM));
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyLfoRate(), 0.25f);
+    const auto syncedSummary = context.controller.effectParametersSummary(0);
     QCOMPARE(syncedSummary, QString { "(HPF, 2.5kHz, rate=1/4, int=25%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_phaser_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
 
     // Default phaser: six stages swept once a second, with no feedback
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(6 stages, rate=1.00Hz, fb=0%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Panner::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Panner::typeIdString()));
 
     // Default panner: pan 50%, width 100%
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(pan=50%, width=100%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_clipper_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Clipper::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Clipper::typeIdString()));
 
     // Default clipper: threshold 0.0dB
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(thr=0.0dB)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_saturator_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Saturator::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Saturator::typeIdString()));
 
     // Default saturator: drive 6.0dB, mix 100%
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(drive=6.0dB, mix=100%)" });
 }
 
 namespace {
 
-//! Puts @p typeId in slot 0 of @p controller's insert rack, which is what every curve here reads.
+//! Puts @p typeId in slot 0 of @p context.controller's insert rack, which is what every curve here reads.
 void setUpInsertRackWith(EffectRackController & controller, const std::string & typeId)
 {
     controller.setIsInsertRack(true);
@@ -356,11 +349,8 @@ void setUpInsertRackWith(EffectRackController & controller, const std::string & 
 
 void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer()
 {
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, Rta::typeIdString());
+    auto context = createContext();
+    setUpInsertRackWith(context.controller, Rta::typeIdString());
 
     RtaRenderer renderer;
     QCOMPARE(renderer.layoutGeneration(), 0u);
@@ -370,7 +360,7 @@ void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayo
     // recorded by the name as spelled, which QML then fails to resolve against the fully qualified
     // name the class is registered under: the call is dropped at runtime and the analyzer draws
     // nothing at all, with the build and a direct call both perfectly happy.
-    QVERIFY(QMetaObject::invokeMethod(&controller, "rtaUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
+    QVERIFY(QMetaObject::invokeMethod(&context.controller, "rtaUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
 
     // The whole path a frame takes: a renderer that never hears about the layout draws every bar in
     // the wrong place.
@@ -378,26 +368,23 @@ void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayo
 
     // A slot with no analyzer in it, something that is not a renderer, and nothing at all are all
     // quiet no-ops.
-    controller.rtaUpdateRenderer(1, &renderer);
+    context.controller.rtaUpdateRenderer(1, &renderer);
     QObject stranger;
-    controller.rtaUpdateRenderer(0, &stranger);
-    controller.rtaUpdateRenderer(0, nullptr);
+    context.controller.rtaUpdateRenderer(0, &stranger);
+    context.controller.rtaUpdateRenderer(0, nullptr);
 }
 
 void EffectRackControllerTest::test_spectrumSetActive_postMode_shouldRunOnlyThePostTap()
 {
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
-    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(deviceService->insertEffectRack().effect(0));
+    auto context = createContext();
+    setUpInsertRackWith(context.controller, Eq8BandParametric::typeIdString());
+    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(context.deviceService->insertEffectRack().effect(0));
     QVERIFY(eq);
 
     EqCurveRenderer renderer;
     renderer.setSpectrumMode(EqCurveRenderer::SpectrumPost);
     // Invoked by name, as the dialog reaches it: see test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer
-    QVERIFY(QMetaObject::invokeMethod(&controller, "spectrumSetActive", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer), Q_ARG(bool, true)));
+    QVERIFY(QMetaObject::invokeMethod(&context.controller, "spectrumSetActive", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer), Q_ARG(bool, true)));
 
     QVERIFY(eq->spectrumTaps().isEnabled());
     QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Post));
@@ -406,95 +393,80 @@ void EffectRackControllerTest::test_spectrumSetActive_postMode_shouldRunOnlyTheP
 
 void EffectRackControllerTest::test_spectrumSetActive_inactive_shouldStopTheTaps()
 {
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
-    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(deviceService->insertEffectRack().effect(0));
+    auto context = createContext();
+    setUpInsertRackWith(context.controller, Eq8BandParametric::typeIdString());
+    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(context.deviceService->insertEffectRack().effect(0));
 
     EqCurveRenderer renderer;
     renderer.setSpectrumMode(EqCurveRenderer::SpectrumPostMinusPre);
-    controller.spectrumSetActive(0, &renderer, true);
+    context.controller.spectrumSetActive(0, &renderer, true);
     QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Pre));
     QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Post));
 
-    controller.spectrumSetActive(0, &renderer, false);
+    context.controller.spectrumSetActive(0, &renderer, false);
     QVERIFY(!eq->spectrumTaps().isEnabled());
     QVERIFY(eq->isSettled());
 }
 
 void EffectRackControllerTest::test_spectrumUpdateRenderer_shouldHandTheLayoutToTheRenderer()
 {
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+    auto context = createContext();
+    setUpInsertRackWith(context.controller, Eq8BandParametric::typeIdString());
 
     EqCurveRenderer renderer;
     renderer.setSpectrumMode(EqCurveRenderer::SpectrumBoth);
-    controller.spectrumSetActive(0, &renderer, true);
+    context.controller.spectrumSetActive(0, &renderer, true);
     QCOMPARE(renderer.spectrumLayoutGeneration(), 0u);
 
-    QVERIFY(QMetaObject::invokeMethod(&controller, "spectrumUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
+    QVERIFY(QMetaObject::invokeMethod(&context.controller, "spectrumUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
     QVERIFY(renderer.spectrumLayoutGeneration() > 0u);
 
     // A slot with no equalizer in it, something that is not a renderer, and nothing at all are all
     // quiet no-ops
-    controller.spectrumUpdateRenderer(1, &renderer);
+    context.controller.spectrumUpdateRenderer(1, &renderer);
     QObject stranger;
-    controller.spectrumUpdateRenderer(0, &stranger);
-    controller.spectrumUpdateRenderer(0, nullptr);
-    controller.spectrumSetActive(0, nullptr, true);
+    context.controller.spectrumUpdateRenderer(0, &stranger);
+    context.controller.spectrumUpdateRenderer(0, nullptr);
+    context.controller.spectrumSetActive(0, nullptr, true);
 }
 
 void EffectRackControllerTest::test_eqAutoGainDb_switchedOn_shouldReportTheCompensation()
 {
-    const auto engine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
-    setUpInsertRackWith(controller, SimpleEq::typeIdString());
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyAmount(), 1.0f);
+    auto context = createContext();
+    setUpInsertRackWith(context.controller, SimpleEq::typeIdString());
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyAmount(), 1.0f);
 
-    QCOMPARE(controller.eqAutoGainDb(0), 0.0);
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
-    QVERIFY(controller.eqAutoGainDb(0) < -1.0);
+    QCOMPARE(context.controller.eqAutoGainDb(0), 0.0);
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    QVERIFY(context.controller.eqAutoGainDb(0) < -1.0);
 
     // A slot with nothing in it has nothing to report
-    QCOMPARE(controller.eqAutoGainDb(1), 0.0);
+    QCOMPARE(context.controller.eqAutoGainDb(1), 0.0);
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
 
-    const auto summary = controller.effectParametersSummary(0);
+    const auto summary = context.controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(Parametric, Mid + Side)" });
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Mid));
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(Parametric, Mid)" });
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Mid));
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(Parametric, Mid)" });
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Side));
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(Parametric, Side)" });
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Side));
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(Parametric, Side)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_emptySlot_shouldReturnEmptyString()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    QCOMPARE(controller.effectParametersSummary(0), QString { "" });
+    context.controller.setIsInsertRack(true);
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "" });
 }
 
 namespace {
@@ -520,78 +492,69 @@ void feedSine(const std::shared_ptr<Effect> & effect, double amplitude, double s
 
 void EffectRackControllerTest::test_effectParametersSummary_lufsMeter_shouldPadReadingsToConstantWidth()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(LufsMeter::typeIdString()));
-    const auto effect = deviceService->insertEffectRack().effect(0);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(LufsMeter::typeIdString()));
+    const auto effect = context.deviceService->insertEffectRack().effect(0);
     QVERIFY(effect);
 
     // A reading crossing -10 gains a digit, and without padding everything after it in the row would
     // shift along. The summary has to keep the same length whatever the meter says.
-    const auto atFloor = controller.effectParametersSummary(0);
+    const auto atFloor = context.controller.effectParametersSummary(0);
     QCOMPARE(atFloor, QString { "(M=%1-∞ S=%1-∞ I=%1-∞ LUFS)" }.arg(QString { figureSpace }.repeated(3)));
 
     feedSine(effect, 0.385, 4.0); // ≈ -8 LUFS: one digit before the point, so the field is padded
-    const auto oneDigit = controller.effectParametersSummary(0);
+    const auto oneDigit = context.controller.effectParametersSummary(0);
     QVERIFY(oneDigit.contains(QString { "M=%1-" }.arg(figureSpace)));
     QCOMPARE(oneDigit.length(), atFloor.length());
 
     feedSine(effect, 0.1, 4.0); // ≈ -21 LUFS: two digits, filling the field
-    const auto twoDigits = controller.effectParametersSummary(0);
+    const auto twoDigits = context.controller.effectParametersSummary(0);
     QVERIFY(twoDigits.contains("M=-2"));
     QCOMPARE(twoDigits.length(), atFloor.length());
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_dbtpMeter_shouldPadReadingsToConstantWidth()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
-    const auto effect = deviceService->insertEffectRack().effect(0);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
+    const auto effect = context.deviceService->insertEffectRack().effect(0);
     QVERIFY(effect);
 
-    const auto atFloor = controller.effectParametersSummary(0);
+    const auto atFloor = context.controller.effectParametersSummary(0);
     QCOMPARE(atFloor, QString { "(L=%1-∞ R=%1-∞ dBTP)" }.arg(QString { figureSpace }.repeated(3)));
 
     feedSine(effect, 0.35, 0.2); // ≈ -9 dBTP: one digit before the point, so the field is padded
-    const auto oneDigit = controller.effectParametersSummary(0);
+    const auto oneDigit = context.controller.effectParametersSummary(0);
     QVERIFY(oneDigit.contains(QString { "L=%1-" }.arg(figureSpace)));
     QCOMPARE(oneDigit.length(), atFloor.length());
 
     // A fresh meter, because the peak hold would otherwise keep showing the loud reading.
-    controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
-    feedSine(deviceService->insertEffectRack().effect(0), 0.035, 0.2); // ≈ -29 dBTP: two digits
-    const auto twoDigits = controller.effectParametersSummary(0);
+    context.controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
+    feedSine(context.deviceService->insertEffectRack().effect(0), 0.035, 0.2); // ≈ -29 dBTP: two digits
+    const auto twoDigits = context.controller.effectParametersSummary(0);
     QVERIFY(twoDigits.contains("L=-2"));
     QCOMPARE(twoDigits.length(), atFloor.length());
 }
 
 void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
-    QVERIFY(controller.isEffectEnabled(0));
+    QVERIFY(context.controller.isEffectEnabled(0));
 
-    controller.setIsEffectEnabled(0, false);
-    QVERIFY(!controller.isEffectEnabled(0));
-    QVERIFY(editorService->isModified());
+    context.controller.setIsEffectEnabled(0, false);
+    QVERIFY(!context.controller.isEffectEnabled(0));
+    QVERIFY(context.editorService->isModified());
 
-    controller.setIsEffectEnabled(0, true);
-    QVERIFY(controller.isEffectEnabled(0));
+    context.controller.setIsEffectEnabled(0, true);
+    QVERIFY(context.controller.isEffectEnabled(0));
 }
 
 void EffectRackControllerTest::test_currentRack_drumVoiceSubIndex_shouldTargetVoiceRack()
@@ -620,119 +583,104 @@ void EffectRackControllerTest::test_currentRack_drumVoiceSubIndex_shouldTargetVo
 
 void EffectRackControllerTest::test_copyEffect_sendBus_shouldCopyTheChainToo()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
     // The master send rack: no device name, not the insert rack, no sub-index.
-    controller.setIsInsertRack(false);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(false);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // ...and the chain bus 0 runs after its reverb.
-    controller.setTargetSubIndex(0);
-    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
-    controller.setTargetSubIndex(-1);
+    context.controller.setTargetSubIndex(0);
+    context.controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    context.controller.setTargetSubIndex(-1);
 
-    controller.copyEffect(0, 1);
+    context.controller.copyEffect(0, 1);
 
     // A send bus is its effect plus what the user hung after it, and a copy has to be both.
-    const auto copiedEffect = deviceService->sendEffectRack().effect(1);
+    const auto copiedEffect = context.deviceService->sendEffectRack().effect(1);
     QVERIFY(copiedEffect);
     QCOMPARE(copiedEffect->typeId(), Reverb::typeIdString());
-    const auto copiedChain = deviceService->sendChainRack(1).effect(0);
+    const auto copiedChain = context.deviceService->sendChainRack(1).effect(0);
     QVERIFY2(copiedChain, "the chain of the copied bus was left empty");
     QCOMPARE(copiedChain->typeId(), Phaser::typeIdString());
     // The source keeps its own.
-    const auto sourceChain = deviceService->sendChainRack(0).effect(0);
+    const auto sourceChain = context.deviceService->sendChainRack(0).effect(0);
     QVERIFY(sourceChain);
     QCOMPARE(sourceChain->typeId(), Phaser::typeIdString());
 }
 
 void EffectRackControllerTest::test_copyEffect_sendBus_sourceWithNoChain_shouldClearTheTargetChain()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(false);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(false);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Only the target has a chain of its own.
-    controller.setTargetSubIndex(1);
-    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
-    controller.setTargetSubIndex(-1);
+    context.controller.setTargetSubIndex(1);
+    context.controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    context.controller.setTargetSubIndex(-1);
 
-    controller.copyEffect(0, 1);
+    context.controller.copyEffect(0, 1);
 
     // The target ends up being what it was copied from, which includes having no chain.
-    QVERIFY(!deviceService->sendChainRack(1).hasEffects());
+    QVERIFY(!context.deviceService->sendChainRack(1).hasEffects());
 }
 
 void EffectRackControllerTest::test_copyEffect_insertRack_shouldLeaveSendChainsAlone()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
     // A chain on bus 1 that nothing in this test should touch.
-    controller.setIsInsertRack(false);
-    controller.setTargetSubIndex(1);
-    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
-    controller.setTargetSubIndex(-1);
+    context.controller.setIsInsertRack(false);
+    context.controller.setTargetSubIndex(1);
+    context.controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    context.controller.setTargetSubIndex(-1);
 
     // Copying within a plain list of effects: only the master send rack has buses.
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.copyEffect(0, 1);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.copyEffect(0, 1);
 
-    const auto copiedEffect = deviceService->insertEffectRack().effect(1);
+    const auto copiedEffect = context.deviceService->insertEffectRack().effect(1);
     QVERIFY(copiedEffect);
     QCOMPARE(copiedEffect->typeId(), Reverb::typeIdString());
-    const auto untouchedChain = deviceService->sendChainRack(1).effect(0);
+    const auto untouchedChain = context.deviceService->sendChainRack(1).effect(0);
     QVERIFY2(untouchedChain, "copying inside an insert rack cleared a send bus chain");
     QCOMPARE(untouchedChain->typeId(), Phaser::typeIdString());
-    QVERIFY(!deviceService->sendChainRack(0).hasEffects());
+    QVERIFY(!context.deviceService->sendChainRack(0).hasEffects());
 }
 
 void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
-    const int initialRevision = controller.revision();
+    QSignalSpy revisionSpy { &context.controller, &EffectRackController::revisionChanged };
+    const int initialRevision = context.controller.revision();
 
     // Setting the same target device name should still increment revision
-    controller.setTargetDeviceName(controller.targetDeviceName());
-    QCOMPARE(controller.revision(), initialRevision + 1);
+    context.controller.setTargetDeviceName(context.controller.targetDeviceName());
+    QCOMPARE(context.controller.revision(), initialRevision + 1);
     QCOMPARE(revisionSpy.count(), 1);
 
     // Setting the same isInsertRack value should still increment revision
-    controller.setIsInsertRack(controller.isInsertRack());
-    QCOMPARE(controller.revision(), initialRevision + 2);
+    context.controller.setIsInsertRack(context.controller.isInsertRack());
+    QCOMPARE(context.controller.revision(), initialRevision + 2);
     QCOMPARE(revisionSpy.count(), 2);
 }
 
 void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
     NahdXmlWriter writer { buffer };
-    QVERIFY(controller.exportSettings(writer));
+    QVERIFY(context.controller.exportSettings(writer));
     buffer.close();
 
     QVERIFY(!data.isEmpty());
@@ -741,43 +689,37 @@ void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
 
 void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 0.75f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyDecay(), 0.75f);
 
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
     NahdXmlWriter writer { buffer };
-    QVERIFY(controller.exportSettings(writer));
+    QVERIFY(context.controller.exportSettings(writer));
     buffer.close();
 
-    controller.clearEffect(0);
-    QCOMPARE(controller.effectType(0), QString {});
+    context.controller.clearEffect(0);
+    QCOMPARE(context.controller.effectType(0), QString {});
 
     buffer.open(QIODevice::ReadOnly);
     NahdXmlReader reader { buffer };
-    QVERIFY(controller.importSettings(reader));
+    QVERIFY(context.controller.importSettings(reader));
     buffer.close();
 
-    QCOMPARE(controller.effectType(0), controller.reverbType());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDecay()), 0.75f);
+    QCOMPARE(context.controller.effectType(0), context.controller.reverbType());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyDecay()), 0.75f);
 }
 
 void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmitConfirmationWithoutMismatch()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Create a temporary reverb settings file
     const QString filePath = "test_matching_effect.nahdeff";
@@ -795,8 +737,8 @@ void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmit
     writer.writeEndDocument();
     file.close();
 
-    QSignalSpy spy { &controller, &EffectRackController::importEffectSettingsConfirmationRequested };
-    controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
+    QSignalSpy spy { &context.controller, &EffectRackController::importEffectSettingsConfirmationRequested };
+    context.controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
 
     QCOMPARE(spy.count(), 1);
     const auto arguments = spy.at(0);
@@ -810,13 +752,10 @@ void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmit
 
 void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Create a temporary compressor settings file
     const QString filePath = "test_different_effect.nahdeff";
@@ -834,8 +773,8 @@ void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmi
     writer.writeEndDocument();
     file.close();
 
-    QSignalSpy spy { &controller, &EffectRackController::importEffectSettingsConfirmationRequested };
-    controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
+    QSignalSpy spy { &context.controller, &EffectRackController::importEffectSettingsConfirmationRequested };
+    context.controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
 
     QCOMPARE(spy.count(), 1);
     const auto arguments = spy.at(0);
@@ -846,13 +785,10 @@ void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmi
 
 void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndNotify()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     const QString filePath = "test_confirm_effect.nahdeff";
     const auto reverb = std::make_shared<Reverb>();
@@ -873,34 +809,31 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     writer.writeEndDocument();
     file.close();
 
-    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
-    controller.confirmImportEffectSettings(0, QUrl::fromLocalFile(filePath));
+    QSignalSpy revisionSpy { &context.controller, &EffectRackController::revisionChanged };
+    context.controller.confirmImportEffectSettings(0, QUrl::fromLocalFile(filePath));
 
     QCOMPARE(revisionSpy.count(), 1);
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.123f);
-    QVERIFY(editorService->isModified());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.123f);
+    QVERIFY(context.editorService->isModified());
 
     QFile::remove(filePath);
 }
 
 void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
 
-    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
-    controller.copyEffect(0, 2);
+    QSignalSpy revisionSpy { &context.controller, &EffectRackController::revisionChanged };
+    context.controller.copyEffect(0, 2);
 
     QVERIFY(revisionSpy.count() > 0);
-    QVERIFY(editorService->isModified());
-    QCOMPARE(controller.effectType(2), controller.reverbType());
-    QCOMPARE(controller.parameterValue(2, Constants::NahdXml::xmlKeySize()), 0.42f);
+    QVERIFY(context.editorService->isModified());
+    QCOMPARE(context.controller.effectType(2), context.controller.reverbType());
+    QCOMPARE(context.controller.parameterValue(2, Constants::NahdXml::xmlKeySize()), 0.42f);
 }
 
 void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackAndNotify()
@@ -938,16 +871,13 @@ void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackA
 
 void EffectRackControllerTest::test_copyRackFrom_sameRack_shouldFail()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
-    QVERIFY(!controller.copyRackFrom({}, true));
-    QCOMPARE(controller.effectType(0), controller.reverbType());
+    QVERIFY(!context.controller.copyRackFrom({}, true));
+    QCOMPARE(context.controller.effectType(0), context.controller.reverbType());
 }
 
 void EffectRackControllerTest::test_availableRackSources_shouldLeaveOutTheTargetRack()
@@ -990,27 +920,24 @@ void EffectRackControllerTest::test_availableRackSources_shouldLeaveOutTheTarget
 
 void EffectRackControllerTest::test_revertEffect_shouldRestoreSnapshotAndNotify()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.42f);
 
-    controller.snapshotEffect(0);
+    context.controller.snapshotEffect(0);
 
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.9f);
-    controller.setIsEffectEnabled(0, false);
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.9f);
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.9f);
+    context.controller.setIsEffectEnabled(0, false);
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.9f);
 
-    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
-    QSignalSpy parameterSpy { &controller, &EffectRackController::parameterChanged };
-    controller.revertEffect(0);
+    QSignalSpy revisionSpy { &context.controller, &EffectRackController::revisionChanged };
+    QSignalSpy parameterSpy { &context.controller, &EffectRackController::parameterChanged };
+    context.controller.revertEffect(0);
 
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.42f);
-    QVERIFY(controller.isEffectEnabled(0));
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.42f);
+    QVERIFY(context.controller.isEffectEnabled(0));
     QCOMPARE(revisionSpy.count(), 1);
     // An empty parameter name is how the dialog is told to re-read all of them
     QCOMPARE(parameterSpy.count(), 1);
@@ -1019,18 +946,15 @@ void EffectRackControllerTest::test_revertEffect_shouldRestoreSnapshotAndNotify(
 
 void EffectRackControllerTest::test_revertEffect_withoutSnapshot_shouldKeepEdits()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.7f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeySize(), 0.7f);
 
-    controller.revertEffect(0);
+    context.controller.revertEffect(0);
 
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.7f);
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.7f);
 }
 
 void EffectRackControllerTest::test_revertEffect_otherSlot_shouldKeepEdits()
@@ -1256,16 +1180,13 @@ void EffectRackControllerTest::test_effectUserPresets_shouldNotLeakBetweenEffect
 
 void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    controller.setEffect(2, QString::fromStdString(Compressor::typeIdString()));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    context.controller.setEffect(2, QString::fromStdString(Compressor::typeIdString()));
 
-    const auto populated = controller.populatedEffects();
+    const auto populated = context.controller.populatedEffects();
     QCOMPARE(populated.size(), 2);
     QCOMPARE(populated.at(0).toMap()["slotIndex"].toInt(), 0);
     QCOMPARE(populated.at(1).toMap()["slotIndex"].toInt(), 2);
@@ -1273,15 +1194,12 @@ void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots
 
 void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
     // The gallery is one flat list in this order, and it had silently drifted out of alphabetical
     // as effects were added over time. Sorting is done in availableEffects(); this is what keeps it
     // true for whatever gets added next.
-    const auto effects = controller.availableEffects();
+    const auto effects = context.controller.availableEffects();
     QVERIFY(effects.size() > 1);
 
     for (qsizetype i = 1; i < effects.size(); i++) {
@@ -1294,17 +1212,15 @@ void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
 
 void EffectRackControllerTest::test_availableEffects_shouldHaveCategories()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
 
     // The gallery shows each effect's category after its name
-    for (auto && entry : controller.availableEffects()) {
+    for (auto && entry : context.controller.availableEffects()) {
         const auto map = entry.toMap();
         QVERIFY2(!map["category"].toString().isEmpty(), qPrintable(map["name"].toString()));
     }
     const auto categoryOf = [&](const QString & name) {
-        for (auto && entry : controller.availableEffects()) {
+        for (auto && entry : context.controller.availableEffects()) {
             if (const auto map = entry.toMap(); map["name"].toString() == name) {
                 return map["category"].toString();
             }
@@ -1318,14 +1234,12 @@ void EffectRackControllerTest::test_availableEffects_shouldHaveCategories()
 void EffectRackControllerTest::test_partSend_shouldAddressOnePadOnly()
 {
     // A pad's send belongs to the pad: setting one must not move its neighbours or the device.
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    SendController sends { deviceService };
+    auto context = createContext();
+    SendController sends { context.deviceService };
 
     DeviceFactory::init();
     const auto device = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "Drums");
-    deviceService->setDevice(0, device);
+    context.deviceService->setDevice(0, device);
 
     QVERIFY(sends.hasPartSends("Drums"));
     sends.setPartSend("Drums", 2, 1, 0.5f);
@@ -1340,14 +1254,12 @@ void EffectRackControllerTest::test_partSend_negativeSubIndex_shouldBeTheDeviceI
 {
     // So a dialog that does not know whether it is showing a device or one of its parts can ask the
     // same way for both.
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    SendController sends { deviceService };
+    auto context = createContext();
+    SendController sends { context.deviceService };
 
     DeviceFactory::init();
     const auto device = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Synth");
-    deviceService->setDevice(0, device);
+    context.deviceService->setDevice(0, device);
 
     sends.setPartSend("Synth", -1, 3, 0.25f);
 
@@ -1359,14 +1271,11 @@ void EffectRackControllerTest::test_partSend_negativeSubIndex_shouldBeTheDeviceI
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEffects()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<EditorService>();
-    EffectRackController controller { deviceService, editorService };
+    auto context = createContext();
 
     // An effect the factory knows but the gallery does not list is an effect nobody can reach.
     QStringList types;
-    for (auto && entry : controller.availableEffects()) {
+    for (auto && entry : context.controller.availableEffects()) {
         types << entry.toMap()["typeId"].toString();
     }
 
@@ -1377,65 +1286,57 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEff
 void EffectRackControllerTest::test_effectDisplayName_phaseScope_shouldBeTwoWords()
 {
     // The gallery and the rack both read the name from the same list
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    QCOMPARE(controller.effectDisplayName(controller.phaseScopeType()), QString { "Phase Scope" });
+    auto context = createContext();
+    QCOMPARE(context.controller.effectDisplayName(context.controller.phaseScopeType()), QString { "Phase Scope" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
     QStringList types;
-    for (auto && entry : controller.availableEffects()) {
+    for (auto && entry : context.controller.availableEffects()) {
         types << entry.toMap()["typeId"].toString();
     }
-    QVERIFY2(types.contains(controller.ambienceType()), qPrintable(types.join(", ")));
+    QVERIFY2(types.contains(context.controller.ambienceType()), qPrintable(types.join(", ")));
 
     // And the factory can make what the gallery offers
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.effectType(0), controller.ambienceType());
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    QCOMPARE(context.controller.effectType(0), context.controller.ambienceType());
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheRoomMics()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
     const auto type = QString::fromStdString(RoomMics::typeIdString());
     QStringList types;
-    for (auto && entry : controller.availableEffects()) {
+    for (auto && entry : context.controller.availableEffects()) {
         types << entry.toMap()["typeId"].toString();
     }
     QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
 
     // And the factory can make what the gallery offers
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, type);
-    QCOMPARE(controller.effectType(0), Constants::RackEffectType::roomMics());
-    QVERIFY2(controller.effectParametersSummary(0).startsWith("(9.0x7.0x3.5 m, RT60 "), qPrintable(controller.effectParametersSummary(0)));
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::roomMics());
+    QVERIFY2(context.controller.effectParametersSummary(0).startsWith("(9.0x7.0x3.5 m, RT60 "), qPrintable(context.controller.effectParametersSummary(0)));
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
     QStringList types;
-    for (auto && entry : controller.availableEffects()) {
+    for (auto && entry : context.controller.availableEffects()) {
         types << entry.toMap()["typeId"].toString();
     }
-    QVERIFY2(types.contains(controller.reverb224Type()), qPrintable(types.join(", ")));
+    QVERIFY2(types.contains(context.controller.reverb224Type()), qPrintable(types.join(", ")));
 
     // And the factory can make what the gallery offers
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, controller.reverb224Type());
-    QCOMPARE(controller.effectType(0), controller.reverb224Type());
-    QCOMPARE(controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, pre=20ms, mix=30%)" });
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, context.controller.reverb224Type());
+    QCOMPARE(context.controller.effectType(0), context.controller.reverb224Type());
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(mid=2.5s, bass=3.0s, pre=20ms, mix=30%)" });
     // Depth has nothing to balance on the plates
     const Reverb224DialogModel model;
     QVERIFY(model.hasEarlyReflections(static_cast<int>(Reverb224::Program::LargeHall)));
@@ -1457,16 +1358,14 @@ void EffectRackControllerTest::test_parameterAutomation_effectInView_shouldRefre
     // Automation moves the live value on the audio thread, which cannot tell anybody: the knobs of
     // an open Auto Filter sat still while it played. Playback says so instead, ahead of time, and
     // the dialog is refreshed when the change lands rather than when it was scheduled.
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
-    const auto effect = deviceService->insertEffectRack().effect(0);
+    auto context = createContext();
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const auto effect = context.deviceService->insertEffectRack().effect(0);
     QVERIFY(effect);
 
-    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
-    deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { 80 });
+    QSignalSpy spy { &context.controller, &EffectRackController::revisionChanged };
+    context.deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { 80 });
     QTest::qWait(30);
     QCOMPARE(spy.count(), 0);
     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
@@ -1475,15 +1374,13 @@ void EffectRackControllerTest::test_parameterAutomation_effectInView_shouldRefre
 void EffectRackControllerTest::test_parameterAutomation_effectNotInView_shouldNotRefresh()
 {
     // The rack in view decides: an automation of anything else costs a comparison and nothing more
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    auto context = createContext();
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
     const std::shared_ptr<Effect> elsewhere = std::make_shared<AutoFilter>();
 
-    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
-    deviceService->notifyParameterAutomation(cutoffAutomation(elsewhere), std::chrono::milliseconds { 0 });
+    QSignalSpy spy { &context.controller, &EffectRackController::revisionChanged };
+    context.deviceService->notifyParameterAutomation(cutoffAutomation(elsewhere), std::chrono::milliseconds { 0 });
     QTest::qWait(100);
     QCOMPARE(spy.count(), 0);
 }
@@ -1492,19 +1389,17 @@ void EffectRackControllerTest::test_parameterAutomation_burst_shouldRefreshAtMos
 {
     // Every refresh re-reads every binding on the revision, so a busy automation is shown at a
     // screen's pace rather than at its own, and the last change of the burst is still shown
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
-    const auto effect = deviceService->insertEffectRack().effect(0);
+    auto context = createContext();
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const auto effect = context.deviceService->insertEffectRack().effect(0);
 
-    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
+    QSignalSpy spy { &context.controller, &EffectRackController::revisionChanged };
     QElapsedTimer clock;
     clock.start();
     // A hundred changes landing over 200 ms
     for (int i = 0; i < 100; i++) {
-        deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { i * 2 });
+        context.deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { i * 2 });
     }
     QTest::qWait(400);
     QVERIFY2(spy.count() >= 2, qPrintable(QString::number(spy.count())));
@@ -1518,55 +1413,49 @@ void EffectRackControllerTest::test_parameterAutomation_burst_shouldRefreshAtMos
 void EffectRackControllerTest::test_parameterAutomation_cleared_shouldRefresh()
 {
     // Stopping puts every automated value back to what was set, and the knobs have to follow
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    auto context = createContext();
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
 
-    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
-    deviceService->clearAutomation();
+    QSignalSpy spy { &context.controller, &EffectRackController::revisionChanged };
+    context.deviceService->clearAutomation();
     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
 }
 
 void EffectRackControllerTest::test_setEffect_masterSendRack_shouldStartMixAtTheTop()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
 
-    controller.setIsInsertRack(false);
-    controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 1.0f);
+    context.controller.setIsInsertRack(false);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 1.0f);
     // Only a start: the knob moves as before
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.4f);
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.4f);
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.4f);
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.4f);
 
     // An insert keeps the effect's own default
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
 
     // And so does the chain behind a send bus, which is an insert on the return
-    controller.setIsInsertRack(false);
-    controller.setTargetSubIndex(0);
-    controller.setEffect(0, controller.ambienceType());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
+    context.controller.setIsInsertRack(false);
+    context.controller.setTargetSubIndex(0);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.3f);
 
     // The Delay keeps its Mix under a key of its own
-    controller.setTargetSubIndex(-1);
-    controller.setEffect(0, controller.delayType());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 1.0f);
+    context.controller.setTargetSubIndex(-1);
+    context.controller.setEffect(0, context.controller.delayType());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 1.0f);
 }
 
 void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTheMix()
 {
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
-    const auto mixGlue = [&controller] {
+    auto context = createContext();
+    const auto mixGlue = [&context] {
         // Shown numbered, as "004: Mix Glue"
-        const auto names = controller.effectPresetNames(0);
+        const auto names = context.controller.effectPresetNames(0);
         for (int i = 0; i < names.size(); i++) {
             if (names.at(i).endsWith(": Mix Glue")) {
                 return i;
@@ -1575,29 +1464,29 @@ void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTh
         return -1;
     };
 
-    controller.setIsInsertRack(false);
-    controller.setEffect(0, controller.ambienceType());
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
+    context.controller.setIsInsertRack(false);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
     QVERIFY(mixGlue() > 0);
-    controller.loadEffectPreset(0, mixGlue());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.6f);
+    context.controller.loadEffectPreset(0, mixGlue());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.6f);
     // The rest of the preset does land
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.45f);
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeySize()), 0.45f);
 
     // On an insert the preset's Mix is part of its sound
-    controller.setIsInsertRack(true);
-    controller.setEffect(0, controller.ambienceType());
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
-    controller.loadEffectPreset(0, mixGlue());
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.2f);
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, context.controller.ambienceType());
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyMix(), 0.6f);
+    context.controller.loadEffectPreset(0, mixGlue());
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyMix()), 0.2f);
 
     // And so does the Delay, whose Mix has a key of its own
-    controller.setIsInsertRack(false);
-    controller.setEffect(0, controller.delayType());
-    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDelayMix(), 0.6f);
-    QVERIFY(controller.effectPresetNames(0).size() > 1);
-    controller.loadEffectPreset(0, 1);
-    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 0.6f);
+    context.controller.setIsInsertRack(false);
+    context.controller.setEffect(0, context.controller.delayType());
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyDelayMix(), 0.6f);
+    QVERIFY(context.controller.effectPresetNames(0).size() > 1);
+    context.controller.loadEffectPreset(0, 1);
+    QCOMPARE(context.controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 0.6f);
 }
 
 void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddressThePartRack()
@@ -1606,19 +1495,17 @@ void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddres
     // drums' insert dialogs opened on no rack at all, with no slots to add an effect to
     DeviceFactory::init();
     for (auto && typeId : { SamplerDevice::typeIdString(), DrumSynthDevice::typeIdString(), DrumSynthV2Device::typeIdString() }) {
-        const auto audioEngine = std::make_shared<AudioEngine>();
-        const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-        EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+        auto context = createContext();
         const auto device = DeviceFactory::createDevice(typeId, "Parts");
         QVERIFY(device);
-        deviceService->setDevice(0, device);
+        context.deviceService->setDevice(0, device);
 
-        controller.setIsInsertRack(true);
-        controller.setTargetDeviceName("Parts");
-        controller.setTargetSubIndex(2);
-        QVERIFY2(controller.effectCount() > 0, typeId.c_str());
+        context.controller.setIsInsertRack(true);
+        context.controller.setTargetDeviceName("Parts");
+        context.controller.setTargetSubIndex(2);
+        QVERIFY2(context.controller.effectCount() > 0, typeId.c_str());
 
-        controller.setEffect(0, QString::fromStdString(Gain::typeIdString()));
+        context.controller.setEffect(0, QString::fromStdString(Gain::typeIdString()));
         const auto partRack = device->partEffectRack(2);
         QVERIFY2(partRack && partRack->get().effect(0), typeId.c_str());
         QVERIFY2(!device->insertEffectRack().effect(0), typeId.c_str());
@@ -1628,16 +1515,14 @@ void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddres
 void EffectRackControllerTest::test_targetSubIndex_deviceWithoutParts_shouldHaveNoRack()
 {
     DeviceFactory::init();
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
     const auto device = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Synth");
-    deviceService->setDevice(0, device);
+    context.deviceService->setDevice(0, device);
 
-    controller.setIsInsertRack(true);
-    controller.setTargetDeviceName("Synth");
-    controller.setTargetSubIndex(2);
-    QCOMPARE(controller.effectCount(), 0);
+    context.controller.setIsInsertRack(true);
+    context.controller.setTargetDeviceName("Synth");
+    context.controller.setTargetSubIndex(2);
+    QCOMPARE(context.controller.effectCount(), 0);
     QVERIFY(!device->partEffectRack(2));
 }
 
@@ -1646,47 +1531,43 @@ void EffectRackControllerTest::test_targetSubIndex_masterSendRack_shouldAddressT
     // On the master send side a sub-index means a send bus, and points the controller at that bus's
     // chain -- the same shape a Sampler pad or a Drum Synth voice already uses. Without a sub-index
     // it still has to be the send rack itself.
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
 
-    controller.setTargetDeviceName({});
-    controller.setIsInsertRack(false);
+    context.controller.setTargetDeviceName({});
+    context.controller.setIsInsertRack(false);
 
-    controller.setTargetSubIndex(-1);
-    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
-    QVERIFY(deviceService->sendEffectRack().effect(0));
-    QVERIFY(!deviceService->sendChainRack(0).hasEffects());
+    context.controller.setTargetSubIndex(-1);
+    context.controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    QVERIFY(context.deviceService->sendEffectRack().effect(0));
+    QVERIFY(!context.deviceService->sendChainRack(0).hasEffects());
 
-    controller.setTargetSubIndex(0);
-    controller.setEffect(0, QString::fromStdString(Chorus::typeIdString()));
-    QVERIFY(deviceService->sendChainRack(0).effect(0));
-    QCOMPARE(deviceService->sendChainRack(0).effect(0)->typeId(), Chorus::typeIdString());
+    context.controller.setTargetSubIndex(0);
+    context.controller.setEffect(0, QString::fromStdString(Chorus::typeIdString()));
+    QVERIFY(context.deviceService->sendChainRack(0).effect(0));
+    QCOMPARE(context.deviceService->sendChainRack(0).effect(0)->typeId(), Chorus::typeIdString());
     // The bus's own effect is untouched by an edit to its chain.
-    QCOMPARE(deviceService->sendEffectRack().effect(0)->typeId(), Reverb::typeIdString());
+    QCOMPARE(context.deviceService->sendEffectRack().effect(0)->typeId(), Reverb::typeIdString());
 
     // A bus that does not exist addresses nothing rather than the send rack.
-    controller.setTargetSubIndex(static_cast<int>(deviceService->sendChainRackCount()));
-    QCOMPARE(controller.effectCount(), 0);
+    context.controller.setTargetSubIndex(static_cast<int>(context.deviceService->sendChainRackCount()));
+    QCOMPARE(context.controller.effectCount(), 0);
 }
 
 void EffectRackControllerTest::test_sendChainEffectCount_shouldCountTheChainOfTheGivenBus()
 {
     // Drives the count the master rack's send rows show, so it addresses a bus directly rather than
     // through whatever the controller happens to be pointed at.
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    auto context = createContext();
 
-    QCOMPARE(controller.sendChainEffectCount(0), 0);
+    QCOMPARE(context.controller.sendChainEffectCount(0), 0);
 
-    deviceService->sendChainRack(1).setEffect(0, EffectFactory::createEffect(Chorus::typeIdString(), {}));
-    deviceService->sendChainRack(1).setEffect(3, EffectFactory::createEffect(Reverb::typeIdString(), {}));
+    context.deviceService->sendChainRack(1).setEffect(0, EffectFactory::createEffect(Chorus::typeIdString(), {}));
+    context.deviceService->sendChainRack(1).setEffect(3, EffectFactory::createEffect(Reverb::typeIdString(), {}));
 
-    QCOMPARE(controller.sendChainEffectCount(1), 2);
-    QCOMPARE(controller.sendChainEffectCount(0), 0);
-    QCOMPARE(controller.sendChainEffectCount(-1), 0);
-    QCOMPARE(controller.sendChainEffectCount(static_cast<int>(deviceService->sendChainRackCount())), 0);
+    QCOMPARE(context.controller.sendChainEffectCount(1), 2);
+    QCOMPARE(context.controller.sendChainEffectCount(0), 0);
+    QCOMPARE(context.controller.sendChainEffectCount(-1), 0);
+    QCOMPARE(context.controller.sendChainEffectCount(static_cast<int>(context.deviceService->sendChainRackCount())), 0);
 }
 
 } // namespace noteahead
