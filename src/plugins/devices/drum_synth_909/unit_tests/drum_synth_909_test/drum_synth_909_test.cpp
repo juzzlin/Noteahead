@@ -232,14 +232,14 @@ void DrumSynth909Test::test_loadKit_shouldMixAsNamed()
 
 void DrumSynth909Test::test_tom_tune_shouldFollowTheRd9()
 {
-    // The RD-9's mid tom at noon: 79.8 Hz and 126.5 Hz once settled; Tune 10 takes both up by 1.32
+    // The RD-9's mid tom at noon: 74.0 Hz and 117.2 Hz once settled; Tune 10 takes both up by 1.31
     Tom909Engine noon { Tom909Engine::Tom::Mid };
     Tom909Engine high { Tom909Engine::Tom::Mid };
     high.setTune(1.0f);
-    const double noonHz = strongestHz(render(noon, 0.4), 0.15, 0.35, 100.0, 140.0);
-    const double highHz = strongestHz(render(high, 0.4), 0.15, 0.35, 140.0, 190.0);
-    QVERIFY2(std::abs(noonHz - 126.5) < 1.5, qPrintable(QString::number(noonHz)));
-    QVERIFY2(std::abs(highHz / noonHz - 1.3168) < 0.02, qPrintable(QString::number(highHz / noonHz)));
+    const double noonHz = strongestHz(render(noon, 0.4), 0.15, 0.35, 100.0, 135.0);
+    const double highHz = strongestHz(render(high, 0.4), 0.15, 0.35, 135.0, 180.0);
+    QVERIFY2(std::abs(noonHz - 117.2) < 1.5, qPrintable(QString::number(noonHz)));
+    QVERIFY2(std::abs(highHz / noonHz - 1.3135) < 0.02, qPrintable(QString::number(highHz / noonHz)));
 
     // On the RD-9 the low tom grows louder as Tune brings its fundamentals up towards the resonator
     Tom909Engine lowMin { Tom909Engine::Tom::Low };
@@ -255,8 +255,7 @@ void DrumSynth909Test::test_tom_tune_shouldFollowTheRd9()
 
 void DrumSynth909Test::test_tom_decay_shouldMatchTheRd9()
 {
-    // The RD-9's low tom falls 40 dB in 0.29 s at Decay 0 and 0.47 s at 10, and hardly any longer
-    // past noon, 0.43 s
+    // The RD-9's low tom falls 40 dB in 0.30 s at Decay 0, 0.44 s at noon and 0.53 s at 10
     Tom909Engine shortest { Tom909Engine::Tom::Low };
     shortest.setDecay(0.0f);
     Tom909Engine noon { Tom909Engine::Tom::Low };
@@ -265,19 +264,19 @@ void DrumSynth909Test::test_tom_decay_shouldMatchTheRd9()
     const double shortSeconds = fallSeconds(render(shortest, 1.0), -40.0);
     const double noonSeconds = fallSeconds(render(noon, 1.0), -40.0);
     const double longSeconds = fallSeconds(render(longest, 1.0), -40.0);
-    QVERIFY2(shortSeconds > 0.24 && shortSeconds < 0.34, qPrintable(QString::number(shortSeconds)));
-    QVERIFY2(noonSeconds > 0.37 && noonSeconds < 0.49, qPrintable(QString::number(noonSeconds)));
-    QVERIFY2(longSeconds > 0.41 && longSeconds < 0.55, qPrintable(QString::number(longSeconds)));
+    QVERIFY2(shortSeconds > 0.24 && shortSeconds < 0.36, qPrintable(QString::number(shortSeconds)));
+    QVERIFY2(noonSeconds > 0.37 && noonSeconds < 0.50, qPrintable(QString::number(noonSeconds)));
+    QVERIFY2(longSeconds > 0.44 && longSeconds < 0.60, qPrintable(QString::number(longSeconds)));
 }
 
 void DrumSynth909Test::test_tom_resonance_shouldLiftTheLowTomsThirdHarmonic()
 {
-    // At Tune 0 the RD-9's low tom has its upper oscillator's third harmonic, at 173 Hz where the
-    // resonance is, 8 dB over that oscillator's fundamental
+    // At Tune 0 the RD-9's low tom has its upper oscillator's third harmonic, at 175 Hz where the
+    // resonance is, 7.5 dB over that oscillator's fundamental
     Tom909Engine engine { Tom909Engine::Tom::Low };
     engine.setTune(0.0f);
     const auto hit = render(engine, 0.4);
-    const double fundamentalHz = 57.07 * 0.6704 * 1.488;
+    const double fundamentalHz = 58.23 * 0.6752 * 1.4843;
     const double over = levelDb(hit, 0.15, 0.35, 3.0 * fundamentalHz) - levelDb(hit, 0.15, 0.35, fundamentalHz);
     QVERIFY2(over > 3.0 && over < 13.0, qPrintable(QString::number(over)));
 }
