@@ -328,5 +328,38 @@ SectionBox {
                 }
             }
         }
+
+        SectionBox {
+            title: qsTr("Updates")
+            Layout.fillWidth: true
+            GridLayout {
+                columns: 2
+                rows: 1
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Label {
+                    text: qsTr("Check for new versions:")
+                    Layout.column: 0
+                    Layout.columnSpan: 1
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+                CheckBox {
+                    id: checkForNewVersionsCheckBox
+                    Layout.column: 1
+                    Layout.columnSpan: 1
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    checked: settingsService.checkForNewVersions
+                    onCheckedChanged: settingsService.setCheckForNewVersions(checked)
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("At most once a day, ask GitHub for the latest release of Noteahead. Nothing but the request is sent. When off, Noteahead connects only when you choose Help > Check for New Version.")
+                }
+            }
+        }
     }
 }

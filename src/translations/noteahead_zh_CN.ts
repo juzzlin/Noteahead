@@ -7284,6 +7284,10 @@
         <source>What&apos;s New...</source>
         <translation>更新内容...</translation>
     </message>
+    <message>
+        <source>Check for New Version</source>
+        <translation>检查新版本</translation>
+    </message>
 </context>
 <context>
     <name>MainMenu_Song</name>
@@ -11919,6 +11923,18 @@ Audio files will appear next to the current project file.</source>
         <source>Reduces CPU usage by disabling UI updates (except time) during playback</source>
         <translation>通过在播放期间禁用界面更新（时间除外）来降低 CPU 占用</translation>
     </message>
+    <message>
+        <source>Updates</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <source>Check for new versions:</source>
+        <translation>检查新版本：</translation>
+    </message>
+    <message>
+        <source>At most once a day, ask GitHub for the latest release of Noteahead. Nothing but the request is sent. When off, Noteahead connects only when you choose Help &gt; Check for New Version.</source>
+        <translation>每天最多一次向 GitHub 查询 Noteahead 的最新版本。除请求本身外不发送任何内容。关闭后，只有在选择 帮助 &gt; 检查新版本 时 Noteahead 才会联网。</translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog_MidiSettings</name>
@@ -15933,6 +15949,21 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>UpdateNotice</name>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 已发布</translation>
+    </message>
+    <message>
+        <source>Open the release page</source>
+        <translation>打开发布页面</translation>
+    </message>
+    <message>
+        <source>Hide until a newer version comes out</source>
+        <translation>隐藏，直到有更新的版本发布</translation>
+    </message>
+</context>
+<context>
     <name>VelocityScale</name>
     <message>
         <source>%1 %</source>
@@ -16810,6 +16841,13 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>noteahead::ReleaseChecker</name>
+    <message>
+        <source>The answer named no release version</source>
+        <translation>回复中没有版本号</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17012,6 +17050,21 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Press &lt;b&gt;ESC&lt;/b&gt; to edit, &lt;b&gt;SPACE&lt;/b&gt; to play</source>
         <translation>&lt;b&gt;ESC&lt;/b&gt; 编辑，&lt;b&gt;SPACE&lt;/b&gt; 播放</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::UpdateService</name>
+    <message>
+        <source>Could not check for a new version: %1</source>
+        <translation>无法检查新版本：%1</translation>
+    </message>
+    <message>
+        <source>Noteahead is up to date</source>
+        <translation>Noteahead 已是最新版本</translation>
+    </message>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 已发布</translation>
     </message>
 </context>
 <context>

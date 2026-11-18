@@ -600,6 +600,14 @@
 <h3>Pattern Peek</h3>
 <p>Enabled by default in <code>Settings => General => Editor</code>, Pattern Peek shows a dimmed glimpse of the previous and next patterns in the editor's offset areas above and below the current one, so you can see what you are cutting to and from.</p>
 
+<h3>New Version Check</h3>
+<p>When a newer release of Noteahead is out, the menu bar says so at its right-hand end, left of the session timer. Click the notice to open the release's page, or the cross to hide it until a newer version still comes out.</p>
+<ul>
+    <li><strong>What is sent</strong>: a few seconds after startup, Noteahead asks GitHub's releases API for the latest release, at most once a day. The request carries nothing but a User-Agent naming Noteahead and its version; GitHub sees it as it sees any request, with your IP address. Between checks the last answer is reused, so restarting makes no further request.</li>
+    <li><strong>Turning it off</strong>: <code>Settings => General => Updates</code>. With it off, Noteahead connects only when you choose <code>Help => Check for New Version</code>.</li>
+    <li><strong>Checking now</strong>: <code>Help => Check for New Version</code> asks straight away, whatever the setting, and says in the bottom bar whether you are up to date or why the check failed.</li>
+</ul>
+
 <h3>Session Timer</h3>
 <p>The clock at the right-hand end of the menu bar, left of the language selector, shows the time spent on the song: this session's first, then the song's total across every session, in hours and minutes. The total is saved with the project; a new or opened project starts a new session.</p>
 <ul>

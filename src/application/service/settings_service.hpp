@@ -18,6 +18,7 @@
 
 #include <optional>
 
+#include <QDateTime>
 #include <QObject>
 #include <QSize>
 
@@ -47,6 +48,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int performancePanelHeight READ performancePanelHeight WRITE setPerformancePanelHeight NOTIFY performancePanelHeightChanged)
     Q_PROPERTY(bool patternPeekEnabled READ patternPeekEnabled WRITE setPatternPeekEnabled NOTIFY patternPeekEnabledChanged)
     Q_PROPERTY(bool tipsEnabled READ tipsEnabled WRITE setTipsEnabled NOTIFY tipsEnabledChanged)
+    Q_PROPERTY(bool checkForNewVersions READ checkForNewVersions WRITE setCheckForNewVersions NOTIFY checkForNewVersionsChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
@@ -140,6 +142,18 @@ public:
     virtual Q_INVOKABLE bool tipsEnabled() const;
     virtual Q_INVOKABLE void setTipsEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool checkForNewVersions() const;
+    virtual Q_INVOKABLE void setCheckForNewVersions(bool enabled);
+
+    //! What the version check keeps between sessions. Read and written straight through, not cached:
+    //! only UpdateService uses them, and it reads each once.
+    virtual QDateTime lastVersionCheck() const;
+    virtual void setLastVersionCheck(QDateTime time);
+    virtual QString latestKnownVersion() const;
+    virtual void setLatestKnownVersion(QString version);
+    virtual QString skippedVersion() const;
+    virtual void setSkippedVersion(QString version);
+
     virtual Q_INVOKABLE bool midiExportForceDrumChannel10() const;
     virtual Q_INVOKABLE void setMidiExportForceDrumChannel10(bool enabled);
 
@@ -198,6 +212,7 @@ signals:
     void performancePanelHeightChanged();
     void patternPeekEnabledChanged();
     void tipsEnabledChanged();
+    void checkForNewVersionsChanged();
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
@@ -240,6 +255,7 @@ private:
     int m_performancePanelHeight;
     bool m_patternPeekEnabled;
     bool m_tipsEnabled;
+    bool m_checkForNewVersions;
 
     bool m_midiExportForceDrumChannel10;
     bool m_midiExportAutoAssignChannels;

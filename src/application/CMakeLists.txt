@@ -64,6 +64,7 @@ set(HEADER_FILES
     service/song_overview_builder.hpp
     service/theme_service.hpp
     service/tip_service.hpp
+    service/update_service.hpp
     service/util_service.hpp
     state_machine.hpp
     ui_logger.hpp
@@ -133,6 +134,7 @@ set(SOURCE_FILES
     service/song_overview_builder.cpp
     service/theme_service.cpp
     service/tip_service.cpp
+    service/update_service.cpp
     service/util_service.cpp
     state_machine.cpp
     ui_logger.cpp

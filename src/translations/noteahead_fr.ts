@@ -7285,6 +7285,10 @@
         <source>What&apos;s New...</source>
         <translation>Nouveautés...</translation>
     </message>
+    <message>
+        <source>Check for New Version</source>
+        <translation>Rechercher une nouvelle version</translation>
+    </message>
 </context>
 <context>
     <name>MainMenu_Song</name>
@@ -11921,6 +11925,18 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <source>Reduces CPU usage by disabling UI updates (except time) during playback</source>
         <translation>Réduit l&apos;utilisation du processeur en désactivant les mises à jour de l&apos;interface (sauf le temps) pendant la lecture</translation>
     </message>
+    <message>
+        <source>Updates</source>
+        <translation>Mises à jour</translation>
+    </message>
+    <message>
+        <source>Check for new versions:</source>
+        <translation>Rechercher de nouvelles versions :</translation>
+    </message>
+    <message>
+        <source>At most once a day, ask GitHub for the latest release of Noteahead. Nothing but the request is sent. When off, Noteahead connects only when you choose Help &gt; Check for New Version.</source>
+        <translation>Au plus une fois par jour, demande à GitHub la dernière version de Noteahead. Rien d&apos;autre que la requête n&apos;est envoyé. Désactivé, Noteahead ne se connecte que lorsque vous choisissez Aide &gt; Rechercher une nouvelle version.</translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog_MidiSettings</name>
@@ -15935,6 +15951,21 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>UpdateNotice</name>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 est disponible</translation>
+    </message>
+    <message>
+        <source>Open the release page</source>
+        <translation>Ouvrir la page de la version</translation>
+    </message>
+    <message>
+        <source>Hide until a newer version comes out</source>
+        <translation>Masquer jusqu&apos;à la sortie d&apos;une version plus récente</translation>
+    </message>
+</context>
+<context>
     <name>VelocityScale</name>
     <message>
         <source>%1 %</source>
@@ -16812,6 +16843,13 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::ReleaseChecker</name>
+    <message>
+        <source>The answer named no release version</source>
+        <translation>La réponse n&apos;indiquait aucune version</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17014,6 +17052,21 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Press &lt;b&gt;ESC&lt;/b&gt; to edit, &lt;b&gt;SPACE&lt;/b&gt; to play</source>
         <translation>&lt;b&gt;ESC&lt;/b&gt; éditer, &lt;b&gt;SPACE&lt;/b&gt; lire</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::UpdateService</name>
+    <message>
+        <source>Could not check for a new version: %1</source>
+        <translation>Impossible de rechercher une nouvelle version : %1</translation>
+    </message>
+    <message>
+        <source>Noteahead is up to date</source>
+        <translation>Noteahead est à jour</translation>
+    </message>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 est disponible</translation>
     </message>
 </context>
 <context>

@@ -77,7 +77,7 @@ pkg_check_modules(SNDFILE REQUIRED sndfile IMPORTED_TARGET)
 
 # Sadly Ubuntu 24.04 LTS has only Qt 6.4.2
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
-find_package(Qt6 6.4 COMPONENTS Core Quick Xml LinguistTools Test REQUIRED)
+find_package(Qt6 6.4 COMPONENTS Core Network Quick Xml LinguistTools Test REQUIRED)
 if(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER_EQUAL 5)
     qt_standard_project_setup(REQUIRES 6.5)
     qt_policy(SET QTP0001 NEW)

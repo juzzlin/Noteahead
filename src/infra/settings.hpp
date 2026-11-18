@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <QColor>
+#include <QDateTime>
 #include <QSize>
 
 namespace noteahead::Settings {
@@ -185,6 +186,22 @@ void setColumnFlashEnabled(bool enabled);
 //! Empty until the user has picked a language, in which case the system's UI languages apply.
 QString userLanguage(QString defaultUserLanguage);
 void setUserLanguage(QString userLanguage);
+
+//! Whether Noteahead asks GitHub for its latest release. On unless the user turns it off; off, no
+//! request is ever made.
+bool checkForNewVersions();
+void setCheckForNewVersions(bool checkForNewVersions);
+
+//! When the latest release was last asked for, and what it was then, so that a restart within the
+//! check interval needs no request to show what is available.
+QDateTime lastVersionCheck();
+void setLastVersionCheck(QDateTime lastVersionCheck);
+QString latestKnownVersion();
+void setLatestKnownVersion(QString latestKnownVersion);
+
+//! The version the user dismissed the notice of. A newer one is shown again.
+QString skippedVersion();
+void setSkippedVersion(QString skippedVersion);
 
 } // namespace noteahead::Settings
 

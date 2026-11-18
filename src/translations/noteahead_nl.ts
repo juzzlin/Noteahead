@@ -7285,6 +7285,10 @@
         <source>What&apos;s New...</source>
         <translation>Wat is er nieuw...</translation>
     </message>
+    <message>
+        <source>Check for New Version</source>
+        <translation>Naar nieuwe versie zoeken</translation>
+    </message>
 </context>
 <context>
     <name>MainMenu_Song</name>
@@ -11921,6 +11925,18 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <source>Reduces CPU usage by disabling UI updates (except time) during playback</source>
         <translation>Verlaagt het CPU-gebruik door UI-updates (behalve de tijd) tijdens het afspelen uit te schakelen</translation>
     </message>
+    <message>
+        <source>Updates</source>
+        <translation>Updates</translation>
+    </message>
+    <message>
+        <source>Check for new versions:</source>
+        <translation>Naar nieuwe versies zoeken:</translation>
+    </message>
+    <message>
+        <source>At most once a day, ask GitHub for the latest release of Noteahead. Nothing but the request is sent. When off, Noteahead connects only when you choose Help &gt; Check for New Version.</source>
+        <translation>Vraagt GitHub hoogstens eens per dag naar de nieuwste release van Noteahead. Er wordt niets anders verzonden dan het verzoek zelf. Uitgeschakeld maakt Noteahead alleen verbinding als je Help &gt; Naar nieuwe versie zoeken kiest.</translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog_MidiSettings</name>
@@ -15935,6 +15951,21 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>UpdateNotice</name>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 is beschikbaar</translation>
+    </message>
+    <message>
+        <source>Open the release page</source>
+        <translation>Releasepagina openen</translation>
+    </message>
+    <message>
+        <source>Hide until a newer version comes out</source>
+        <translation>Verbergen tot er een nieuwere versie uitkomt</translation>
+    </message>
+</context>
+<context>
     <name>VelocityScale</name>
     <message>
         <source>%1 %</source>
@@ -16812,6 +16843,13 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::ReleaseChecker</name>
+    <message>
+        <source>The answer named no release version</source>
+        <translation>Het antwoord noemde geen versie</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17014,6 +17052,21 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Press &lt;b&gt;ESC&lt;/b&gt; to edit, &lt;b&gt;SPACE&lt;/b&gt; to play</source>
         <translation>&lt;b&gt;ESC&lt;/b&gt; bewerken, &lt;b&gt;SPACE&lt;/b&gt; afspelen</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::UpdateService</name>
+    <message>
+        <source>Could not check for a new version: %1</source>
+        <translation>Kon niet naar een nieuwe versie zoeken: %1</translation>
+    </message>
+    <message>
+        <source>Noteahead is up to date</source>
+        <translation>Noteahead is up-to-date</translation>
+    </message>
+    <message>
+        <source>Noteahead %1 is available</source>
+        <translation>Noteahead %1 is beschikbaar</translation>
     </message>
 </context>
 <context>

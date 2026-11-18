@@ -40,5 +40,10 @@ Menu {
         text: qsTr("What's New...")
         onTriggered: UiService.requestWhatsNewDialog()
     }
+    Action {
+        text: qsTr("Check for New Version")
+        enabled: !updateService.checking
+        onTriggered: updateService.checkNow()
+    }
     delegate: MenuItemDelegate {}
 }

@@ -56,6 +56,30 @@ QString qSettingsCompanyName();
 QString qSettingSoftwareName();
 QString webSiteUrl();
 
+//! Where the version check asks for the latest release: GitHub's API, which answers in JSON and
+//! leaves drafts and pre-releases out.
+QString latestReleaseApiUrl();
+//! The release's page, for the user to go to.
+QString releasePageUrl(QString version);
+
+//! How long a version check is good for: at most one request a day, however often the
+//! application is started.
+constexpr std::chrono::hours versionCheckInterval()
+{
+    return std::chrono::hours { 24 };
+}
+
+//! The startup check waits this long, so that it never competes with loading the project.
+constexpr std::chrono::seconds versionCheckStartupDelay()
+{
+    return std::chrono::seconds { 5 };
+}
+
+constexpr std::chrono::seconds versionCheckTimeout()
+{
+    return std::chrono::seconds { 10 };
+}
+
 //! Directory holding the user's own presets, under the application's configuration directory. One
 //! subdirectory per device or effect type, so that no type can ever be offered another's presets.
 QString userPresetDirectoryName();

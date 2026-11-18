@@ -2,6 +2,7 @@ set(HEADER_FILES
     constants.hpp
     denormal_protection.hpp
     parameter_mapper.hpp
+    semantic_version.hpp
     theme_preset.hpp
     utils.hpp
     waveform_generator.hpp
@@ -12,6 +13,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     constants.cpp
     parameter_mapper.cpp
+    semantic_version.cpp
     utils.cpp
     waveform_generator.cpp
 )

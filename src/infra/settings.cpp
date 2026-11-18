@@ -64,6 +64,12 @@ const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
 const auto settingsGroupMidi = "Midi";
 const auto settingsGroupTheme = "Theme";
+const auto settingsGroupUpdates = "Updates";
+
+const auto checkForNewVersionsKey = "checkForNewVersions";
+const auto lastVersionCheckKey = "lastVersionCheck";
+const auto latestKnownVersionKey = "latestKnownVersion";
+const auto skippedVersionKey = "skippedVersion";
 const auto settingsGroupLanguage = "Language";
 
 const auto stepKey = "step";
@@ -1045,6 +1051,74 @@ void setUserLanguage(QString userLanguage)
     QSettings settings;
     settings.beginGroup(settingsGroupLanguage);
     settings.setValue(userLanguageKey, userLanguage);
+    settings.endGroup();
+}
+
+bool checkForNewVersions()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    const auto enabled = settings.value(checkForNewVersionsKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setCheckForNewVersions(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    settings.setValue(checkForNewVersionsKey, enabled);
+    settings.endGroup();
+}
+
+QDateTime lastVersionCheck()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    const auto time = settings.value(lastVersionCheckKey).toDateTime();
+    settings.endGroup();
+    return time;
+}
+
+void setLastVersionCheck(QDateTime time)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    settings.setValue(lastVersionCheckKey, time);
+    settings.endGroup();
+}
+
+QString latestKnownVersion()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    const auto version = settings.value(latestKnownVersionKey).toString();
+    settings.endGroup();
+    return version;
+}
+
+void setLatestKnownVersion(QString version)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    settings.setValue(latestKnownVersionKey, version);
+    settings.endGroup();
+}
+
+QString skippedVersion()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    const auto version = settings.value(skippedVersionKey).toString();
+    settings.endGroup();
+    return version;
+}
+
+void setSkippedVersion(QString version)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupUpdates);
+    settings.setValue(skippedVersionKey, version);
     settings.endGroup();
 }
 

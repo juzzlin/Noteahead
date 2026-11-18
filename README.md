@@ -123,6 +123,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Accent and cursor colors, plus an accent blend that pulls the track and automation palette towards the accent hue. Pattern Peek and the automation drawing style (Tint or Curve) are configurable too.
 - Session Timer
   - The menu bar shows the time spent on the song, this session and in all. It pauses after an idle timeout and is saved with the project.
+- New Version Check
+  - The menu bar says when a newer release is out. At most once a day Noteahead asks GitHub's API for the latest release, sending nothing but the request itself; turn it off in Settings and it connects only when you choose Help > Check for New Version.
 
 ### Internal Instruments (Virtual Device Rack)
 - Virtual Device Rack

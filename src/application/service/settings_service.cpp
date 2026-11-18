@@ -54,6 +54,7 @@ SettingsService::SettingsService()
   , m_performancePanelHeight { Settings::performancePanelHeight(Constants::defaultPerformancePanelHeight()) }
   , m_patternPeekEnabled { Settings::patternPeekEnabled() }
   , m_tipsEnabled { Settings::tipsEnabled() }
+  , m_checkForNewVersions { Settings::checkForNewVersions() }
   , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
@@ -394,6 +395,50 @@ void SettingsService::setTipsEnabled(bool enabled)
         Settings::setTipsEnabled(enabled);
         emit tipsEnabledChanged();
     }
+}
+
+bool SettingsService::checkForNewVersions() const
+{
+    return m_checkForNewVersions;
+}
+
+void SettingsService::setCheckForNewVersions(bool enabled)
+{
+    if (m_checkForNewVersions != enabled) {
+        m_checkForNewVersions = enabled;
+        Settings::setCheckForNewVersions(enabled);
+        emit checkForNewVersionsChanged();
+    }
+}
+
+QDateTime SettingsService::lastVersionCheck() const
+{
+    return Settings::lastVersionCheck();
+}
+
+void SettingsService::setLastVersionCheck(QDateTime time)
+{
+    Settings::setLastVersionCheck(time);
+}
+
+QString SettingsService::latestKnownVersion() const
+{
+    return Settings::latestKnownVersion();
+}
+
+void SettingsService::setLatestKnownVersion(QString version)
+{
+    Settings::setLatestKnownVersion(version);
+}
+
+QString SettingsService::skippedVersion() const
+{
+    return Settings::skippedVersion();
+}
+
+void SettingsService::setSkippedVersion(QString version)
+{
+    Settings::setSkippedVersion(version);
 }
 
 bool SettingsService::midiExportForceDrumChannel10() const

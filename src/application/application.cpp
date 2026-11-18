@@ -30,6 +30,7 @@
 #include "../infra/audio/backend/sndfile_reader.hpp"
 #include "../infra/data_service.hpp"
 #include "../infra/midi/export/midi_exporter.hpp"
+#include "../infra/network/release_checker.hpp"
 #include "../plugins/devices/sampler/sampler_pad_model.hpp"
 #include "../plugins/devices/xy_pad/xy_pad_recording_service.hpp"
 #include "../plugins/devices/xy_pad/xy_pad_renderer.hpp"
@@ -102,6 +103,7 @@
 #include "service/side_chain_service.hpp"
 #include "service/theme_service.hpp"
 #include "service/tip_service.hpp"
+#include "service/update_service.hpp"
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -110,6 +112,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QTimer>
 
 #include <iomanip>
 #include <iostream>
@@ -150,6 +153,7 @@ Application::Application(int & argc, char ** argv)
   , m_languageService { std::make_shared<LanguageService>(m_settingsService) }
   , m_themeService { std::make_shared<ThemeService>() }
   , m_tipService { std::make_shared<TipService>() }
+  , m_updateService { std::make_shared<UpdateService>(m_settingsService, std::make_shared<ReleaseChecker>()) }
   , m_manualService { std::make_shared<ManualService>(m_themeService) }
   , m_selectionService { std::make_shared<SelectionService>() }
   , m_utilService { std::make_shared<UtilService>() }
@@ -383,6 +387,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("themeService", m_themeService.get());
     m_engine->rootContext()->setContextProperty("tipService", m_tipService.get());
+    m_engine->rootContext()->setContextProperty("updateService", m_updateService.get());
     m_engine->rootContext()->setContextProperty("manualService", m_manualService.get());
     m_engine->rootContext()->setContextProperty("sideChainService", m_sideChainService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
@@ -1038,6 +1043,11 @@ int Application::initializeTracker()
     initializeApplicationEngine();
     connectServices();
     m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
+
+    // Never from a screenshot run, which is no session of the user's
+    if (m_applicationService->screenshotDirectory().isEmpty()) {
+        QTimer::singleShot(Constants::versionCheckStartupDelay(), m_updateService.get(), &UpdateService::checkAtStartup);
+    }
 
     return m_application->exec();
 }
