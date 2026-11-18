@@ -16,7 +16,9 @@
 #ifndef SEMANTIC_VERSION_HPP
 #define SEMANTIC_VERSION_HPP
 
+#ifndef Q_MOC_RUN
 #include <compare>
+#endif
 #include <optional>
 #include <string>
 #include <string_view>
@@ -37,7 +39,9 @@ struct SemanticVersion
 
     std::string toString() const;
 
+#ifndef Q_MOC_RUN
     auto operator<=>(const SemanticVersion &) const = default;
+#endif
 };
 
 } // namespace noteahead
