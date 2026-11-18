@@ -94,6 +94,16 @@ QString webSiteUrl()
     return "https://juzzlin.github.io/Noteahead";
 }
 
+QString latestReleaseApiUrl()
+{
+    return "https://api.github.com/repos/juzzlin/Noteahead/releases/latest";
+}
+
+QString releasePageUrl(QString version)
+{
+    return "https://github.com/juzzlin/Noteahead/releases/tag/" + version;
+}
+
 QString qSettingSoftwareName()
 {
     return applicationName();

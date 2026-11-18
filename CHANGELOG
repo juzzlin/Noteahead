@@ -13,6 +13,8 @@ New features:
 
 * Song Overview: the song's tracks as lanes of notes in play order, with a playhead that lights up notes; click to jump
 
+* New version check: the menu bar says when a newer release is out; Help > Check for New Version, and a setting to turn it off
+
 * Room Mics: records a device again in a room, its source and three mic pairs placed by dragging
 
 Bug fixes:

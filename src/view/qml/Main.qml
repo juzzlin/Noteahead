@@ -912,6 +912,7 @@ ApplicationWindow {
             errorDialog.open();
         });
         editorService.statusTextRequested.connect(bottomBar.setStatusText);
+        updateService.statusTextRequested.connect(bottomBar.setStatusText);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
             bottomBar.setPosition(newPosition);
         });

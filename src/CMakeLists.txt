@@ -219,6 +219,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_View.qml
     ${QML_BASE_DIR}/MainMenu/SessionTimerLabel.qml
+    ${QML_BASE_DIR}/MainMenu/UpdateNotice.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/Panel/LevelMeterPanelElement.qml
     ${QML_BASE_DIR}/Panel/PanelElement.qml

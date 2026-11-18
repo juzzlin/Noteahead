@@ -24,6 +24,7 @@ set(HEADER_FILES
     midi/midi_cc_mapping.hpp
     midi/midi_output_queue.hpp
     midi/midi_port.hpp
+    network/release_checker.hpp
     settings.hpp
     xml/nahd_xml_reader.hpp
     xml/nahd_xml_writer.hpp
@@ -52,6 +53,7 @@ set(SOURCE_FILES
     midi/midi_cc_mapping.cpp
     midi/midi_output_queue.cpp
     midi/midi_port.cpp
+    network/release_checker.cpp
     settings.cpp
     xml/nahd_xml_reader.cpp
     xml/nahd_xml_writer.cpp
@@ -61,7 +63,7 @@ add_library(${InfraLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 
 target_include_directories(${InfraLibName} PUBLIC ..)
 
-target_link_libraries(${InfraLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Quick PkgConfig::RTMIDI PkgConfig::RTAUDIO PkgConfig::SNDFILE)
+target_link_libraries(${InfraLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Network Qt6::Quick PkgConfig::RTMIDI PkgConfig::RTAUDIO PkgConfig::SNDFILE)
 
 if(JACK_FOUND)
     target_compile_definitions(${InfraLibName} PUBLIC HAVE_JACK)

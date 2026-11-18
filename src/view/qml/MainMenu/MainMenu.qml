@@ -42,7 +42,13 @@ Item {
         z: 1
     }
     SessionTimerLabel {
+        id: sessionTimerLabel
         anchors.right: languageSelector.left
+        anchors.verticalCenter: parent.verticalCenter
+        z: 1
+    }
+    UpdateNotice {
+        anchors.right: sessionTimerLabel.left
         anchors.verticalCenter: parent.verticalCenter
         z: 1
     }
