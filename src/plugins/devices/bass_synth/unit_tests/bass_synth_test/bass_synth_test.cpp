@@ -22,6 +22,9 @@
 
 #include <QTest>
 
+#include <cmath>
+#include <numbers>
+
 namespace noteahead {
 
 void BassSynthTest::test_serialization_shouldRestoreParameters()
@@ -362,6 +365,120 @@ void BassSynthTest::test_pitchBendRange_shouldShiftRenderedFrequency()
     const auto bentUp = zeroCrossings(16383);
     QVERIFY(static_cast<double>(bentUp) > static_cast<double>(centered) * 1.8);
     QVERIFY(static_cast<double>(bentUp) < static_cast<double>(centered) * 2.2);
+}
+
+void BassSynthTest::test_tuning_shouldMatchEqualTemperamentA440()
+{
+    constexpr uint32_t sampleRate = 48000;
+    constexpr uint32_t frameCount = 16384;
+
+    for (const uint8_t midiNote : { uint8_t { 24 }, uint8_t { 36 }, uint8_t { 48 }, uint8_t { 60 }, uint8_t { 72 } }) {
+        BassSynthDevice synth { "Test BassSynth" };
+        synth.setWaveform(PolyBlepOscillator::Waveform::Sine);
+        synth.setSubLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setEnvMod(0.0f);
+        synth.setDecay(1.0f);
+        synth.processMidiNoteOn(midiNote, 100);
+
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+
+        // Measure positive-going zero crossings in steady state after attack
+        int firstCrossing = -1;
+        int lastCrossing = -1;
+        int periods = 0;
+        for (uint32_t i = 1024; i < frameCount; i++) {
+            const double prev = buffer[static_cast<size_t>(i - 1) * 2];
+            const double curr = buffer[static_cast<size_t>(i) * 2];
+            if (prev <= 0.0 && curr > 0.0) {
+                if (firstCrossing < 0) {
+                    firstCrossing = static_cast<int>(i);
+                } else {
+                    lastCrossing = static_cast<int>(i);
+                    periods++;
+                }
+            }
+        }
+
+        QVERIFY(periods > 4);
+        const double measuredFreq = static_cast<double>(periods) * static_cast<double>(sampleRate) / static_cast<double>(lastCrossing - firstCrossing);
+        const double expectedFreq = 440.0 * std::pow(2.0, (static_cast<int>(midiNote) - 69) / 12.0);
+        const double centsError = std::abs(1200.0 * std::log2(measuredFreq / expectedFreq));
+        QVERIFY2(centsError < 5.0, QString("MIDI note %1 tuning error too large: %2 cents").arg(midiNote).arg(centsError).toUtf8().constData());
+    }
+}
+
+void BassSynthTest::test_resonanceSweep_shouldBoostResonantPeakWithoutSelfOscillation()
+{
+    constexpr uint32_t sampleRate = 48000;
+    constexpr uint32_t frameCount = 4096;
+
+    const auto measureHarmonicRatio = [&](float resonance) {
+        BassSynthDevice synth { "Test BassSynth" };
+        synth.setWaveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setSubLevel(0.0f);
+        synth.setLpfCutoff(0.45f); // ~425 Hz base cutoff
+        synth.setLpfResonance(resonance);
+        synth.setEnvMod(0.0f);
+        synth.setDecay(1.0f);
+        synth.setAccent(0.0f);
+        synth.processMidiNoteOn(36, 100); // C2 = 65.406 Hz
+
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+
+        const double f0 = 440.0 * std::pow(2.0, (36 - 69) / 12.0);
+        const auto harmonicMagnitude = [&](int harmonic) {
+            double re = 0.0;
+            double im = 0.0;
+            const uint32_t start = 1024;
+            const uint32_t length = frameCount - start;
+            for (uint32_t i = 0; i < length; i++) {
+                const double w = 0.5 * (1.0 - std::cos(2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(length - 1)));
+                const double x = buffer[static_cast<size_t>(start + i) * 2] * w;
+                const double phase = 2.0 * std::numbers::pi * (static_cast<double>(harmonic) * f0) * static_cast<double>(i) / static_cast<double>(sampleRate);
+                re += x * std::cos(phase);
+                im -= x * std::sin(phase);
+            }
+            return std::hypot(re, im) / static_cast<double>(length);
+        };
+
+        const double h1 = harmonicMagnitude(1);
+        double maxResonantHarmonic = 0.0;
+        for (int h = 5; h <= 9; h++) {
+            maxResonantHarmonic = std::max(maxResonantHarmonic, harmonicMagnitude(h));
+        }
+
+        // Verify high frequencies (near Nyquist/4) do not contain runaway unit-delay self-oscillation
+        const double hHigh = harmonicMagnitude(120); // ~7.8 kHz
+        return std::tuple { h1, maxResonantHarmonic / std::max(h1, 1e-9), hHigh };
+    };
+
+    const auto [h1Res0, ratioRes0, highRes0] = measureHarmonicRatio(0.0f);
+    const auto [h1Res2, ratioRes2, highRes2] = measureHarmonicRatio(0.2f);
+    const auto [h1Res5, ratioRes5, highRes5] = measureHarmonicRatio(0.5f);
+    const auto [h1Res8, ratioRes8, highRes8] = measureHarmonicRatio(0.8f);
+    const auto [h1Res10, ratioRes10, highRes10] = measureHarmonicRatio(1.0f);
+
+    Q_UNUSED(highRes0);
+    Q_UNUSED(highRes2);
+    // Resonant harmonic ratio must monotonically increase across TD-3-MO knob positions 0, 2, 5, 8, 10
+    QVERIFY(ratioRes2 > ratioRes0);
+    QVERIFY(ratioRes5 > ratioRes2);
+    QVERIFY(ratioRes8 > ratioRes5);
+    QVERIFY(ratioRes10 > ratioRes8);
+
+    // Passband fundamental at max resonance should remain within ~12 dB of zero resonance (TD-3-MO drops ~8.5 dB)
+    const double h1DropDb = 20.0 * std::log10(h1Res10 / h1Res0);
+    QVERIFY2(h1DropDb > -12.0 && h1DropDb < -4.0, QString("Unexpected H1 drop at max resonance: %1 dB").arg(h1DropDb).toUtf8().constData());
+
+    // No runaway ~8 kHz self-oscillation at high resonance
+    QVERIFY(highRes5 < h1Res5 * 0.1);
+    QVERIFY(highRes8 < h1Res8 * 0.1);
+    QVERIFY(highRes10 < h1Res10 * 0.1);
 }
 
 } // namespace noteahead

@@ -38,6 +38,8 @@ private slots:
     void test_subOscOptimization_shouldSkipSilentSubOsc();
     void test_pitchBendRange_shouldScaleBendOffset();
     void test_pitchBendRange_shouldShiftRenderedFrequency();
+    void test_tuning_shouldMatchEqualTemperamentA440();
+    void test_resonanceSweep_shouldBoostResonantPeakWithoutSelfOscillation();
 };
 
 } // namespace noteahead

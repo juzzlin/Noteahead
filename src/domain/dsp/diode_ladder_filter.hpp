@@ -42,6 +42,10 @@ public:
     static constexpr double BypassMaxResonance { 0.001 };
     static constexpr double BypassBlendWidth { 0.009 };
 
+    static constexpr double MaxResonanceFeedback { 3.15 };
+    static constexpr double PassbandCompensationExponent { 0.32 };
+    static constexpr double ResonanceCutoffShift { 0.22 };
+
 private:
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };
@@ -53,6 +57,7 @@ private:
 
     double m_g { 0.0 };
     double m_k { 0.0 };
+    double m_gainCompensation { 1.0 };
 
     // State variables
     double m_s1 { 0.0 };

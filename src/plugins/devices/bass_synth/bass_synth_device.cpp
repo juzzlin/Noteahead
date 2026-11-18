@@ -351,8 +351,11 @@ void BassSynthDevice::processAudio(AudioContext & context)
             m_voice.hpf.setCutoff(m_hpfCutoff);
 
             float filtered = m_voice.hpf.process(m_voice.lpf.process(static_cast<float>(mix)));
+            if (m_voice.accent) {
+                filtered *= (1.0f + m_accent * 0.5f);
+            }
 
-            // Distortion
+            // Distortion (post-VCA/accent overdrive, as in TD-3-MO / TB-303 signal chain)
             if (m_distDrive > 0.0f) {
                 float drive = 1.0f + m_distDrive * 10.0f;
                 // Asymmetric distortion for more character
@@ -364,9 +367,6 @@ void BassSynthDevice::processAudio(AudioContext & context)
             }
 
             float finalSample = filtered * static_cast<float>(ampEnv) * linearGainInternal() * m_voice.velocity;
-            if (m_voice.accent) {
-                finalSample *= (1.0f + m_accent);
-            }
 
             l[os] = finalSample * panLeft;
             r[os] = finalSample * panRight;
