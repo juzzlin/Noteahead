@@ -63,7 +63,10 @@ SongOverviewController::SongOverviewController(EditorServiceS editorService, Pla
     }
     if (m_playerService) {
         connect(m_playerService.get(), &PlayerService::tickUpdated, this, &SongOverviewController::updatePlayheadFromTick);
-        connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, &SongOverviewController::updatePlayheadFromEditor);
+        connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this] {
+            m_lastTickedLine.reset();
+            updatePlayheadFromEditor();
+        });
     }
     if (m_mixerService) {
         const auto mixer = m_mixerService.get();
@@ -194,6 +197,32 @@ QVariantMap SongOverviewController::targetAt(int row, int lane, double line, dou
     return target;
 }
 
+QVariantList SongOverviewController::notesStartingIn(int row, double fromLine, double toLine) const
+{
+    QVariantList notes;
+    if (row < 0 || static_cast<size_t>(row) >= m_overview.rows.size()) {
+        return notes;
+    }
+    const auto & overviewRow = m_overview.rows.at(static_cast<size_t>(row));
+    const auto pattern = m_overview.patterns.find(overviewRow.pattern);
+    if (overviewRow.skipped || pattern == m_overview.patterns.end()) {
+        return notes;
+    }
+    for (auto && note : pattern->second.notes) {
+        if (note.startLine < fromLine || note.startLine >= toLine || !isColumnAudible(note.track, note.column)) {
+            continue;
+        }
+        if (const auto lane = m_overview.trackPosition(note.track); lane.has_value()) {
+            notes.append(QVariantMap {
+              { "lane", static_cast<int>(*lane) },
+              { "pitch", static_cast<int>(note.pitch) },
+              { "velocity", static_cast<int>(note.velocity) },
+              { "songLine", static_cast<double>(overviewRow.startLine) + note.startLine } });
+        }
+    }
+    return notes;
+}
+
 void SongOverviewController::refresh()
 {
     m_refreshScheduled = false;
@@ -232,7 +261,19 @@ void SongOverviewController::updatePlayheadFromTick(quint64 tick)
     const auto song = m_editorService->song();
     const auto ticksPerLine = std::max<size_t>(song->ticksPerLine(), 1);
     if (const auto songPosition = song->songPositionByTick((tick / ticksPerLine) * ticksPerLine); songPosition.has_value()) {
-        setPlayhead(static_cast<int>(songPosition->position), static_cast<double>(songPosition->line));
+        const int row = static_cast<int>(songPosition->position);
+        const double line = static_cast<double>(songPosition->line);
+        // From the line after the last one reached, so a line the ticks skipped still lights up;
+        // after a jump or a loop, only this line
+        double fromLine = line;
+        if (m_lastTickedLine && m_lastTickedLine->first == row && m_lastTickedLine->second < line) {
+            fromLine = m_lastTickedLine->second + 1.0;
+        }
+        m_lastTickedLine = { row, line };
+        setPlayhead(row, line);
+        if (auto notes = notesStartingIn(row, fromLine, line + 1.0); !notes.isEmpty()) {
+            emit notesStarted(notes);
+        }
     }
 }
 
