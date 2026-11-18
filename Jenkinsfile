@@ -22,16 +22,13 @@ pipeline {
                 stages {
                     stage('Build and test') {
                         steps {
-                            sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && cmake --build . && ctest --output-on-failure --timeout 600 --parallel \$(nproc)"
+                            // Debug is built with line tables only, compressed (-g1 -gz): every test
+                            // links the whole program, and at full debug info the test binaries took
+                            // ~22 GB per Debug workspace, too much to keep. At a sixth of that they
+                            // are kept between runs, so a run relinks only what changed instead of
+                            // every test, which was most of this stage's time.
+                            sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE '-DCMAKE_CXX_FLAGS_DEBUG=-g1 -gz' .. && cmake --build . && ctest --output-on-failure --timeout 600 --parallel \$(nproc)"
                         }
-                    }
-                }
-                post {
-                    always {
-                        // The test binaries take ~22 GB per Debug workspace, and every matrix
-                        // cell keeps a workspace of its own. Removed inside the container,
-                        // which owns the files.
-                        sh "rm -rf build-$BUILD_TYPE/unit_tests"
                     }
                 }
             }
@@ -51,7 +48,9 @@ pipeline {
                                 def imageName = "juzzlin/qt6-${UBUNTU_VERSION}:latest"
                                 docker.image(imageName).inside('--privileged -t -v $WORKSPACE:/noteahead') {
                                     sh "mkdir -p build-deb-ubuntu-${UBUNTU_VERSION}-qt6"
-                                    sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && cmake -GNinja -DDISTRO_VERSION=ubuntu-${UBUNTU_VERSION} -DCMAKE_BUILD_TYPE=Release .. && cmake --build ."
+                                    // The tests are built and run in the stage above; built here they would only
+                                    // be linked a second time and thrown away.
+                                    sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && cmake -GNinja -DDISTRO_VERSION=ubuntu-${UBUNTU_VERSION} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF .. && cmake --build ."
                                     sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && cpack -G DEB"
                                 }
                             }
