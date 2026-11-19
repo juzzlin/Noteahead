@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="12.1.1" createdDate="2026-08-28T22:11:41.287">
- <Song beatsPerMinute="120" linesPerBeat="8" timeSpent="548">
+ <Song beatsPerMinute="120" linesPerBeat="8" timeSpent="798">
   <Metadata>
    <Tags>
     <Tag name="Artist" value="Jussi Lind"/>
@@ -47,7 +47,7 @@
      <Parameter name="Clap_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="Clap_cutoff" valueType="float" value="7440" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="Clap_decay" valueType="float" value="3060" min="0" max="10000" default="5000" scale="100"/>
-     <Parameter name="Clap_fader" valueType="float" value="2120" min="0" max="10000" default="3302" scale="100"/>
+     <Parameter name="Clap_fader" valueType="float" value="4200" min="0" max="10000" default="3302" scale="100"/>
      <Parameter name="Clap_hpfCutoff" valueType="float" value="2590" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="Clap_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="Clap_tune" valueType="float" value="2990" min="0" max="10000" default="5000" scale="100"/>
@@ -59,7 +59,7 @@
      <Parameter name="ClosedHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="ClosedHiHat_cutoff" valueType="float" value="9270" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="ClosedHiHat_decay" valueType="float" value="1000" min="0" max="10000" default="1000" scale="100"/>
-     <Parameter name="ClosedHiHat_fader" valueType="float" value="3192" min="0" max="10000" default="3192" scale="100"/>
+     <Parameter name="ClosedHiHat_fader" valueType="float" value="2650" min="0" max="10000" default="3192" scale="100"/>
      <Parameter name="ClosedHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="ClosedHiHat_pan" valueType="float" value="6000" min="0" max="10000" default="6000" scale="100"/>
      <Parameter name="ClosedHiHat_resonance" valueType="float" value="1870" min="0" max="10000" default="3000" scale="100"/>
@@ -145,7 +145,7 @@
      <Parameter name="OpenHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="OpenHiHat_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="OpenHiHat_decay" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
-     <Parameter name="OpenHiHat_fader" valueType="float" value="2879" min="0" max="10000" default="2879" scale="100"/>
+     <Parameter name="OpenHiHat_fader" valueType="float" value="2879" min="0" max="10000" default="4278" scale="100"/>
      <Parameter name="OpenHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="OpenHiHat_pan" valueType="float" value="3500" min="0" max="10000" default="3500" scale="100"/>
      <Parameter name="OpenHiHat_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
@@ -267,6 +267,22 @@
      </Voice>
      <Voice index="3">
       <InsertEffects enabled="true">
+       <Effect slot="2" typeId="47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a" type="reverb" id="9e477c06-fd24-4a1d-8bc4-58a28f5e3638" enabled="true">
+        <Parameter name="attack" valueType="float" value="5660" min="0" max="10000" default="5660" scale="100"/>
+        <Parameter name="damping" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+        <Parameter name="decay" valueType="float" value="1500" min="0" max="10000" default="1500" scale="1"/>
+        <Parameter name="gated" valueType="bool" value="true"/>
+        <Parameter name="hold" valueType="float" value="101" min="0" max="1000" default="200" scale="1"/>
+        <Parameter name="hpfCutoff" valueType="float" value="2650" min="0" max="10000" default="2000" scale="100"/>
+        <Parameter name="lpfCutoff" valueType="float" value="8500" min="0" max="10000" default="8500" scale="100"/>
+        <Parameter name="mix" valueType="float" value="10000" min="0" max="10000" default="0" scale="100"/>
+        <Parameter name="preDelay" valueType="float" value="20" min="0" max="500" default="20" scale="1"/>
+        <Parameter name="release" valueType="float" value="6060" min="0" max="10000" default="6060" scale="100"/>
+        <Parameter name="size" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+        <Parameter name="solo" valueType="bool" value="false"/>
+        <Parameter name="threshold" valueType="float" value="3330" min="0" max="10000" default="3330" scale="100"/>
+        <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
+       </Effect>
        <Effect slot="3" typeId="b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b" type="eq8bandparametric" id="3588ea72-c1a3-4eed-b0ef-cd67bff7562c" enabled="true">
         <Parameter name="autoGain" valueType="bool" value="false"/>
         <Parameter name="band1Freq" valueType="float" value="8685" min="20" max="20000" default="10010" scale="100"/>
@@ -346,44 +362,44 @@
     <InsertEffects enabled="true">
      <Effect slot="1" typeId="b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b" type="eq8bandparametric" id="b2e66d41-6459-4114-b544-ca7b82698f7e" enabled="true">
       <Parameter name="autoGain" valueType="bool" value="false"/>
-      <Parameter name="band1Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
-      <Parameter name="band1Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band1Freq" valueType="float" value="7653" min="20" max="20000" default="10010" scale="100"/>
+      <Parameter name="band1Gain" valueType="float" value="-300" min="-2400" max="2400" default="0" scale="100"/>
       <Parameter name="band1Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band1Slope" valueType="int" value="0"/>
-      <Parameter name="band1Type" valueType="int" value="0"/>
-      <Parameter name="band2Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
-      <Parameter name="band2Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band2Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band1Type" valueType="int" value="1"/>
+      <Parameter name="band2Freq" valueType="float" value="13985" min="20" max="20000" default="10010" scale="100"/>
+      <Parameter name="band2Gain" valueType="float" value="200" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band2Q" valueType="float" value="54" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band2Slope" valueType="int" value="0"/>
-      <Parameter name="band2Type" valueType="int" value="0"/>
-      <Parameter name="band3Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
-      <Parameter name="band3Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band3Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band2Type" valueType="int" value="1"/>
+      <Parameter name="band3Freq" valueType="float" value="17690" min="20" max="20000" default="10010" scale="100"/>
+      <Parameter name="band3Gain" valueType="float" value="150" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band3Q" valueType="float" value="59" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band3Slope" valueType="int" value="0"/>
-      <Parameter name="band3Type" valueType="int" value="0"/>
+      <Parameter name="band3Type" valueType="int" value="1"/>
       <Parameter name="band4Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
       <Parameter name="band4Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band4Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band4Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band4Slope" valueType="int" value="0"/>
       <Parameter name="band4Type" valueType="int" value="0"/>
       <Parameter name="band5Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
       <Parameter name="band5Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band5Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band5Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band5Slope" valueType="int" value="0"/>
       <Parameter name="band5Type" valueType="int" value="0"/>
-      <Parameter name="band6Freq" valueType="float" value="15365" min="20" max="20000" default="10010" scale="100"/>
-      <Parameter name="band6Gain" valueType="float" value="312" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band6Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band6Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
+      <Parameter name="band6Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band6Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band6Slope" valueType="int" value="0"/>
-      <Parameter name="band6Type" valueType="int" value="1"/>
+      <Parameter name="band6Type" valueType="int" value="0"/>
       <Parameter name="band7Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
       <Parameter name="band7Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band7Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band7Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band7Slope" valueType="int" value="0"/>
       <Parameter name="band7Type" valueType="int" value="0"/>
       <Parameter name="band8Freq" valueType="float" value="10010" min="20" max="20000" default="10010" scale="100"/>
       <Parameter name="band8Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
-      <Parameter name="band8Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band8Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
       <Parameter name="band8Slope" valueType="int" value="0"/>
       <Parameter name="band8Type" valueType="int" value="0"/>
       <Parameter name="gain" valueType="float" value="0" min="-1200" max="1200" default="0" scale="100"/>
@@ -701,6 +717,21 @@
       <Parameter name="solo" valueType="bool" value="false"/>
       <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
      </Effect>
+     <Effect slot="2" typeId="reverb224" type="reverb224" id="dcbccdfd-a847-4579-ac59-a12b7702778a" enabled="true">
+      <Parameter name="bassDecay" valueType="float" value="3382" min="0" max="10000" default="3382" scale="100"/>
+      <Parameter name="converters" valueType="bool" value="true"/>
+      <Parameter name="crossover1Freq" valueType="float" value="4148" min="0" max="10000" default="4148" scale="100"/>
+      <Parameter name="depth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+      <Parameter name="diffusion" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
+      <Parameter name="enhance" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+      <Parameter name="hpfCutoff" valueType="float" value="5890" min="0" max="10000" default="0" scale="100"/>
+      <Parameter name="midDecay" valueType="float" value="2999" min="0" max="10000" default="2999" scale="100"/>
+      <Parameter name="mix" valueType="float" value="10000" min="0" max="10000" default="3000" scale="100"/>
+      <Parameter name="preDelay" valueType="float" value="0" min="0" max="255" default="20" scale="1"/>
+      <Parameter name="program" valueType="int" value="2"/>
+      <Parameter name="solo" valueType="bool" value="false"/>
+      <Parameter name="trebleDecay" valueType="float" value="8339" min="0" max="10000" default="8339" scale="100"/>
+     </Effect>
      <Effect slot="3" typeId="6d1590ab-62e9-4141-aa19-a4015c038046" type="earlyReflections" id="33dd64e7-c626-4516-b08f-3f9a09a405e0" enabled="true">
       <Parameter name="damping" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
       <Parameter name="diffusion" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
@@ -723,6 +754,7 @@
      </Effect>
      <Send deviceSlot="2" effectSlot="4" level="940"/>
      <Send deviceSlot="3" effectSlot="1" level="2040"/>
+     <Send deviceSlot="3" effectSlot="2" level="5000"/>
      <Send deviceSlot="3" effectSlot="3" level="1040"/>
     </SendEffects>
    </MasterEffects>
