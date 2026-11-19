@@ -5,105 +5,65 @@ Release date:
 
 New features:
 
-* Open a recent project: filter the list by name or folder
+* Drum Synth 808 and Drum Synth 909: TR-808 and TR-909 kits modelled on an RD-8 and an RD-9
 
-* Edit > Audio recording, Ctrl+Shift+R, turns audio recording on or off
+* Room Mics: records a device again in a room, with three mic pairs placed by dragging
 
-* Drum Synth 808: a TR-808 modelled on an RD-8 Mk II, Kick 808 as its kick, with the RD-8's knobs and voice switches
+* Song Overview: the song's tracks as lanes in play order, with a playhead; click to jump
 
-* Drum Synth 909: a TR-909 modelled on an RD-9, each drum with the RD-9's own knobs
+* New version check in the menu bar, with Help > Check for New Version and a setting to turn it off
 
-* Song Overview: the song's tracks as lanes of notes in play order, with a playhead that lights up notes; click to jump
+* Kick 808: waveform with a playhead, an amp envelope and factory presets
 
-* New version check: the menu bar says when a newer release is out; Help > Check for New Version, and a setting to turn it off
-
-* Room Mics: records a device again in a room, its source and three mic pairs placed by dragging
-
-* Kick 808: waveform with a playhead, an amp envelope and 8 factory presets
+* Recent projects can be filtered, and Edit > Audio recording (Ctrl+Shift+R) toggles recording
 
 Bug fixes:
 
 * Fix GitHub Issue #78: Crash when lines per beat is below 4
 
-* Bass Synth: presets sweep the filter through the bass range instead of pinning at the top
+* Kick 909: Decay, click and Attack match an RD-9, and the waveform shows a playhead
 
-* Bass Synth: Resonance is a TD-3-MO's, without self-oscillating or losing the fundamental
+* Kick 808 and Kick 909: the sound knobs read 0–10, as on the machines
 
-* Settings: the controls of every General section line up
-
-* File dialogs no longer fail to open on desktops without native ones, such as KDE, in the AppImage and the Ubuntu 24.04 package
-
-* Kick 909: Decay is an RD-9's, up to 1.7 s instead of 0.45 s
-
-* Kick 909: the click and Attack are an RD-9's
-
-* Drum machines' keyboard no longer lights the pedal hi-hat key, which plays nothing
-
-* Parameter automation targets name devices as the gallery does, not by their internal type
+* Bass Synth: presets and Resonance behave like a TD-3-MO
 
 * Drums no longer click when struck again while still ringing
 
-* Kick 909: the waveform shows a playhead while the drum sounds
+* Drum machines: the pedal hi-hat key no longer lights, and a closed hat's note-off no longer chokes a later open hat
 
-* Kick 808, Drum Synth 808 and 909: the sound knobs read 0–10, as on the machines
+* Wavetable and FM Synth no longer stack voices or race the audio thread; FM Synth's delay spans ten seconds
 
-* Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
+* Synth: hard sync works with the master muted; JU Synth 08 applies its octave once and goes idle after its delay
 
-* Device scopes and the Phase Scope draw their traces about twenty times faster, so they no longer stutter
+* Pianos and String & Voice handle the sustain pedal correctly
 
-* Adding a parameter, MIDI CC or Pitch Bend automation can be undone
+* Flanger no longer drops out on knob moves, Auto Panner keeps its waveform and Drive's Fold no longer hangs
 
-* Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
+* Knobs and sends no longer stick during playback, and parameter defaults match the values they start at
 
-* Auto Panner keeps its waveform when a project is reloaded
+* Devices render the same after a reset, and Sampler pad tweaks reach chromatic notes
 
-* Drive: Fold no longer hangs on an extreme input
+* Adding an automation can be undone, and automation targets use the gallery's device names
 
-* Effect and device parameter defaults match the values they start at
+* Mixer meters, device scopes and the Phase Scope update smoothly
 
-* FM Synth: the delay's Time spans ten seconds, as its knob shows
+* File dialogs open on desktops without native ones, such as KDE
 
-* Synth: hard sync works with the sync master muted
-
-* JU Synth 08: the device's octave is applied once, not twice
-
-* Drum Synths: a closed hi-hat's note-off no longer chokes a later open hi-hat
-
-* Pianos let go of pedal-held notes on Reset All Controllers
-
-* String & Voice: the sustain pedal holds notes
-
-* Wavetable and FM Synth: knob moves no longer race the audio thread
-
-* JU Synth 08 goes idle after its delay tail
-
-* Wavetable and FM Synth: a repeated note no longer stacks voices in Poly mode
-
-* Sampler: pad tweaks reach notes played in chromatic mode
-
-* Devices render the same after a reset, whatever played before
-
-* Opening the performance panel no longer shrinks the editor's text; fewer lines are shown instead
-
-* Sub Mixer: ticking a member no longer scrolls the device list back to the top
+* Settings sections line up, the performance panel no longer shrinks the editor's text and Sub Mixer keeps its scroll
 
 * Multiband Compressor: an Init preset in the preset list
-
-* Knobs and sends no longer stick while a song plays: the racks catch up once a frame
 
 Other:
 
 * Two AppImages, built on Ubuntu 24.04 and on 26.04 for a newer Qt
 
-* Column Flash is on by default
+* Column Flash is on by default, and the device gallery is alphabetical
 
-* Drum Synth V2 and FM Drums start mixed: levels and pans set against the kick
-
-* The device gallery lists devices alphabetically
-
-* Less work per sample in several devices and effects
+* Drum Synth V2 and FM Drums start mixed
 
 * View menu: the Song and Audio Overviews, and what were the Devices and Effects menus
+
+* Less work per sample in several devices and effects
 
 12.1.1
 ======
