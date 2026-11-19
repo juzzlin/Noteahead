@@ -28,9 +28,16 @@ namespace noteahead {
 class HiHatEngine : public DrumEngine
 {
 public:
+    enum class Voicing
+    {
+        Classic,
+        Rd9
+    };
+
     HiHatEngine();
     virtual ~HiHatEngine() override = default;
 
+    void setVoicing(Voicing voicing);
     void trigger(float velocity) override;
     float nextSample() override;
     bool isActive() const override;
@@ -59,15 +66,17 @@ private:
     static constexpr uint32_t RngSeed { 1005 };
     std::mt19937 m_rng { RngSeed };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
+    Voicing m_voicing { Voicing::Classic };
     CascadedSvf m_filter;
     CascadedSvf m_bodyFilter;
+    CascadedSvf m_lpf;
 
     //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
     BaseRateSource m_metallicBank;
     BaseRateSource m_noiseBank;
     float nextMetallicBaseSample();
 
-    std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    std::array<double, 24> m_phases {};
     float m_bodyEnv { 0.0f };
 
     float m_bodyDecayRate { 1.0f };
