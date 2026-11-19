@@ -25,6 +25,8 @@ Bug fixes:
 
 * Kick 808 and Kick 909: the sound knobs read 0–10, as on the machines
 
+* Drum Synth V2: hi-hats, crash and clap refitted closer to the 909 and 808, without the hats' high-end ramp
+
 * Bass Synth: presets and Resonance behave like a TD-3-MO
 
 * Drums no longer click when struck again while still ringing

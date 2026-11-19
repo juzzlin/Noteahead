@@ -33,11 +33,10 @@ namespace {
 //! rather than the noisiness. And an average over the whole sound cannot tell a crash from a ride
 //! at all: fitted without the trajectory this matched the recording's spectrum closely while
 //! sounding like a ride, because it was struck fully open and left to decay.
-constexpr float Rd9MetalLevel { 0.387f };
+constexpr float Rd9MetalLevel { 0.24f };
 constexpr float Rd9WashLevel { 0.080f };
-constexpr float Rd9SizzleLevel { 0.284f };
-constexpr float Rd9StrikeLevel { 0.569f };
-constexpr double Rd9MetalTilt { -0.162 };
+constexpr float Rd9SizzleLevel { 0.180f };
+constexpr float Rd9StrikeLevel { 0.480f };
 //! Cutoffs at the middle of the Tune range, which is where the fit was made, and how far each one
 //! moves from there.
 //!
@@ -46,17 +45,17 @@ constexpr double Rd9MetalTilt { -0.162 };
 //! took it away again: the crash grew brighter to 6.2 kHz and then fell back to 3.6, as dark at
 //! full Tune as at none. The band moves as a whole now, centred so that the fitted sound at the
 //! middle of the range is unchanged.
-constexpr float Rd9HpfCutoff { 0.631f };
-constexpr float Rd9HpfTuneRange { 0.4f };
-constexpr float Rd9BpfTuneRange { 0.25f };
-constexpr float Rd9LpfTuneRange { 0.2f };
+constexpr float Rd9HpfCutoff { 0.580f };
+constexpr float Rd9HpfTuneRange { 0.25f };
+constexpr float Rd9BpfTuneRange { 0.22f };
+constexpr float Rd9LpfTuneRange { 0.20f };
 //! Short of one: the filter is not asked for a cutoff it cannot have.
 constexpr float Rd9MaxCutoff { 0.985f };
-constexpr float Rd9BpfCutoff { 0.828f };
+constexpr float Rd9BpfCutoff { 0.800f };
 //! The filter is swept between these two by the bloom, not parked at one of them.
-constexpr float Rd9LpfStart { 0.753f };
-constexpr float Rd9LpfCutoff { 0.885f };
-constexpr double Rd9BaseFreq { 700.0 };
+//! At noon, 0.895 with Butterworth Q sits right on the RD-9's 8.5-10 kHz low-pass roll-off.
+constexpr float Rd9LpfStart { 0.665f };
+constexpr float Rd9LpfCutoff { 0.895f };
 //! How long the wash takes to open out. Forty-six milliseconds, against a recording whose centroid
 //! climbs from 2.2 to 4.6 kHz over its first two slices.
 constexpr float Rd9BloomSeconds { 0.046f };
@@ -64,43 +63,50 @@ constexpr float Rd9BloomSeconds { 0.046f };
 constexpr float Rd9BloomFloor { 0.25f };
 //! Pitch wobble at the middle of the Wobble knob, which is what the crash had before the knob.
 //! The depth goes with the square of the knob from there, up to four times this at the top.
-constexpr double DefaultWobbleDepth { 0.005 };
+constexpr double DefaultWobbleDepth { 0.002 };
 //! How much faster a partial dies the higher it is: its amplitude falls by this times its
 //! frequency squared, in nepers a second, on top of the envelope everything shares.
-//!
-//! Without it the spectrum froze a third of a second in and the partials from eight to eleven
-//! kilohertz rang on unchanged for as long as the pad held, which is the whine in the tail. Metal
-//! loses its top first, and the recording does too, but it ends at 0.9 s and is no guide to the
-//! tail itself. Its band levels asked for twice this, which took the eight to twelve kilohertz
-//! partials down to a quarter of that band's energy by half a second, where the recording still has
-//! half. Here they keep 37 per cent then, against 58 undamped, and none from a second and a half --
-//! ten kilohertz loses five decibels a second more than the body, three kilohertz half a decibel.
-constexpr double Rd9HighDamping { 0.6e-8 };
+constexpr double Rd9HighDamping { 1.1e-8 };
 //! The body: a band of noise struck at full and decaying to a floor that it then holds, falling
 //! only with the envelope everything shares.
-//!
-//! It used to decay to nothing in eighty milliseconds, from a centre near 315 Hz. The fit only
-//! looked at the first third of a second, and so missed that the recording keeps its 400 Hz to
-//! 1.3 kHz for the whole sound, about eleven decibels under the splash -- by its last half second
-//! ours was forty under. With nothing below two kilohertz left the cymbal was all top, which is
-//! heard as breaking glass rather than as a crash. Moving the band up to the recording's own body
-//! also dropped the strike's centroid from 2.6 kHz to its 2.2.
-constexpr float Rd9BodyCutoff { 0.38f };
+constexpr float Rd9BodyCutoff { 0.36f };
 constexpr float Rd9BodySeconds { 0.060f };
-constexpr float Rd9BodyFloor { 0.16f };
-constexpr float Rd9BodyGain { 0.850f };
+constexpr float Rd9BodyFloor { 0.25f };
+constexpr float Rd9BodyGain { 0.78f };
 constexpr float Rd9DecayScale { 1.05f };
 //! Restores what the fit cost in level.
-//!
-//! The fit compared spectra normalised by their own total, so nothing in it constrained how loud
-//! the voice came out -- and holding the metal back at the strike took the peak with it. Measured
-//! against the kit it plays in, the crash had fallen six decibels under V1's while every other
-//! voice sits one to two above it. A plain gain, so the fitted spectrum and trajectory are
-//! untouched.
 constexpr float Rd9OutputGain { 2.5f };
-//! The same gain leaves the reverse swell four decibels hotter than the struck crash, because it
-//! rises to a full envelope rather than decaying from one, so it is trimmed on its own.
+//! The same gain leaves the reverse swell hotter than the struck crash, because it rises to a full
+//! envelope rather than decaying from one, so it is trimmed on its own.
 constexpr float Rd9ReverseOutputGain { 1.63f };
+
+struct Rd9Partial
+{
+    double hz;
+    double amp;
+    double phase;
+};
+
+//! Top 48 partials of the RD-9 crash cymbal: closely-spaced beating clusters around 3.7, 4.35, 4.63,
+//! 4.78, 5.4, 6.37, 7.34 and 9.6-10.7 kHz that give a metallic shimmer instead of a sparse buzz.
+constexpr std::array<Rd9Partial, 48> Rd9Partials { {
+  { 5407.69, 1.0000, 0.7465 }, { 4342.86, 0.9924, 1.9060 }, { 6373.32, 0.9135, 2.6366 },
+  { 4358.42, 0.9011, -0.8099 }, { 9611.46, 0.8687, -1.4620 }, { 6378.77, 0.8408, -1.3370 },
+  { 3801.38, 0.8386, 2.8076 }, { 5402.75, 0.7782, -1.0681 }, { 4338.35, 0.6719, 1.2451 },
+  { 4350.99, 0.6567, 0.4017 }, { 4783.34, 0.6559, 0.6542 }, { 9615.86, 0.6509, 2.4779 },
+  { 4635.28, 0.6330, -2.0066 }, { 6368.81, 0.6211, -0.3900 }, { 3719.24, 0.6164, -2.1691 },
+  { 10098.41, 0.5881, 2.1859 }, { 4781.14, 0.5847, -0.6362 }, { 3652.92, 0.5815, -2.4318 },
+  { 4785.53, 0.5770, 2.2353 }, { 7346.70, 0.5591, 2.2537 }, { 4373.91, 0.5572, -2.0076 },
+  { 4632.24, 0.5524, 3.0353 }, { 10730.49, 0.5415, -1.9415 }, { 9636.69, 0.5391, 1.8465 },
+  { 4746.31, 0.5274, 1.6188 }, { 10091.82, 0.5237, -2.8568 }, { 4616.86, 0.5118, 0.3786 },
+  { 3666.39, 0.5040, -3.1215 }, { 4364.90, 0.4987, 1.2866 }, { 2040.12, 0.4766, -1.6841 },
+  { 3790.39, 0.4742, 1.4957 }, { 5382.79, 0.4730, -0.5072 }, { 7682.89, 0.4661, 1.6103 },
+  { 3794.27, 0.4586, 1.7212 }, { 3699.68, 0.4455, -1.6932 }, { 4620.85, 0.4393, 0.7340 },
+  { 7340.33, 0.4248, 0.3242 }, { 4911.62, 0.3997, -0.3727 }, { 4759.06, 0.3971, 2.0894 },
+  { 4570.02, 0.3792, 0.8014 }, { 2859.27, 0.3791, 0.1552 }, { 6946.07, 0.3748, 0.7077 },
+  { 6391.11, 0.3730, 1.5734 }, { 2791.48, 0.3626, -2.9095 }, { 3863.75, 0.3595, -2.7726 },
+  { 4605.87, 0.3590, -2.0743 }, { 4381.24, 0.3495, -1.2354 }, { 2939.32, 0.3454, 0.7906 },
+} };
 
 } // namespace
 
@@ -137,8 +143,16 @@ void CrashEngine::trigger(float velocity)
     m_wobblePhase = 0.0;
     m_metallicBank.reset();
     m_noiseBank.reset();
-    for (auto && phase : m_phases) {
-        phase = 0.0;
+    for (size_t i = 0; i < m_phases.size(); i++) {
+        if (m_voicing == Voicing::Rd9) {
+            double p = Rd9Partials[i].phase / (2.0 * std::numbers::pi);
+            if (p < 0.0) {
+                p += 1.0;
+            }
+            m_phases[i] = p;
+        } else {
+            m_phases[i] = 0.0;
+        }
     }
     if (m_mode == Mode::Normal) {
         m_ampEnv = 1.0f;
@@ -149,51 +163,48 @@ void CrashEngine::trigger(float velocity)
 
 float CrashEngine::nextMetallicBaseSample(double pitchScale, double partialAge)
 {
-    const double baseFreq { ((m_voicing == Voicing::Rd9 ? Rd9BaseFreq : 350.0) + m_tune * 400.0) * pitchScale };
-    // Twenty-four, of which the Classic voicing sounds the first twelve. Twelve is too few for a
-    // crash: with the weight piled on two of them the bank rang as a pitched tone rather than a
-    // wash -- measured at the default Tune it stood twenty-one decibels above its neighbourhood at
-    // 6.87 kHz, which is 900 Hz times the 7.63 ratio, and again at 7.98. The recording's peaks are
-    // spread across the spectrum and its strongest is up at 17.6 kHz, where it reads as air.
-    static constexpr std::array<double, 24> ratios {
-        1.0, 1.27, 1.73, 2.11, 2.68, 3.47, 3.86, 4.21, 4.79, 5.17, 5.83, 6.39,
-        7.02, 7.63, 8.21, 8.87, 9.54, 10.13, 11.21, 12.39, 13.47, 14.57, 16.31, 18.13
-    };
-    static constexpr size_t ClassicPartials { 12 };
-    const size_t partials = m_voicing == Voicing::Rd9 ? ratios.size() : ClassicPartials;
-
-    // The splash is the band from four to eight kilohertz, which is where the ratios from 7.63 up
-    // land over this base. Summed flat they sat six decibels under the record there, and that band
-    // is most of what makes a crash sound like struck metal rather than like a wash.
-    // Deliberately flat. Every bump here is a partial that can be picked out by ear, and what a
-    // crash needs is density rather than any particular mode being loud.
-    static constexpr std::array<double, 24> rd9Weights {
-        0.62, 0.64, 0.68, 0.72, 0.78, 0.84, 0.90, 0.95, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 0.98, 0.96, 0.94, 0.9, 0.86, 0.82, 0.76, 0.7
-    };
-
-    double metallicSource = 0.0;
-    double weightSum = 0.0;
     const double invSr = 1.0 / baseSampleRate();
     // A partial over the Nyquist rate folds back down as a tone that has nothing to do with the
     // cymbal and moves the wrong way when Tune is raised.
-    const double highest = baseSampleRate() * 0.5;
-    for (size_t i = 0; i < partials; ++i) {
+    const double highest = baseSampleRate() * 0.48;
+
+    if (m_voicing == Voicing::Rd9) {
+        const double tuneScale = std::pow(2.0, (static_cast<double>(m_tune) - 0.5) * 1.0) * pitchScale;
+        double metallicSource = 0.0;
+        double weightSum = 0.0;
+        for (size_t i = 0; i < Rd9Partials.size(); i++) {
+            const double frequency = Rd9Partials[i].hz * tuneScale;
+            if (frequency >= highest) {
+                continue;
+            }
+            m_phases[i] += frequency * invSr;
+            if (m_phases[i] >= 1.0) {
+                m_phases[i] -= 1.0;
+            }
+            const double weight = Rd9Partials[i].amp;
+            const double damping = std::exp(-Rd9HighDamping * frequency * frequency * partialAge);
+            metallicSource += weight * damping * std::sin(2.0 * std::numbers::pi * m_phases[i]);
+            weightSum += weight;
+        }
+        return static_cast<float>(metallicSource / std::max(1.0, weightSum) * 2.5);
+    }
+
+    const double baseFreq { (350.0 + m_tune * 400.0) * pitchScale };
+    static constexpr std::array<double, 12> ratios {
+        1.0, 1.27, 1.73, 2.11, 2.68, 3.47, 3.86, 4.21, 4.79, 5.17, 5.83, 6.39
+    };
+
+    double metallicSource = 0.0;
+    for (size_t i = 0; i < ratios.size(); i++) {
         if (baseFreq * ratios[i] >= highest) {
             break;
         }
         m_phases[i] += baseFreq * ratios[i] * invSr;
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
-        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] * std::pow(ratios[i], Rd9MetalTilt) : 1.0;
-        // Summed into the source but not into weightSum, which would otherwise scale the damping
-        // straight back out again.
-        const double frequency = baseFreq * ratios[i];
-        const double damping = m_voicing == Voicing::Rd9 ? std::exp(-Rd9HighDamping * frequency * frequency * partialAge) : 1.0;
-        metallicSource += weight * damping * (m_phases[i] < 0.5 ? 1.0 : -1.0);
-        weightSum += weight;
+        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
     }
-    return static_cast<float>(metallicSource / std::max(1.0, weightSum));
+    return static_cast<float>(metallicSource / static_cast<double>(ratios.size()));
 }
 
 float CrashEngine::nextSample()
@@ -330,11 +341,12 @@ float CrashEngine::nextSample()
     m_lpf.setSampleRate(sr);
     // Higher for the fitted voicing: the record still has real weight in its top octave, and at
     // 0.85 the splash was being rolled off five decibels below it.
-    // Swept open by the bloom rather than fixed. This is where the crash comes from: the recording
-    // is dark at the strike, a 2.2 kHz centroid, and spreads to 4.6 kHz over the next hundred
-    // milliseconds. Holding the filter down and letting it open is what that spreading is.
-    m_lpf.setCutoff(rd9 ? std::min(Rd9MaxCutoff, Rd9LpfStart + (Rd9LpfCutoff - Rd9LpfStart) * m_bloomEnv + tuneOffset * Rd9LpfTuneRange) : 0.85f); // 12kHz roll-off
-    m_lpf.setResonance(0.1f);
+    // Swept open by the bloom rather than fixed, then gently darkened over the long tail so the
+    // wash loses its top along with the damped partials.
+    const float tailAge = static_cast<float>(reversed ? remaining : m_elapsedSeconds);
+    const float tailDarken = std::min(0.06f, std::max(0.0f, tailAge - 0.35f) * 0.03f);
+    m_lpf.setCutoff(rd9 ? std::clamp(Rd9LpfStart + (Rd9LpfCutoff - Rd9LpfStart) * m_bloomEnv + tuneOffset * Rd9LpfTuneRange - tailDarken, 0.2f, Rd9MaxCutoff) : 0.85f); // 12kHz roll-off
+    m_lpf.setResonance(rd9 ? 0.2929f : 0.1f);
 
     const auto hpfOut = static_cast<float>(m_hpf.process(source));
     const auto bpfOut = static_cast<float>(m_bpf.process(source));

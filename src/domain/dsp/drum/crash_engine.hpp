@@ -101,7 +101,7 @@ private:
     //! Rd9HighDamping.
     float nextMetallicBaseSample(double pitchScale, double partialAge);
 
-    std::array<double, 24> m_phases {};
+    std::array<double, 48> m_phases {};
     float m_sizzleEnv { 0.0f };
     float m_bodyEnv { 0.0f };
     double m_wobblePhase { 0.0 };

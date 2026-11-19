@@ -177,7 +177,8 @@ bool isFittedVoice(int voice)
     const auto index = static_cast<DrumSynthV2::VoiceIndex>(voice);
     // Rim is here for a different reason from the rest: V1 has no rim at all, so there is nothing
     // to hold it against rather than a voicing that deliberately drifted.
-    return index == Snare || index == LowTom || index == MidTom || index == HighTom
+    return index == Snare || index == ClosedHiHat || index == Clap || index == OpenHiHat
+      || index == LowTom || index == MidTom || index == HighTom
       || index == Crash || index == Ride || index == ReverseCrash || index == Rim;
 }
 
@@ -719,6 +720,53 @@ void DrumSynthV2Test::test_snare_shouldBeADrumRatherThanASizzle()
     const auto sizzle = 10.0 * std::log10(std::max(bandPower(ps, 4000.0, 8000.0), 1.0e-30));
     QVERIFY2(body > sizzle,
              qPrintable(QString { "the snare is a sizzle: body %1 dB, 4-8 kHz %2 dB" }.arg(body).arg(sizzle)));
+}
+
+void DrumSynthV2Test::test_hiHats_shouldRollOffAboveTenKilohertz()
+{
+    // V1's hi-hats high-pass white noise with no low-pass shaping, so their spectrum ramps upward
+    // all the way to 20 kHz, especially in the tail once the short body fades. V2's RD-9 voicing
+    // peaks around 6-10 kHz and rolls off cleanly above 10 kHz both overall and in the tail.
+    DrumSynthV2Device v2 { "V2" };
+    for (const auto voice : { DrumSynthV2::VoiceIndex::ClosedHiHat, DrumSynthV2::VoiceIndex::OpenHiHat }) {
+        const auto index = static_cast<int>(voice);
+        const auto rendered = v2.renderVoiceAlone(index, sampleRate, 1.0);
+        const double tailFrom = voice == DrumSynthV2::VoiceIndex::ClosedHiHat ? 0.04 : 0.15;
+        const double tailTo = voice == DrumSynthV2::VoiceIndex::ClosedHiHat ? 0.12 : 0.35;
+
+        for (const auto [from, to, label] : { std::tuple { 0.0, tailTo, "overall" }, std::tuple { tailFrom, tailTo, "tail" } }) {
+            const auto ps = spectrumBetween(rendered, from, to);
+            const auto presence = 10.0 * std::log10(std::max(bandPower(ps, 5000.0, 10000.0), 1.0e-30));
+            const auto top = 10.0 * std::log10(std::max(bandPower(ps, 14000.0, 20000.0), 1.0e-30));
+            QVERIFY2(presence - top > 6.0,
+                     qPrintable(QString { "%1 (%2) ramps into the top end: 5-10 kHz %3 dB, 14-20 kHz %4 dB" }
+                                  .arg(DrumSynthV2::voiceName(index))
+                                  .arg(label)
+                                  .arg(presence)
+                                  .arg(top)));
+        }
+    }
+
+    // V1 keeps its Classic voicing untouched.
+    const DrumSynthV2Device notes { "Notes" };
+    const auto v1Chh = spectrum(renderNote<DrumSynthDevice>(notes.voiceNote(static_cast<int>(DrumSynthV2::VoiceIndex::ClosedHiHat)), fullTailBlocks), 0.15);
+    QVERIFY(bandPower(v1Chh, 14000.0, 20000.0) > bandPower(v1Chh, 5000.0, 10000.0));
+}
+
+void DrumSynthV2Test::test_clap_shouldPeakInTheMidbandAndRollOff()
+{
+    // V2's clap is voiced like the RD-8: band-passed around 1.6 kHz and low-passed around 6.7 kHz,
+    // so its energy sits in the 1-3 kHz snap band and falls off cleanly above 6 kHz.
+    DrumSynthV2Device v2 { "V2" };
+    const auto clap = static_cast<int>(DrumSynthV2::VoiceIndex::Clap);
+    const auto ps = spectrum(v2.renderVoiceAlone(clap, sampleRate, 0.5), 0.25);
+    const auto snap = 10.0 * std::log10(std::max(bandPower(ps, 1000.0, 3000.0), 1.0e-30));
+    const auto high = 10.0 * std::log10(std::max(bandPower(ps, 6000.0, 16000.0), 1.0e-30));
+    const auto low = 10.0 * std::log10(std::max(bandPower(ps, 100.0, 500.0), 1.0e-30));
+    QVERIFY2(snap - high > 10.0,
+             qPrintable(QString { "clap does not roll off above 6 kHz: 1-3 kHz %1 dB, 6-16 kHz %2 dB" }.arg(snap).arg(high)));
+    QVERIFY2(snap - low > 10.0,
+             qPrintable(QString { "clap is too muddy below 500 Hz: 1-3 kHz %1 dB, 100-500 Hz %2 dB" }.arg(snap).arg(low)));
 }
 
 void DrumSynthV2Test::test_reverseCrash_shouldBeTheCrashRunBackwards()

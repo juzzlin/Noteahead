@@ -75,9 +75,9 @@ std::pair<float, float> DrumSynthV2Device::defaultVoiceMix(int index) const
     static constexpr std::array<std::pair<float, float>, NumVoices> mix { {
       { 0.7500f, 0.500f }, // Kick
       { 0.7450f, 0.300f }, // Snare
-      { 0.3192f, 0.600f }, // ClosedHiHat
+      { 0.2735f, 0.600f }, // ClosedHiHat
       { 0.3302f, 0.500f }, // Clap
-      { 0.2879f, 0.350f }, // OpenHiHat
+      { 0.3666f, 0.350f }, // OpenHiHat
       { 0.4997f, 0.675f }, // LowTom
       { 0.4311f, 0.500f }, // MidTom
       { 0.5000f, 0.325f }, // HighTom
@@ -135,11 +135,15 @@ void DrumSynthV2Device::initializeEngines()
             auto snare = std::make_unique<SnareEngine>();
             snare->setVoicing(SnareEngine::Voicing::Rd9);
             setVoiceEngine(i, std::move(snare));
-        } else if (voiceIdx == VoiceIndex::Clap)
-            setVoiceEngine(i, std::make_unique<ClapEngine>());
-        else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat)
-            setVoiceEngine(i, std::make_unique<HiHatEngine>());
-        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) {
+        } else if (voiceIdx == VoiceIndex::Clap) {
+            auto clap = std::make_unique<ClapEngine>();
+            clap->setVoicing(ClapEngine::Voicing::Rd8);
+            setVoiceEngine(i, std::move(clap));
+        } else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) {
+            auto hihat = std::make_unique<HiHatEngine>();
+            hihat->setVoicing(HiHatEngine::Voicing::Rd9);
+            setVoiceEngine(i, std::move(hihat));
+        } else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) {
             auto tom = std::make_unique<TomEngine>();
             tom->setVoicing(TomEngine::Voicing::Rd9);
             setVoiceEngine(i, std::move(tom));

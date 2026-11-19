@@ -44,6 +44,8 @@ private slots:
     void test_toms_shouldBeStruckNotJustPitched();
     void test_toms_shouldBePitchedLikeTheRecordings();
     void test_snare_shouldBeADrumRatherThanASizzle();
+    void test_hiHats_shouldRollOffAboveTenKilohertz();
+    void test_clap_shouldPeakInTheMidbandAndRollOff();
     void test_reverseCrash_shouldBeTheCrashRunBackwards();
     void test_cymbals_v1_shouldNotTakeTheFit();
     void test_cymbals_ride_shouldBeAsNoisyAsRealMetal();

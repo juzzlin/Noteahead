@@ -32,6 +32,11 @@ ClapEngine::ClapEngine()
     m_lowPassFilter.setOrder(2); // Gentle slope keeps some of the transient snap while darkening the body
 }
 
+void ClapEngine::setVoicing(Voicing voicing)
+{
+    m_voicing = voicing;
+}
+
 void ClapEngine::trigger(float velocity)
 {
     m_velocity = velocity;
@@ -43,6 +48,26 @@ void ClapEngine::trigger(float velocity)
     m_noiseBank.reset();
     m_highPassFilter.reset();
     m_lowPassFilter.reset();
+
+    const double sr { sampleRate() };
+    if (m_voicing == Voicing::Rd8) {
+        m_highPassFilter.setSampleRate(sr);
+        m_highPassFilter.setMode(CascadedSvf::Mode::BandPass);
+        m_highPassFilter.setOrder(2);
+        m_highPassFilter.setCutoff(0.6363f + (m_tune - 0.5f) * 0.25f);
+        m_highPassFilter.setResonance(0.7213f);
+
+        m_lowPassFilter.setSampleRate(sr);
+        m_lowPassFilter.setMode(CascadedSvf::Mode::LowPass);
+        m_lowPassFilter.setOrder(2);
+        m_lowPassFilter.setCutoff(0.8425f + (m_tune - 0.5f) * 0.20f);
+        m_lowPassFilter.setResonance(0.2929f);
+    } else {
+        m_highPassFilter.setMode(CascadedSvf::Mode::HighPass);
+        m_highPassFilter.setOrder(4);
+        m_lowPassFilter.setMode(CascadedSvf::Mode::LowPass);
+        m_lowPassFilter.setOrder(2);
+    }
 }
 
 float ClapEngine::nextSample()
@@ -51,8 +76,66 @@ float ClapEngine::nextSample()
         return 0.0f;
     }
 
+    const double sr { sampleRate() };
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
+    }
+    const float noise { m_noiseBank.nextSample() };
+
+    if (m_voicing == Voicing::Rd8) {
+        constexpr double BurstGapSeconds { 0.008787 };
+        constexpr double BurstSeconds { 0.004245 };
+        constexpr double TailStartSeconds { 0.029314 };
+        constexpr double TailAttackSeconds { 0.001007 };
+        constexpr double TailLevel { 1.9315 };
+        constexpr double TailFast { 0.9439 };
+        constexpr double TailFastSeconds { 0.015029 };
+        constexpr double TailSeconds { 0.016235 };
+
+        const double t { static_cast<double>(m_sampleCount) / sr };
+        double burstAmp { 0.0 };
+        for (int i { 0 }; i < 3; i++) {
+            if (const double start = i * BurstGapSeconds; t >= start) {
+                burstAmp += std::exp(-(t - start) / BurstSeconds);
+            }
+        }
+
+        double tailAmp { 0.0 };
+        if (t >= TailStartSeconds) {
+            const double u { t - TailStartSeconds };
+            const double decayScale { std::pow(4.0, (static_cast<double>(m_decay) - 0.5) * 2.0) };
+            const double tailAttack { 1.0 - std::exp(-u / TailAttackSeconds) };
+            const double fastDecay { std::exp(-u / (TailFastSeconds * decayScale)) };
+            const double slowDecay { std::exp(-u / (TailSeconds * decayScale)) };
+            tailAmp = static_cast<double>(m_tailEnv) * TailLevel * tailAttack * (TailFast * fastDecay + (1.0 - TailFast) * slowDecay);
+            if (m_stopping) {
+                const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sr))) };
+                m_tailEnv *= chokeDecayRate;
+            }
+        }
+
+        m_highPassFilter.setSampleRate(sr);
+        m_highPassFilter.setCutoff(0.6363f + (m_tune - 0.5f) * 0.25f);
+        m_lowPassFilter.setSampleRate(sr);
+        m_lowPassFilter.setCutoff(0.8425f + (m_tune - 0.5f) * 0.20f);
+
+        const auto filteredNoise = static_cast<float>(m_lowPassFilter.process(m_highPassFilter.process(noise)));
+        const float out = filteredNoise * static_cast<float>(burstAmp + tailAmp) * m_attackEnv * m_velocity * 1.18f;
+
+        const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
+        m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
+        m_sampleCount++;
+
+        if (t > TailStartSeconds + TailAttackSeconds && (burstAmp + tailAmp) < AmplitudeThreshold) {
+            m_active = false;
+            m_stopping = false;
+        }
+
+        return out;
+    }
+
     float burstAmp = 0.0f;
-    const double sr = sampleRate();
 
     // Three initial bursts
     const int burstInterval = static_cast<int>(0.01f * sr);
@@ -76,11 +159,6 @@ float ClapEngine::nextSample()
         m_tailEnv *= decayRate;
     }
 
-    m_noiseBank.setOversampleFactor(oversampleFactor());
-    if (m_noiseBank.needsBaseSample()) {
-        m_noiseBank.setBaseSample(m_dist(m_rng));
-    }
-    const float noise { m_noiseBank.nextSample() };
     m_highPassFilter.setSampleRate(sr);
     m_highPassFilter.setCutoff(0.2f + m_tune * 0.5f);
     m_highPassFilter.setResonance(0.3f);

@@ -28,9 +28,16 @@ namespace noteahead {
 class ClapEngine : public DrumEngine
 {
 public:
+    enum class Voicing
+    {
+        Classic,
+        Rd8
+    };
+
     ClapEngine();
     virtual ~ClapEngine() override = default;
 
+    void setVoicing(Voicing voicing);
     void trigger(float velocity) override;
     float nextSample() override;
     bool isActive() const override;
@@ -48,6 +55,7 @@ private:
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_velocity { 1.0f };
+    Voicing m_voicing { Voicing::Classic };
 
     //! Fixed so a render is reproducible: the engine is re-seeded in reset(), which
     //! every render start runs, rather than carrying state over from earlier playback.
