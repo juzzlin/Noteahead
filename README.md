@@ -407,8 +407,8 @@ There are two, named after the Ubuntu release they were built on:
   Ubuntu 24.04, Debian 13 and Fedora 39 onwards.
 * `26.04` carries a newer Qt, but requires glibc 2.43 or newer, which covers Ubuntu 26.04 onwards.
 
-    $ chmod +x Noteahead-12.1.1-x86_64-24.04.AppImage
-    $ ./Noteahead-12.1.1-x86_64-24.04.AppImage
+    $ chmod +x Noteahead-13.0.0-x86_64-24.04.AppImage
+    $ ./Noteahead-13.0.0-x86_64-24.04.AppImage
 
 To build them yourself, run `./scripts/build-appimage-docker` in the project root. It builds one in
 an Ubuntu 24.04 and one in an Ubuntu 26.04 container, so the AppImages stay portable whatever the
