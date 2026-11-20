@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+13.0.0
+======
+
+Release date:
+
+Fri, 20 Nov 2026 21:24:04 +0200
+
+New features:
+
 * Drum Synth 808 and Drum Synth 909: TR-808 and TR-909 kits modelled on an RD-8 and an RD-9
 
 * Room Mics: records a device again in a room, with three mic pairs placed by dragging
