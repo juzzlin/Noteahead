@@ -114,8 +114,11 @@ ColumnLayout {
         ScrollBar.vertical.policy: ScrollBar.AsNeeded
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-        TextArea {
+        // TextEdit rather than TextArea: Qt 6.4's TextArea loops on its implicit size with wrapped
+        // rich text when the layout sizes the two sides from their contents
+        TextEdit {
             width: reportScrollView.availableWidth
+            padding: 6
             text: root.report !== "" ? root.report : ("<i>" + qsTr("Open a WAV or FLAC file to analyse it.") + "</i>")
             textFormat: Text.RichText
             wrapMode: Text.Wrap
@@ -123,7 +126,6 @@ ColumnLayout {
             font.pointSize: 10
             readOnly: true
             selectByMouse: true
-            background: null
             activeFocusOnTab: false
         }
     }
