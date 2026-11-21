@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Installs a Debian package into a stock container of the given image and starts
+# it with --smoke-test, so that a dependency the package fails to declare shows
+# up here rather than on a user's machine. Must be run in the project root.
+#
+# Usage: scripts/smoke-test-deb ubuntu:24.04 build-deb-ubuntu-24.04-qt6/noteahead-13.0.0-ubuntu-24.04_amd64.deb
+
+set -e
+
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <image> <deb>"
+    exit 1
+fi
+
+IMAGE=$1
+DEB=$2
+
+if [[ ! -f "${DEB}" ]]; then
+    echo "$0: ${DEB} not found"
+    exit 1
+fi
+
+echo "Smoke testing ${DEB} on ${IMAGE} .."
+
+docker run --rm -i \
+    -v "${PWD}:/noteahead:ro" \
+    -e DEB="${DEB}" \
+    -e DEBIAN_FRONTEND=noninteractive \
+    -e QT_QPA_PLATFORM=offscreen \
+    "${IMAGE}" bash -e -s <<'IN_CONTAINER'
+apt-get update -qq
+apt-get install -y -qq "/noteahead/${DEB}" > /dev/null
+noteahead --smoke-test
+IN_CONTAINER

@@ -28,6 +28,8 @@ pipeline {
                             // are kept between runs, so a run relinks only what changed instead of
                             // every test, which was most of this stage's time.
                             sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE '-DCMAKE_CXX_FLAGS_DEBUG=-g1 -gz' .. && cmake --build . && ctest --output-on-failure --timeout 600 --parallel \$(nproc)"
+                            // Starts the UI headless and fails on any QML warning, which no unit test sees
+                            sh "cd build-$BUILD_TYPE && QT_QPA_PLATFORM=offscreen ./noteahead --smoke-test"
                         }
                     }
                 }
@@ -51,8 +53,12 @@ pipeline {
                                     // The tests are built and run in the stage above; built here they would only
                                     // be linked a second time and thrown away.
                                     sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && cmake -GNinja -DDISTRO_VERSION=ubuntu-${UBUNTU_VERSION} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF .. && cmake --build ."
-                                    sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && cpack -G DEB"
+                                    // The build directory is kept between runs: clear the last version's package
+                                    sh "cd build-deb-ubuntu-${UBUNTU_VERSION}-qt6 && rm -f *.deb && cpack -G DEB"
                                 }
+                                // Installed into a stock image, not the build image, which has every
+                                // dependency already: a package that forgets one has to fail here.
+                                sh "./scripts/smoke-test-deb ubuntu:${UBUNTU_VERSION} build-deb-ubuntu-${UBUNTU_VERSION}-qt6/*.deb"
                             }
                         }
                     }
@@ -85,7 +91,13 @@ pipeline {
             // starts a container of its own, so that the same command builds the
             // same AppImage here and on a developer's machine.
             steps {
+                sh "rm -f Noteahead-*.AppImage"
                 sh "./scripts/build-appimage-docker"
+                // Each AppImage on its own release, and the portable 24.04 one on Fedora too, with
+                // nothing installed but what any desktop has
+                sh "./scripts/smoke-test-appimage ubuntu:24.04 Noteahead-*-24.04.AppImage"
+                sh "./scripts/smoke-test-appimage ubuntu:26.04 Noteahead-*-26.04.AppImage"
+                sh "./scripts/smoke-test-appimage fedora:43 Noteahead-*-24.04.AppImage"
             }
             post {
                 always {

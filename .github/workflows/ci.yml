@@ -72,3 +72,8 @@ jobs:
       run: |
         cd build
         ctest --output-on-failure --timeout 600 --parallel $(nproc)
+
+    # Starts the UI headless and fails on any QML warning: a binding that only breaks on this
+    # distribution's Qt passes every unit test but leaves the user with a broken window.
+    - name: Smoke test
+      run: ./build/noteahead --smoke-test
