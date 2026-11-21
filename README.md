@@ -83,7 +83,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 
 **Stable.** Noteahead is built to be trusted with a live set and a finished song. Its 220 automated test suites run on every commit, covering everything from the DSP of each instrument to the project file format, and a project saved by any earlier version still opens.
 
-**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-seven instruments and 49 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
+**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-eight instruments and 49 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
 
 ### Who it is for
 
