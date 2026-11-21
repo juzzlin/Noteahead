@@ -75,6 +75,17 @@ constexpr std::chrono::seconds versionCheckStartupDelay()
     return std::chrono::seconds { 5 };
 }
 
+constexpr const char * smokeTestOption()
+{
+    return "--smoke-test";
+}
+
+//! How long --smoke-test keeps the UI running before it quits.
+constexpr std::chrono::seconds smokeTestDuration()
+{
+    return std::chrono::seconds { 3 };
+}
+
 constexpr std::chrono::seconds versionCheckTimeout()
 {
     return std::chrono::seconds { 10 };

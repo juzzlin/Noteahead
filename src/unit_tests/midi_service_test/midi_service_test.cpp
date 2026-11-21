@@ -17,7 +17,7 @@
 
 #include "../../application/instrument_request.hpp"
 #include "../../application/service/device_service.hpp"
-#include "../../application/service/midi_service.hpp"
+#include "../../application/service/dummy_midi_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -37,16 +37,6 @@ namespace noteahead {
 
 namespace {
 
-//! MidiService without the RtMidi workers: the internal device path never touches them.
-class TestMidiService : public MidiService
-{
-public:
-    explicit TestMidiService(DeviceServiceS deviceService)
-      : MidiService { std::move(deviceService), nullptr, false }
-    {
-    }
-};
-
 //! CC of the kick's HPF cutoff, the setting that stayed unapplied on rewind.
 constexpr uint8_t kickHpfCc()
 {
@@ -57,7 +47,7 @@ struct TestSetup
 {
     std::shared_ptr<DeviceService> deviceService;
     std::shared_ptr<DrumSynthDevice> device;
-    std::unique_ptr<TestMidiService> midiService;
+    std::unique_ptr<DummyMidiService> midiService;
     Instrument instrument { Constants::internalDevicePortPrefix() + " 1" };
 };
 
@@ -67,7 +57,7 @@ TestSetup createSetup()
     setup.deviceService = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
     setup.device = std::make_shared<DrumSynthDevice>("Drum Synth 1");
     setup.deviceService->setDevice(0, setup.device);
-    setup.midiService = std::make_unique<TestMidiService>(setup.deviceService);
+    setup.midiService = std::make_unique<DummyMidiService>(setup.deviceService);
     return setup;
 }
 
@@ -171,7 +161,7 @@ void MidiServiceTest::test_sendParameterData_shouldReachTheEffectOnTheAudioThrea
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    TestMidiService midiService { deviceService };
+    DummyMidiService midiService { deviceService };
     const auto filter = std::make_shared<AutoFilter>();
     deviceService->insertEffectRack().setEffect(0, filter);
     const auto cutoffKey = Constants::NahdXml::xmlKeyCutoff().toStdString();
@@ -194,7 +184,7 @@ void MidiServiceTest::test_sendParameterData_device_shouldReachTheDeviceOnTheAud
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    TestMidiService midiService { deviceService };
+    DummyMidiService midiService { deviceService };
     const auto synth = std::make_shared<SynthDevice>("Synth");
     deviceService->setDevice(0, synth);
     synth->setLpfCutoff(0.9f);

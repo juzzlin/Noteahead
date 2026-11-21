@@ -16,7 +16,7 @@
 #include "midi_importer_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/midi_service.hpp"
+#include "../../application/service/dummy_midi_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
@@ -32,11 +32,11 @@
 
 namespace noteahead {
 
-class MockMidiService : public MidiService
+class MockMidiService : public DummyMidiService
 {
 public:
     MockMidiService()
-      : MidiService(nullptr, nullptr, false)
+      : DummyMidiService { nullptr }
     {
     }
 

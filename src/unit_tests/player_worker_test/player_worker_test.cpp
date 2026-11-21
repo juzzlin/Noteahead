@@ -15,7 +15,7 @@
 
 #include "player_worker_test.hpp"
 
-#include "../../application/service/midi_service.hpp"
+#include "../../application/service/dummy_midi_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/player_worker.hpp"
 #include "../../common/constants.hpp"
@@ -60,11 +60,11 @@ public:
 };
 
 // Mock MidiService to capture calls
-class MockMidiService : public MidiService
+class MockMidiService : public DummyMidiService
 {
 public:
     MockMidiService()
-      : MidiService(nullptr, nullptr, false)
+      : DummyMidiService { nullptr }
     {
     }
 

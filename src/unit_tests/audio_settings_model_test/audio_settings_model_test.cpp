@@ -16,7 +16,7 @@
 #include "audio_settings_model_test.hpp"
 
 #include "../../application/models/audio_settings_model.hpp"
-#include "../../application/service/audio_service.hpp"
+#include "../../application/service/dummy_audio_service.hpp"
 #include "../../application/service/jack_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -38,15 +38,13 @@ QTemporaryDir & settingsDirectory()
     return directory;
 }
 
-//! An AudioService that records what it was told to use instead of opening anything.
-//!
-//! autoInitialize is off, so there is no worker and no stream: what is left is the choice being
-//! handed down, which is the whole subject here.
-class RecordingAudioService : public AudioService
+//! An AudioService that records what it was told to use instead of opening anything: what is left
+//! is the choice being handed down, which is the whole subject here.
+class RecordingAudioService : public DummyAudioService
 {
 public:
     RecordingAudioService(SettingsServiceS settingsService, AudioEngineS audioEngine)
-      : AudioService { settingsService, std::make_shared<JackService>(settingsService, audioEngine), audioEngine, nullptr, false }
+      : DummyAudioService { settingsService, std::make_shared<JackService>(settingsService, audioEngine), audioEngine }
     {
     }
 
