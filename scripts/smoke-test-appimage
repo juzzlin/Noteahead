@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Starts an AppImage with --smoke-test in a stock container of the given image,
+# so that a library or QML module the AppImage fails to bundle shows up here
+# rather than on a user's machine. Must be run in the project root.
+#
+# The container gets only what a desktop always has and the AppImage leaves to
+# the host on purpose (OpenGL, fonts, the GLib family); a missing anything else
+# is the AppImage's fault. It is extracted rather than mounted, since a
+# container has no FUSE.
+#
+# Usage: scripts/smoke-test-appimage ubuntu:24.04 Noteahead-13.0.0-x86_64-24.04.AppImage
+
+set -e
+
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <image> <AppImage>"
+    exit 1
+fi
+
+IMAGE=$1
+APPIMAGE=$2
+
+if [[ ! -f "${APPIMAGE}" ]]; then
+    echo "$0: ${APPIMAGE} not found"
+    exit 1
+fi
+
+echo "Smoke testing ${APPIMAGE} on ${IMAGE} .."
+
+docker run --rm -i \
+    -v "${PWD}:/noteahead:ro" \
+    -e APPIMAGE="${APPIMAGE}" \
+    -e DEBIAN_FRONTEND=noninteractive \
+    -e QT_QPA_PLATFORM=offscreen \
+    "${IMAGE}" bash -e -s <<'IN_CONTAINER'
+if command -v apt-get > /dev/null; then
+    apt-get update -qq
+    apt-get install -y -qq --no-install-recommends \
+        libasound2t64 libegl1 libfontconfig1 libgl1 libglib2.0-0t64 libharfbuzz0b libice6 libopengl0 libsm6 > /dev/null
+else
+    dnf install -y -q \
+        alsa-lib fontconfig glib2 harfbuzz libICE libSM libglvnd-egl libglvnd-glx libglvnd-opengl > /dev/null
+fi
+
+# The image is mounted read-only, so it is extracted elsewhere
+cd /tmp
+"/noteahead/${APPIMAGE}" --appimage-extract > /dev/null
+./squashfs-root/AppRun --smoke-test
+IN_CONTAINER

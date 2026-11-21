@@ -72,3 +72,77 @@ jobs:
       run: |
         cd build
         ctest --output-on-failure --timeout 600 --parallel $(nproc)
+
+    # Starts the UI headless and fails on any QML warning: a binding that only breaks on this
+    # distribution's Qt passes every unit test but leaves the user with a broken window.
+    - name: Smoke test
+      run: ./build/noteahead --smoke-test
+
+    - name: Package (Ubuntu)
+      if: contains(matrix.name, 'Ubuntu')
+      run: |
+        cd build
+        cpack -G DEB
+
+    - name: Upload package (Ubuntu)
+      if: contains(matrix.name, 'Ubuntu')
+      uses: actions/upload-artifact@v4
+      with:
+        name: deb-${{ matrix.container }}
+        path: build/*.deb
+        retention-days: 7
+
+  # Installs the package into a clean container, as a user would, so that a dependency the package
+  # forgets to declare fails here instead of on the user's machine.
+  deb:
+    name: Package on ${{ matrix.container }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container: [ "ubuntu:24.04", "ubuntu:26.04" ]
+
+    container: ${{ matrix.container }}
+
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      QT_QPA_PLATFORM: offscreen
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: deb-${{ matrix.container }}
+
+    - name: Install
+      run: |
+        apt-get update
+        apt-get install -y ./*.deb
+
+    - name: Smoke test
+      run: noteahead --smoke-test
+
+  # Builds each AppImage the way a release does and starts it on bare systems, its own release and,
+  # for the portable 24.04 one, Fedora, with nothing installed but what any desktop has.
+  appimage:
+    name: AppImage built on ${{ matrix.build }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [ "ubuntu:24.04", "ubuntu:26.04" ]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Build
+      run: IMAGES=${{ matrix.build }} ./scripts/build-appimage-docker
+
+    - name: Smoke test on ${{ matrix.build }}
+      run: ./scripts/smoke-test-appimage ${{ matrix.build }} Noteahead-*.AppImage
+
+    - name: Smoke test on Fedora 43
+      if: matrix.build == 'ubuntu:24.04'
+      run: ./scripts/smoke-test-appimage fedora:43 Noteahead-*.AppImage
