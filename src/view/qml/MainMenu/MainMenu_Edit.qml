@@ -25,7 +25,9 @@ Menu {
     // into its shortcut. Separators are left out: they ask for more than they need.
     width: {
         let widest = implicitWidth;
-        for (const item of contentChildren) {
+        // Indexed: Qt 6.4 cannot iterate a list property with for...of
+        for (let i = 0; i < contentChildren.length; i++) {
+            const item = contentChildren[i];
             if (item instanceof MenuItem) {
                 widest = Math.max(widest, item.implicitWidth);
             }
