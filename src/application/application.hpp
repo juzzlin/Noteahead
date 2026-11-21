@@ -156,6 +156,10 @@ private:
     void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
     void importFromMidi(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
+    //! Read before Argengine runs, and declared first, because it decides how the audio and MIDI
+    //! services below are built: a smoke test leaves them unopened.
+    const bool m_smokeTest;
+
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
@@ -242,6 +246,8 @@ private:
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<QTimer> m_instrumentTimer;
+
+    int m_qmlWarningCount { 0 };
 };
 
 } // namespace noteahead

@@ -84,6 +84,8 @@
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/device_service.hpp"
+#include "service/dummy_audio_service.hpp"
+#include "service/dummy_midi_service.hpp"
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
@@ -113,10 +115,13 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlError>
 #include <QTimer>
 
 #include <iomanip>
+#include <algorithm>
 #include <iostream>
+#include <string_view>
 #include <regex>
 
 Q_DECLARE_METATYPE(noteahead::InstrumentRequest)
@@ -142,12 +147,22 @@ DeviceRackController::DialogModelList withPluginDialogModels(DeviceRackControlle
     return controllers;
 }
 
+//! A smoke test checks that the package and its UI load. It leaves the audio and MIDI devices alone,
+//! because a container or CI machine has none and their absence is no fault of the package.
+bool smokeTestRequested(int argc, char ** argv)
+{
+    return std::any_of(argv, argv + argc, [](const char * argument) {
+        return std::string_view { argument } == Constants::smokeTestOption();
+    });
+}
+
 } // namespace
 
 static const auto TAG = "Application";
 
 Application::Application(int & argc, char ** argv)
-  : m_uiLogger { std::make_unique<UiLogger>() }
+  : m_smokeTest { smokeTestRequested(argc, argv) }
+  , m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
@@ -178,11 +193,11 @@ Application::Application(int & argc, char ** argv)
   , m_performancePanelController { std::make_unique<PerformancePanelController>(m_deviceService, *m_performancePanelModel) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
-  , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
+  , m_audioService { m_smokeTest ? std::make_shared<DummyAudioService>(m_settingsService, m_jackService, m_audioEngine) : std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_audioAnalysisService { std::make_shared<AudioAnalysisService>() }
   , m_audioAnalysisController { std::make_shared<AudioAnalysisController>(m_audioAnalysisService) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
-  , m_midiService { std::make_shared<MidiService>(m_deviceService) }
+  , m_midiService { m_smokeTest ? std::make_shared<DummyMidiService>(m_deviceService) : std::make_shared<MidiService>(m_deviceService) }
   , m_mixerService { std::make_shared<MixerService>() }
   , m_sideChainService { std::make_shared<SideChainService>() }
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
@@ -453,6 +468,9 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         }
         std::cout << "Manual written to " << value << std::endl;
         std::exit(EXIT_SUCCESS); }, false, "Write the user manual as a web page to the given file and exit.");
+
+    // Already read by the constructor; registered so that Argengine accepts it and lists it in --help
+    ae.addOption({ Constants::smokeTestOption() }, [] {}, false, "Start the UI without audio or MIDI, quit after a few seconds and exit with an error if QML reported any warnings. For checking that a package starts.");
 
     ae.addOption({ "--screenshots" }, [this](const std::string & value) { m_applicationService->setScreenshotDirectory(QString::fromStdString(value)); }, false, "Open the example, save the main view and every dialog as PNGs into the given directory, and quit. For reviewing UI changes.");
 
@@ -1058,8 +1076,15 @@ int Application::initializeTracker()
     connectServices();
     m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
 
-    // Never from a screenshot run, which is no session of the user's
-    if (m_applicationService->screenshotDirectory().isEmpty()) {
+    if (m_smokeTest) {
+        QTimer::singleShot(Constants::smokeTestDuration(), this, [this] {
+            std::cout << "Smoke test: " << m_qmlWarningCount << " QML warning(s)" << std::endl;
+            m_application->exit(m_qmlWarningCount ? EXIT_FAILURE : EXIT_SUCCESS);
+        });
+    }
+
+    // Never from a screenshot run or a smoke test, which are no sessions of the user's
+    if (m_applicationService->screenshotDirectory().isEmpty() && !m_smokeTest) {
         QTimer::singleShot(Constants::versionCheckStartupDelay(), m_updateService.get(), &UpdateService::checkAtStartup);
     }
 
@@ -1095,6 +1120,9 @@ void Application::initializeApplicationEngine()
 
     const auto entryPoint = QML_ROOT_DIR + QString { "/" } + QML_ENTRY_POINT;
     juzzlin::L(TAG).info() << "Loading entry point " << entryPoint.toStdString();
+    connect(m_engine.get(), &QQmlEngine::warnings, this, [this](const QList<QQmlError> & warnings) {
+        m_qmlWarningCount += static_cast<int>(warnings.size());
+    });
     m_engine->load(entryPoint);
     if (m_engine->rootObjects().isEmpty()) {
         throw std::runtime_error("Failed to initialize QML application engine!");

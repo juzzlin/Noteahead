@@ -18,7 +18,7 @@
 #include "../../application/models/performance_panel_model.hpp"
 #include "../../application/position.hpp"
 #include "../../application/service/application_service.hpp"
-#include "../../application/service/audio_service.hpp"
+#include "../../application/service/dummy_audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
@@ -5722,7 +5722,7 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
     auto settingsService = std::make_shared<SettingsService>();
     auto engine = std::make_shared<AudioEngine>();
     auto jackService = std::make_shared<JackService>(settingsService, engine);
-    auto audioServiceOut = std::make_shared<AudioService>(settingsService, jackService, engine, nullptr, false);
+    auto audioServiceOut = std::make_shared<DummyAudioService>(settingsService, jackService, engine);
     audioServiceOut->setLatestRecordingInfo(fileName, startTick, endTick);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -5730,7 +5730,7 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
 
     const auto xml = editorServiceOut.toXml();
 
-    auto audioServiceIn = std::make_shared<AudioService>(settingsService, jackService, engine, nullptr, false);
+    auto audioServiceIn = std::make_shared<DummyAudioService>(settingsService, jackService, engine);
     EditorService editorServiceIn { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QObject::connect(&editorServiceIn, &EditorService::audioRecorderDeserializationRequested, audioServiceIn.get(), &AudioService::deserializeFromXml);
 
