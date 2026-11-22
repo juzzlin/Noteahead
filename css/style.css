@@ -557,6 +557,11 @@ h1, h2, h3 {
     gap: 8px;
 }
 
+.footer-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+}
+
 /* Narrow screens */
 
 @media (max-width: 900px) {
