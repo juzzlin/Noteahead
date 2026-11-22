@@ -38,6 +38,7 @@ private slots:
     void test_targetSubIndex_masterSendRack_shouldAddressTheBusChain();
     void test_targetSubIndex_devicesWithParts_shouldAddressThePartRack();
     void test_availableEffects_shouldOfferTheAmbience();
+    void test_availableEffects_shouldOfferTheCompressor76();
     void test_availableEffects_shouldOfferTheReverb224();
     void test_availableEffects_shouldOfferTheRoomMics();
     void test_effectDisplayName_phaseScope_shouldBeTwoWords();

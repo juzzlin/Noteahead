@@ -45,6 +45,7 @@ set(HEADER_FILES
     dsp/drum/tom_909_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
+    dsp/fet_compressor_core.hpp
     dsp/fft.hpp
     dsp/fm_operator.hpp
     dsp/graphic_eq_designer.hpp
@@ -202,6 +203,7 @@ set(SOURCE_FILES
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp
+    dsp/fet_compressor_core.cpp
     dsp/fft.cpp
     dsp/fm_operator.cpp
     dsp/graphic_eq_designer.cpp

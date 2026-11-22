@@ -162,6 +162,7 @@ private slots:
     void test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_doublerEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_compressor2AEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_compressor76Effect_shouldLoadCorrectly();
     void test_toXmlFromXml_crossfeedEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_referenceEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCorrectly();

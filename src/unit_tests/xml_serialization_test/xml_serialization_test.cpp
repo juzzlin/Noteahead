@@ -18,9 +18,9 @@
 #include "../../application/models/performance_panel_model.hpp"
 #include "../../application/position.hpp"
 #include "../../application/service/application_service.hpp"
-#include "../../application/service/dummy_audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/device_service.hpp"
+#include "../../application/service/dummy_audio_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/jack_service.hpp"
 #include "../../application/service/mixer_service.hpp"
@@ -90,6 +90,7 @@
 #include "../../plugins/effects/chorus/chorus.hpp"
 #include "../../plugins/effects/clipper/clipper.hpp"
 #include "../../plugins/effects/compressor_2a/compressor_2a.hpp"
+#include "../../plugins/effects/compressor_76/compressor_76.hpp"
 #include "../../plugins/effects/crossfeed/crossfeed.hpp"
 #include "../../plugins/effects/delay/delay.hpp"
 #include "../../plugins/effects/dimension/dimension.hpp"
@@ -5405,6 +5406,52 @@ void XmlSerializationTest::test_toXmlFromXml_compressor2AEffect_shouldLoadCorrec
     const auto restored = std::dynamic_pointer_cast<Compressor2A>(deviceServiceIn.insertEffectRack().effect(0));
     QVERIFY(restored);
     QCOMPARE(restored->typeId(), Compressor2A::typeIdString());
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY2(p, qPrintable(key));
+        QVERIFY2(std::abs(p->get().value() - value) < 0.001f, qPrintable(key + ": " + QString::number(p->get().value())));
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_compressor76Effect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    namespace C = Constants::NahdXml;
+    const std::vector<std::pair<QString, float>> values {
+        { C::xmlKeyInputGain(), 0.68f },
+        { C::xmlKeyGain(), 0.37f },
+        { C::xmlKeyAttack(), 0.29f },
+        { C::xmlKeyRelease(), 0.74f },
+        { C::xmlKeyRatio(), static_cast<float>(Compressor76::Ratio::All) },
+        { C::xmlKeyMode(), static_cast<float>(Compressor76::Character::BlueStripe) },
+        { C::xmlKeyHpfCutoff(), 0.55f },
+        { C::xmlKeyMix(), 0.42f },
+    };
+    auto compressor = std::make_shared<Compressor76>();
+    for (auto && [key, value] : values) {
+        if (auto p = compressor->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, compressor);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Compressor76>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Compressor76::typeIdString());
     for (auto && [key, value] : values) {
         const auto p = restored->parameter(key.toStdString());
         QVERIFY2(p, qPrintable(key));

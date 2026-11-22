@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you. It is easy to pick up, stable enough to trust with a live set, and fast.
 
-It is also a complete studio. Twenty-eight internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 49 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Twenty-eight internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 50 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -71,7 +71,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 
 **Produce entire songs in the box.** Twenty-eight internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, a Jupiter-8-style JU Synth 08, a Model D-style mono Synth D, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, a physically modelled Electric Bass, two Drum Synths, a TR-808-style Drum Synth 808, a TR-909-style Drum Synth 909 and an FM drum machine, physically modelled Kick and Snare Synths, a 16-pad Sampler, four physically modelled pianos, one of them a concert grand, a TR-808-style Kick 808, a TR-909-style Kick 909, four vintage string machines after the VP-330/VC340 and the Solina, a formant speech synth, and Noise FX for risers, sweeps and impacts. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO and XY Pad devices can move any of their controls, or any effect's.
 
-**Mix and master without leaving the application.** All 49 rack effects and analyzers are available both on the master bus and as per-device inserts: six EQs including an 8-band parametric with Mid/Side, a 32-band graphical and a dynamic EQ, three reverbs including a Lexicon 224-style Reverb 224, an ambience, an early-reflections room and a Room Mics studio model, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips, with gain, fader, pan and stereo width.
+**Mix and master without leaving the application.** All 50 rack effects and analyzers are available both on the master bus and as per-device inserts: six EQs including an 8-band parametric with Mid/Side, a 32-band graphical and a dynamic EQ, three reverbs including a Lexicon 224-style Reverb 224, an ambience, an early-reflections room and a Room Mics studio model, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips, with gain, fader, pan and stereo width.
 
 **Sequence external gear.** Noteahead began as a MIDI brain and is still a very good one. Ports are hot-plugged, every track routes to its own port and channel, and CC and pitch bend automation, an arpeggiator, chords, step recording and MIDI side-chaining are all there. Internal and external instruments live happily in the same song.
 
@@ -83,7 +83,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 
 **Stable.** Noteahead is built to be trusted with a live set and a finished song. Its 220 automated test suites run on every commit, covering everything from the DSP of each instrument to the project file format, and a project saved by any earlier version still opens.
 
-**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-eight instruments and 49 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
+**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-eight instruments and 50 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
 
 ### Who it is for
 
@@ -111,7 +111,7 @@ Full songs with Noteahead's built-in synths and drums only:
 Albums:
 
 - Arctic Music Project - Hypothermia ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/hypothermia), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/hypothermia), [Spotify](https://open.spotify.com/album/272ogN0MW1bwOkdaue2OkH))
-- Arctic Music Project - Frozenland ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/frozenland), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/frozenland))
+- Arctic Music Project - Frozenland ([Bandcamp](https://arcticmusicproject.bandcamp.com/album/frozenland), [SoundCloud](https://soundcloud.com/arctic-music-project/sets/frozenland), [Spotify](https://open.spotify.com/album/2HeT6BtxMmA7Id6acNoevp))
 
 All **Arctic Music Project** songs (sequenced or completely produced with Noteahead):
 
@@ -249,6 +249,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Feed-forward compressor with soft-knee interpolation, lookahead support, Peak/RMS detection, side-chain source selection, and real-time gain reduction metering.
 - Compressor 2A
   - Optical leveler after the LA-2A: Peak Reduction, Gain and Compress/Limit, with a program-dependent two-stage release, a valve output stage and gain reduction metering.
+- Compressor 76
+  - Feedback FET limiting amplifier after the 1176: Input, Output, microsecond Attack, two-stage Release, Ratio buttons including All-Buttons-In, sidechain Low Cut, Blackface/Blue Stripe character switch, oversampled saturation and gain reduction metering.
 - Multiband Compressor
   - Three bands split by Linkwitz-Riley crossovers that sum back flat, with per-band threshold, ratio, knee, attack, release, makeup, bypass, solo and gain reduction metering. The side chain source is split by the same crossovers.
 - Auto Ducker

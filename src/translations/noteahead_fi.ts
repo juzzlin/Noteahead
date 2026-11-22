@@ -1467,6 +1467,73 @@
     </message>
 </context>
 <context>
+    <name>Compressor76Dialog</name>
+    <message>
+        <source>Compressor 76 (Slot %1)</source>
+        <translation>Compressor 76 (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>A fast feedback FET limiting amplifier: Input pushes the signal into a fixed threshold, higher ratios clamp tighter, All engages All-Buttons-In grit and punch, and Blue Stripe shifts to the early mid-forward revision.</source>
+        <translation>Nopea takaisinkytketty FET-rajoitinvahvistin: Input ajaa signaalin kiinteään kynnykseen, suuremmat suhteet puristavat tiukemmin, All kytkee All-Buttons-In-särön ja iskevyyden, ja Blue Stripe siirtyy varhaiseen keskialuekorosteiseen versioon.</translation>
+    </message>
+    <message>
+        <source>Character</source>
+        <translation>Luonne</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Suhde</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>Vaimennus</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Sisääntulo</translation>
+    </message>
+    <message>
+        <source>Drives the signal into the FET&apos;s fixed threshold</source>
+        <translation>Ajaa signaalin FET-piirin kiinteään kynnykseen</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Make-up level into the Class-A output stage</source>
+        <translation>Jälkivahvistus A-luokan ulostuloasteeseen</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>20 μs to 0.8 ms; feedback pulls down faster at higher ratios</source>
+        <translation>20 μs – 0,8 ms; takaisinkytkentä vaimentaa nopeammin suuremmilla suhteilla</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>50 ms to 1.1 s, with program-dependent hold on sustained passages</source>
+        <translation>50 ms – 1,1 s, ohjelmariippuvaisella pidolla pitkissä kohdissa</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Alaleikkuri</translation>
+    </message>
+    <message>
+        <source>Keeps sub-bass out of the detector without filtering the audio. Fully down it is off</source>
+        <translation>Pitää alabasson poissa ilmaisimelta suodattamatta ääntä. Täysin alhaalla pois päältä</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -10114,6 +10181,14 @@
     <message>
         <source>Offset</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Sisääntulo</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
     </message>
 </context>
 <context>

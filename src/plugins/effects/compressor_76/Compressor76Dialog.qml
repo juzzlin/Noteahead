@@ -1,0 +1,308 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
+import QtQuick.Layouts 1.15
+import Noteahead 1.0
+import "../Components"
+
+EffectDialog {
+    id: root
+    title: "<strong>" + qsTr("Compressor 76 (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    width: parent ? parent.width * Constants.defaultDialogScale : 720
+    height: parent ? parent.height * Constants.defaultDialogScale : 560
+    modal: true
+    focus: true
+
+    Universal.theme: Universal.Dark
+    Universal.accent: themeService.accentColor
+
+    background: Rectangle {
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
+        radius: 2
+    }
+
+    //! The reduction the meter's full width stands for, in dB.
+    readonly property real meterRangeDb: 20
+    property real currentReductionDb: 0.0
+
+    readonly property int ratioIndex: {
+        effectRackController.revision;
+        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.ratio));
+    }
+
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        anchors.margins: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+
+        ColumnLayout {
+            width: scrollView.availableWidth
+            spacing: 14
+
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+                showWhenEmpty: true
+            }
+
+            Label {
+                text: qsTr("A fast feedback FET limiting amplifier: Input pushes the signal into a fixed threshold, higher ratios clamp tighter, All engages All-Buttons-In grit and punch, and Blue Stripe shifts to the early mid-forward revision.")
+                color: Theme.textSecondary
+                font.pixelSize: 12
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+
+            RowLayout {
+                spacing: 12
+                Layout.fillWidth: true
+
+                Label {
+                    text: qsTr("Character")
+                    font.bold: true
+                }
+
+                ComboBox {
+                    // Hardware revision names, left in English
+                    model: ["Blackface", "Blue Stripe"]
+                    currentIndex: {
+                        effectRackController.revision;
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.mode));
+                    }
+                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, NahdXml.mode, i)
+                    Layout.preferredWidth: 130
+                }
+
+                Label {
+                    text: qsTr("Ratio")
+                    font.bold: true
+                    Layout.leftMargin: 8
+                }
+
+                RowLayout {
+                    spacing: 4
+                    Layout.fillWidth: true
+
+                    Repeater {
+                        model: ["4:1", "8:1", "12:1", "20:1", "All"]
+                        delegate: AppButton {
+                            required property int index
+                            required property string modelData
+                            text: modelData
+                            highlighted: root.ratioIndex === index
+                            implicitWidth: 44
+                            Layout.fillWidth: true
+                            onClicked: effectRackController.setParameterValue(root.effectIndex, NahdXml.ratio, index)
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 16
+                Layout.fillWidth: true
+
+                Label {
+                    text: qsTr("Gain Reduction")
+                    font.bold: true
+                }
+
+                // Filling from the left, with a tick every 5 dB up to 20 dB
+                Rectangle {
+                    color: Theme.surfaceSunken
+                    border.color: Theme.borderSubtle
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 24
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height - 4
+                        width: Math.min(parent.width - 4, Math.abs(root.currentReductionDb) / root.meterRangeDb * (parent.width - 4))
+                        color: themeService.accentColor
+                    }
+
+                    Repeater {
+                        model: 5
+                        Rectangle {
+                            width: 1
+                            height: parent.height - 4
+                            y: 2
+                            x: 2 + (index / 4) * (parent.width - 5)
+                            color: Theme.separatorStrong
+                            opacity: 0.5
+                        }
+                    }
+                }
+
+                Label {
+                    text: root.currentReductionDb.toFixed(1) + " dB"
+                    color: themeService.accentColor
+                    font.family: "Monospace"
+                    horizontalAlignment: Text.AlignRight
+                    Layout.preferredWidth: 70
+                }
+            }
+
+            GridLayout {
+                columns: 3
+                columnSpacing: 24
+                rowSpacing: 16
+                Layout.fillWidth: true
+
+                Knob {
+                    Layout.row: 0
+                    Layout.column: 0
+                    label: qsTr("Input")
+                    suffix: "dB"
+                    from: -30
+                    to: 30
+                    isInteger: false
+                    value: {
+                        effectRackController.revision;
+                        return -30 + effectRackController.parameterValue(root.effectIndex, NahdXml.inputGain) * 60;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.inputGain, (v + 30) / 60)
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Drives the signal into the FET's fixed threshold")
+                }
+
+                Knob {
+                    Layout.row: 0
+                    Layout.column: 1
+                    label: qsTr("Output")
+                    suffix: "dB"
+                    from: -30
+                    to: 30
+                    isInteger: false
+                    value: {
+                        effectRackController.revision;
+                        return -30 + effectRackController.parameterValue(root.effectIndex, NahdXml.gain) * 60;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, (v + 30) / 60)
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Make-up level into the Class-A output stage")
+                }
+
+                Knob {
+                    Layout.row: 0
+                    Layout.column: 2
+                    label: qsTr("Mix")
+                    suffix: "%"
+                    from: 0
+                    to: 100
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.mix) * 100;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.mix, v / 100)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    Layout.row: 1
+                    Layout.column: 0
+                    label: qsTr("Attack")
+                    suffix: "ms"
+                    mapping: "exponential"
+                    mapMin: 0.02
+                    mapMax: 0.8
+                    from: 0
+                    to: 1000
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.attack) * 1000;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.attack, v / 1000)
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("20 μs to 0.8 ms; feedback pulls down faster at higher ratios")
+                }
+
+                Knob {
+                    Layout.row: 1
+                    Layout.column: 1
+                    label: qsTr("Release")
+                    suffix: "ms"
+                    mapping: "exponential"
+                    mapMin: 50
+                    mapMax: 1100
+                    from: 0
+                    to: 1000
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.release) * 1000;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.release, v / 1000)
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("50 ms to 1.1 s, with program-dependent hold on sustained passages")
+                }
+
+                Knob {
+                    Layout.row: 1
+                    Layout.column: 2
+                    label: qsTr("Low Cut")
+                    suffix: "Hz"
+                    mapping: "logFrequencyHighPass"
+                    mapMin: 20
+                    mapMax: 400
+                    from: 0
+                    to: 1000
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, NahdXml.hpfCutoff) * 1000;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.hpfCutoff, v / 1000)
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Keeps sub-bass out of the detector without filtering the audio. Fully down it is off")
+                }
+            }
+        }
+    }
+
+    Timer {
+        interval: 33 // ~30 FPS
+        running: root.opened
+        repeat: true
+        onTriggered: root.currentReductionDb = dialogModel.reductionDb()
+    }
+
+    Compressor76DialogModel {
+        id: dialogModel
+        rack: effectRackController
+        effectIndex: root.effectIndex
+    }
+}

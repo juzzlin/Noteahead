@@ -1,0 +1,14 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        compressor_76.cpp
+        compressor_76.hpp
+        compressor_76_presets.cpp
+        compressor_76_presets.hpp
+        compressor_76_registration.cpp
+    VIEW_SOURCES
+        compressor_76_dialog_model.cpp
+        compressor_76_dialog_model.hpp
+        compressor_76_view_registration.cpp
+    QML_FILES
+        Compressor76Dialog.qml
+)

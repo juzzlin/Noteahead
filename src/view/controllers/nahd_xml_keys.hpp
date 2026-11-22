@@ -85,6 +85,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString highGain MEMBER m_highGain CONSTANT)
     Q_PROPERTY(QString hold MEMBER m_hold CONSTANT)
     Q_PROPERTY(QString hpfCutoff MEMBER m_hpfCutoff CONSTANT)
+    Q_PROPERTY(QString inputGain MEMBER m_inputGain CONSTANT)
     Q_PROPERTY(QString intensity MEMBER m_intensity CONSTANT)
     Q_PROPERTY(QString invertLeft MEMBER m_invertLeft CONSTANT)
     Q_PROPERTY(QString invertRight MEMBER m_invertRight CONSTANT)
@@ -245,6 +246,7 @@ private:
     QString m_highGain;
     QString m_hold;
     QString m_hpfCutoff;
+    QString m_inputGain;
     QString m_intensity;
     QString m_invertLeft;
     QString m_invertRight;

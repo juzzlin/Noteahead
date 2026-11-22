@@ -29,6 +29,7 @@
 #include "../../plugins/effects/chorus/chorus.hpp"
 #include "../../plugins/effects/clipper/clipper.hpp"
 #include "../../plugins/effects/compressor/compressor.hpp"
+#include "../../plugins/effects/compressor_76/compressor_76.hpp"
 #include "../../plugins/effects/endless_reverb/endless_reverb.hpp"
 #include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric.hpp"
 #include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric_presets.hpp"
@@ -1313,6 +1314,22 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
     context.controller.setEffect(0, context.controller.ambienceType());
     QCOMPARE(context.controller.effectType(0), context.controller.ambienceType());
     QCOMPARE(context.controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheCompressor76()
+{
+    auto context = createContext();
+    const auto type = QString::fromStdString(Compressor76::typeIdString());
+    QStringList types;
+    for (auto && entry : context.controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::compressor76());
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(4:1, Blackface, in=+0.0dB)" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheRoomMics()

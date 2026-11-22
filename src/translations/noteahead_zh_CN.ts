@@ -1467,6 +1467,73 @@
     </message>
 </context>
 <context>
+    <name>Compressor76Dialog</name>
+    <message>
+        <source>Compressor 76 (Slot %1)</source>
+        <translation>Compressor 76（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>A fast feedback FET limiting amplifier: Input pushes the signal into a fixed threshold, higher ratios clamp tighter, All engages All-Buttons-In grit and punch, and Blue Stripe shifts to the early mid-forward revision.</source>
+        <translation>一款快速反馈式 FET 限制放大器：Input 将信号推入固定阈值，更高的压缩比会更紧密地压限，All 开启全键按下（All-Buttons-In）的粗犷质感与冲击力，Blue Stripe 则切换至早期中频更突出的版本。</translation>
+    </message>
+    <message>
+        <source>Character</source>
+        <translation>音色特性</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>比率</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>增益衰减</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>输入</translation>
+    </message>
+    <message>
+        <source>Drives the signal into the FET&apos;s fixed threshold</source>
+        <translation>将信号推入 FET 的固定阈值</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>Make-up level into the Class-A output stage</source>
+        <translation>进入 A 类输出级的补偿增益</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>20 μs to 0.8 ms; feedback pulls down faster at higher ratios</source>
+        <translation>20 μs 至 0.8 ms；在更高压缩比下反馈衰减更快</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>50 ms to 1.1 s, with program-dependent hold on sustained passages</source>
+        <translation>50 ms 至 1.1 s，在持续乐段中具有随信号变化的保持特性</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>低切</translation>
+    </message>
+    <message>
+        <source>Keeps sub-bass out of the detector without filtering the audio. Fully down it is off</source>
+        <translation>在不滤波音频信号的前提下将超低频排除在检测器之外。旋至最底端即关闭</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -10113,6 +10180,14 @@
     <message>
         <source>Offset</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>输入</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
     </message>
 </context>
 <context>

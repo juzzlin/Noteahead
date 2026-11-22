@@ -1467,6 +1467,73 @@
     </message>
 </context>
 <context>
+    <name>Compressor76Dialog</name>
+    <message>
+        <source>Compressor 76 (Slot %1)</source>
+        <translation>Compressor 76 (Slot %1)</translation>
+    </message>
+    <message>
+        <source>A fast feedback FET limiting amplifier: Input pushes the signal into a fixed threshold, higher ratios clamp tighter, All engages All-Buttons-In grit and punch, and Blue Stripe shifts to the early mid-forward revision.</source>
+        <translation>Een snelle feedback-FET-begrenzingsversterker: Input duwt het signaal tegen een vaste drempel, hogere verhoudingen grijpen strakker aan, All schakelt All-Buttons-In-karakter en punch in, en Blue Stripe schakelt naar de vroege revisie met meer middentonen.</translation>
+    </message>
+    <message>
+        <source>Character</source>
+        <translation>Karakter</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Verhouding</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>Gain-reductie</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Ingang</translation>
+    </message>
+    <message>
+        <source>Drives the signal into the FET&apos;s fixed threshold</source>
+        <translation>Stuurt het signaal naar de vaste drempel van de FET</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
+    </message>
+    <message>
+        <source>Make-up level into the Class-A output stage</source>
+        <translation>Make-up-niveau naar de Klasse-A-uitgangstrap</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>20 μs to 0.8 ms; feedback pulls down faster at higher ratios</source>
+        <translation>20 μs tot 0,8 ms; feedback trekt sneller omlaag bij hogere verhoudingen</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>50 ms to 1.1 s, with program-dependent hold on sustained passages</source>
+        <translation>50 ms tot 1,1 s, met programma-afhankelijke hold bij aangehouden passages</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Low cut</translation>
+    </message>
+    <message>
+        <source>Keeps sub-bass out of the detector without filtering the audio. Fully down it is off</source>
+        <translation>Houdt sub-bas uit de detector zonder het audio te filteren. Helemaal omlaag uitgeschakeld</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -10114,6 +10181,14 @@
     <message>
         <source>Offset</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Ingang</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
     </message>
 </context>
 <context>

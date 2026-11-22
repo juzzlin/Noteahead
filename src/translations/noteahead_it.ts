@@ -1467,6 +1467,73 @@
     </message>
 </context>
 <context>
+    <name>Compressor76Dialog</name>
+    <message>
+        <source>Compressor 76 (Slot %1)</source>
+        <translation>Compressor 76 (Slot %1)</translation>
+    </message>
+    <message>
+        <source>A fast feedback FET limiting amplifier: Input pushes the signal into a fixed threshold, higher ratios clamp tighter, All engages All-Buttons-In grit and punch, and Blue Stripe shifts to the early mid-forward revision.</source>
+        <translation>Un amplificatore limitatore FET a retroazione veloce: Input spinge il segnale oltre una soglia fissa, rapporti più alti comprimono con maggiore decisione, All attiva la saturazione e il punch All-Buttons-In, e Blue Stripe passa alla prima revisione più presente sulle medie.</translation>
+    </message>
+    <message>
+        <source>Character</source>
+        <translation>Carattere</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Rapporto</translation>
+    </message>
+    <message>
+        <source>Gain Reduction</source>
+        <translation>Riduzione del guadagno</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Ingresso</translation>
+    </message>
+    <message>
+        <source>Drives the signal into the FET&apos;s fixed threshold</source>
+        <translation>Spinge il segnale verso la soglia fissa del FET</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uscita</translation>
+    </message>
+    <message>
+        <source>Make-up level into the Class-A output stage</source>
+        <translation>Livello di compensazione verso lo stadio d&apos;uscita in Classe A</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attacco</translation>
+    </message>
+    <message>
+        <source>20 μs to 0.8 ms; feedback pulls down faster at higher ratios</source>
+        <translation>Da 20 μs a 0,8 ms; la retroazione interviene più rapidamente ai rapporti più alti</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Rilascio</translation>
+    </message>
+    <message>
+        <source>50 ms to 1.1 s, with program-dependent hold on sustained passages</source>
+        <translation>Da 50 ms a 1,1 s, con tenuta dipendente dal programma sui passaggi sostenuti</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation>Taglio bassi</translation>
+    </message>
+    <message>
+        <source>Keeps sub-bass out of the detector without filtering the audio. Fully down it is off</source>
+        <translation>Esclude i sub-bassi dal rilevatore senza filtrare l&apos;audio. Tutto giù è disattivato</translation>
+    </message>
+</context>
+<context>
     <name>CompressorDialog</name>
     <message>
         <source>Compressor Parameters (Slot %1)</source>
@@ -10114,6 +10181,14 @@
     <message>
         <source>Offset</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Ingresso</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uscita</translation>
     </message>
 </context>
 <context>

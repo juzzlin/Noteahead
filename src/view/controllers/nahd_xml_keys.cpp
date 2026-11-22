@@ -79,6 +79,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_highGain { Constants::NahdXml::xmlKeyHighGain() }
   , m_hold { Constants::NahdXml::xmlKeyHold() }
   , m_hpfCutoff { Constants::NahdXml::xmlKeyHpfCutoff() }
+  , m_inputGain { Constants::NahdXml::xmlKeyInputGain() }
   , m_intensity { Constants::NahdXml::xmlKeyIntensity() }
   , m_invertLeft { Constants::NahdXml::xmlKeyInvertLeft() }
   , m_invertRight { Constants::NahdXml::xmlKeyInvertRight() }

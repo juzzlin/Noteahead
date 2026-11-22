@@ -409,6 +409,11 @@ QString compressor2A()
     return "compressor2A";
 }
 
+QString compressor76()
+{
+    return "compressor76";
+}
+
 QString multibandCompressor()
 {
     return "multibandcompressor";
@@ -1600,6 +1605,11 @@ QString xmlKeyExpression()
 QString xmlKeyGain()
 {
     return "gain";
+}
+
+QString xmlKeyInputGain()
+{
+    return "inputGain";
 }
 
 QString xmlKeyProject()
