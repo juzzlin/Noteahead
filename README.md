@@ -389,6 +389,8 @@ Several..? That was only two, come on!
 
 Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the complete license text.
 
+Noteahead contains no samples or recordings of any instrument: every sound is synthesized, its models fitted to measurements. Roland, Behringer, Moog, Yamaha, Korg, Lexicon, Universal Audio and the other company and product names mentioned are trademarks of their respective owners, used only to identify products. Noteahead is not affiliated with or endorsed by any of them.
+
 ##
 ## Install instructions
 
