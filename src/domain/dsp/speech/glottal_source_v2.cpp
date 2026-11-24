@@ -44,14 +44,18 @@ void GlottalSourceV2::setSampleRate(double sampleRate)
     DspComponent::setSampleRate(sampleRate);
     m_frequencyScaleCoefficient = sampleRate > 0.0 ? 1.0 - std::exp(-1.0 / (FrequencyScaleGlideTime * sampleRate)) : 1.0;
     updatePhaseStep();
-    updateLfParametersIfNeeded();
+    if (!m_started) {
+        updateLfParametersIfNeeded();
+    }
 }
 
 void GlottalSourceV2::setFrequency(double frequency)
 {
     m_frequency = std::max(1.0, frequency);
     updatePhaseStep();
-    updateLfParametersIfNeeded();
+    if (!m_started) {
+        updateLfParametersIfNeeded();
+    }
     updateFrequencyScale();
 }
 
@@ -61,7 +65,9 @@ void GlottalSourceV2::setOpenQuotient(double openQuotient)
     if (clamped != m_openQuotient) {
         m_openQuotient = clamped;
         m_lfDirty = true;
-        updateLfParametersIfNeeded();
+        if (!m_started) {
+            updateLfParametersIfNeeded();
+        }
     }
 }
 
@@ -71,7 +77,9 @@ void GlottalSourceV2::setSpeedQuotient(double speedQuotient)
     if (clamped != m_speedQuotient) {
         m_speedQuotient = clamped;
         m_lfDirty = true;
-        updateLfParametersIfNeeded();
+        if (!m_started) {
+            updateLfParametersIfNeeded();
+        }
     }
 }
 
@@ -81,7 +89,9 @@ void GlottalSourceV2::setReturnPhase(double returnPhase)
     if (clamped != m_returnPhase) {
         m_returnPhase = clamped;
         m_lfDirty = true;
-        updateLfParametersIfNeeded();
+        if (!m_started) {
+            updateLfParametersIfNeeded();
+        }
     }
 }
 
@@ -206,6 +216,7 @@ double GlottalSourceV2::lfFlow(double phase) const
 
 void GlottalSourceV2::beginPeriod()
 {
+    updateLfParametersIfNeeded();
     m_periodScale = 1.0 + m_jitter * m_deviation(m_rng);
     m_amplitude = 1.0 + m_shimmer * m_deviation(m_rng);
     m_weakPeriod = !m_weakPeriod;
@@ -246,6 +257,7 @@ void GlottalSourceV2::reset()
     m_openness = 1.0;
     m_frequencyScale = m_frequencyScaleTarget;
     m_started = false;
+    updateLfParametersIfNeeded();
     m_rng.seed(0x51EEC4);
 }
 

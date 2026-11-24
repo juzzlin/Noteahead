@@ -37,6 +37,10 @@ private slots:
     void test_plosives_closureAspirationAndPhraseFinal();
     void test_boundaries_shouldNotClick_data();
     void test_boundaries_shouldNotClick();
+    void test_plosiveBoundaries_shouldNotClick_data();
+    void test_plosiveBoundaries_shouldNotClick();
+    void test_geminateStop_shouldNotReleaseTwice();
+    void test_monsterAndWhisper_shouldStayFreeOfClicks();
     void test_highPitch_shouldPreserveFundamentalThroughF1Floor();
     void test_returnPhase_shouldControlHighFrequencyTilt();
     void test_voicingOnset_shouldBeSofterThanSteadyState();

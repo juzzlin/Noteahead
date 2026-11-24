@@ -270,6 +270,48 @@ void GlottalSourceV2Test::test_loudnessNormalization_shouldStaySteadyAcrossShape
     }
 }
 
+void GlottalSourceV2Test::test_parameterChanges_shouldNotClickMidPeriod()
+{
+    const double radDecay { std::exp(-2.0 * M_PI * 80.0 / SampleRate) };
+
+    const auto measureMaxDiffJump = [&](bool modulate) {
+        GlottalSourceV2 source {};
+        source.setSampleRate(SampleRate);
+        source.setFrequency(130.8128);
+        source.setSpeedQuotient(4.5);
+        source.setOpenQuotient(0.34);
+        source.setReturnPhase(0.006);
+
+        double prev { 0.0 };
+        double prevDiff { 0.0 };
+        double maxJump { 0.0 };
+        constexpr size_t settleFrames { 2000 };
+        constexpr size_t measureFrames { 10000 };
+
+        for (size_t i { 0 }; i < settleFrames + measureFrames; i++) {
+            if (modulate && i >= settleFrames && (i % 32) == 0) {
+                const double t { static_cast<double>(i - settleFrames) / static_cast<double>(measureFrames) };
+                const double fade { (i - settleFrames) < 1056 ? (1.0 - static_cast<double>(i - settleFrames) / 1056.0) : t };
+                source.setOpenQuotient(std::clamp(0.34 + 0.14 * fade, 0.25, 0.85));
+                source.setReturnPhase(std::clamp(0.006 + 0.022 * fade, 0.002, 0.12));
+            }
+            const double flow { source.nextSample() };
+            const double diff { flow - radDecay * prev };
+            if (i >= settleFrames + 2) {
+                maxJump = std::max(maxJump, std::abs(diff - prevDiff));
+            }
+            prev = flow;
+            prevDiff = diff;
+        }
+        return maxJump;
+    };
+
+    const double steadyJump { measureMaxDiffJump(false) };
+    const double modulatedJump { measureMaxDiffJump(true) };
+    QVERIFY2(modulatedJump < steadyJump * 1.5,
+             qPrintable(QString { "modulatedJump=%1 vs steadyJump=%2" }.arg(modulatedJump).arg(steadyJump)));
+}
+
 void GlottalSourceV2Test::test_reset_shouldBeDeterministic()
 {
     auto source = makeSource();

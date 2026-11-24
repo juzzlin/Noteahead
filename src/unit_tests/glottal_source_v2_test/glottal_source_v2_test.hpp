@@ -33,6 +33,7 @@ private slots:
     void test_openness_shouldHaveUnitMeanAcrossOpenQuotients();
     void test_subharmonicAndPerturbation_shouldProduceGrowlAndVariation();
     void test_loudnessNormalization_shouldStaySteadyAcrossShapes();
+    void test_parameterChanges_shouldNotClickMidPeriod();
     void test_reset_shouldBeDeterministic();
 };
 

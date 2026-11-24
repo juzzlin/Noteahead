@@ -51,6 +51,14 @@ bool isNoiseConsonant(const PhonemeSpec & spec)
     return spec.type == PhonemeType::Plosive || (spec.type == PhonemeType::Fricative && spec.name != "HH");
 }
 
+bool sameStopPlace(std::string_view a, std::string_view b)
+{
+    const auto labial { [](std::string_view name) { return name == "P" || name == "B"; } };
+    const auto alveolar { [](std::string_view name) { return name == "T" || name == "D"; } };
+    const auto velar { [](std::string_view name) { return name == "K" || name == "G"; } };
+    return (labial(a) && labial(b)) || (alveolar(a) && alveolar(b)) || (velar(a) && velar(b));
+}
+
 double diphthongGlide(double progress)
 {
     if (progress <= 0.25) {
@@ -244,12 +252,16 @@ FormantVoiceV2::FormantVoiceV2()
 
 void FormantVoiceV2::configureTractPostFilters()
 {
-    if (m_sampleRate <= 0.0 || std::abs(m_formantShift - m_configuredFilterShift) <= 1.0e-5) {
+    if (m_sampleRate <= 0.0
+        || (std::abs(m_formantShift - m_configuredFilterShift) <= 1.0e-5
+            && std::abs(m_character.whisperMix - m_configuredWhisperMix) <= 1.0e-5)) {
         return;
     }
     m_configuredFilterShift = m_formantShift;
-    m_hpc[0].configurePeaking(5200.0 * m_formantShift, 14.5, 0.95, m_sampleRate);
-    m_hpc[1].configurePeaking(6000.0 * m_formantShift, 13.5, 1.05, m_sampleRate);
+    m_configuredWhisperMix = m_character.whisperMix;
+    const double hpcScale { 1.0 - 0.70 * std::clamp(m_character.whisperMix, 0.0, 1.0) };
+    m_hpc[0].configurePeaking(5200.0 * m_formantShift, 14.5 * hpcScale, 0.95, m_sampleRate);
+    m_hpc[1].configurePeaking(6000.0 * m_formantShift, 13.5 * hpcScale, 1.05, m_sampleRate);
     m_cascadeCeiling.configureLowPass(std::min(7500.0 * m_formantShift, m_sampleRate * 0.42), 0.7071, m_sampleRate);
 
     // Diffuse closure-phase harmonic alignment without changing magnitude response
@@ -260,6 +272,10 @@ void FormantVoiceV2::configureTractPostFilters()
 
 void FormantVoiceV2::setSampleRate(double sampleRate)
 {
+    if (sampleRate > 0.0 && sampleRate == m_configuredSampleRate) {
+        return;
+    }
+    m_configuredSampleRate = sampleRate;
     DspComponent::setSampleRate(sampleRate);
 
     m_glottis.setSampleRate(sampleRate);
@@ -269,9 +285,10 @@ void FormantVoiceV2::setSampleRate(double sampleRate)
     m_glottalNoiseHp.configureHighPass(1100.0, 0.7071, sampleRate);
     m_glottalNoiseLp.configureLowPass(4800.0, 0.7071, sampleRate);
     m_aspirationHp.configureHighPass(450.0, 0.7071, sampleRate);
-    m_aspirationLp.configureLowPass(4600.0, 0.7071, sampleRate);
+    m_aspirationLp.configureLowPass(4000.0, 0.7071, sampleRate);
 
     m_configuredFilterShift = 0.0;
+    m_configuredWhisperMix = -1.0;
     configureTractPostFilters();
 
     setSourceRolloff(m_sourceRolloff);
@@ -292,7 +309,9 @@ void FormantVoiceV2::setSampleRate(double sampleRate)
     m_seamCoefficient = smoothingCoefficient(SeamFadeTime, sampleRate);
     m_burstAttack = smoothingCoefficient(PlosiveBurstAttackTime, sampleRate);
     m_burstDecay = sampleRate > 0.0 ? std::exp(-1.0 / (PlosiveBurstDecayTime * sampleRate)) : 0.0;
+    m_aspirationAttackCoeff = smoothingCoefficient(AspirationAttackTime, sampleRate);
     m_aspirationDecay = sampleRate > 0.0 ? std::exp(-1.0 / (AspirationDecayTime * sampleRate)) : 0.0;
+    m_aspirationTailDecay = sampleRate > 0.0 ? std::exp(-1.0 / (AspirationTailDecayTime * sampleRate)) : 0.0;
 }
 
 void FormantVoiceV2::setFrequency(double frequency)
@@ -387,6 +406,7 @@ void FormantVoiceV2::setSibilance(double sibilance)
 void FormantVoiceV2::setVoiceCharacter(const VoiceCharacter & character)
 {
     m_character = character;
+    configureTractPostFilters();
 }
 
 std::array<FormantVoiceV2::FormantPair, 3> FormantVoiceV2::consonantLocus(std::string_view name, const PhonemeSpec * adjacentVowel)
@@ -457,9 +477,23 @@ bool FormantVoiceV2::isPhraseFinalStop() const
     return m_phoneme && m_phoneme->type == PhonemeType::Plosive && (!m_nextPhoneme || m_nextPhoneme->type == PhonemeType::Silence);
 }
 
+bool FormantVoiceV2::isSoftStopRelease() const
+{
+    return isPhraseFinalStop()
+      || (m_phoneme && m_phoneme->type == PhonemeType::Plosive && m_nextPhoneme && m_nextPhoneme->type == PhonemeType::Plosive);
+}
+
 bool FormantVoiceV2::isReleased() const
 {
-    return m_phoneme != nullptr;
+    if (!m_phoneme) {
+        return false;
+    }
+    // Homorganic clusters (e.g. "want to" -> T + T) hold a single closure across the first stop
+    if (m_phoneme->type == PhonemeType::Plosive && m_nextPhoneme && m_nextPhoneme->type == PhonemeType::Plosive
+        && sameStopPlace(m_phoneme->name, m_nextPhoneme->name)) {
+        return false;
+    }
+    return true;
 }
 
 double FormantVoiceV2::closureFraction() const
@@ -719,7 +753,6 @@ void FormantVoiceV2::setPhoneme(const PhonemeSpec & spec, const PhonemeSpec * ne
     m_phraseFinalRelease = false;
     m_aspirating = false;
     m_framesSinceRelease = 0;
-    m_aspirationEnv = 0.0;
 
     if (spec.type != PhonemeType::Silence) {
         applyCascadeTargets(effectiveCascadeTargets(), effectiveNasalTargets(), firstPhoneme, false);
@@ -728,16 +761,26 @@ void FormantVoiceV2::setPhoneme(const PhonemeSpec & spec, const PhonemeSpec * ne
     // Only noise consonants drive the parallel bank; crossfade only when jumping from one active
     // noise spectrum straight into a different one.
     if (isNoise) {
-        if (wasNoise && m_fricationLevel > 0.001 && m_fricationSpec) {
+        const double prevFinalScale { m_phraseFinalRelease ? FinalStopBurstScale : 1.0 };
+        const double prevVoicedScale { (m_fricationSpec && m_fricationSpec->voicing > 0.0) ? VoicedStopBurstScale : 1.0 };
+        const double prevBurstGain {
+            (m_fricationSpec && m_fricationSpec->type == PhonemeType::Plosive)
+              ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * prevFinalScale * prevVoicedScale
+              : 0.0
+        };
+        const double prevParallelGain { (prev && prev->type == PhonemeType::Plosive) ? prevBurstGain : m_fricationLevel };
+        if (wasNoise && prevParallelGain > 0.001 && m_fricationSpec) {
             m_previousFricationFormants = m_fricationFormants;
             m_previousNoiseSpec = m_fricationSpec;
-            m_previousFricationLevel = m_fricationLevel;
+            m_previousFricationLevel = prevParallelGain;
             m_seam = 0.0;
         }
         for (auto & filter : m_fricationFormants) {
             filter.reset();
         }
         m_fricationSpec = &spec;
+        m_burstRise = 0.0;
+        m_burstFall = 0.0;
         if (spec.name == "K" || spec.name == "G") {
             const auto * context = (next && isTractShape(next->type)) ? next : m_lastVowel;
             const double adjacentF2 = (context && isTractShape(context->type)) ? context->formants[1].frequency : 1200.0;
@@ -751,13 +794,13 @@ void FormantVoiceV2::setPhoneme(const PhonemeSpec & spec, const PhonemeSpec * ne
         } else {
             tuneFricationFilters(spec.formants);
         }
-        m_fricationLevel = fricationTargetFor(spec);
+        m_fricationLevel = (spec.type == PhonemeType::Plosive || m_seam >= 1.0) ? 0.0 : fricationTargetFor(spec);
     }
 
+    m_fricationTarget = fricationTargetFor(spec);
+    m_aspirationTarget = aspirationTargetFor(spec);
     if (firstPhoneme) {
         m_voicingTarget = voicingTargetFor(spec);
-        m_fricationTarget = fricationTargetFor(spec);
-        m_aspirationTarget = aspirationTargetFor(spec);
         updateControl();
     }
 }
@@ -769,7 +812,15 @@ void FormantVoiceV2::setPhonemeStressed(bool stressed)
 
 void FormantVoiceV2::setPhonemeProgress(double progress)
 {
-    m_progress = std::clamp(progress, 0.0, 1.0);
+    const double clamped { std::clamp(progress, 0.0, 1.0) };
+    if (m_phoneme && m_phoneme->type == PhonemeType::Plosive && m_progress > 0.5 && clamped < 0.05) {
+        m_afterUnvoicedFricative = false;
+        m_plosiveReleased = false;
+        m_phraseFinalRelease = false;
+        m_aspirating = false;
+        m_framesSinceRelease = 0;
+    }
+    m_progress = clamped;
 }
 
 void FormantVoiceV2::updateControl()
@@ -854,7 +905,7 @@ void FormantVoiceV2::updateControl()
     if (m_phoneme->type == PhonemeType::Plosive) {
         if (!m_plosiveReleased && isReleased() && m_progress >= closureFraction()) {
             m_plosiveReleased = true;
-            m_phraseFinalRelease = isPhraseFinalStop();
+            m_phraseFinalRelease = isSoftStopRelease();
             m_burstRise = 0.0;
             m_burstFall = 1.0;
             m_framesSinceRelease = 0;
@@ -920,6 +971,9 @@ double FormantVoiceV2::nextSample()
     m_fricationLevel += (m_fricationTarget - m_fricationLevel) * m_levelCoefficient;
     m_aspirationLevel += (m_aspirationTarget - m_aspirationLevel) * m_levelCoefficient;
     m_seam += (1.0 - m_seam) * m_seamCoefficient;
+    if (1.0 - m_seam < 1.0e-5) {
+        m_seam = 1.0;
+    }
 
     const double glottalAir = m_glottalNoiseLp.process(m_glottalNoiseHp.process(rawNoise));
     const double breathAir = m_aspirationLp.process(m_aspirationHp.process(rawNoise));
@@ -930,20 +984,27 @@ double FormantVoiceV2::nextSample()
         breathAspiration += m_voicingLevel * m_character.whisperMix * breathAir * WhisperNoiseLevel;
     }
 
-    if (m_phoneme->type == PhonemeType::Plosive) {
-        if (m_plosiveReleased) {
-            m_framesSinceRelease++;
-            m_burstRise += (1.0 - m_burstRise) * m_burstAttack;
-            m_burstFall *= m_burstDecay;
-            if (m_burstFall < 1.0e-6) {
-                m_burstFall = 0.0;
-            }
-            if (m_aspirating) {
-                breathAspiration += m_aspirationEnv * breathAir;
-                m_aspirationEnv *= m_aspirationDecay;
-            }
+    if (m_phoneme->type == PhonemeType::Plosive && m_plosiveReleased) {
+        m_framesSinceRelease++;
+        m_burstRise += (1.0 - m_burstRise) * m_burstAttack;
+        m_burstFall *= m_burstDecay;
+        if (m_burstFall < 1.0e-6) {
+            m_burstFall = 0.0;
         }
     }
+    if (m_phoneme->type == PhonemeType::Plosive && m_aspirating) {
+        m_aspirationEnv *= m_aspirationDecay;
+    } else if (m_aspirationEnv > 0.0) {
+        m_aspirationEnv *= m_aspirationTailDecay;
+    }
+    if (m_aspirationEnv < 1.0e-7) {
+        m_aspirationEnv = 0.0;
+    }
+    m_aspirationCurrent += (m_aspirationEnv - m_aspirationCurrent) * m_aspirationAttackCoeff;
+    if (m_aspirationEnv == 0.0 && m_aspirationCurrent < 1.0e-7) {
+        m_aspirationCurrent = 0.0;
+    }
+    breathAspiration += m_aspirationCurrent * breathAir;
 
     // First-difference lip radiation (+6 dB/oct across speech bands) on voiced glottal flow;
     // turbulent glottal chink and unvoiced aspiration already enter as radiated noise.
@@ -956,10 +1017,10 @@ double FormantVoiceV2::nextSample()
         m_subPhase += (0.5 * m_frequency) / m_sampleRate;
         m_subPhase -= std::floor(m_subPhase);
         double subRaw = 0.0;
-        if (m_subPhase < 0.48) {
-            subRaw = 0.5 * (1.0 - std::cos(std::numbers::pi * m_subPhase / 0.48));
-        } else if (m_subPhase < 0.60) {
-            subRaw = std::cos(0.5 * std::numbers::pi * (m_subPhase - 0.48) / 0.12);
+        if (m_subPhase < 0.45) {
+            subRaw = 0.5 * (1.0 - std::cos(std::numbers::pi * m_subPhase / 0.45));
+        } else if (m_subPhase < 0.72) {
+            subRaw = 0.5 * (1.0 + std::cos(std::numbers::pi * (m_subPhase - 0.45) / 0.27));
         }
         const double subScaled = subRaw * 0.55 * std::clamp(220.0 / std::max(30.0, m_frequency), 0.5, 4.0);
         const double subDiff = (subScaled - m_radDecay * m_subPrev) * m_radScale;
@@ -979,6 +1040,12 @@ double FormantVoiceV2::nextSample()
     }
     for (auto & stage : m_hpc) {
         tractSignal = stage.process(tractSignal);
+    }
+    if (m_character.drive > 0.0) {
+        constexpr double driveScale { CascadeMakeupGain * SourceMakeupGain };
+        const double g { 1.0 + m_character.drive };
+        const double makeup { 1.0 + 0.45 * m_character.drive };
+        tractSignal = std::tanh(tractSignal * driveScale * g) / (driveScale * makeup);
     }
     tractSignal = m_cascadeCeiling.process(tractSignal);
     if (!m_character.bypassPhaseDispersion) {
@@ -1009,8 +1076,9 @@ double FormantVoiceV2::nextSample()
         }
     }
     const double finalScale = m_phraseFinalRelease ? FinalStopBurstScale : 1.0;
+    const double voicedScale = (m_fricationSpec && m_fricationSpec->voicing > 0.0) ? VoicedStopBurstScale : 1.0;
     const double burstOut = (m_fricationSpec && m_fricationSpec->type == PhonemeType::Plosive)
-      ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * finalScale
+      ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * finalScale * voicedScale
       : 0.0;
     const double activeGain = isNoiseConsonant(*m_phoneme)
       ? (m_phoneme->type == PhonemeType::Plosive ? burstOut : m_fricationLevel)
@@ -1030,11 +1098,6 @@ double FormantVoiceV2::nextSample()
         m_ringPhase -= std::floor(m_ringPhase);
         const double mod = std::sin(2.0 * std::numbers::pi * m_ringPhase);
         out *= (1.0 - m_character.ringModDepth) + m_character.ringModDepth * mod;
-    }
-
-    if (m_character.drive > 0.0) {
-        const double g = 1.0 + m_character.drive;
-        out = std::tanh(out * g) / std::tanh(g);
     }
 
     if (m_character.sampleHoldHz > 0.0) {
@@ -1096,6 +1159,7 @@ void FormantVoiceV2::reset()
     m_burstRise = 0.0;
     m_burstFall = 0.0;
     m_aspirationEnv = 0.0;
+    m_aspirationCurrent = 0.0;
 
     m_seam = 1.0;
     m_fricationSpec = nullptr;

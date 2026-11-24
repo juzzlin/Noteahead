@@ -18,12 +18,15 @@
 #include "../../domain/dsp/fft.hpp"
 #include "../../domain/dsp/speech/formant_voice_v2.hpp"
 #include "../../domain/dsp/speech/phoneme.hpp"
+#include "../../domain/dsp/speech/speech_prosody.hpp"
+#include "../../domain/dsp/speech/speech_sequencer_v2.hpp"
 #include "../../domain/dsp/speech/text_to_phonemes_v2.hpp"
 
 #include <QTest>
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -437,6 +440,218 @@ void FormantVoiceV2Test::test_boundaries_shouldNotClick()
     const double steady = std::max(peakStep(rendered, frames / 4, frames / 2),
                                    peakStep(rendered, frames + frames / 2, 2 * frames - 100));
     QVERIFY2(atBoundary < steady * 1.5, qPrintable(QString { "%1 vs steady %2" }.arg(atBoundary).arg(steady)));
+}
+
+void FormantVoiceV2Test::test_plosiveBoundaries_shouldNotClick_data()
+{
+    QTest::addColumn<QString>("first");
+    QTest::addColumn<QString>("second");
+
+    QTest::newRow("T to B") << "T" << "B";
+    QTest::newRow("T to S") << "T" << "S";
+    QTest::newRow("S to T") << "S" << "T";
+    QTest::newRow("T to T") << "T" << "T";
+    QTest::newRow("T to _") << "T" << "_";
+}
+
+void FormantVoiceV2Test::test_plosiveBoundaries_shouldNotClick()
+{
+    QFETCH(QString, first);
+    QFETCH(QString, second);
+
+    auto voice = makeVoice();
+    const auto frames = static_cast<size_t>(SampleRate * 0.15);
+    const auto rendered = render(voice, { { first.toStdString(), frames }, { second.toStdString(), frames } });
+
+    const double atBoundary { peakStep(rendered, frames - 4, frames + 4) };
+    const double preBoundary { peakStep(rendered, frames - 400, frames - 20) };
+    QVERIFY2(atBoundary < std::max(0.002, preBoundary * 1.5),
+             qPrintable(QString { "atBoundary=%1 vs preBoundary=%2" }.arg(atBoundary).arg(preBoundary)));
+}
+
+void FormantVoiceV2Test::test_geminateStop_shouldNotReleaseTwice()
+{
+    auto voice = makeVoice();
+    const auto frames = static_cast<size_t>(SampleRate * 0.15);
+    const auto rendered = render(voice, { { "AA", frames }, { "T", frames }, { "T", frames }, { "AA", frames } });
+
+    const double firstStopTailPeak { peakAmplitude(
+      std::vector<double>(rendered.begin() + static_cast<long>(frames + frames / 2),
+                          rendered.begin() + static_cast<long>(2 * frames - 16))) };
+    QVERIFY2(firstStopTailPeak < 0.002, qPrintable(QString { "firstStopTailPeak=%1" }.arg(firstStopTailPeak)));
+
+    const double secondStopReleasePeak { peakAmplitude(
+      std::vector<double>(rendered.begin() + static_cast<long>(2 * frames + frames / 2),
+                          rendered.begin() + static_cast<long>(3 * frames))) };
+    QVERIFY2(secondStopReleasePeak > 0.005, qPrintable(QString { "secondStopReleasePeak=%1" }.arg(secondStopReleasePeak)));
+}
+
+void FormantVoiceV2Test::test_monsterAndWhisper_shouldStayFreeOfClicks()
+{
+    const std::string phrase { "I want to tear your brain out and EAT IT!" };
+    auto events { textToPhonemesV2(phrase) };
+    const auto prosody { SpeechProsody::analyze(phrase, events) };
+
+    const auto renderPreset = [&](double formantShift,
+                                  double openQuotient,
+                                  double breathiness,
+                                  double perturbation,
+                                  double speedQuotient,
+                                  double returnPhase,
+                                  double subharmonic,
+                                  double intonationScale,
+                                  double consonantLevel,
+                                  const FormantVoiceV2::VoiceCharacter & character) {
+        SpeechSequencerV2 seq;
+        seq.setSampleRate(SampleRate);
+        seq.setRate(0.35 + 2.65 * 0.25);
+        seq.setPhonemes(events);
+        seq.trigger();
+
+        auto voice = std::make_unique<FormantVoiceV2>();
+        voice->setSampleRate(SampleRate);
+        voice->setGlideTime(0.005 + 0.075 * 0.35);
+        voice->setFormantShift(formantShift);
+        voice->setOpenQuotient(openQuotient);
+        voice->setReturnPhase(returnPhase);
+        voice->setVoicePerturbation(perturbation);
+        voice->setSpeedQuotient(speedQuotient);
+        voice->setSubharmonic(subharmonic);
+        voice->setBreathiness(0.10 + breathiness);
+        voice->setConsonantLevel(consonantLevel);
+        voice->setSibilance(0.31);
+        voice->setVoiceCharacter(character);
+        voice->setPhraseDynamics(0.4 * intonationScale);
+
+        struct Rendered
+        {
+            std::vector<double> audio;
+            std::vector<size_t> indices;
+        } out;
+
+        double pitch { -1.0 };
+        const double pitchCoeff { 1.0 - std::exp(-1.0 / (0.015 * SampleRate)) };
+        while (seq.isActive()) {
+            const auto * spec { seq.phoneme() };
+            const size_t idx { seq.currentIndex() };
+            const double prog { seq.progress() };
+            voice->setPhoneme(*spec, seq.nextPhoneme(), seq.phonemeSeconds());
+            voice->setPhonemeStressed(seq.isStressed());
+            voice->setPhonemeProgress(prog);
+            voice->setUtteranceProgress(seq.utteranceProgress());
+            const double semi { SpeechProsody::pitchOffsetSemitones(
+              prosody[idx], *spec, prog, seq.phonemeElapsedSeconds(), 0.4 * intonationScale) };
+            const double asked { std::log2(130.8128 * std::pow(2.0, semi / 12.0)) };
+            pitch = pitch < 0.0 ? asked : pitch + (asked - pitch) * pitchCoeff;
+            voice->setFrequency(std::exp2(pitch));
+            out.audio.push_back(voice->nextSample());
+            out.indices.push_back(idx);
+            seq.advance();
+        }
+        return out;
+    };
+
+    const auto countHfClicks = [&](const std::vector<double> & audio, const std::vector<size_t> * indices, bool vowelsOnly) {
+        struct Hp
+        {
+            double b0 { 1.0 };
+            double b1 { 0.0 };
+            double b2 { 0.0 };
+            double a1 { 0.0 };
+            double a2 { 0.0 };
+            double s1 { 0.0 };
+            double s2 { 0.0 };
+
+            explicit Hp(double fc)
+            {
+                const double w0 { 2.0 * M_PI * fc / SampleRate };
+                const double cw { std::cos(w0) };
+                const double al { std::sin(w0) / (2.0 * 0.7071) };
+                const double inv { 1.0 / (1.0 + al) };
+                b0 = 0.5 * (1.0 + cw) * inv;
+                b1 = -(1.0 + cw) * inv;
+                b2 = b0;
+                a1 = (-2.0 * cw) * inv;
+                a2 = (1.0 - al) * inv;
+            }
+
+            double process(double x)
+            {
+                const double y { b0 * x + s1 };
+                s1 = b1 * x - a1 * y + s2;
+                s2 = b2 * x - a2 * y;
+                return y;
+            }
+        } hp1 { 4000.0 }, hp2 { 4000.0 };
+
+        std::vector<double> hf(audio.size(), 0.0);
+        for (size_t i { 0 }; i < audio.size(); i++) {
+            hf[i] = hp2.process(hp1.process(audio[i]));
+        }
+
+        constexpr size_t window { 96 };
+        std::vector<double> binRms(hf.size() / window, 0.0);
+        for (size_t b { 0 }; b < binRms.size(); b++) {
+            double sum { 0.0 };
+            for (size_t k { 0 }; k < window; k++) {
+                const double v { hf[b * window + k] };
+                sum += v * v;
+            }
+            binRms[b] = std::sqrt(sum / static_cast<double>(window));
+        }
+
+        int clicks { 0 };
+        size_t lastClick { 0 };
+        for (size_t b { 20 }; b + 20 < binRms.size(); b++) {
+            if (vowelsOnly && indices && events[(*indices)[b * window]].spec->type != PhonemeType::Vowel) {
+                continue;
+            }
+            std::vector<double> bg;
+            for (size_t k { b - 20 }; k < b - 4; k++) {
+                bg.push_back(binRms[k]);
+            }
+            for (size_t k { b + 4 }; k < b + 20; k++) {
+                bg.push_back(binRms[k]);
+            }
+            std::sort(bg.begin(), bg.end());
+            const double bgMed { bg[bg.size() / 2] };
+            if (binRms[b] > 0.0015 && binRms[b] > bgMed * 4.0 && binRms[b] >= binRms[b - 1] && binRms[b] >= binRms[b + 1]) {
+                if (lastClick == 0 || b - lastClick > 10) {
+                    clicks++;
+                    lastClick = b;
+                }
+            }
+        }
+        return clicks;
+    };
+
+    const auto boundaryStep = [](const std::vector<double> & audio, const std::vector<size_t> & indices, size_t fromIdx, size_t toIdx) {
+        for (size_t i { 4 }; i + 4 < indices.size(); i++) {
+            if (indices[i - 1] == fromIdx && indices[i] == toIdx) {
+                return peakStep(audio, i - 4, i + 4);
+            }
+        }
+        return 0.0;
+    };
+
+    const FormantVoiceV2::VoiceCharacter monsterChar { .drive = 1.8, .subOctaveMix = 0.32 };
+    const auto monster { renderPreset(0.76, 0.34, 0.06, 0.75, 3.6, 0.010, 0.72, 0.85, 1.0, monsterChar) };
+    QVERIFY(std::ranges::all_of(monster.audio, [](double s) { return std::isfinite(s); }));
+    QVERIFY(peakAmplitude(monster.audio) < 1.0);
+    QVERIFY(boundaryStep(monster.audio, monster.indices, 4, 5) < 0.002);
+    QVERIFY(boundaryStep(monster.audio, monster.indices, 25, 26) < 0.002);
+    const int monsterVowelClicks { countHfClicks(monster.audio, &monster.indices, true) };
+    QVERIFY2(monsterVowelClicks <= 2, qPrintable(QString { "monsterVowelClicks=%1" }.arg(monsterVowelClicks)));
+
+    const FormantVoiceV2::VoiceCharacter whisperChar { .bandwidthScale = 1.25, .whisperMix = 0.94 };
+    const auto whisper { renderPreset(1.04, 0.82, 0.20, 0.30, 2.0, 0.060, 0.00, 0.40, 1.0, whisperChar) };
+    QVERIFY(std::ranges::all_of(whisper.audio, [](double s) { return std::isfinite(s); }));
+    QVERIFY(peakAmplitude(whisper.audio) < 1.0);
+    QVERIFY(boundaryStep(whisper.audio, whisper.indices, 4, 5) < 0.002);
+    QVERIFY(boundaryStep(whisper.audio, whisper.indices, 25, 26) < 0.002);
+
+    const auto whisperNoCons { renderPreset(1.04, 0.82, 0.20, 0.30, 2.0, 0.060, 0.00, 0.40, 0.0, whisperChar) };
+    QCOMPARE(countHfClicks(whisperNoCons.audio, &whisperNoCons.indices, false), 0);
 }
 
 void FormantVoiceV2Test::test_highPitch_shouldPreserveFundamentalThroughF1Floor()

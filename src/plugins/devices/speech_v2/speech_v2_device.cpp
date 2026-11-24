@@ -75,7 +75,7 @@ constexpr VoiceTypeSettings VoiceTypes[] {
     // 7: Alien (warped stretched formants, FM warble, shimmer ring mod)
     { 1.30, 0.0, 0.32, 0.02, 0.08, 3.2, 0.005, 0.00, 1.15, 0.85, { .bandwidthScale = 0.72, .f2Stretch = 1.22, .f3Stretch = 1.18, .ringModHz = 145.0, .ringModDepth = 0.22, .fmWarbleHz = 22.0, .fmWarbleSemitones = 0.45 } },
     // 8: Monster (subharmonic growl, octave sub layer, warm drive)
-    { 0.76, 0.0, 0.34, 0.06, 0.75, 4.5, 0.006, 0.72, 0.85, 1.00, { .drive = 1.8, .subOctaveMix = 0.32 } },
+    { 0.76, 0.0, 0.34, 0.06, 0.75, 3.6, 0.010, 0.72, 0.85, 1.00, { .drive = 1.8, .subOctaveMix = 0.32 } },
     // 9: Robot (monotone, sharp pulse, metallic comb resonance)
     { 1.00, 0.0, 0.28, 0.00, 0.00, 4.0, 0.003, 0.00, 0.00, 0.30, { .bandwidthScale = 0.58, .combDelayMs = 6.8, .combFeedback = 0.58, .combMix = 0.38, .bypassPhaseDispersion = true } },
     // 10: Cyborg (Dalek/vocoder ring-modulated buzz + drive)
@@ -83,7 +83,7 @@ constexpr VoiceTypeSettings VoiceTypes[] {
     // 11: Whisper (aspirated unvoiced vocal tract excitation)
     { 1.04, 0.0, 0.82, 0.20, 0.30, 2.0, 0.060, 0.00, 0.40, 1.00, { .bandwidthScale = 1.25, .whisperMix = 0.94 } },
     // 12: Demon (cavernous sub-octave + slow growl ring mod + heavy drive)
-    { 0.66, 0.0, 0.32, 0.08, 0.85, 4.8, 0.005, 0.78, 0.75, 1.15, { .ringModHz = 17.0, .ringModDepth = 0.38, .drive = 2.8, .subOctaveMix = 0.65 } },
+    { 0.66, 0.0, 0.32, 0.08, 0.85, 3.8, 0.008, 0.78, 0.75, 1.15, { .ringModHz = 17.0, .ringModDepth = 0.38, .drive = 2.8, .subOctaveMix = 0.65 } },
     // 13: 8-Bit (retro Speak & Spell / SAM stepped control + sample-and-hold crush)
     { 1.02, 0.0, 0.32, 0.00, 0.00, 3.5, 0.003, 0.00, 0.00, 0.25, { .bandwidthScale = 0.70, .sampleHoldHz = 10500.0, .bitCrushSteps = 20, .steppedControlDiv = 28, .bypassPhaseDispersion = true } },
     // 14: Mutant (unstable wobbling formants, FM warble, ring mod + subharmonic)
@@ -269,7 +269,9 @@ void SpeechV2Device::handleNoteOn(uint8_t note, uint8_t velocity)
     if (!legato) {
         m_pitch = -1.0;
         m_notePitch.reset();
-        m_prosodyGain = 1.0;
+        if (m_fade <= FadeFloor) {
+            m_prosodyGain = 1.0;
+        }
     }
 
     m_sequencer.setNoteBeats(mode == SpeechSequencer::TriggerMode::Line ? noteBeats() : std::nullopt);

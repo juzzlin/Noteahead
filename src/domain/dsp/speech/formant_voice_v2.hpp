@@ -171,13 +171,14 @@ private:
     //! Calibrated against SpeechDevice so phrases sit at matching RMS with clear headroom.
     static constexpr double CascadeMakeupGain { 9.0 };
     static constexpr double FricationMakeupGain { 1.0 };
-    static constexpr double BurstMakeupGain { 0.95 };
+    static constexpr double BurstMakeupGain { 0.75 };
     static constexpr double FinalStopBurstScale { 0.52 };
+    static constexpr double VoicedStopBurstScale { 0.45 };
     static constexpr double SourceMakeupGain { 0.80 };
 
     static constexpr double GlottalChinkLevel { 0.010 };
     static constexpr double HhAspirationLevel { 0.0024 };
-    static constexpr double PlosiveAspirationLevel { 0.0065 };
+    static constexpr double PlosiveAspirationLevel { 0.011 };
     static constexpr double WhisperNoiseLevel { 0.045 };
     static constexpr double FinalAspirationScale { 0.40 };
 
@@ -199,10 +200,12 @@ private:
     static constexpr double VoicedClosureFraction { 0.88 };
     static constexpr double MinimumClosureFraction { 0.35 };
     static constexpr double MaximumClosureFraction { 0.92 };
-    static constexpr double PlosiveBurstDecayTime { 0.004 };
-    static constexpr double PlosiveBurstSeconds { 0.006 };
+    static constexpr double PlosiveBurstDecayTime { 0.0065 };
+    static constexpr double PlosiveBurstSeconds { 0.005 };
+    static constexpr double AspirationAttackTime { 0.003 };
     static constexpr double AspirationDecayTime { 0.022 };
-    static constexpr double PlosiveBurstAttackTime { 0.0006 };
+    static constexpr double AspirationTailDecayTime { 0.006 };
+    static constexpr double PlosiveBurstAttackTime { 0.0018 };
     static constexpr double SeamFadeTime { 0.004 };
 
     static constexpr std::array<FormantPair, 3> UpperCascadeFormants { {
@@ -222,6 +225,7 @@ private:
     NasalSpec effectiveNasalTargets() const;
     double closureFraction() const;
     bool isPhraseFinalStop() const;
+    bool isSoftStopRelease() const;
     bool isReleased() const;
     bool shouldAspirate() const;
     double voicingTargetFor(const PhonemeSpec & spec) const;
@@ -238,10 +242,12 @@ private:
     double m_phonemeSeconds { 0.0 };
     bool m_stressed { true };
 
+    double m_configuredSampleRate { 0.0 };
     double m_frequency { 110.0 };
     double m_glideTime { 0.03 };
     double m_formantShift { 1.0 };
     double m_configuredFilterShift { 0.0 };
+    double m_configuredWhisperMix { -1.0 };
     double m_sourceRolloff { 0.0 };
     double m_breathiness { 0.0 };
     double m_effectiveBreathiness { 0.0 };
@@ -287,7 +293,10 @@ private:
     double m_burstAttack { 0.0 };
     double m_burstDecay { 0.0 };
     double m_aspirationEnv { 0.0 };
+    double m_aspirationCurrent { 0.0 };
+    double m_aspirationAttackCoeff { 0.0 };
     double m_aspirationDecay { 0.0 };
+    double m_aspirationTailDecay { 0.0 };
 
     double m_seam { 1.0 };
     double m_seamCoefficient { 0.0 };
