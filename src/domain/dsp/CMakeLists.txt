@@ -35,7 +35,9 @@ set(DSP_SOURCES
     speech/glottal_source.cpp
     speech/glottal_source_v2.cpp
     speech/phoneme_table.cpp
+    speech/speech_prosody.cpp
     speech/speech_sequencer.cpp
+    speech/speech_sequencer_v2.cpp
     speech/text_to_phonemes.cpp
 )
 

@@ -51,6 +51,18 @@ bool isNoiseConsonant(const PhonemeSpec & spec)
     return spec.type == PhonemeType::Plosive || (spec.type == PhonemeType::Fricative && spec.name != "HH");
 }
 
+double diphthongGlide(double progress)
+{
+    if (progress <= 0.25) {
+        return 0.0;
+    }
+    if (progress >= 0.80) {
+        return 1.0;
+    }
+    const double u = (progress - 0.25) / 0.55;
+    return u * u * (3.0 - 2.0 * u);
+}
+
 } // namespace
 
 void FormantVoiceV2::Resonator::configure(double frequency, double bandwidth, double sampleRate)
@@ -397,9 +409,10 @@ std::array<FormantVoiceV2::FormantPair, 3> FormantVoiceV2::effectiveCascadeTarge
         }
         if (spec.glideTo.has_value()) {
             const auto & dest = *spec.glideTo;
+            const double glide = diphthongGlide(progress);
             for (size_t i = 0; i < out.size(); i++) {
-                out[i].frequency = logLerp(out[i].frequency, dest[i].frequency, progress);
-                out[i].bandwidth = lerp(out[i].bandwidth, dest[i].bandwidth, progress);
+                out[i].frequency = logLerp(out[i].frequency, dest[i].frequency, glide);
+                out[i].bandwidth = lerp(out[i].bandwidth, dest[i].bandwidth, glide);
             }
         }
         return out;

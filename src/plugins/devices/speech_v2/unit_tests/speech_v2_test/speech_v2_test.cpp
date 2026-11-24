@@ -363,6 +363,85 @@ void SpeechV2Test::test_vibrato_shouldRampInSmoothlyOnSustainedVowel()
              qPrintable(QString { "onset=%1 st, sustained=%2 st" }.arg(onsetSwing / 100.0).arg(sustainedSwing / 100.0)));
 }
 
+void SpeechV2Test::test_prosody_questionShouldRiseAboveStatement()
+{
+    const auto finalWordPitch = [](const std::string & phrase) {
+        SpeechV2Device device { "Speech V2" };
+        device.setPhrase(phrase);
+        device.setIntonation(0.8f);
+        device.setVoicePerturbation(0.0f);
+        device.setVibratoDepth(0.0f);
+        device.processDeviceMidiNoteOn(48, 100);
+        const auto audio = renderDevice(device, static_cast<uint32_t>(SampleRate * 1.2));
+
+        constexpr size_t win = 2048;
+        constexpr size_t hop = 960;
+        double lastActiveHz = 0.0;
+        for (size_t start = static_cast<size_t>(SampleRate * 0.40); start + win <= audio.size() / 2; start += hop) {
+            const std::vector<double> slice(
+              audio.begin() + static_cast<long>(start * 2),
+              audio.begin() + static_cast<long>((start + win) * 2));
+            if (rmsMono(slice) > 0.005) {
+                lastActiveHz = preciseFundamental(slice);
+            }
+        }
+        return lastActiveHz;
+    };
+
+    const double qHz = finalWordPitch("Hello world?");
+    const double sHz = finalWordPitch("Hello world.");
+    QVERIFY(qHz > 0.0 && sHz > 0.0);
+    const double diffCents = 1200.0 * std::log2(qHz / sHz);
+    QVERIFY2(diffCents > 200.0, qPrintable(QString { "q=%1 Hz vs s=%2 Hz (%3 c)" }.arg(qHz).arg(sHz).arg(diffCents)));
+}
+
+void SpeechV2Test::test_stepModeDiphthong_shouldHoldNucleusUntilNoteOff()
+{
+    const auto centroidF2 = [](const std::vector<double> & interleaved, size_t offsetFrame, int fftSize) {
+        std::vector<double> re(fftSize, 0.0);
+        std::vector<double> im(fftSize, 0.0);
+        for (int i = 0; i < fftSize && (offsetFrame + static_cast<size_t>(i)) * 2 < interleaved.size(); i++) {
+            const double w = 0.5 - 0.5 * std::cos(2.0 * M_PI * i / (fftSize - 1));
+            re[static_cast<size_t>(i)] = interleaved[(offsetFrame + static_cast<size_t>(i)) * 2] * w;
+        }
+        Fft::forward(re.data(), im.data(), fftSize);
+        const size_t low = static_cast<size_t>(700.0 * fftSize / SampleRate);
+        const size_t high = static_cast<size_t>(2800.0 * fftSize / SampleRate);
+        double weighted = 0.0;
+        double total = 0.0;
+        for (size_t b = low; b <= high; b++) {
+            const double p = re[b] * re[b] + im[b] * im[b];
+            weighted += p * static_cast<double>(b) * SampleRate / fftSize;
+            total += p;
+        }
+        return total > 0.0 ? weighted / total : 0.0;
+    };
+
+    SpeechV2Device device { "Speech V2" };
+    device.setPhrase("/AY/");
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+    device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+    device.setIntonation(0.0f);
+    device.setVoicePerturbation(0.0f);
+    device.processDeviceMidiNoteOn(48, 100);
+
+    const auto held = renderDevice(device, static_cast<uint32_t>(SampleRate * 0.5));
+    QVERIFY(device.hasActiveAudio());
+    const double heldF2 = centroidF2(held, 24000 - 4096, 4096);
+    QVERIFY2(heldF2 < 1500.0, qPrintable(QString { "heldF2=%1 Hz" }.arg(heldF2)));
+
+    device.processDeviceMidiNoteOff(48);
+    const auto released = renderDevice(device, static_cast<uint32_t>(SampleRate * 0.22));
+    QVERIFY(device.hasActiveAudio());
+    const double releaseF2 = centroidF2(released, 7500, 2048);
+    QVERIFY2(releaseF2 > heldF2 + 350.0, qPrintable(QString { "heldF2=%1 vs releaseF2=%2" }.arg(heldF2).arg(releaseF2)));
+
+    renderDevice(device, static_cast<uint32_t>(SampleRate * 2.5));
+    const auto tail = renderDevice(device, 4096);
+    QVERIFY(!device.hasActiveAudio());
+    QCOMPARE(peakAmplitude(tail), 0.0);
+}
+
 void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
 {
     const auto device = std::make_shared<SpeechV2Device>("Speech V2");

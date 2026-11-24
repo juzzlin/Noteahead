@@ -41,6 +41,7 @@ private slots:
     void test_returnPhase_shouldControlHighFrequencyTilt();
     void test_voicingOnset_shouldBeSofterThanSteadyState();
     void test_phraseFinal_shouldTaperAndSoftenAtTail();
+    void test_diphthong_shouldHoldNucleusThenGlideSmoothly();
     void test_afterReset_shouldBeSilent();
 };
 

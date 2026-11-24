@@ -21,7 +21,8 @@
 #include "../../../domain/dsp/dc_blocker.hpp"
 #include "../../../domain/dsp/lfo.hpp"
 #include "../../../domain/dsp/speech/formant_voice_v2.hpp"
-#include "../../../domain/dsp/speech/speech_sequencer.hpp"
+#include "../../../domain/dsp/speech/speech_prosody.hpp"
+#include "../../../domain/dsp/speech/speech_sequencer_v2.hpp"
 #include "../../../domain/dsp/true_stereo_panner.hpp"
 
 #include <array>
@@ -129,10 +130,10 @@ private:
     double currentFrequency() const;
     double nextFlutter(double sampleRate);
 
-    static constexpr double IntonationRange { 2.0 };
     static constexpr double OutputFadeTime { 0.006 };
     static constexpr double FadeFloor { 0.0001 };
-    static constexpr double PitchGlideTime { 0.045 };
+    static constexpr double PitchGlideTime { 0.015 };
+    static constexpr double ProsodyGainGlideTime { 0.015 };
     static constexpr double VibratoOnsetSeconds { 0.22 };
     static constexpr double VibratoReleaseSeconds { 0.030 };
     static constexpr double FlutterRates[] { 12.7, 7.1, 4.7 };
@@ -141,7 +142,8 @@ private:
     std::string m_name;
     std::string m_phrase;
 
-    SpeechSequencer m_sequencer;
+    SpeechSequencerV2 m_sequencer;
+    std::vector<ProsodyEvent> m_prosody {};
     FormantVoiceV2 m_voice;
 
     Lfo m_vibrato;
@@ -168,6 +170,8 @@ private:
 
     double m_fade { 0.0 };
     double m_fadeCoefficient { 0.0 };
+    double m_prosodyGain { 1.0 };
+    double m_prosodyGainCoefficient { 1.0 };
 
     float m_rate { 0.25f };
     float m_portamento { 0.0f };

@@ -503,6 +503,26 @@ void FormantVoiceV2Test::test_phraseFinal_shouldTaperAndSoftenAtTail()
     QVERIFY2(tailBright < midBright * 0.6, qPrintable(QString { "tailBright=%1 vs midBright=%2" }.arg(tailBright).arg(midBright)));
 }
 
+void FormantVoiceV2Test::test_diphthong_shouldHoldNucleusThenGlideSmoothly()
+{
+    auto voice = makeVoice();
+    const auto frames = static_cast<size_t>(SampleRate * 0.24);
+    const auto rendered = render(voice, { { "AY", frames } });
+    constexpr int win = 1024;
+    const auto f2At = [&](size_t offset) {
+        return centroidInBand(spectrum(rendered, offset, win), 700.0, 2800.0, win);
+    };
+
+    const double earlyNucleus = f2At(300);    // ~7%
+    const double lateNucleus = f2At(1400);    // ~17% (still in 0..25% hold)
+    const double settledOffglide = f2At(10000); // ~90% (settled after 80% glide)
+
+    QVERIFY2(std::abs(lateNucleus - earlyNucleus) < 150.0,
+             qPrintable(QString { "early=%1 vs late=%2" }.arg(earlyNucleus).arg(lateNucleus)));
+    QVERIFY2(settledOffglide > lateNucleus + 600.0,
+             qPrintable(QString { "lateNucleus=%1 vs offglide=%2" }.arg(lateNucleus).arg(settledOffglide)));
+}
+
 void FormantVoiceV2Test::test_afterReset_shouldBeSilent()
 {
     auto voice = makeVoice();

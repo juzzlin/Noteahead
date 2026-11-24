@@ -78,7 +78,9 @@ set(HEADER_FILES
     dsp/speech/glottal_source.hpp
     dsp/speech/glottal_source_v2.hpp
     dsp/speech/phoneme.hpp
+    dsp/speech/speech_prosody.hpp
     dsp/speech/speech_sequencer.hpp
+    dsp/speech/speech_sequencer_v2.hpp
     dsp/speech/text_to_phonemes.hpp
     dsp/svf_filter.hpp
     dsp/sweep_envelope.hpp
@@ -238,7 +240,9 @@ set(SOURCE_FILES
     dsp/speech/glottal_source.cpp
     dsp/speech/glottal_source_v2.cpp
     dsp/speech/phoneme_table.cpp
+    dsp/speech/speech_prosody.cpp
     dsp/speech/speech_sequencer.cpp
+    dsp/speech/speech_sequencer_v2.cpp
     dsp/speech/text_to_phonemes.cpp
     dsp/svf_filter.cpp
     dsp/sweep_envelope.cpp

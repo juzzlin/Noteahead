@@ -34,6 +34,8 @@ private slots:
     void test_midiCc_shouldReachParametersAndResetCleanly();
     void test_triggerAndSyncModes_shouldBehaveAndSeek();
     void test_vibrato_shouldRampInSmoothlyOnSustainedVowel();
+    void test_prosody_questionShouldRiseAboveStatement();
+    void test_stepModeDiphthong_shouldHoldNucleusUntilNoteOff();
     void test_dialogModel_roundTripAndRequestSettings();
 };
 
