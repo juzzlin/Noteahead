@@ -110,6 +110,20 @@ void GlottalSourceV2::setSubharmonic(double subharmonic)
     m_subharmonic = std::clamp(subharmonic, 0.0, 1.0);
 }
 
+void GlottalSourceV2::setSeed(unsigned int seed)
+{
+    m_seed = seed;
+    m_rng.seed(m_seed);
+}
+
+void GlottalSourceV2::setInitialPhase(double phase)
+{
+    m_initialPhase = std::clamp(phase, 0.0, 0.999);
+    if (!m_started) {
+        m_phase = m_initialPhase;
+    }
+}
+
 void GlottalSourceV2::updatePhaseStep()
 {
     m_phaseStep = m_sampleRate > 0.0 ? m_frequency / m_sampleRate : 0.0;
@@ -250,7 +264,7 @@ double GlottalSourceV2::openness() const
 
 void GlottalSourceV2::reset()
 {
-    m_phase = 0.0;
+    m_phase = m_initialPhase;
     m_periodScale = 1.0;
     m_amplitude = 1.0;
     m_weakPeriod = false;
@@ -258,7 +272,7 @@ void GlottalSourceV2::reset()
     m_frequencyScale = m_frequencyScaleTarget;
     m_started = false;
     updateLfParametersIfNeeded();
-    m_rng.seed(0x51EEC4);
+    m_rng.seed(m_seed);
 }
 
 } // namespace noteahead

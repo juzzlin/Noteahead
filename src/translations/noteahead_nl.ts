@@ -13546,6 +13546,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Panning</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Panning-spreiding</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Verdubbelt de stem naar stereo met subtiele toonhoogte-, formant- en ademspreiding.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Velocity-gevoeligheid</translation>
     </message>

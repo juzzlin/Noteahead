@@ -13548,6 +13548,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Rozpiętość panoramy</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Podwaja głos do stereo z subtelnym rozproszeniem wysokości, formantów i oddechu.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Czułość velocity</translation>
     </message>

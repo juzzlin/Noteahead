@@ -13544,6 +13544,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>声像</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>声像扩散</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>将人声加倍为立体声，并带有微妙的音高、共振峰和呼吸声扩散。</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>力度灵敏度</translation>
     </message>

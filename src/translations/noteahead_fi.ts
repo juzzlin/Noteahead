@@ -13546,6 +13546,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Panorointi</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Panoroinnin levitys</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Kahdentaa äänen stereoksi hienovaraisella sävelkorkeuden, formanttien ja hengityksen levityksellä.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Voimakkuusherkkyys</translation>
     </message>

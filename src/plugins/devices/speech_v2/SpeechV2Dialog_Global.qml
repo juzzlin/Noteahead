@@ -56,6 +56,14 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Pan Spread")
+        value: speechV2Controller.panSpread
+        onMoved: v => speechV2Controller.panSpread = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Doubles the voice into stereo with subtle pitch, formant and breath spread.")
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Velocity Sensitivity")
         value: speechV2Controller.velocitySensitivity
         onMoved: v => speechV2Controller.velocitySensitivity = v

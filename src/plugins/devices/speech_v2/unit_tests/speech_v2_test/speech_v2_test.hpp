@@ -37,6 +37,7 @@ private slots:
     void test_prosody_questionShouldRiseAboveStatement();
     void test_stepModeDiphthong_shouldHoldNucleusUntilNoteOff();
     void test_midiPitchBend_shouldShiftPitchByConfiguredRange();
+    void test_panSpread_shouldWidenToStereoAndStayBalanced();
     void test_dialogModel_roundTripAndRequestSettings();
 };
 

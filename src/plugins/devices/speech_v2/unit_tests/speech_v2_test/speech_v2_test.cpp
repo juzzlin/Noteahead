@@ -516,6 +516,65 @@ void SpeechV2Test::test_midiPitchBend_shouldShiftPitchByConfiguredRange()
     QVERIFY2(std::abs(downCents + 700.0) < 15.0, qPrintable(QString::number(downCents)));
 }
 
+void SpeechV2Test::test_panSpread_shouldWidenToStereoAndStayBalanced()
+{
+    const auto renderPhrase = [](float panSpread, float pan) {
+        SpeechV2Device device { "Speech V2" };
+        device.setPan(pan);
+        device.setPanSpread(panSpread);
+        device.processDeviceMidiNoteOn(48, 100);
+        // Settle pan-spread smoothing before measuring stereo image
+        renderDevice(device, 4800);
+        return renderDevice(device, static_cast<uint32_t>(SampleRate * 0.6));
+    };
+
+    const auto channelRms = [](const std::vector<double> & buffer, size_t offset) {
+        double sum { 0.0 };
+        size_t count { 0 };
+        for (size_t i { offset }; i < buffer.size(); i += 2) {
+            sum += buffer[i] * buffer[i];
+            count++;
+        }
+        return count > 0 ? std::sqrt(sum / static_cast<double>(count)) : 0.0;
+    };
+
+    const auto mono { renderPhrase(0.0f, 0.5f) };
+    double maxDiffMono { 0.0 };
+    for (size_t i { 0 }; i + 1 < mono.size(); i += 2) {
+        maxDiffMono = std::max(maxDiffMono, std::abs(mono[i] - mono[i + 1]));
+    }
+    QCOMPARE(maxDiffMono, 0.0);
+
+    const auto wide { renderPhrase(1.0f, 0.5f) };
+    QVERIFY(peakAmplitude(wide) < 1.0);
+
+    double diffSq { 0.0 };
+    double sumSq { 0.0 };
+    for (size_t i { 0 }; i + 1 < wide.size(); i += 2) {
+        const double l { wide[i] };
+        const double r { wide[i + 1] };
+        diffSq += (l - r) * (l - r);
+        sumSq += (l + r) * (l + r);
+    }
+    QVERIFY2(std::sqrt(diffSq) > 0.2 * std::sqrt(sumSq),
+             qPrintable(QString { "side=%1 vs mid=%2" }.arg(std::sqrt(diffSq)).arg(std::sqrt(sumSq))));
+
+    const double rmsL { channelRms(wide, 0) };
+    const double rmsR { channelRms(wide, 1) };
+    const double monoL { channelRms(mono, 0) };
+    QVERIFY2(std::abs(20.0 * std::log10(rmsL / std::max(1.0e-12, rmsR))) < 2.0,
+             qPrintable(QString { "rmsL=%1 rmsR=%2" }.arg(rmsL).arg(rmsR)));
+    QVERIFY2(std::abs(20.0 * std::log10((rmsL + rmsR) / std::max(1.0e-12, 2.0 * monoL))) < 2.5,
+             qPrintable(QString { "wide=%1 vs mono=%2" }.arg(0.5 * (rmsL + rmsR)).arg(monoL)));
+
+    const auto pannedLeft { renderPhrase(1.0f, 0.0f) };
+    double rightPeak { 0.0 };
+    for (size_t i { 1 }; i < pannedLeft.size(); i += 2) {
+        rightPeak = std::max(rightPeak, std::abs(pannedLeft[i]));
+    }
+    QVERIFY2(rightPeak < 1.0e-6, qPrintable(QString { "rightPeak=%1" }.arg(rightPeak)));
+}
+
 void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
 {
     const auto device = std::make_shared<SpeechV2Device>("Speech V2");
@@ -529,20 +588,24 @@ void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
     model.setOpenQuotient(750);
     model.setVoicePerturbation(250);
     model.setFormantShift(600);
+    model.setPanSpread(650);
     model.setPitchBendRange(7);
     QCOMPARE(model.openQuotient(), 750);
     QCOMPARE(model.voicePerturbation(), 250);
     QCOMPARE(model.formantShift(), 600);
+    QCOMPARE(model.panSpread(), 650);
     QCOMPARE(model.pitchBendRange(), 7);
 
     QSignalSpy openSpy { &model, &SpeechV2DialogModel::openQuotientChanged };
     QSignalSpy jitterSpy { &model, &SpeechV2DialogModel::voicePerturbationChanged };
+    QSignalSpy panSpreadSpy { &model, &SpeechV2DialogModel::panSpreadChanged };
     QSignalSpy phraseSpy { &model, &SpeechV2DialogModel::phraseChanged };
     QSignalSpy rateSpy { &model, &SpeechV2DialogModel::rateChanged };
     QSignalSpy pbSpy { &model, &SpeechV2DialogModel::pitchBendRangeChanged };
     model.requestSettings();
     QCOMPARE(openSpy.count(), 1);
     QCOMPARE(jitterSpy.count(), 1);
+    QCOMPARE(panSpreadSpy.count(), 1);
     QCOMPARE(phraseSpy.count(), 1);
     QCOMPARE(rateSpy.count(), 1);
     QCOMPARE(pbSpy.count(), 1);

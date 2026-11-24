@@ -82,6 +82,8 @@ public:
     void setGlide(float glide);
     float formantShift() const;
     void setFormantShift(float formantShift);
+    float panSpread() const;
+    void setPanSpread(float spread);
     float breathiness() const;
     void setBreathiness(float breathiness);
     float consonantLevel() const;
@@ -137,6 +139,10 @@ private:
     static constexpr double FadeFloor { 0.0001 };
     static constexpr double PitchGlideTime { 0.015 };
     static constexpr double ProsodyGainGlideTime { 0.015 };
+    static constexpr double PanSpreadGlideTime { 0.015 };
+    static constexpr double MaxSpreadDetuneCents { 7.0 };
+    static constexpr double MaxSpreadFormantOffset { 0.015 };
+    static constexpr unsigned int CompanionRngSeed { 0xD0D4u };
     static constexpr double VibratoOnsetSeconds { 0.22 };
     static constexpr double VibratoReleaseSeconds { 0.030 };
     static constexpr double FlutterRates[] { 12.7, 7.1, 4.7 };
@@ -148,6 +154,7 @@ private:
     SpeechSequencerV2 m_sequencer;
     std::vector<ProsodyEvent> m_prosody {};
     FormantVoiceV2 m_voice;
+    FormantVoiceV2 m_voiceR;
 
     Lfo m_vibrato;
     CascadedSvf m_lpfL;
@@ -184,6 +191,10 @@ private:
     float m_portamento { 0.0f };
     float m_glide { 0.35f };
     float m_formantShift { 0.5f };
+    float m_panSpread { 0.0f };
+    double m_panSpreadSmoothed { 0.0 };
+    double m_panSpreadCoefficient { 1.0 };
+    bool m_voiceRActive { false };
     float m_breathiness { 0.1f };
     float m_consonantLevel { 0.5f };
     float m_sibilance { 0.31f };

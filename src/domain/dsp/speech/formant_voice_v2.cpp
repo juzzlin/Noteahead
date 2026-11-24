@@ -409,6 +409,18 @@ void FormantVoiceV2::setVoiceCharacter(const VoiceCharacter & character)
     configureTractPostFilters();
 }
 
+void FormantVoiceV2::setRngSeed(unsigned int seed)
+{
+    m_rngSeed = seed;
+    m_rng.seed(m_rngSeed);
+    m_glottis.setSeed(seed ^ 0x51EEC4u);
+}
+
+void FormantVoiceV2::setGlottalInitialPhase(double phase)
+{
+    m_glottis.setInitialPhase(phase);
+}
+
 std::array<FormantVoiceV2::FormantPair, 3> FormantVoiceV2::consonantLocus(std::string_view name, const PhonemeSpec * adjacentVowel)
 {
     const bool isNasal = name == "M" || name == "N" || name == "NG";
@@ -763,15 +775,17 @@ void FormantVoiceV2::setPhoneme(const PhonemeSpec & spec, const PhonemeSpec * ne
     if (isNoise) {
         const double prevFinalScale { m_phraseFinalRelease ? FinalStopBurstScale : 1.0 };
         const double prevVoicedScale { (m_fricationSpec && m_fricationSpec->voicing > 0.0) ? VoicedStopBurstScale : 1.0 };
+        const double prevStressScale { m_stressed ? 1.0 : UnstressedStopBurstScale };
         const double prevBurstGain {
             (m_fricationSpec && m_fricationSpec->type == PhonemeType::Plosive)
-              ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * prevFinalScale * prevVoicedScale
+              ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * prevFinalScale * prevVoicedScale * prevStressScale
               : 0.0
         };
         const double prevParallelGain { (prev && prev->type == PhonemeType::Plosive) ? prevBurstGain : m_fricationLevel };
         if (wasNoise && prevParallelGain > 0.001 && m_fricationSpec) {
             m_previousFricationFormants = m_fricationFormants;
             m_previousNoiseSpec = m_fricationSpec;
+            m_previousFricationTargets = m_fricationTargets;
             m_previousFricationLevel = prevParallelGain;
             m_seam = 0.0;
         }
@@ -781,19 +795,27 @@ void FormantVoiceV2::setPhoneme(const PhonemeSpec & spec, const PhonemeSpec * ne
         m_fricationSpec = &spec;
         m_burstRise = 0.0;
         m_burstFall = 0.0;
+        FormantTargets burstTargets { spec.formants };
         if (spec.name == "K" || spec.name == "G") {
             const auto * context = (next && isTractShape(next->type)) ? next : m_lastVowel;
             const double adjacentF2 = (context && isTractShape(context->type)) ? context->formants[1].frequency : 1200.0;
             const double scale = std::clamp(adjacentF2 / 1550.0, 0.72, 1.38);
-            FormantTargets burstTargets { spec.formants };
             for (auto & target : burstTargets) {
                 target.frequency *= scale;
                 target.bandwidth *= scale;
             }
-            tuneFricationFilters(burstTargets);
-        } else {
-            tuneFricationFilters(spec.formants);
+        } else if (spec.name == "T" || spec.name == "D") {
+            burstTargets = { { { 2200.0, 1200.0, 0.38 }, { 3600.0, 1600.0, 0.78 }, { 5200.0, 2000.0, 0.24 } } };
+            const auto * context { (next && isTractShape(next->type)) ? next : m_lastVowel };
+            const double adjacentF2 { (context && isTractShape(context->type)) ? context->formants[1].frequency : 1500.0 };
+            const double scale { std::clamp(adjacentF2 / 1800.0, 0.78, 1.12) };
+            for (auto & target : burstTargets) {
+                target.frequency *= scale;
+                target.bandwidth *= scale;
+            }
         }
+        m_fricationTargets = burstTargets;
+        tuneFricationFilters(m_fricationTargets);
         m_fricationLevel = (spec.type == PhonemeType::Plosive || m_seam >= 1.0) ? 0.0 : fricationTargetFor(spec);
     }
 
@@ -919,7 +941,7 @@ void FormantVoiceV2::updateControl()
     }
 }
 
-double FormantVoiceV2::parallelBankOutput(std::array<CascadedSvf, 3> & filters, const PhonemeSpec & spec, double input)
+double FormantVoiceV2::parallelBankOutput(std::array<CascadedSvf, 3> & filters, const PhonemeSpec & spec, const FormantTargets & targets, double input)
 {
     const bool skipVoiceBarBand = spec.type == PhonemeType::Fricative && spec.voicing > 0.0;
     double sum = 0.0;
@@ -928,7 +950,7 @@ double FormantVoiceV2::parallelBankOutput(std::array<CascadedSvf, 3> & filters, 
         if (skipVoiceBarBand && i == 0) {
             continue;
         }
-        const auto & target = spec.formants[i];
+        const auto & target = targets[i];
         const double polarity = (i % 2 == 0) ? 1.0 : -1.0;
         const double normalization = target.bandwidth / std::max(1.0, target.frequency);
         sum += polarity * target.amplitude * normalization * output;
@@ -1077,17 +1099,18 @@ double FormantVoiceV2::nextSample()
     }
     const double finalScale = m_phraseFinalRelease ? FinalStopBurstScale : 1.0;
     const double voicedScale = (m_fricationSpec && m_fricationSpec->voicing > 0.0) ? VoicedStopBurstScale : 1.0;
+    const double stressScale { m_stressed ? 1.0 : UnstressedStopBurstScale };
     const double burstOut = (m_fricationSpec && m_fricationSpec->type == PhonemeType::Plosive)
-      ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * finalScale * voicedScale
+      ? m_fricationSpec->amplitude * m_consonantLevel * m_burstRise * m_burstFall * BurstMakeupGain * finalScale * voicedScale * stressScale
       : 0.0;
     const double activeGain = isNoiseConsonant(*m_phoneme)
       ? (m_phoneme->type == PhonemeType::Plosive ? burstOut : m_fricationLevel)
       : std::max(burstOut, m_fricationLevel);
     double parallelOut = (m_fricationSpec && activeGain > 1.0e-6)
-      ? parallelBankOutput(m_fricationFormants, *m_fricationSpec, isNoiseConsonant(*m_phoneme) ? fricationNoise : 0.0) * activeGain
+      ? parallelBankOutput(m_fricationFormants, *m_fricationSpec, m_fricationTargets, isNoiseConsonant(*m_phoneme) ? fricationNoise : 0.0) * activeGain
       : 0.0;
     if (m_seam < 1.0 && m_previousNoiseSpec) {
-        const double outgoing = parallelBankOutput(m_previousFricationFormants, *m_previousNoiseSpec, 0.0) * m_previousFricationLevel;
+        const double outgoing = parallelBankOutput(m_previousFricationFormants, *m_previousNoiseSpec, m_previousFricationTargets, 0.0) * m_previousFricationLevel;
         parallelOut = outgoing + (parallelOut - outgoing) * m_seam;
     }
 
@@ -1164,6 +1187,8 @@ void FormantVoiceV2::reset()
     m_seam = 1.0;
     m_fricationSpec = nullptr;
     m_previousNoiseSpec = nullptr;
+    m_fricationTargets = {};
+    m_previousFricationTargets = {};
     for (auto & filter : m_fricationFormants) {
         filter.reset();
     }
@@ -1197,7 +1222,7 @@ void FormantVoiceV2::reset()
     m_shValue = 0.0;
     m_controlStepSkip = 0;
     m_controlCounter = 0;
-    m_rng.seed(RngSeed);
+    m_rng.seed(m_rngSeed);
 }
 
 } // namespace noteahead

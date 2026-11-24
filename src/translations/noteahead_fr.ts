@@ -13546,6 +13546,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Panoramique</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Étalement du panoramique</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Double la voix en stéréo avec un subtil étalement de hauteur, de formants et de souffle.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Sensibilité à la vélocité</translation>
     </message>

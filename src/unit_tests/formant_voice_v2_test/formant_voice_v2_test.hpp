@@ -40,6 +40,7 @@ private slots:
     void test_plosiveBoundaries_shouldNotClick_data();
     void test_plosiveBoundaries_shouldNotClick();
     void test_geminateStop_shouldNotReleaseTwice();
+    void test_alveolarT_shouldCoarticulateAndStayWarm();
     void test_monsterAndWhisper_shouldStayFreeOfClicks();
     void test_highPitch_shouldPreserveFundamentalThroughF1Floor();
     void test_returnPhase_shouldControlHighFrequencyTilt();

@@ -3494,6 +3494,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechV2Device_shouldLoadCorrectly(
     speech->setPortamento(0.4f);
     speech->setGlide(0.2f);
     speech->setFormantShift(0.65f);
+    speech->setPanSpread(0.62f);
     speech->setBreathiness(0.3f);
     speech->setConsonantLevel(0.8f);
     speech->setIntonation(0.55f);
@@ -3535,6 +3536,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechV2Device_shouldLoadCorrectly(
     QVERIFY(std::abs(restored->portamento() - 0.4f) < 0.001f);
     QVERIFY(std::abs(restored->glide() - 0.2f) < 0.001f);
     QVERIFY(std::abs(restored->formantShift() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(restored->panSpread() - 0.62f) < 0.001f);
     QVERIFY(std::abs(restored->breathiness() - 0.3f) < 0.001f);
     QVERIFY(std::abs(restored->consonantLevel() - 0.8f) < 0.001f);
     QVERIFY(std::abs(restored->intonation() - 0.55f) < 0.001f);

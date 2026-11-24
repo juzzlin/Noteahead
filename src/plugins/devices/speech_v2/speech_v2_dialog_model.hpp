@@ -33,6 +33,7 @@ class SpeechV2DialogModel : public DeviceDialogModel
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int glide READ glide WRITE setGlide NOTIFY glideChanged)
     Q_PROPERTY(int formantShift READ formantShift WRITE setFormantShift NOTIFY formantShiftChanged)
+    Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int breathiness READ breathiness WRITE setBreathiness NOTIFY breathinessChanged)
     Q_PROPERTY(int consonantLevel READ consonantLevel WRITE setConsonantLevel NOTIFY consonantLevelChanged)
     Q_PROPERTY(int sibilance READ sibilance WRITE setSibilance NOTIFY sibilanceChanged)
@@ -70,6 +71,8 @@ public:
     void setGlide(int value);
     int formantShift() const;
     void setFormantShift(int value);
+    int panSpread() const;
+    void setPanSpread(int value);
     int breathiness() const;
     void setBreathiness(int value);
     int consonantLevel() const;
@@ -118,6 +121,7 @@ signals:
     void portamentoChanged();
     void glideChanged();
     void formantShiftChanged();
+    void panSpreadChanged();
     void breathinessChanged();
     void consonantLevelChanged();
     void sibilanceChanged();

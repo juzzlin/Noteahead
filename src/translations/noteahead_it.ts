@@ -13546,6 +13546,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Panning</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Espansione del panning</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Raddoppia la voce in stereo con una sottile apertura di intonazione, formanti e respiro.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Sensibilità alla velocity</translation>
     </message>

@@ -110,6 +110,19 @@ void SpeechV2DialogModel::setFormantShift(int value)
     }
 }
 
+int SpeechV2DialogModel::panSpread() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->panSpread() * Constants::uiInternalScaling())) : 0;
+}
+
+void SpeechV2DialogModel::setPanSpread(int value)
+{
+    if (m_device) {
+        m_device->setPanSpread(static_cast<float>(value) / Constants::uiInternalScaling());
+        emit panSpreadChanged();
+    }
+}
+
 int SpeechV2DialogModel::breathiness() const
 {
     return m_device ? static_cast<int>(std::round(m_device->breathiness() * Constants::uiInternalScaling())) : 0;
@@ -366,6 +379,7 @@ void SpeechV2DialogModel::requestSettings()
     emit portamentoChanged();
     emit glideChanged();
     emit formantShiftChanged();
+    emit panSpreadChanged();
     emit breathinessChanged();
     emit consonantLevelChanged();
     emit sibilanceChanged();

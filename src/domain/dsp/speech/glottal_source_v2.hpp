@@ -49,6 +49,8 @@ public:
     void setJitter(double jitter);
     void setShimmer(double shimmer);
     void setSubharmonic(double subharmonic);
+    void setSeed(unsigned int seed);
+    void setInitialPhase(double phase);
 
     double nextSample();
     double openness() const;
@@ -106,7 +108,9 @@ private:
     double m_frequencyScaleCoefficient { 1.0 };
     bool m_started { false };
 
-    std::mt19937 m_rng { 0x51EEC4 };
+    unsigned int m_seed { 0x51EEC4u };
+    double m_initialPhase { 0.0 };
+    std::mt19937 m_rng { m_seed };
     std::uniform_real_distribution<double> m_deviation { -1.0, 1.0 };
 };
 

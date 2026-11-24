@@ -116,15 +116,15 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        LfoLed {
+            controller: speechV2Controller
+            lfoIndex: 0
+        }
         Knob {
             label: qsTr("Vibrato Rate")
             value: speechV2Controller.vibratoRate
             onMoved: v => speechV2Controller.vibratoRate = v
             Layout.fillWidth: true
-        }
-        LfoLed {
-            controller: speechV2Controller
-            lfoIndex: 0
         }
     }
     Knob {

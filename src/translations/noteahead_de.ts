@@ -13546,6 +13546,14 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Panorama-Spreizung</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Verdoppelt die Stimme ins Stereo mit subtiler Tonhöhen-, Formant- und Atem-Spreizung.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Velocity-Empfindlichkeit</translation>
     </message>

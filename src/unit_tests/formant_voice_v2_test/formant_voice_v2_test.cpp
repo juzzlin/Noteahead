@@ -486,6 +486,62 @@ void FormantVoiceV2Test::test_geminateStop_shouldNotReleaseTwice()
     QVERIFY2(secondStopReleasePeak > 0.005, qPrintable(QString { "secondStopReleasePeak=%1" }.arg(secondStopReleasePeak)));
 }
 
+void FormantVoiceV2Test::test_alveolarT_shouldCoarticulateAndStayWarm()
+{
+    const auto tSpec { speechPhoneme("T") };
+    const auto renderStop = [&](const std::string & vowelName, bool stressed) {
+        const auto * vowelSpec { speechPhoneme(vowelName) };
+        Q_ASSERT(tSpec && vowelSpec);
+        const auto stopFrames { static_cast<size_t>(SampleRate * 0.10) };
+        const auto vowelFrames { static_cast<size_t>(SampleRate * 0.14) };
+        auto voice { makeVoice() };
+        voice.setPhonemeStressed(stressed);
+        voice.setPhoneme(*tSpec, vowelSpec, static_cast<double>(stopFrames) / SampleRate);
+        std::vector<double> audio;
+        audio.reserve(stopFrames + vowelFrames);
+        for (size_t i { 0 }; i < stopFrames; i++) {
+            voice.setPhonemeProgress(static_cast<double>(i) / static_cast<double>(stopFrames));
+            audio.push_back(voice.nextSample());
+        }
+        voice.setPhoneme(*vowelSpec, nullptr, static_cast<double>(vowelFrames) / SampleRate);
+        for (size_t i { 0 }; i < vowelFrames; i++) {
+            voice.setPhonemeProgress(static_cast<double>(i) / static_cast<double>(vowelFrames));
+            audio.push_back(voice.nextSample());
+        }
+        return audio;
+    };
+
+    const auto stopFrames { static_cast<size_t>(SampleRate * 0.10) };
+    const auto releaseFrame { stopFrames - static_cast<size_t>(SampleRate * 0.040) };
+
+    const auto tUwAudio { renderStop("UW", true) };
+    const auto tIyAudio { renderStop("IY", true) };
+    const auto tUwUnstressed { renderStop("UW", false) };
+
+    constexpr int burstFft { 1024 };
+    const auto uwSpec { spectrum(tUwAudio, releaseFrame, burstFft) };
+    const auto iySpec { spectrum(tIyAudio, releaseFrame, burstFft) };
+    const double uwCentroid { centroidInBand(uwSpec, 1200.0, 8000.0, burstFft) };
+    const double iyCentroid { centroidInBand(iySpec, 1200.0, 8000.0, burstFft) };
+    QVERIFY2(iyCentroid > uwCentroid + 250.0,
+             qPrintable(QString { "T+IY=%1 Hz vs T+UW=%2 Hz" }.arg(iyCentroid).arg(uwCentroid)));
+
+    const double iyMidBody { bandEnergy(iySpec, 1800.0, 4800.0, burstFft) };
+    const double iyUpperCrack { bandEnergy(iySpec, 5000.0, 10000.0, burstFft) };
+    QVERIFY2(iyUpperCrack < iyMidBody,
+             qPrintable(QString { "iyUpperCrack=%1 vs iyMidBody=%2" }.arg(iyUpperCrack).arg(iyMidBody)));
+
+    const double iyBurstRms { rms(tIyAudio, releaseFrame, releaseFrame + 480) };
+    const double iyAspRms { rms(tIyAudio, releaseFrame + 480, stopFrames) };
+    QVERIFY2(iyAspRms >= iyBurstRms * 0.45,
+             qPrintable(QString { "iyAspRms=%1 vs iyBurstRms=%2" }.arg(iyAspRms).arg(iyBurstRms)));
+
+    const double uwStressedBurst { rms(tUwAudio, releaseFrame, releaseFrame + 480) };
+    const double uwUnstressedBurst { rms(tUwUnstressed, releaseFrame, releaseFrame + 480) };
+    QVERIFY2(uwUnstressedBurst < uwStressedBurst * 0.80,
+             qPrintable(QString { "unstressed=%1 vs stressed=%2" }.arg(uwUnstressedBurst).arg(uwStressedBurst)));
+}
+
 void FormantVoiceV2Test::test_monsterAndWhisper_shouldStayFreeOfClicks()
 {
     const std::string phrase { "I want to tear your brain out and EAT IT!" };

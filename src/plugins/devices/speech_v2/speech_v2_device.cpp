@@ -113,6 +113,7 @@ SpeechV2Device::SpeechV2Device(std::string name)
     addParameter(Parameter(Xml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyGlide().toStdString(), 0.35f, 0, 10000, 3500, 100));
     addParameter(Parameter(Xml::xmlKeyFormantShift().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Xml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
     addParameter(Parameter(Xml::xmlKeyConsonantLevel().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Xml::xmlKeySibilance().toStdString(), 0.31f, 0, 10000, 3100, 100));
@@ -136,11 +137,14 @@ SpeechV2Device::SpeechV2Device(std::string name)
     m_hpfL.setMode(CascadedSvf::Mode::HighPass);
     m_hpfR.setMode(CascadedSvf::Mode::HighPass);
     m_vibrato.setWaveform(Lfo::Waveform::Sine);
+    m_voiceR.setRngSeed(CompanionRngSeed);
+    m_voiceR.setGlottalInitialPhase(0.5);
 
     compilePhrase();
     SpeechV2Device::syncParameters();
 
     DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyFormantShift(), QT_TRANSLATE_NOOP("ParameterDisplay", "Formant Shift"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyGlide(), QT_TRANSLATE_NOOP("ParameterDisplay", "Glide"));
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyConsonantLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Consonants"));
@@ -403,6 +407,7 @@ void SpeechV2Device::syncParameters()
     m_portamento = read(Xml::xmlKeyPortamento(), m_portamento);
     m_glide = read(Xml::xmlKeyGlide(), m_glide);
     m_formantShift = read(Xml::xmlKeyFormantShift(), m_formantShift);
+    m_panSpread = read(Xml::xmlKeyPanSpread(), m_panSpread);
     m_breathiness = read(Xml::xmlKeyBreathiness(), m_breathiness);
     m_consonantLevel = read(Xml::xmlKeyConsonantLevel(), m_consonantLevel);
     m_sibilance = read(Xml::xmlKeySibilance(), m_sibilance);
@@ -432,22 +437,36 @@ void SpeechV2Device::syncParameters()
     const auto index = static_cast<size_t>(std::clamp(static_cast<int>(m_voiceType), 0, static_cast<int>(std::size(VoiceTypes)) - 1));
     const auto & voiceType = VoiceTypes[index];
 
-    m_voice.setGlideTime((MinGlideSeconds + GlideSecondsRange * static_cast<double>(m_glide)) * voiceType.glideScale);
-    m_voice.setFormantShift(voiceType.formantShift * (MinFormantShift + FormantShiftRange * static_cast<double>(m_formantShift)));
-    m_voice.setSourceRolloff(voiceType.sourceRolloff);
-    m_voice.setOpenQuotient(voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5));
-    const double returnPhase = std::clamp(voiceType.returnPhase * std::exp2((static_cast<double>(m_openQuotient) - 0.5) * 2.0), 0.003, 0.090);
-    m_voice.setReturnPhase(returnPhase);
-    m_voice.setVoicePerturbation(voiceType.perturbation * PerturbationRange * static_cast<double>(m_voicePerturbation) * 2.0);
-    m_voice.setSpeedQuotient(voiceType.speedQuotient);
-    m_voice.setSubharmonic(voiceType.subharmonic);
-    m_voice.setBreathiness(static_cast<double>(m_breathiness) + voiceType.breathiness);
-    m_voice.setConsonantLevel(static_cast<double>(m_consonantLevel) * ConsonantLevelRange);
-    m_voice.setSibilance(static_cast<double>(m_sibilance));
-    m_voice.setVoiceCharacter(voiceType.character);
+    const double glideSeconds { (MinGlideSeconds + GlideSecondsRange * static_cast<double>(m_glide)) * voiceType.glideScale };
+    const double baseShift { voiceType.formantShift * (MinFormantShift + FormantShiftRange * static_cast<double>(m_formantShift)) };
+    const double spreadShift { MaxSpreadFormantOffset * static_cast<double>(m_panSpread) };
+    const double openQuotient { voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5) };
+    const double returnPhase { std::clamp(voiceType.returnPhase * std::exp2((static_cast<double>(m_openQuotient) - 0.5) * 2.0), 0.003, 0.090) };
+    const double perturbation { voiceType.perturbation * PerturbationRange * static_cast<double>(m_voicePerturbation) * 2.0 };
+    const double breathiness { static_cast<double>(m_breathiness) + voiceType.breathiness };
+    const double consonantLevel { static_cast<double>(m_consonantLevel) * ConsonantLevelRange };
+    const double phraseDynamics { static_cast<double>(m_intonation) * voiceType.intonationScale };
+
+    const auto applyVoice = [&](FormantVoiceV2 & voice, double shiftScale) {
+        voice.setGlideTime(glideSeconds);
+        voice.setFormantShift(baseShift * shiftScale);
+        voice.setSourceRolloff(voiceType.sourceRolloff);
+        voice.setOpenQuotient(openQuotient);
+        voice.setReturnPhase(returnPhase);
+        voice.setVoicePerturbation(perturbation);
+        voice.setSpeedQuotient(voiceType.speedQuotient);
+        voice.setSubharmonic(voiceType.subharmonic);
+        voice.setBreathiness(breathiness);
+        voice.setConsonantLevel(consonantLevel);
+        voice.setSibilance(static_cast<double>(m_sibilance));
+        voice.setVoiceCharacter(voiceType.character);
+        voice.setPhraseDynamics(phraseDynamics);
+    };
+    applyVoice(m_voice, 1.0 - spreadShift);
+    applyVoice(m_voiceR, 1.0 + spreadShift);
+
     m_voiceIntonationScale = voiceType.intonationScale;
     m_voiceFlutterEnabled = voiceType.perturbation > 0.0;
-    m_voice.setPhraseDynamics(static_cast<double>(m_intonation) * voiceType.intonationScale);
 }
 
 double SpeechV2Device::nextFlutter(double sampleRate)
@@ -491,6 +510,7 @@ void SpeechV2Device::processAudio(AudioContext & context)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     m_voice.setSampleRate(context.sampleRate);
+    m_voiceR.setSampleRate(context.sampleRate);
     m_sequencer.setSampleRate(context.sampleRate);
     m_sequencer.setBpm(context.bpm);
 
@@ -512,6 +532,7 @@ void SpeechV2Device::processAudio(AudioContext & context)
     m_fadeCoefficient = 1.0 - std::exp(-1.0 / (OutputFadeTime * context.sampleRate));
     m_pitchCoefficient = 1.0 - std::exp(-1.0 / (PitchGlideTime * context.sampleRate));
     m_prosodyGainCoefficient = 1.0 - std::exp(-1.0 / (ProsodyGainGlideTime * context.sampleRate));
+    m_panSpreadCoefficient = 1.0 - std::exp(-1.0 / (PanSpreadGlideTime * context.sampleRate));
     const double portamentoSeconds = PortamentoSecondsRange * static_cast<double>(m_portamento);
     m_portamentoCoefficient = portamentoSeconds > 0.0 ? 1.0 - std::exp(-1.0 / (portamentoSeconds * context.sampleRate)) : 1.0;
 
@@ -520,13 +541,28 @@ void SpeechV2Device::processAudio(AudioContext & context)
 
     const double dt = 1.0 / context.sampleRate;
     for (uint32_t i = 0; i < context.frameCount; i++) {
+        m_panSpreadSmoothed += (static_cast<double>(m_panSpread) - m_panSpreadSmoothed) * m_panSpreadCoefficient;
+        const bool spreadActive { m_panSpread > 0.0f || m_panSpreadSmoothed > 1.0e-5 };
+        if (spreadActive && !m_voiceRActive) {
+            m_voiceR.reset();
+        }
+        m_voiceRActive = spreadActive;
+
         const auto * spec = m_sequencer.phoneme();
 
         if (spec) {
-            m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
-            m_voice.setPhonemeStressed(m_sequencer.isStressed());
-            m_voice.setPhonemeProgress(m_sequencer.progress());
-            m_voice.setUtteranceProgress(m_sequencer.isSustaining() ? 0.0 : m_sequencer.utteranceProgress());
+            const auto * nextSpec { m_sequencer.nextPhoneme() };
+            const double phonemeSec { m_sequencer.phonemeSeconds() };
+            const bool stressed { m_sequencer.isStressed() };
+            const double prog { m_sequencer.progress() };
+            const double uttProg { m_sequencer.isSustaining() ? 0.0 : m_sequencer.utteranceProgress() };
+            const auto updateVoiceTiming = [&](FormantVoiceV2 & voice, double hz) {
+                voice.setPhoneme(*spec, nextSpec, phonemeSec);
+                voice.setPhonemeStressed(stressed);
+                voice.setPhonemeProgress(prog);
+                voice.setUtteranceProgress(uttProg);
+                voice.setFrequency(hz);
+            };
 
             const bool voicedSonorant = spec->type == PhonemeType::Vowel
               || spec->type == PhonemeType::Liquid
@@ -546,7 +582,15 @@ void SpeechV2Device::processAudio(AudioContext & context)
             m_pitch = m_pitch < 0.0 ? asked : m_pitch + (asked - m_pitch) * m_pitchCoefficient;
 
             const double vibrato = m_vibrato.nextSample() * static_cast<double>(m_vibratoDepth) * VibratoDepthSemitones * m_vibratoEnvelope;
-            m_voice.setFrequency(std::exp2(m_pitch) * nextFlutter(context.sampleRate) * std::pow(2.0, vibrato / 12.0));
+            const double baseHz { std::exp2(m_pitch) * nextFlutter(context.sampleRate) * std::pow(2.0, vibrato / 12.0) };
+            if (spreadActive) {
+                const double detuneRatioL { std::exp2(-MaxSpreadDetuneCents * m_panSpreadSmoothed / 1200.0) };
+                const double detuneRatioR { std::exp2(MaxSpreadDetuneCents * m_panSpreadSmoothed / 1200.0) };
+                updateVoiceTiming(m_voice, baseHz * detuneRatioL);
+                updateVoiceTiming(m_voiceR, baseHz * detuneRatioR);
+            } else {
+                updateVoiceTiming(m_voice, baseHz);
+            }
 
             const size_t idx = m_sequencer.currentIndex();
             const double targetProsodyGain = (idx < m_prosody.size())
@@ -562,16 +606,26 @@ void SpeechV2Device::processAudio(AudioContext & context)
 
         m_fade += ((spec ? 1.0 : 0.0) - m_fade) * m_fadeCoefficient;
 
-        double sample = (spec || m_fade > FadeFloor) ? m_voice.nextSample() : 0.0;
-        sample *= m_fade * gain * m_prosodyGain;
+        const bool audioActive { spec != nullptr || m_fade > FadeFloor };
+        const double envGain { m_fade * gain * m_prosodyGain };
+        double outL { 0.0 };
+        double outR { 0.0 };
+        if (spreadActive) {
+            const double sampleL { audioActive ? m_voice.nextSample() : 0.0 };
+            const double sampleR { audioActive ? m_voiceR.nextSample() : 0.0 };
+            const double spreadAngle { m_panSpreadSmoothed * std::numbers::pi * 0.5 };
+            outL = sampleL * envGain;
+            outR = (std::cos(spreadAngle) * sampleL + std::sin(spreadAngle) * sampleR) * envGain;
+            m_panner.process(outL, outR);
+        } else {
+            m_panSpreadSmoothed = 0.0;
+            const double sample { audioActive ? m_voice.nextSample() * envGain : 0.0 };
+            m_panner.processMono(sample, outL, outR);
+        }
 
         if (spec) {
             m_sequencer.advance();
         }
-
-        double outL = sample;
-        double outR = sample;
-        m_panner.processMono(sample, outL, outR);
 
         outL = m_lpfL.process(outL);
         outR = m_lpfR.process(outR);
@@ -613,6 +667,9 @@ void SpeechV2Device::resetDeviceAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_sequencer.reset();
     m_voice.reset();
+    m_voiceR.reset();
+    m_panSpreadSmoothed = static_cast<double>(m_panSpread);
+    m_voiceRActive = false;
     m_vibrato.reset();
     m_lpfL.reset();
     m_lpfR.reset();
@@ -669,6 +726,16 @@ float SpeechV2Device::formantShift() const
 void SpeechV2Device::setFormantShift(float formantShift)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyFormantShift().toStdString(), formantShift);
+}
+
+float SpeechV2Device::panSpread() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
+}
+
+void SpeechV2Device::setPanSpread(float spread)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), spread);
 }
 
 float SpeechV2Device::breathiness() const
@@ -902,6 +969,7 @@ std::vector<std::string> SpeechV2Device::modulationPriority() const
 {
     namespace NahdXml = Constants::NahdXml;
     return {
+        NahdXml::xmlKeyPanSpread().toStdString(),
         NahdXml::xmlKeyFormantShift().toStdString(),
         NahdXml::xmlKeyIntonation().toStdString(),
         NahdXml::xmlKeyRate().toStdString(),

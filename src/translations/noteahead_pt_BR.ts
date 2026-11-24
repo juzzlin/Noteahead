@@ -13546,6 +13546,14 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Espalhamento do panorama</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Dobra a voz em estéreo com espalhamento sutil de afinação, formantes e respiração.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Sensibilidade à velocidade</translation>
     </message>

@@ -97,6 +97,8 @@ public:
     void setConsonantLevel(double level);
     void setSibilance(double sibilance);
     void setVoiceCharacter(const VoiceCharacter & character);
+    void setRngSeed(unsigned int seed);
+    void setGlottalInitialPhase(double phase);
 
     double nextSample();
 
@@ -174,11 +176,12 @@ private:
     static constexpr double BurstMakeupGain { 0.75 };
     static constexpr double FinalStopBurstScale { 0.52 };
     static constexpr double VoicedStopBurstScale { 0.45 };
+    static constexpr double UnstressedStopBurstScale { 0.72 };
     static constexpr double SourceMakeupGain { 0.80 };
 
     static constexpr double GlottalChinkLevel { 0.010 };
     static constexpr double HhAspirationLevel { 0.0024 };
-    static constexpr double PlosiveAspirationLevel { 0.011 };
+    static constexpr double PlosiveAspirationLevel { 0.014 };
     static constexpr double WhisperNoiseLevel { 0.045 };
     static constexpr double FinalAspirationScale { 0.40 };
 
@@ -200,12 +203,12 @@ private:
     static constexpr double VoicedClosureFraction { 0.88 };
     static constexpr double MinimumClosureFraction { 0.35 };
     static constexpr double MaximumClosureFraction { 0.92 };
-    static constexpr double PlosiveBurstDecayTime { 0.0065 };
-    static constexpr double PlosiveBurstSeconds { 0.005 };
-    static constexpr double AspirationAttackTime { 0.003 };
+    static constexpr double PlosiveBurstDecayTime { 0.0085 };
+    static constexpr double PlosiveBurstSeconds { 0.002 };
+    static constexpr double AspirationAttackTime { 0.004 };
     static constexpr double AspirationDecayTime { 0.022 };
     static constexpr double AspirationTailDecayTime { 0.006 };
-    static constexpr double PlosiveBurstAttackTime { 0.0018 };
+    static constexpr double PlosiveBurstAttackTime { 0.0024 };
     static constexpr double SeamFadeTime { 0.004 };
 
     static constexpr std::array<FormantPair, 3> UpperCascadeFormants { {
@@ -232,7 +235,7 @@ private:
     double fricationTargetFor(const PhonemeSpec & spec) const;
     double aspirationTargetFor(const PhonemeSpec & spec) const;
     void applyCascadeTargets(const std::array<FormantPair, 3> & targets, const NasalSpec & nasal, bool immediate, bool fastClosure = false);
-    double parallelBankOutput(std::array<CascadedSvf, 3> & filters, const PhonemeSpec & spec, double input);
+    double parallelBankOutput(std::array<CascadedSvf, 3> & filters, const PhonemeSpec & spec, const FormantTargets & targets, double input);
     void tuneFricationFilters(const FormantTargets & targets);
 
     const PhonemeSpec * m_phoneme { nullptr };
@@ -302,6 +305,8 @@ private:
     double m_seamCoefficient { 0.0 };
     const PhonemeSpec * m_fricationSpec { nullptr };
     const PhonemeSpec * m_previousNoiseSpec { nullptr };
+    FormantTargets m_fricationTargets {};
+    FormantTargets m_previousFricationTargets {};
     std::array<CascadedSvf, 3> m_fricationFormants {};
     std::array<CascadedSvf, 3> m_previousFricationFormants {};
 
@@ -316,7 +321,8 @@ private:
     OnePoleFilter m_sourceRolloffFilter {};
     std::array<OnePoleFilter, 2> m_noiseRolloff {};
 
-    std::mt19937 m_rng { RngSeed };
+    unsigned int m_rngSeed { RngSeed };
+    std::mt19937 m_rng { m_rngSeed };
     std::uniform_real_distribution<double> m_noise { -1.0, 1.0 };
 
     VoiceCharacter m_character {};

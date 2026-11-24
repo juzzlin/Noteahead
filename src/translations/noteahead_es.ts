@@ -13546,6 +13546,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Paneo</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Dispersión del paneo</translation>
+    </message>
+    <message>
+        <source>Doubles the voice into stereo with subtle pitch, formant and breath spread.</source>
+        <translation>Dobla la voz en estéreo con una sutil dispersión de tono, formantes y aliento.</translation>
+    </message>
+    <message>
         <source>Velocity Sensitivity</source>
         <translation>Sensibilidad a la velocidad</translation>
     </message>
