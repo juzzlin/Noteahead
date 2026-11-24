@@ -82,6 +82,7 @@ set(HEADER_FILES
     dsp/speech/speech_sequencer.hpp
     dsp/speech/speech_sequencer_v2.hpp
     dsp/speech/text_to_phonemes.hpp
+    dsp/speech/text_to_phonemes_v2.hpp
     dsp/svf_filter.hpp
     dsp/sweep_envelope.hpp
     dsp/synth_d_voice.hpp
@@ -244,6 +245,7 @@ set(SOURCE_FILES
     dsp/speech/speech_sequencer.cpp
     dsp/speech/speech_sequencer_v2.cpp
     dsp/speech/text_to_phonemes.cpp
+    dsp/speech/text_to_phonemes_v2.cpp
     dsp/svf_filter.cpp
     dsp/sweep_envelope.cpp
     dsp/synth_d_voice.cpp

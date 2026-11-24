@@ -319,6 +319,19 @@ void SpeechV2DialogModel::setSyncDivision(int value)
     }
 }
 
+int SpeechV2DialogModel::pitchBendRange() const
+{
+    return m_device ? m_device->pitchBendRange() : 0;
+}
+
+void SpeechV2DialogModel::setPitchBendRange(int value)
+{
+    if (m_device) {
+        m_device->setPitchBendRange(value);
+        emit pitchBendRangeChanged();
+    }
+}
+
 QString SpeechV2DialogModel::phrase() const
 {
     return m_device ? QString::fromStdString(m_device->phrase()) : QString {};
@@ -369,6 +382,7 @@ void SpeechV2DialogModel::requestSettings()
     emit syncModeChanged();
     emit syncLengthChanged();
     emit syncDivisionChanged();
+    emit pitchBendRangeChanged();
     emit phraseChanged();
     emit volumeChanged();
     emit gainChanged();

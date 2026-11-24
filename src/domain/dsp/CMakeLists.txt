@@ -39,6 +39,7 @@ set(DSP_SOURCES
     speech/speech_sequencer.cpp
     speech/speech_sequencer_v2.cpp
     speech/text_to_phonemes.cpp
+    speech/text_to_phonemes_v2.cpp
 )
 
 add_library(Dsp STATIC ${DSP_SOURCES})

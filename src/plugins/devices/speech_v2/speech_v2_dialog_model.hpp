@@ -49,6 +49,7 @@ class SpeechV2DialogModel : public DeviceDialogModel
     Q_PROPERTY(int syncMode READ syncMode WRITE setSyncMode NOTIFY syncModeChanged)
     Q_PROPERTY(int syncLength READ syncLength WRITE setSyncLength NOTIFY syncLengthChanged)
     Q_PROPERTY(int syncDivision READ syncDivision WRITE setSyncDivision NOTIFY syncDivisionChanged)
+    Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
     Q_PROPERTY(QString phrase READ phrase WRITE setPhrase NOTIFY phraseChanged)
     Q_PROPERTY(QString phrasePhonemes READ phrasePhonemes NOTIFY phraseChanged)
     Q_PROPERTY(int syllableCount READ syllableCount NOTIFY phraseChanged)
@@ -101,6 +102,8 @@ public:
     void setSyncLength(int value);
     int syncDivision() const;
     void setSyncDivision(int value);
+    int pitchBendRange() const;
+    void setPitchBendRange(int value);
 
     QString phrase() const;
     void setPhrase(const QString & phrase);
@@ -131,6 +134,7 @@ signals:
     void syncModeChanged();
     void syncLengthChanged();
     void syncDivisionChanged();
+    void pitchBendRangeChanged();
     void phraseChanged();
     void deviceChanged();
 

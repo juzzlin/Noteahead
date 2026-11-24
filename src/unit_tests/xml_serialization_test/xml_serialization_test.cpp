@@ -3488,6 +3488,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechV2Device_shouldLoadCorrectly(
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
     auto speech = std::make_shared<SpeechV2Device>("Speech V2");
+    speech->setPitchBendRange(7);
     speech->setPhrase("hello, /w er l d/ & goodbye");
     speech->setRate(0.75f);
     speech->setPortamento(0.4f);
@@ -3548,6 +3549,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechV2Device_shouldLoadCorrectly(
     QVERIFY(std::abs(restored->openQuotient() - 0.72f) < 0.001f);
     QVERIFY(std::abs(restored->voicePerturbation() - 0.18f) < 0.001f);
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.65f) < 0.001f);
+    QCOMPARE(restored->pitchBendRange(), 7);
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
 }

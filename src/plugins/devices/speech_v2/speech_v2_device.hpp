@@ -54,6 +54,7 @@ public:
     void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processDeviceMidiNoteOff(uint8_t note) override;
     void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processMidiPitchBend(uint16_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
     bool wantsNoteIndexSeek() const override;
@@ -113,6 +114,8 @@ public:
     void setSyncLength(int syncLength);
     int syncDivision() const;
     void setSyncDivision(int syncDivision);
+    int pitchBendRange() const;
+    void setPitchBendRange(int range);
 
     size_t syllableCursor() const;
     size_t lineCursor() const;
@@ -158,6 +161,8 @@ private:
     uint8_t m_note { 0 };
     std::set<uint8_t> m_heldNotes;
     double m_velocity { 1.0 };
+    uint16_t m_pitchBend { 8192 };
+    int m_pitchBendRange { 2 };
 
     double m_pitch { -1.0 };
     double m_pitchCoefficient { 1.0 };

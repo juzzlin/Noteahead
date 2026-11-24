@@ -367,7 +367,7 @@ double FormantVoiceV2::voicingTargetFor(const PhonemeSpec & spec) const
     case PhonemeType::Vowel:
         return spec.name == "AX" ? 0.75 : 1.0;
     case PhonemeType::Liquid:
-        return 0.80 * m_consonantLevel;
+        return (spec.name == "DX" ? 0.45 : 0.80) * m_consonantLevel;
     case PhonemeType::Nasal:
         return 0.85 * m_consonantLevel;
     case PhonemeType::Fricative:
@@ -420,7 +420,14 @@ std::array<FormantVoiceV2::FormantPair, 3> FormantVoiceV2::effectiveCascadeTarge
 
     std::array<FormantPair, 3> targets {};
     if (m_phoneme->type == PhonemeType::Vowel || m_phoneme->type == PhonemeType::Liquid) {
-        targets = shapeFromSpec(*m_phoneme, m_progress);
+        if (m_phoneme->name == "L") {
+            const bool codaDarkL = !m_nextPhoneme || m_nextPhoneme->type != PhonemeType::Vowel;
+            targets = codaDarkL
+              ? std::array<FormantPair, 3> { { { 450.0, 90.0 }, { 850.0, 120.0 }, { 2650.0, 180.0 } } }
+              : std::array<FormantPair, 3> { { { 400.0, 70.0 }, { 1250.0, 100.0 }, { 2600.0, 160.0 } } };
+        } else {
+            targets = shapeFromSpec(*m_phoneme, m_progress);
+        }
         // VC closing transition into a following consonant
         if (m_nextPhoneme && (isNoiseConsonant(*m_nextPhoneme) || m_nextPhoneme->type == PhonemeType::Nasal) && m_progress > 0.55) {
             const double blend = std::clamp((m_progress - 0.55) / 0.45, 0.0, 1.0) * 0.75;

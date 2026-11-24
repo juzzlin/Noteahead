@@ -5,7 +5,7 @@ Release date:
 
 New features:
 
-* Speech V2: formant speech synthesizer built on a Klatt-style hybrid cascade/parallel vocal tract with nasal pole-zero antiresonance, LF glottal source with physiological voicing dynamics, punctuation prosody with S-curve diphthongs and place-of-articulation coarticulation, kept separate from Speech
+* Speech V2: formant speech synthesizer built on a Klatt-style hybrid cascade/parallel vocal tract with nasal pole-zero antiresonance, LF glottal source with physiological voicing dynamics, punctuation prosody with S-curve diphthongs, English pronunciation with allophones and pre-fortis clipping, MIDI Pitch Bend and place-of-articulation coarticulation, kept separate from Speech
 
 * Compressor 76: feedback FET limiting amplifier with Blackface and Blue Stripe revisions, All-Buttons-In ratio, sidechain Low Cut and oversampled saturation
 

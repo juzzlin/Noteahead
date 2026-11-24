@@ -19,7 +19,7 @@
 #include "../../../common/xml/project_reader.hpp"
 #include "../../../common/xml/project_writer.hpp"
 #include "../../../domain/devices/device_parameter_display.hpp"
-#include "../../../domain/dsp/speech/text_to_phonemes.hpp"
+#include "../../../domain/dsp/speech/text_to_phonemes_v2.hpp"
 #include "../../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QVariant>
@@ -105,6 +105,7 @@ SpeechV2Device::SpeechV2Device(std::string name)
     addParameter(Parameter(Xml::xmlKeySyncMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Xml::xmlKeySyncLength().toStdString(), 16.0f, 1, 64, 16, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Xml::xmlKeySyncDivision().toStdString(), 2.0f, 1, 16, 2, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Xml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete));
 
     m_lpfL.setMode(CascadedSvf::Mode::LowPass);
     m_lpfR.setMode(CascadedSvf::Mode::LowPass);
@@ -177,7 +178,7 @@ std::vector<MidiCcController> SpeechV2Device::deviceMidiCcControllers() const
 
 void SpeechV2Device::compilePhrase()
 {
-    auto events = textToPhonemes(m_phrase);
+    auto events = textToPhonemesV2(m_phrase);
     m_prosody = SpeechProsody::analyze(m_phrase, events);
     m_sequencer.setPhonemes(std::move(events));
 }
@@ -327,6 +328,12 @@ void SpeechV2Device::processDeviceMidiCc(uint8_t controller, uint8_t value, uint
     }
 }
 
+void SpeechV2Device::processMidiPitchBend(uint16_t value, uint8_t)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_pitchBend = value;
+}
+
 void SpeechV2Device::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -386,6 +393,9 @@ void SpeechV2Device::syncParameters()
     m_syncMode = read(Xml::xmlKeySyncMode(), m_syncMode);
     m_syncLength = read(Xml::xmlKeySyncLength(), m_syncLength);
     m_syncDivision = read(Xml::xmlKeySyncDivision(), m_syncDivision);
+    if (const auto p = parameter(Xml::xmlKeyPitchBendRange().toStdString()); p) {
+        m_pitchBendRange = static_cast<int>(p->get().xmlValue());
+    }
 
     m_sequencer.setTriggerMode(static_cast<SpeechSequencer::TriggerMode>(std::clamp(static_cast<int>(m_triggerMode), 0, 2)));
     m_sequencer.setSyncMode(static_cast<SpeechSequencer::SyncMode>(std::clamp(static_cast<int>(m_syncMode), 0, 2)));
@@ -426,6 +436,8 @@ double SpeechV2Device::nextFlutter(double sampleRate)
 double SpeechV2Device::currentFrequency() const
 {
     double frequency = m_notePitch.has_value() ? std::exp2(*m_notePitch) : noteToFrequency(m_note);
+    const double pitchBendSemitones = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * static_cast<double>(m_pitchBendRange);
+    frequency *= std::pow(2.0, pitchBendSemitones / 12.0);
     if (const auto * spec = m_sequencer.phoneme(); spec != nullptr) {
         const size_t idx = m_sequencer.currentIndex();
         if (idx < m_prosody.size()) {
@@ -579,6 +591,7 @@ void SpeechV2Device::resetDeviceAudio()
     m_vibratoAge = 0.0;
     m_vibratoEnvelope = 0.0;
     m_prosodyGain = 1.0;
+    m_pitchBend = 8192;
 }
 
 float SpeechV2Device::rate() const
@@ -779,6 +792,16 @@ int SpeechV2Device::syncDivision() const
 void SpeechV2Device::setSyncDivision(int syncDivision)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeySyncDivision().toStdString(), syncDivision);
+}
+
+int SpeechV2Device::pitchBendRange() const
+{
+    return m_pitchBendRange;
+}
+
+void SpeechV2Device::setPitchBendRange(int range)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
 }
 
 void SpeechV2Device::serializeToXml(ProjectWriter & writer) const

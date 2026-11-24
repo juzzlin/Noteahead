@@ -78,6 +78,16 @@ ColumnLayout {
         onMoved: v => speechV2Controller.hpfCutoff = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Pitch Bend Range")
+        from: 0
+        to: 24
+        stepSize: 1
+        suffix: ""
+        value: speechV2Controller.pitchBendRange
+        onMoved: v => speechV2Controller.pitchBendRange = Math.round(v)
+        Layout.fillWidth: true
+    }
 
     Item {
         Layout.fillHeight: true

@@ -442,6 +442,28 @@ void SpeechV2Test::test_stepModeDiphthong_shouldHoldNucleusUntilNoteOff()
     QCOMPARE(peakAmplitude(tail), 0.0);
 }
 
+void SpeechV2Test::test_midiPitchBend_shouldShiftPitchByConfiguredRange()
+{
+    const auto measureBend = [](int range, uint16_t bendValue) {
+        SpeechV2Device device { "Speech V2" };
+        device.setPitchBendRange(range);
+        device.processMidiPitchBend(bendValue, 0);
+        return preciseFundamental(heldVowel(device, 57)); // A3 = 220 Hz
+    };
+
+    const double centerHz = measureBend(2, 8192);
+    const double centerCents = 1200.0 * std::log2(centerHz / 220.0);
+    QVERIFY2(std::abs(centerCents) < 15.0, qPrintable(QString::number(centerCents)));
+
+    const double upHz = measureBend(2, 16383);
+    const double upCents = 1200.0 * std::log2(upHz / 220.0);
+    QVERIFY2(std::abs(upCents - 200.0) < 15.0, qPrintable(QString::number(upCents)));
+
+    const double downHz = measureBend(7, 0);
+    const double downCents = 1200.0 * std::log2(downHz / 220.0);
+    QVERIFY2(std::abs(downCents + 700.0) < 15.0, qPrintable(QString::number(downCents)));
+}
+
 void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
 {
     const auto device = std::make_shared<SpeechV2Device>("Speech V2");
@@ -455,19 +477,23 @@ void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
     model.setOpenQuotient(750);
     model.setVoicePerturbation(250);
     model.setFormantShift(600);
+    model.setPitchBendRange(7);
     QCOMPARE(model.openQuotient(), 750);
     QCOMPARE(model.voicePerturbation(), 250);
     QCOMPARE(model.formantShift(), 600);
+    QCOMPARE(model.pitchBendRange(), 7);
 
     QSignalSpy openSpy { &model, &SpeechV2DialogModel::openQuotientChanged };
     QSignalSpy jitterSpy { &model, &SpeechV2DialogModel::voicePerturbationChanged };
     QSignalSpy phraseSpy { &model, &SpeechV2DialogModel::phraseChanged };
     QSignalSpy rateSpy { &model, &SpeechV2DialogModel::rateChanged };
+    QSignalSpy pbSpy { &model, &SpeechV2DialogModel::pitchBendRangeChanged };
     model.requestSettings();
     QCOMPARE(openSpy.count(), 1);
     QCOMPARE(jitterSpy.count(), 1);
     QCOMPARE(phraseSpy.count(), 1);
     QCOMPARE(rateSpy.count(), 1);
+    QCOMPARE(pbSpy.count(), 1);
 }
 
 } // namespace noteahead

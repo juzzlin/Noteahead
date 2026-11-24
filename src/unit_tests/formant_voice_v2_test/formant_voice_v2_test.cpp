@@ -18,6 +18,7 @@
 #include "../../domain/dsp/fft.hpp"
 #include "../../domain/dsp/speech/formant_voice_v2.hpp"
 #include "../../domain/dsp/speech/phoneme.hpp"
+#include "../../domain/dsp/speech/text_to_phonemes_v2.hpp"
 
 #include <QTest>
 
@@ -521,6 +522,48 @@ void FormantVoiceV2Test::test_diphthong_shouldHoldNucleusThenGlideSmoothly()
              qPrintable(QString { "early=%1 vs late=%2" }.arg(earlyNucleus).arg(lateNucleus)));
     QVERIFY2(settledOffglide > lateNucleus + 600.0,
              qPrintable(QString { "lateNucleus=%1 vs offglide=%2" }.arg(lateNucleus).arg(settledOffglide)));
+}
+
+void FormantVoiceV2Test::test_allophones_darkLAndFlap()
+{
+    const auto lFrames = static_cast<size_t>(SampleRate * 0.14);
+    const auto lCentroid = [&](const Utterance & utterance, size_t offset) {
+        auto voice = makeVoice();
+        const auto rendered = render(voice, utterance);
+        return centroidInBand(spectrum(rendered, offset, 2048), 750.0, 1800.0, 2048);
+    };
+
+    const double onsetL = lCentroid({ { "L", lFrames }, { "AA", lFrames } }, 1500);
+    const double codaL = lCentroid({ { "IY", lFrames }, { "L", lFrames } }, lFrames + 2000);
+    QVERIFY2(onsetL > codaL + 200.0, qPrintable(QString { "onsetL=%1 vs codaL=%2" }.arg(onsetL).arg(codaL)));
+
+    // Alveolar flap DX produces a brief voiced dip without clicking
+    auto voice = makeVoice();
+    const size_t vFrames = static_cast<size_t>(SampleRate * 0.12);
+    const size_t dxFrames = static_cast<size_t>(SampleRate * 0.032);
+    const auto & dx = speechFlapPhoneme();
+    const auto * ae = speechPhoneme("AE");
+    const auto * er = speechPhoneme("ER");
+    Q_ASSERT(ae && er);
+
+    std::vector<double> out;
+    const auto appendSegment = [&](const PhonemeSpec & spec, const PhonemeSpec * next, size_t frames) {
+        voice.setPhoneme(spec, next, static_cast<double>(frames) / SampleRate);
+        for (size_t i = 0; i < frames; i++) {
+            voice.setPhonemeProgress(static_cast<double>(i) / static_cast<double>(frames));
+            out.push_back(voice.nextSample());
+        }
+    };
+    appendSegment(*ae, &dx, vFrames);
+    appendSegment(dx, er, dxFrames);
+    appendSegment(*er, nullptr, vFrames);
+
+    for (const double s : out) {
+        QVERIFY(std::isfinite(s));
+    }
+    const double aeRms = rms(out, vFrames / 3, vFrames * 2 / 3);
+    const double dxRms = rms(out, vFrames + 200, vFrames + dxFrames - 100);
+    QVERIFY2(dxRms > 0.005 && dxRms < aeRms * 0.85, qPrintable(QString { "dxRms=%1 vs aeRms=%2" }.arg(dxRms).arg(aeRms)));
 }
 
 void FormantVoiceV2Test::test_afterReset_shouldBeSilent()
