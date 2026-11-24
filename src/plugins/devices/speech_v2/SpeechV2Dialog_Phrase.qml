@@ -1,0 +1,96 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
+import "../Components"
+
+ColumnLayout {
+    Universal.theme: Universal.Dark
+    Universal.accent: themeService.accentColor
+    Layout.fillWidth: true
+    Layout.alignment: Qt.AlignTop
+    spacing: 10
+
+    SectionHeading {
+        text: qsTr("Phrase")
+        Layout.topMargin: 10
+    }
+
+    TextField {
+        id: phraseField
+        text: speechV2Controller.phrase
+        placeholderText: qsTr("Type what it should say")
+        selectByMouse: true
+        Layout.fillWidth: true
+        onEditingFinished: speechV2Controller.phrase = text
+        Keys.onReturnPressed: focus = false
+        Keys.onEnterPressed: focus = false
+        Connections {
+            target: speechV2Controller
+            function onPhraseChanged() {
+                if (!phraseField.activeFocus) {
+                    phraseField.text = speechV2Controller.phrase;
+                }
+            }
+        }
+    }
+
+    Label {
+        text: qsTr("Anything between slashes is read as literal phonemes: hello /w er l d/\nAn apostrophe marks the stressed syllable: A'merica")
+        color: Theme.textTertiary
+        font.pixelSize: 11
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
+    }
+
+    SectionHeading {
+        text: qsTr("Phonemes")
+        Layout.topMargin: 10
+    }
+
+    Rectangle {
+        color: "#141414"
+        border.color: Theme.borderSubtle
+        radius: 2
+        Layout.fillWidth: true
+        Layout.preferredHeight: Math.max(60, phonemeLabel.implicitHeight + 16)
+        Label {
+            id: phonemeLabel
+            anchors.fill: parent
+            anchors.margins: 8
+            text: speechV2Controller.phrasePhonemes
+            color: Theme.textBright
+            font.family: "monospace"
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
+        }
+    }
+
+    Label {
+        text: speechV2Controller.triggerMode === 2
+            ? qsTr("%1 line(s), %2 syllable(s)").arg(speechV2Controller.lineCount).arg(speechV2Controller.syllableCount)
+            : qsTr("%1 syllable(s)").arg(speechV2Controller.syllableCount)
+        color: Theme.textTertiary
+        font.pixelSize: 11
+    }
+
+    Item {
+        Layout.fillHeight: true
+    }
+}

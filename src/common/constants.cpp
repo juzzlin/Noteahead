@@ -319,6 +319,11 @@ QString speechDeviceName()
     return "Noteahead Speech";
 }
 
+QString speechV2DeviceName()
+{
+    return "Noteahead Speech V2";
+}
+
 QString internalDevicePortPrefix()
 {
     return "Noteahead Internal Device";

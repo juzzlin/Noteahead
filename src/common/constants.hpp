@@ -143,6 +143,7 @@ QString stringVoiceV2DeviceName();
 QString stringVoiceV3DeviceName();
 QString stringEnsembleDeviceName();
 QString speechDeviceName();
+QString speechV2DeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
 QString drumSynth808DeviceName();

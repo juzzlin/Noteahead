@@ -31,6 +31,7 @@ set(DSP_SOURCES
     drum/snare_pm_engine.cpp
     drum/tom_engine.cpp
     speech/formant_voice.cpp
+    speech/formant_voice_v2.cpp
     speech/glottal_source.cpp
     speech/phoneme_table.cpp
     speech/speech_sequencer.cpp

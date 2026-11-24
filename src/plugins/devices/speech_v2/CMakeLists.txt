@@ -1,0 +1,16 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        speech_v2_device.cpp
+        speech_v2_device.hpp
+        speech_v2_registration.cpp
+    VIEW_SOURCES
+        speech_v2_dialog_model.cpp
+        speech_v2_dialog_model.hpp
+        speech_v2_view_registration.cpp
+    QML_FILES
+        SpeechV2Dialog.qml
+        SpeechV2Dialog_Global.qml
+        SpeechV2Dialog_Phrase.qml
+        SpeechV2Dialog_Timing.qml
+        SpeechV2Dialog_Voice.qml
+)

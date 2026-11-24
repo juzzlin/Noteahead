@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Speech V2: formant speech synthesizer built on a Klatt-style hybrid cascade/parallel vocal tract with nasal pole-zero antiresonance and place-of-articulation coarticulation, kept separate from Speech
+
 * Compressor 76: feedback FET limiting amplifier with Blackface and Blue Stripe revisions, All-Buttons-In ratio, sidechain Low Cut and oversampled saturation
 
 * Device Rack: slots can be reordered with Move Up and Move Down; a device keeps its slot number, so nothing routed to it changes

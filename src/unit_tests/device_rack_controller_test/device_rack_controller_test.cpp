@@ -486,6 +486,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
         "Sampler",
         "Snare Synth",
         "Speech",
+        "Speech V2",
         "String & Voice",
         "String & Voice V2",
         "String & Voice V3",

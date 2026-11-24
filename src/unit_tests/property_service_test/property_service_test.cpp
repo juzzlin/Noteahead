@@ -35,6 +35,7 @@
 #include "../../plugins/devices/sampler/sampler_device.hpp"
 #include "../../plugins/devices/snare_synth/snare_synth_device.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
+#include "../../plugins/devices/speech_v2/speech_v2_device.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
 #include "../../plugins/devices/string_voice_v2/string_voice_v2_device.hpp"
@@ -590,6 +591,7 @@ void PropertyServiceTest::test_automationTargets_everySynth_shouldOfferItsContro
     check(std::make_shared<StringVoiceV3Device>("String Voice V3"), { C::xmlKeyVoiceBalance(), C::xmlKeyStringsTone(), C::xmlKeyVelocitySensitivity() });
     check(std::make_shared<StringEnsembleDevice>("Ensemble"), { C::xmlKeyVolumeBass(), C::xmlKeyPhaserColor(), C::xmlKeyPhaserRate() });
     check(std::make_shared<SpeechDevice>("Speech"), { C::xmlKeyFormantShift(), C::xmlKeyBreathiness(), C::xmlKeyVibratoDepth() });
+    check(std::make_shared<SpeechV2Device>("Speech V2"), { C::xmlKeyFormantShift(), C::xmlKeyBreathiness(), C::xmlKeyVibratoDepth() });
 
     // In their units: a wavetable LFO's rate in hertz, its intensity either way of none
     const auto wavetable = std::make_shared<WavetableSynthDevice>("Wavetable");

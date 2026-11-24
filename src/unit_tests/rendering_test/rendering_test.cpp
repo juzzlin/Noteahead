@@ -22,6 +22,7 @@
 #include "../../plugins/devices/piano_synth_v3/piano_synth_v3_device.hpp"
 #include "../../plugins/devices/sampler/sampler_device.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
+#include "../../plugins/devices/speech_v2/speech_v2_device.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
 #include "../../plugins/devices/string_voice_v2/string_voice_v2_device.hpp"
@@ -406,6 +407,7 @@ void RenderingTest::test_render_everyInstrument_shouldNotBeSilent_data()
     addInstrument("String & Voice V2", StringVoiceV2Device::typeIdString());
     addInstrument("String Ensemble", StringEnsembleDevice::typeIdString());
     addInstrument("Speech", SpeechDevice::typeIdString());
+    addInstrument("Speech V2", SpeechV2Device::typeIdString());
     addInstrument("Kick 808", Kick808Device::typeIdString());
 
     // The drum machine is a kit rather than a keyboard: only the notes its pads are mapped to make

@@ -50,6 +50,8 @@
 #include "../../plugins/devices/snare_synth/snare_synth_dialog_model.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
 #include "../../plugins/devices/speech/speech_dialog_model.hpp"
+#include "../../plugins/devices/speech_v2/speech_v2_device.hpp"
+#include "../../plugins/devices/speech_v2/speech_v2_dialog_model.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_dialog_model.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
@@ -154,6 +156,7 @@ std::vector<Case> cases()
         makeCase<PianoSynthV3Device, PianoSynthV3DialogModel>("Piano Synth V3"),
         makeCase<NoiseFxDevice, NoiseFxDialogModel>("Noise FX"),
         makeCase<SpeechDevice, SpeechDialogModel>("Speech"),
+        makeCase<SpeechV2Device, SpeechV2DialogModel>("Speech V2"),
         makeCase<StringEnsembleDevice, StringEnsembleDialogModel>("String Ensemble"),
         makeCase<StringVoiceDevice, StringVoiceDialogModel>("String & Voice"),
         makeCase<StringVoiceV2Device, StringVoiceV2DialogModel>("String & Voice V2"),

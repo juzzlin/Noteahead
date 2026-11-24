@@ -69,6 +69,7 @@
 #include "../../plugins/devices/sampler/sampler_device.hpp"
 #include "../../plugins/devices/snare_synth/snare_synth_device.hpp"
 #include "../../plugins/devices/speech/speech_device.hpp"
+#include "../../plugins/devices/speech_v2/speech_v2_device.hpp"
 #include "../../plugins/devices/string_ensemble/string_ensemble_device.hpp"
 #include "../../plugins/devices/string_voice/string_voice_device.hpp"
 #include "../../plugins/devices/string_voice_v2/string_voice_v2_device.hpp"
@@ -3474,6 +3475,78 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     QVERIFY(std::abs(restored->voicePerturbation() - 0.18f) < 0.001f);
     // A project written by this version says which engine it wants, so it keeps the modern one.
     QCOMPARE(restored->voiceEngine(), 1);
+    QVERIFY(std::abs(restored->velocitySensitivity() - 0.65f) < 0.001f);
+
+    QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_speechV2Device_shouldLoadCorrectly()
+{
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto speech = std::make_shared<SpeechV2Device>("Speech V2");
+    speech->setPhrase("hello, /w er l d/ & goodbye");
+    speech->setRate(0.75f);
+    speech->setPortamento(0.4f);
+    speech->setGlide(0.2f);
+    speech->setFormantShift(0.65f);
+    speech->setBreathiness(0.3f);
+    speech->setConsonantLevel(0.8f);
+    speech->setIntonation(0.55f);
+    speech->setVibratoRate(0.45f);
+    speech->setVibratoDepth(0.25f);
+    speech->setTriggerMode(2);
+    speech->setSyncMode(2);
+    speech->setSyncLength(12);
+    speech->setSyncDivision(3);
+    speech->setSibilance(0.42f);
+    speech->setVoiceType(3);
+    speech->setOpenQuotient(0.72f);
+    speech->setVoicePerturbation(0.18f);
+    speech->setVelocitySensitivity(0.65f);
+    speech->setFaderPosition(Device::FaderPosition::PostInserts);
+    deviceServiceOut.setDevice(1, speech);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<SpeechV2Device>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), SpeechV2Device::typeIdString());
+
+    QCOMPARE(restored->phrase(), std::string { "hello, /w er l d/ & goodbye" });
+    QVERIFY(!restored->phrasePhonemes().empty());
+    QCOMPARE(restored->phrasePhonemes(), speech->phrasePhonemes());
+
+    QVERIFY(std::abs(restored->rate() - 0.75f) < 0.001f);
+    QVERIFY(std::abs(restored->portamento() - 0.4f) < 0.001f);
+    QVERIFY(std::abs(restored->glide() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(restored->formantShift() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(restored->breathiness() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(restored->consonantLevel() - 0.8f) < 0.001f);
+    QVERIFY(std::abs(restored->intonation() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->vibratoRate() - 0.45f) < 0.001f);
+    QVERIFY(std::abs(restored->vibratoDepth() - 0.25f) < 0.001f);
+    QCOMPARE(restored->triggerMode(), 2);
+    QCOMPARE(restored->syncMode(), 2);
+    QCOMPARE(restored->syncLength(), 12);
+    QCOMPARE(restored->syncDivision(), 3);
+    QVERIFY(std::abs(restored->sibilance() - 0.42f) < 0.001f);
+    QCOMPARE(restored->voiceType(), 3);
+    QVERIFY(std::abs(restored->openQuotient() - 0.72f) < 0.001f);
+    QVERIFY(std::abs(restored->voicePerturbation() - 0.18f) < 0.001f);
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.65f) < 0.001f);
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
