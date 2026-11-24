@@ -13510,285 +13510,289 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <name>SpeechV2Dialog</name>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">重置</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Restore every control to its factory default, the phrase included.</source>
-        <translation type="unfinished">将所有控件恢复为出厂默认值，包括乐句在内。</translation>
+        <translation>将所有控件恢复为出厂默认值，包括乐句在内。</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">全局</translation>
+        <translation>全局</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">增益</translation>
+        <translation>增益</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">推子</translation>
+        <translation>推子</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">力度灵敏度</translation>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>How much the note&apos;s velocity scales the level. At zero every note speaks at full level.</source>
-        <translation type="unfinished">音符力度对电平的缩放程度。为零时每个音符都以满电平发声。</translation>
+        <translation>音符力度对电平的缩放程度。为零时每个音符都以满电平发声。</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>弯音范围</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Phrase</name>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">乐句</translation>
+        <translation>乐句</translation>
     </message>
     <message>
         <source>Type what it should say</source>
-        <translation type="unfinished">输入要说的内容</translation>
+        <translation>输入要说的内容</translation>
     </message>
     <message>
         <source>Anything between slashes is read as literal phonemes: hello /w er l d/
 An apostrophe marks the stressed syllable: A&apos;merica</source>
-        <translation type="unfinished">斜杠之间的内容按字面音素读出：hello /w er l d/
+        <translation>斜杠之间的内容按字面音素读出：hello /w er l d/
 撇号标记重读音节：A&apos;merica</translation>
     </message>
     <message>
         <source>Phonemes</source>
-        <translation type="unfinished">音素</translation>
+        <translation>音素</translation>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 行，%2 个音节</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
-        <translation type="unfinished">%1 个音节</translation>
+        <translation>%1 个音节</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Timing</name>
     <message>
         <source>Timing</source>
-        <translation type="unfinished">定时</translation>
+        <translation>定时</translation>
     </message>
     <message>
         <source>Trigger</source>
-        <translation type="unfinished">触发</translation>
+        <translation>触发</translation>
     </message>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">乐句</translation>
+        <translation>乐句</translation>
     </message>
     <message>
         <source>Step</source>
-        <translation type="unfinished">步进</translation>
+        <translation>步进</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">行</translation>
+        <translation>行</translation>
     </message>
     <message>
         <source>A note speaks the whole phrase.</source>
-        <translation type="unfinished">一个音符说出整个乐句。</translation>
+        <translation>一个音符说出整个乐句。</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
-        <translation type="unfinished">一个音符说出下一个音节。</translation>
+        <translation>一个音符说出下一个音节。</translation>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>一个音符说出下一行。句点、! 或 ? 开始新的一行。</translation>
     </message>
     <message>
         <source>Sync</source>
-        <translation type="unfinished">同步</translation>
+        <translation>同步</translation>
     </message>
     <message>
         <source>Free</source>
-        <translation type="unfinished">自由</translation>
+        <translation>自由</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">适配</translation>
+        <translation>适配</translation>
     </message>
     <message>
         <source>Grid</source>
-        <translation type="unfinished">网格</translation>
+        <translation>网格</translation>
     </message>
     <message>
         <source>Natural durations, set by Rate.</source>
-        <translation type="unfinished">自然时长，由 Rate 决定。</translation>
+        <translation>自然时长，由 Rate 决定。</translation>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation>每一行填满说出它的音符。</translation>
     </message>
     <message>
         <source>The phrase is stretched to span Length.</source>
-        <translation type="unfinished">乐句被拉伸至 Length 的长度。</translation>
+        <translation>乐句被拉伸至 Length 的长度。</translation>
     </message>
     <message>
         <source>Each syllable takes one Division.</source>
-        <translation type="unfinished">每个音节占用一个 Division。</translation>
+        <translation>每个音节占用一个 Division。</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">滑音</translation>
+        <translation>滑音</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation>在一列按住音符并在另一列演奏旋律：第二列只改变音高，而不开始下一行。</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
-        <translation type="unfinished">长度（1/16 步进）</translation>
+        <translation>长度（1/16 步进）</translation>
     </message>
     <message>
         <source>Division (1/16 steps)</source>
-        <translation type="unfinished">划分（1/16 步进）</translation>
+        <translation>划分（1/16 步进）</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Voice</name>
     <message>
         <source>Voice</source>
-        <translation type="unfinished">声音</translation>
+        <translation>声音</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Male</source>
-        <translation type="unfinished">男声</translation>
+        <translation>男声</translation>
     </message>
     <message>
         <source>Female</source>
-        <translation type="unfinished">女声</translation>
+        <translation>女声</translation>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation>童声</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation>低沉</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation>气声</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation>巨人</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation>长者</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation>外星人</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation>怪兽</translation>
     </message>
     <message>
         <source>Formant Shift</source>
-        <translation type="unfinished">共振峰偏移</translation>
+        <translation>共振峰偏移</translation>
     </message>
     <message>
         <source>Vocal tract length. Up reads as a smaller speaker.</source>
-        <translation type="unfinished">声道长度。调高听起来像更小的说话者。</translation>
+        <translation>声道长度。调高听起来像更小的说话者。</translation>
     </message>
     <message>
         <source>Glide</source>
-        <translation type="unfinished">滑音</translation>
+        <translation>滑音</translation>
     </message>
     <message>
         <source>How long a formant takes to reach its target. Short is robotic, long is slurred.</source>
-        <translation type="unfinished">共振峰达到目标所需的时间。短则机械，长则含糊。</translation>
+        <translation>共振峰达到目标所需的时间。短则机械，长则含糊。</translation>
     </message>
     <message>
         <source>Consonants</source>
-        <translation type="unfinished">辅音</translation>
+        <translation>辅音</translation>
     </message>
     <message>
         <source>Level of everything that is not a vowel.</source>
-        <translation type="unfinished">所有非元音部分的电平。</translation>
+        <translation>所有非元音部分的电平。</translation>
     </message>
     <message>
         <source>Sibilance</source>
-        <translation type="unfinished">齿音</translation>
+        <translation>齿音</translation>
     </message>
     <message>
         <source>How loud and how bright the s-sounds are. Half way is what the phoneme table asks for.</source>
-        <translation type="unfinished">齿擦音的响度与明亮度。居中位置即音素表所要求的值。</translation>
+        <translation>齿擦音的响度与明亮度。居中位置即音素表所要求的值。</translation>
     </message>
     <message>
         <source>Breathiness</source>
-        <translation type="unfinished">气声</translation>
+        <translation>气声</translation>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation>开合度</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation>声带保持张开的时间。调低紧绷刺耳，调高柔和带气声。中间为声音类型的默认设定。</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>抖动</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation>声音在相邻周期之间的不稳定性。为零时完全周期性，听起来像机器。</translation>
     </message>
     <message>
         <source>Intonation</source>
-        <translation type="unfinished">语调</translation>
+        <translation>语调</translation>
     </message>
     <message>
         <source>How far the pitch falls across a phrase. At zero every phrase is a monotone.</source>
-        <translation type="unfinished">音高在一个乐句中下降的幅度。为零时每个乐句都是单调的。</translation>
+        <translation>音高在一个乐句中下降的幅度。为零时每个乐句都是单调的。</translation>
     </message>
     <message>
         <source>Vibrato Rate</source>
-        <translation type="unfinished">颤音速率</translation>
+        <translation>颤音速率</translation>
     </message>
     <message>
         <source>Vibrato Depth</source>
-        <translation type="unfinished">颤音深度</translation>
+        <translation>颤音深度</translation>
     </message>
 </context>
 <context>

@@ -13512,285 +13512,289 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <name>SpeechV2Dialog</name>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Nollaa</translation>
+        <translation>Nollaa</translation>
     </message>
     <message>
         <source>Restore every control to its factory default, the phrase included.</source>
-        <translation type="unfinished">Palauta jokainen säädin tehdasoletukseensa, fraasi mukaan lukien.</translation>
+        <translation>Palauta jokainen säädin tehdasoletukseensa, fraasi mukaan lukien.</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Peruuta</translation>
+        <translation>Peruuta</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Yleiset</translation>
+        <translation>Yleiset</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Vahvistus</translation>
+        <translation>Vahvistus</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Liuku</translation>
+        <translation>Liuku</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorointi</translation>
+        <translation>Panorointi</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">Voimakkuusherkkyys</translation>
+        <translation>Voimakkuusherkkyys</translation>
     </message>
     <message>
         <source>How much the note&apos;s velocity scales the level. At zero every note speaks at full level.</source>
-        <translation type="unfinished">Kuinka paljon nuotin voimakkuus skaalaa tasoa. Nollassa jokainen nuotti puhuu täydellä tasolla.</translation>
+        <translation>Kuinka paljon nuotin voimakkuus skaalaa tasoa. Nollassa jokainen nuotti puhuu täydellä tasolla.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">LPF cutoff</translation>
+        <translation>LPF cutoff</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">HPF cutoff</translation>
+        <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Pitch bend -alue</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Phrase</name>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">Fraasi</translation>
+        <translation>Fraasi</translation>
     </message>
     <message>
         <source>Type what it should say</source>
-        <translation type="unfinished">Kirjoita mitä sen pitäisi sanoa</translation>
+        <translation>Kirjoita mitä sen pitäisi sanoa</translation>
     </message>
     <message>
         <source>Anything between slashes is read as literal phonemes: hello /w er l d/
 An apostrophe marks the stressed syllable: A&apos;merica</source>
-        <translation type="unfinished">Kaikki kauttaviivojen välissä luetaan kirjaimellisina foneemeina: hello /w er l d/
+        <translation>Kaikki kauttaviivojen välissä luetaan kirjaimellisina foneemeina: hello /w er l d/
 Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Phonemes</source>
-        <translation type="unfinished">Foneemit</translation>
+        <translation>Foneemit</translation>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 rivi(ä), %2 tavua</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
-        <translation type="unfinished">%1 tavua</translation>
+        <translation>%1 tavua</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Timing</name>
     <message>
         <source>Timing</source>
-        <translation type="unfinished">Ajoitus</translation>
+        <translation>Ajoitus</translation>
     </message>
     <message>
         <source>Trigger</source>
-        <translation type="unfinished">Liipaisin</translation>
+        <translation>Liipaisin</translation>
     </message>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">Fraasi</translation>
+        <translation>Fraasi</translation>
     </message>
     <message>
         <source>Step</source>
-        <translation type="unfinished">Askel</translation>
+        <translation>Askel</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Rivi</translation>
+        <translation>Rivi</translation>
     </message>
     <message>
         <source>A note speaks the whole phrase.</source>
-        <translation type="unfinished">Yksi nuotti puhuu koko fraasin.</translation>
+        <translation>Yksi nuotti puhuu koko fraasin.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
-        <translation type="unfinished">Yksi nuotti puhuu seuraavan tavun.</translation>
+        <translation>Yksi nuotti puhuu seuraavan tavun.</translation>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yksi nuotti puhuu seuraavan rivin. Piste, ! tai ? aloittaa uuden.</translation>
     </message>
     <message>
         <source>Sync</source>
-        <translation type="unfinished">Sync</translation>
+        <translation>Sync</translation>
     </message>
     <message>
         <source>Free</source>
-        <translation type="unfinished">Vapaa</translation>
+        <translation>Vapaa</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">Sovita</translation>
+        <translation>Sovita</translation>
     </message>
     <message>
         <source>Grid</source>
-        <translation type="unfinished">Ruudukko</translation>
+        <translation>Ruudukko</translation>
     </message>
     <message>
         <source>Natural durations, set by Rate.</source>
-        <translation type="unfinished">Luonnolliset kestot, jotka Rate määrää.</translation>
+        <translation>Luonnolliset kestot, jotka Rate määrää.</translation>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jokainen rivi täyttää sen puhuvan nuotin.</translation>
     </message>
     <message>
         <source>The phrase is stretched to span Length.</source>
-        <translation type="unfinished">Fraasi venytetään Length-mittaiseksi.</translation>
+        <translation>Fraasi venytetään Length-mittaiseksi.</translation>
     </message>
     <message>
         <source>Each syllable takes one Division.</source>
-        <translation type="unfinished">Kukin tavu vie yhden Divisionin.</translation>
+        <translation>Kukin tavu vie yhden Divisionin.</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Nopeus</translation>
+        <translation>Nopeus</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">Portamento</translation>
+        <translation>Portamento</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pidä nuottia yhdessä sarakkeessa ja soita melodiaa toisessa: toinen sarake muuttaa sävelkorkeutta aloittamatta seuraavaa riviä.</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
-        <translation type="unfinished">Pituus (1/16-askelta)</translation>
+        <translation>Pituus (1/16-askelta)</translation>
     </message>
     <message>
         <source>Division (1/16 steps)</source>
-        <translation type="unfinished">Jako (1/16-askelta)</translation>
+        <translation>Jako (1/16-askelta)</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Voice</name>
     <message>
         <source>Voice</source>
-        <translation type="unfinished">Ääni</translation>
+        <translation>Ääni</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tyyppi</translation>
+        <translation>Tyyppi</translation>
     </message>
     <message>
         <source>Male</source>
-        <translation type="unfinished">Mies</translation>
+        <translation>Mies</translation>
     </message>
     <message>
         <source>Female</source>
-        <translation type="unfinished">Nainen</translation>
+        <translation>Nainen</translation>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation>Lapsi</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation>Syvä</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation>Henkäilevä</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation>Jättiläinen</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation>Vanhus</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation>Avaruusolento</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation>Hirviö</translation>
     </message>
     <message>
         <source>Formant Shift</source>
-        <translation type="unfinished">Formanttisiirtymä</translation>
+        <translation>Formanttisiirtymä</translation>
     </message>
     <message>
         <source>Vocal tract length. Up reads as a smaller speaker.</source>
-        <translation type="unfinished">Ääniväylän pituus. Ylöspäin kuulostaa pienemmältä puhujalta.</translation>
+        <translation>Ääniväylän pituus. Ylöspäin kuulostaa pienemmältä puhujalta.</translation>
     </message>
     <message>
         <source>Glide</source>
-        <translation type="unfinished">Liuku</translation>
+        <translation>Liuku</translation>
     </message>
     <message>
         <source>How long a formant takes to reach its target. Short is robotic, long is slurred.</source>
-        <translation type="unfinished">Kuinka kauan formantilla kestää saavuttaa tavoitteensa. Lyhyt on robottimainen, pitkä on puuroutunut.</translation>
+        <translation>Kuinka kauan formantilla kestää saavuttaa tavoitteensa. Lyhyt on robottimainen, pitkä on puuroutunut.</translation>
     </message>
     <message>
         <source>Consonants</source>
-        <translation type="unfinished">Konsonantit</translation>
+        <translation>Konsonantit</translation>
     </message>
     <message>
         <source>Level of everything that is not a vowel.</source>
-        <translation type="unfinished">Kaiken muun kuin vokaalien taso.</translation>
+        <translation>Kaiken muun kuin vokaalien taso.</translation>
     </message>
     <message>
         <source>Sibilance</source>
-        <translation type="unfinished">Sihinä</translation>
+        <translation>Sihinä</translation>
     </message>
     <message>
         <source>How loud and how bright the s-sounds are. Half way is what the phoneme table asks for.</source>
-        <translation type="unfinished">Kuinka voimakkaita ja kirkkaita s-äänteet ovat. Puolivälissä on se mitä foneemitaulukko pyytää.</translation>
+        <translation>Kuinka voimakkaita ja kirkkaita s-äänteet ovat. Puolivälissä on se mitä foneemitaulukko pyytää.</translation>
     </message>
     <message>
         <source>Breathiness</source>
-        <translation type="unfinished">Henkäyksisyys</translation>
+        <translation>Henkäyksisyys</translation>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation>Avoimuus</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka kauan äänihuulet pysyvät auki. Alhaalla ääni on puristettu ja suriseva, ylhäällä pehmeä ja henkäyksinen. Puolivälissä on se mitä äänityyppi pyytää.</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuinka epävakaa ääni on jaksosta seuraavaan. Nollassa se on täysin jaksollinen, miltä kone kuulostaa.</translation>
     </message>
     <message>
         <source>Intonation</source>
-        <translation type="unfinished">Intonaatio</translation>
+        <translation>Intonaatio</translation>
     </message>
     <message>
         <source>How far the pitch falls across a phrase. At zero every phrase is a monotone.</source>
-        <translation type="unfinished">Kuinka paljon sävelkorkeus laskee fraasin aikana. Nollassa jokainen fraasi on yksitoikkoinen.</translation>
+        <translation>Kuinka paljon sävelkorkeus laskee fraasin aikana. Nollassa jokainen fraasi on yksitoikkoinen.</translation>
     </message>
     <message>
         <source>Vibrato Rate</source>
-        <translation type="unfinished">Vibraton nopeus</translation>
+        <translation>Vibraton nopeus</translation>
     </message>
     <message>
         <source>Vibrato Depth</source>
-        <translation type="unfinished">Vibraton syvyys</translation>
+        <translation>Vibraton syvyys</translation>
     </message>
 </context>
 <context>

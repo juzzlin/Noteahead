@@ -13512,285 +13512,289 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <name>SpeechV2Dialog</name>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Réinitialiser</translation>
+        <translation>Réinitialiser</translation>
     </message>
     <message>
         <source>Restore every control to its factory default, the phrase included.</source>
-        <translation type="unfinished">Rétablit toutes les commandes à leur valeur d&apos;usine, y compris la phrase.</translation>
+        <translation>Rétablit toutes les commandes à leur valeur d&apos;usine, y compris la phrase.</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Gain</translation>
+        <translation>Gain</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Fader</translation>
+        <translation>Fader</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panoramique</translation>
+        <translation>Panoramique</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">Sensibilité à la vélocité</translation>
+        <translation>Sensibilité à la vélocité</translation>
     </message>
     <message>
         <source>How much the note&apos;s velocity scales the level. At zero every note speaks at full level.</source>
-        <translation type="unfinished">Dans quelle mesure la vélocité de la note module le niveau. À zéro, chaque note parle à plein niveau.</translation>
+        <translation>Dans quelle mesure la vélocité de la note module le niveau. À zéro, chaque note parle à plein niveau.</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Coupure du LPF</translation>
+        <translation>Coupure du LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Coupure du HPF</translation>
+        <translation>Coupure du HPF</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Plage de pitch bend</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Phrase</name>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">Phrase</translation>
+        <translation>Phrase</translation>
     </message>
     <message>
         <source>Type what it should say</source>
-        <translation type="unfinished">Saisissez ce qu&apos;il doit dire</translation>
+        <translation>Saisissez ce qu&apos;il doit dire</translation>
     </message>
     <message>
         <source>Anything between slashes is read as literal phonemes: hello /w er l d/
 An apostrophe marks the stressed syllable: A&apos;merica</source>
-        <translation type="unfinished">Tout ce qui se trouve entre barres obliques est lu comme des phonèmes littéraux : hello /w er l d/
+        <translation>Tout ce qui se trouve entre barres obliques est lu comme des phonèmes littéraux : hello /w er l d/
 Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     </message>
     <message>
         <source>Phonemes</source>
-        <translation type="unfinished">Phonèmes</translation>
+        <translation>Phonèmes</translation>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ligne(s), %2 syllabe(s)</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
-        <translation type="unfinished">%1 syllabe(s)</translation>
+        <translation>%1 syllabe(s)</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Timing</name>
     <message>
         <source>Timing</source>
-        <translation type="unfinished">Timing</translation>
+        <translation>Timing</translation>
     </message>
     <message>
         <source>Trigger</source>
-        <translation type="unfinished">Déclenchement</translation>
+        <translation>Déclenchement</translation>
     </message>
     <message>
         <source>Phrase</source>
-        <translation type="unfinished">Phrase</translation>
+        <translation>Phrase</translation>
     </message>
     <message>
         <source>Step</source>
-        <translation type="unfinished">Pas</translation>
+        <translation>Pas</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Ligne</translation>
+        <translation>Ligne</translation>
     </message>
     <message>
         <source>A note speaks the whole phrase.</source>
-        <translation type="unfinished">Une note prononce toute la phrase.</translation>
+        <translation>Une note prononce toute la phrase.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
-        <translation type="unfinished">Une note prononce la syllabe suivante.</translation>
+        <translation>Une note prononce la syllabe suivante.</translation>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Une note prononce la ligne suivante. Un point, ! ou ? en commence une nouvelle.</translation>
     </message>
     <message>
         <source>Sync</source>
-        <translation type="unfinished">Sync</translation>
+        <translation>Sync</translation>
     </message>
     <message>
         <source>Free</source>
-        <translation type="unfinished">Libre</translation>
+        <translation>Libre</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">Ajuster</translation>
+        <translation>Ajuster</translation>
     </message>
     <message>
         <source>Grid</source>
-        <translation type="unfinished">Grille</translation>
+        <translation>Grille</translation>
     </message>
     <message>
         <source>Natural durations, set by Rate.</source>
-        <translation type="unfinished">Durées naturelles, définies par Rate.</translation>
+        <translation>Durées naturelles, définies par Rate.</translation>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaque ligne remplit la note qui la prononce.</translation>
     </message>
     <message>
         <source>The phrase is stretched to span Length.</source>
-        <translation type="unfinished">La phrase est étirée pour couvrir Length.</translation>
+        <translation>La phrase est étirée pour couvrir Length.</translation>
     </message>
     <message>
         <source>Each syllable takes one Division.</source>
-        <translation type="unfinished">Chaque syllabe occupe une Division.</translation>
+        <translation>Chaque syllabe occupe une Division.</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Vitesse</translation>
+        <translation>Vitesse</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">Portamento</translation>
+        <translation>Portamento</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maintenez une note sur une colonne et jouez la mélodie sur une autre : la seconde colonne déplace la hauteur sans lancer la ligne suivante.</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
-        <translation type="unfinished">Longueur (pas de 1/16)</translation>
+        <translation>Longueur (pas de 1/16)</translation>
     </message>
     <message>
         <source>Division (1/16 steps)</source>
-        <translation type="unfinished">Division (pas de 1/16)</translation>
+        <translation>Division (pas de 1/16)</translation>
     </message>
 </context>
 <context>
     <name>SpeechV2Dialog_Voice</name>
     <message>
         <source>Voice</source>
-        <translation type="unfinished">Voix</translation>
+        <translation>Voix</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <source>Male</source>
-        <translation type="unfinished">Masculine</translation>
+        <translation>Masculine</translation>
     </message>
     <message>
         <source>Female</source>
-        <translation type="unfinished">Féminine</translation>
+        <translation>Féminine</translation>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation>Enfant</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation>Grave</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation>Soufflée</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation>Géant</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation>Âgée</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation>Alien</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation>Monstre</translation>
     </message>
     <message>
         <source>Formant Shift</source>
-        <translation type="unfinished">Décalage de formants</translation>
+        <translation>Décalage de formants</translation>
     </message>
     <message>
         <source>Vocal tract length. Up reads as a smaller speaker.</source>
-        <translation type="unfinished">Longueur du conduit vocal. Vers le haut, la voix paraît plus petite.</translation>
+        <translation>Longueur du conduit vocal. Vers le haut, la voix paraît plus petite.</translation>
     </message>
     <message>
         <source>Glide</source>
-        <translation type="unfinished">Glissando</translation>
+        <translation>Glissando</translation>
     </message>
     <message>
         <source>How long a formant takes to reach its target. Short is robotic, long is slurred.</source>
-        <translation type="unfinished">Le temps que met un formant à atteindre sa cible. Court, c&apos;est robotique ; long, c&apos;est traînant.</translation>
+        <translation>Le temps que met un formant à atteindre sa cible. Court, c&apos;est robotique ; long, c&apos;est traînant.</translation>
     </message>
     <message>
         <source>Consonants</source>
-        <translation type="unfinished">Consonnes</translation>
+        <translation>Consonnes</translation>
     </message>
     <message>
         <source>Level of everything that is not a vowel.</source>
-        <translation type="unfinished">Niveau de tout ce qui n&apos;est pas une voyelle.</translation>
+        <translation>Niveau de tout ce qui n&apos;est pas une voyelle.</translation>
     </message>
     <message>
         <source>Sibilance</source>
-        <translation type="unfinished">Sibilance</translation>
+        <translation>Sibilance</translation>
     </message>
     <message>
         <source>How loud and how bright the s-sounds are. Half way is what the phoneme table asks for.</source>
-        <translation type="unfinished">Le volume et la brillance des sons en « s ». La position médiane correspond à ce que demande la table de phonèmes.</translation>
+        <translation>Le volume et la brillance des sons en « s ». La position médiane correspond à ce que demande la table de phonèmes.</translation>
     </message>
     <message>
         <source>Breathiness</source>
-        <translation type="unfinished">Souffle</translation>
+        <translation>Souffle</translation>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouverture</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation>Durée pendant laquelle les cordes vocales restent ouvertes. Vers le bas le son est serré et bourdonnant, vers le haut doux et soufflé. Au milieu correspond à ce que demande le type de voix.</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation>Instabilité de la voix d&apos;un cycle à l&apos;autre. À zéro elle est parfaitement périodique, ce qui sonne comme une machine.</translation>
     </message>
     <message>
         <source>Intonation</source>
-        <translation type="unfinished">Intonation</translation>
+        <translation>Intonation</translation>
     </message>
     <message>
         <source>How far the pitch falls across a phrase. At zero every phrase is a monotone.</source>
-        <translation type="unfinished">De combien la hauteur descend au fil d&apos;une phrase. À zéro, chaque phrase est monotone.</translation>
+        <translation>De combien la hauteur descend au fil d&apos;une phrase. À zéro, chaque phrase est monotone.</translation>
     </message>
     <message>
         <source>Vibrato Rate</source>
-        <translation type="unfinished">Vitesse du vibrato</translation>
+        <translation>Vitesse du vibrato</translation>
     </message>
     <message>
         <source>Vibrato Depth</source>
-        <translation type="unfinished">Profondeur du vibrato</translation>
+        <translation>Profondeur du vibrato</translation>
     </message>
 </context>
 <context>
