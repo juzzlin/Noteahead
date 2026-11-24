@@ -145,63 +145,70 @@ const std::vector<SynthPreset> & SynthDPresets::presets()
     // say so, and the knobs they leave blank are left where Init has them.
     static const std::vector<SynthPreset> presets {
         { .name = "Init", .parameters = {} },
-        // Three saws an octave apart, the filter half open, under the mod wheel's vibrato
+        // Two saws an octave apart over a third that drones on, off the keyboard; the mod wheel adds the vibrato
         { .name = "Brass",
-          .parameters = parameters({ .modMix = 7.5, .lfo = true, .oscMod = true, .lfoRate = 5.5, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 5.0, .on = true }, Osc { .range = Range::Feet8, .wave = Wave::Saw, .volume = 2.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw, .volume = 3.5, .on = true } }, .cutoff = 0.5, .emphasis = 3.5, .contour = 2.0, .filterAds = { 1.0, 3.5, 3.0 }, .loudnessAds = { 1.0, 6.5, 6.5 }, .decay = true, .gainDb = 8.1 }) },
-        // A narrow pulse and a square two octaves down, fed back, the filter contour opening wide
+          .parameters = parameters({ .glide = 2.0, .modMix = 10.0, .lfo = true, .oscMod = true, .lfoRate = 2.0, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 5.0, .on = true }, Osc { .range = Range::Feet8, .wave = Wave::Saw, .volume = 2.0, .on = true }, Osc { .range = Range::Feet8, .wave = Wave::Saw, .volume = 4.0, .on = true } }, .osc3Control = false, .cutoff = 1.0, .emphasis = 3.0, .contour = 2.0, .filterAds = { 0.5, 3.0, 3.0 }, .loudnessAds = { 0.5, 6.0, 6.0 }, .decay = true, .gainDb = 6.2 }) },
+        // A saw and two squares tuned 3 and 6.5 semitones up, all loud into a ringing filter
+        { .name = "Bright Lead",
+          .parameters = parameters({ .modMix = 10.0, .lfo = true, .oscMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet8, .wave = Wave::Saw, .volume = 8.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Square, .frequency = 3.0, .volume = 8.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Square, .frequency = 6.5, .volume = 9.0, .on = true } }, .cutoff = -3.0, .emphasis = 7.0, .contour = 6.0, .keyboard2 = true, .filterAds = { 0.5, 8.0, 0.0 }, .loudnessAds = { 0.0, 8.0, 10.0 }, .gainDb = 2.1 }) },
+        // A narrow and a wide pulse two octaves down, fed back, with OSC 3 bubbling the filter
         { .name = "Bubble Bass",
-          .parameters = parameters({ .modMix = 2.5, .modDepth = 10.0, .filterMod = true, .osc = { Osc { .range = Range::Feet32, .wave = Wave::NarrowPulse, .volume = 8.5, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Square, .volume = 5.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Square, .volume = 0.0 } }, .ext = 7.0, .extOn = true, .cutoff = -3.0, .emphasis = 6.5, .contour = 8.0, .filterAds = { 0.5, 6.5, 1.0 }, .loudnessAds = { 0.5, 5.0, 8.0 }, .decay = true, .gainDb = 4.5 }) },
+          .parameters = parameters({ .modDepth = 10.0, .filterMod = true, .osc = { Osc { .range = Range::Feet32, .wave = Wave::NarrowPulse, .volume = 10.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::WidePulse, .volume = 5.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Square } }, .ext = 7.0, .extOn = true, .cutoff = -4.0, .emphasis = 6.5, .contour = 8.0, .keyboard1 = false, .filterAds = { 0.0, 6.0, 0.0 }, .loudnessAds = { 0.0, 5.0, 9.0 }, .decay = true, .gainDb = 3.1 }) },
         // The output fed back into the mixer until it growls
         { .name = "Driven Bass",
-          .parameters = parameters({ .modMix = 7.5, .lfo = true, .oscMod = true, .lfoRate = 5.5, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 8.5, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 8.5, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw, .volume = 8.5, .on = true } }, .ext = 8.0, .extOn = true, .cutoff = -2.0, .emphasis = 1.0, .contour = 5.0, .keyboard2 = true, .filterAds = { 0.5, 1.0, 1.0 }, .loudnessAds = { 0.5, 3.0, 9.0 }, .decay = true, .gainDb = 1.3 }) },
-        // Square and pulse a fifth apart, sustained, with the filter answering the keyboard
+          .parameters = parameters({ .modMix = 10.0, .lfo = true, .oscMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 10.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 10.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw, .volume = 10.0, .on = true } }, .ext = 8.0, .extOn = true, .cutoff = -3.0, .emphasis = 0.0, .contour = 5.0, .keyboard2 = true, .filterAds = { 0.0, 0.3, 0.0 }, .loudnessAds = { 0.0, 3.1, 9.0 }, .decay = true, .gainDb = 7.8 }) },
+        // A square and a triangle an octave apart, with OSC 3 shaking the filter at audio rate
         { .name = "Electric Piano",
-          .parameters = parameters({ .glide = 1.0, .modMix = 3.0, .lfo = true, .filterMod = true, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Square, .volume = 2.5, .on = true }, Osc { .range = Range::Feet8, .wave = Wave::Triangle, .volume = 6.5, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw, .volume = 0.0 } }, .cutoff = -1.0, .emphasis = 5.0, .contour = 2.5, .filterAds = { 0.5, 1.8, 1.0 }, .loudnessAds = { 0.5, 5.0, 5.0 }, .decay = true, .gainDb = 8.2 }) },
-        // A square, a saw and a narrow pulse two octaves down, all three loud: the mixer overdrives the filter
+          .parameters = parameters({ .modDepth = 10.0, .lfo = true, .filterMod = true, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Square, .volume = 3.0, .on = true }, Osc { .range = Range::Feet8, .wave = Wave::Triangle, .volume = 6.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw } }, .cutoff = -1.0, .emphasis = 5.0, .contour = 1.0, .keyboard1 = false, .filterAds = { 0.0, 0.5, 0.0 }, .loudnessAds = { 0.0, 5.0, 5.0 }, .decay = true, .gainDb = 9.7 }) },
+        // Two narrow pulses and a saw, fed back, through a closed and ringing filter that the contour opens
+        { .name = "Funk Bass",
+          .parameters = parameters({ .glide = 1.0, .modMix = 10.0, .lfo = true, .oscMod = true, .filterMod = true, .lfoRate = 4.0, .osc = { Osc { .range = Range::Feet2, .wave = Wave::NarrowPulse, .volume = 5.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::NarrowPulse, .volume = 9.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Saw, .volume = 10.0, .on = true } }, .ext = 7.0, .extOn = true, .cutoff = -4.0, .emphasis = 7.0, .contour = 6.0, .keyboard1 = false, .keyboard2 = true, .filterAds = { 0.0, 2.0, 4.0 }, .loudnessAds = { 0.0, 5.0, 10.0 }, .gainDb = 17.0 }) },
+        // A square, a saw and a wide pulse two octaves down, all three loud: the mixer overdrives the filter
         { .name = "Fuzz Lead",
-          .parameters = parameters({ .glide = 2.0, .modMix = 7.0, .lfo = true, .filterMod = true, .lfoRate = 3.5, .osc = { Osc { .range = Range::Feet16, .wave = Wave::Square, .volume = 6.5, .on = true }, Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 7.5, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::NarrowPulse, .volume = 3.0, .on = true } }, .cutoff = 0.0, .emphasis = 2.0, .contour = 2.0, .keyboard2 = true, .filterAds = { 1.0, 3.0, 7.5 }, .loudnessAds = { 1.0, 4.5, 6.5 }, .decay = true, .gainDb = 1.5 }) },
+          .parameters = parameters({ .glide = 2.0, .modMix = 10.0, .lfo = true, .filterMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet16, .wave = Wave::Square, .volume = 6.0, .on = true }, Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 7.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::WidePulse, .volume = 4.0, .on = true } }, .cutoff = 0.0, .emphasis = 2.0, .contour = 2.0, .keyboard2 = true, .filterAds = { 0.5, 3.0, 7.0 }, .loudnessAds = { 0.5, 4.0, 6.0 }, .decay = true, .gainDb = 1.7 }) },
+        // White noise and a short loudness contour. The filter follows the whole keyboard, and the sheet
+        // has it at 0, which is a hat only three octaves up: at +2 it is one around C3. The sheet's
+        // 7 ms decay, which it says to adjust, is a click; 1.3 is a closed hat
+        { .name = "Hi-Hat",
+          .parameters = parameters({ .filterMod = true, .osc = { Osc { .on = false }, Osc {}, Osc { .range = Range::Feet2, .wave = Wave::NarrowPulse, .volume = 0.0 } }, .noise = 10.0, .noiseOn = true, .cutoff = 2.0, .contour = 5.0, .keyboard2 = true, .filterAds = { 0.0, 0.5, 0.0 }, .loudnessAds = { 0.0, 1.3, 0.0 }, .decay = true, .gainDb = 15.4 }) },
         // A triangle swept down by the filter contour, with a breath of noise for the beater
         { .name = "Kick",
-          .parameters = parameters({ .modMix = 1.0, .modDepth = 10.0, .filterEg = true, .oscMod = true, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 8.5, .on = true }, Osc {}, Osc {} }, .noise = 2.0, .noiseOn = true, .cutoff = -0.5, .emphasis = 1.0, .contour = 4.0, .filterAds = { 0.0, 2.0, 1.0 }, .loudnessAds = { 0.0, 4.3, 1.0 }, .decay = true, .gainDb = 4.6 }) },
+          .parameters = parameters({ .modDepth = 10.0, .filterEg = true, .oscMod = true, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 10.0, .on = true }, Osc {}, Osc {} }, .noise = 2.0, .noiseOn = true, .cutoff = -0.5, .emphasis = 0.0, .contour = 4.0, .filterAds = { 0.0, 0.5, 0.0 }, .loudnessAds = { 0.0, 4.0, 0.0 }, .decay = true, .gainDb = 1.7 }) },
         // One triangle through a singing filter that follows the keyboard
         { .name = "Resonant Bass",
-          .parameters = parameters({ .glide = 2.0,
-                                     .osc = { Osc { .range = Range::Feet16, .wave = Wave::Triangle, .volume = 8.5, .on = true }, Osc {}, Osc {} },
-                                     .cutoff = -2.0,
-                                     .emphasis = 5.0,
-                                     .contour = 5.0,
-                                     .keyboard2 = true,
-                                     .filterAds = { 0.5, 2.0, 2.0 },
-                                     .loudnessAds = { 0.5, 2.0, 9.0 },
-                                     .decay = true,
-                                     .gainDb = 4.9 }) },
-        // Two saws and a narrow pulse two octaves down, the filter closed: round and deep
+          .parameters = parameters({ .glide = 1.0, .osc = { Osc { .range = Range::Feet16, .wave = Wave::Triangle, .volume = 10.0, .on = true }, Osc {}, Osc {} }, .cutoff = -3.0, .emphasis = 5.0, .contour = 5.0, .keyboard2 = true, .filterAds = { 0.0, 2.0, 2.0 }, .loudnessAds = { 0.0, 2.0, 10.0 }, .decay = true, .gainDb = 6.3 }) },
+        // Two saws and a narrow pulse an octave above them, the filter closed: round and deep
         { .name = "Round Bass",
-          .parameters = parameters({ .glide = 1.5, .modMix = 3.0, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 8.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 2.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::NarrowPulse, .volume = 1.5, .on = true } }, .noise = 1.5, .noiseOn = true, .cutoff = -2.0, .emphasis = 3.0, .contour = 6.5, .keyboard1 = false, .filterAds = { 0.5, 2.5, 9.0 }, .loudnessAds = { 0.5, 3.0, 9.5 }, .gainDb = 5.5 }) },
+          .parameters = parameters({ .glide = 3.0, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 8.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Saw, .volume = 2.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::NarrowPulse, .volume = 3.0, .on = true } }, .noise = 1.5, .noiseOn = true, .cutoff = -3.0, .emphasis = 3.0, .contour = 6.0, .keyboard1 = false, .filterAds = { 0.0, 1.3, 0.0 }, .loudnessAds = { 0.0, 3.1, 10.0 }, .decay = true, .gainDb = 6.7 }) },
         // White noise through the filter and a short loudness contour
         { .name = "Snare",
-          .parameters = parameters({ .osc = { Osc { .on = false }, Osc {}, Osc {} },
-                                     .noise = 9.0,
-                                     .noiseOn = true,
-                                     .cutoff = 0.0,
-                                     .emphasis = 1.0,
-                                     .contour = 3.5,
-                                     .filterAds = { 0.5, 2.0, 1.0 },
-                                     .loudnessAds = { 0.5, 5.0, 0.5 },
-                                     .decay = true,
-                                     .gainDb = 18.7 }) },
+          .parameters = parameters({ .osc = { Osc { .on = false }, Osc {}, Osc {} }, .noise = 10.0, .noiseOn = true, .cutoff = 0.0, .emphasis = 0.0, .contour = 3.0, .filterAds = { 0.0, 2.0, 0.0 }, .loudnessAds = { 0.0, 5.0, 0.0 }, .decay = true, .gainDb = 17.5 }) },
+        // Two triangles under a filter swept by OSC 3 off the keyboard; its Frequency sets the rate
+        { .name = "Space Wobble",
+          .parameters = parameters({ .modDepth = 10.0, .filterMod = true, .osc = { Osc { .range = Range::Feet8, .wave = Wave::Triangle, .volume = 8.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Triangle, .frequency = 4.5, .volume = 10.0, .on = true }, Osc { .range = Range::Lo, .wave = Wave::Square, .frequency = 5.0 } }, .osc3Control = false, .cutoff = -3.0, .emphasis = 5.0, .contour = 7.0, .keyboard1 = false, .filterAds = { 8.0, 6.0, 0.0 }, .loudnessAds = { 0.3, 7.0, 10.0 }, .gainDb = 3.8 }) },
         // Three squares, the second and third a few cents apart, with glide
         { .name = "Square Lead",
-          .parameters = parameters({ .glide = 2.0, .modMix = 7.0, .lfo = true, .oscMod = true, .filterMod = true, .lfoRate = 5.5, .osc = { Osc { .range = Range::Feet16, .wave = Wave::Square, .volume = 5.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Square, .frequency = 0.08, .volume = 5.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Square, .frequency = -0.08, .volume = 5.0, .on = true } }, .cutoff = 3.0, .emphasis = 1.5, .contour = 1.0, .loudnessAds = { 0.5, 5.0, 9.0 }, .gainDb = -2.9 }) },
+          .parameters = parameters({ .glide = 3.0, .modMix = 10.0, .lfo = true, .oscMod = true, .filterMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet16, .wave = Wave::Square, .volume = 5.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Square, .frequency = 0.08, .volume = 5.0, .on = true }, Osc { .range = Range::Feet16, .wave = Wave::Square, .frequency = -0.08, .volume = 5.0, .on = true } }, .cutoff = 4.0, .emphasis = 0.0, .contour = 0.0, .keyboard1 = false, .loudnessAds = { 0.0, 5.0, 10.0 }, .gainDb = -4.7 }) },
+        // A narrow pulse, a triangle two octaves down and noise, all frequency modulated by OSC 3
+        { .name = "Steel Pluck",
+          .parameters = parameters({ .modDepth = 10.0, .oscMod = true, .osc = { Osc { .range = Range::Feet8, .wave = Wave::NarrowPulse, .volume = 4.0, .on = true }, Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 5.0, .on = true }, Osc {} }, .noise = 4.0, .noiseOn = true, .cutoff = -2.0, .emphasis = 2.0, .contour = 6.0, .keyboard1 = false, .filterAds = { 0.0, 2.0, 0.0 }, .loudnessAds = { 0.0, 4.0, 0.0 }, .gainDb = 8.9 }) },
         // A single triangle two octaves down
         { .name = "Sub Bass",
-          .parameters = parameters({ .glide = 1.0, .modMix = 7.0, .lfo = true, .oscMod = true, .lfoRate = 5.5, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 8.5, .on = true }, Osc {}, Osc {} }, .cutoff = 3.0, .emphasis = 1.0, .contour = 1.0, .loudnessAds = { 0.0, 4.0, 10.0 }, .decay = true, .gainDb = 2.7 }) },
+          .parameters = parameters({ .modMix = 10.0, .lfo = true, .oscMod = true, .lfoRate = 1.0, .osc = { Osc { .range = Range::Feet32, .wave = Wave::Triangle, .volume = 10.0, .on = true }, Osc {}, Osc {} }, .cutoff = 4.0, .emphasis = 0.0, .contour = 0.0, .keyboard1 = false, .decay = true, .gainDb = -0.5 }) },
+        // A low triangle-saw whose pitch the filter contour drops, with the output fed back and a little noise
+        { .name = "Toms",
+          .parameters = parameters({ .modDepth = 10.0, .filterEg = true, .lfo = true, .oscMod = true, .osc = { Osc { .range = Range::Feet32, .wave = Wave::TriangleSaw, .volume = 5.0, .on = true }, Osc {}, Osc {} }, .ext = 7.0, .extOn = true, .noise = 2.0, .noiseOn = true, .cutoff = -2.0, .contour = 4.0, .filterAds = { 0.0, 0.5, 0.0 }, .loudnessAds = { 0.0, 4.0, 0.0 }, .decay = true, .gainDb = 8.7 }) },
+        // One triangle in the 2' range with a long glide; the mod wheel adds the vibrato. Keyboard Control
+        // 2 is on as well, where the sheet has only 1: the filter then follows the triangle, which
+        // otherwise loses 30 dB between C2 and C5
+        { .name = "Triangle Lead",
+          .parameters = parameters({ .glide = 4.5, .modMix = 10.0, .lfo = true, .oscMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet2, .wave = Wave::Triangle, .volume = 5.0, .on = true }, Osc {}, Osc {} }, .cutoff = 0.0, .contour = 1.0, .keyboard2 = true, .filterAds = { 0.5, 0.5, 0.0 }, .loudnessAds = { 0.6, 3.0, 10.0 }, .decay = true, .gainDb = 18.2 }) },
         // A saw and a narrow pulse in the 4' range, a slow swell and a long release
         { .name = "Violin Lead",
-          .parameters = parameters({ .glide = 2.0, .modMix = 7.5, .lfo = true, .oscMod = true, .filterMod = true, .lfoRate = 5.5, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 5.0, .on = true }, Osc { .range = Range::Feet4, .wave = Wave::NarrowPulse, .volume = 2.0, .on = true }, Osc {} }, .cutoff = 0.0, .emphasis = 2.0, .contour = 3.0, .filterAds = { 0.5, 3.5, 6.5 }, .loudnessAds = { 1.0, 6.5, 6.5 }, .decay = true, .gainDb = 11.7 }) },
+          .parameters = parameters({ .glide = 2.0, .modMix = 10.0, .lfo = true, .oscMod = true, .filterMod = true, .lfoRate = 3.0, .osc = { Osc { .range = Range::Feet4, .wave = Wave::Saw, .volume = 5.0, .on = true }, Osc { .range = Range::Feet4, .wave = Wave::NarrowPulse, .volume = 2.0, .on = true }, Osc {} }, .cutoff = 0.0, .emphasis = 1.5, .contour = 3.0, .filterAds = { 0.5, 3.0, 6.0 }, .loudnessAds = { 0.5, 6.0, 6.0 }, .decay = true, .gainDb = 11.1 }) },
         // Noise through a filter close to singing, which the keyboard tunes
         { .name = "Wind",
-          .parameters = parameters({ .glide = 1.0, .modMix = 3.0, .filterEg = true, .osc = { Osc { .on = false }, Osc {}, Osc {} }, .noise = 7.0, .noiseOn = true, .cutoff = -1.2, .emphasis = 7.5, .contour = 1.5, .filterAds = { 0.5, 1.5, 1.0 }, .loudnessAds = { 2.0, 3.5, 3.0 }, .decay = true, .gainDb = 24.4 }) },
+          .parameters = parameters({ .filterEg = true, .osc = { Osc { .on = false }, Osc {}, Osc {} }, .noise = 7.0, .noiseOn = true, .cutoff = -2.0, .emphasis = 7.0, .contour = 0.0, .keyboard2 = true, .filterAds = { 0.0, 0.0, 0.0 }, .loudnessAds = { 0.5, 4.0, 3.0 }, .decay = true, .gainDb = 28.5 }) },
     };
     return presets;
 }
