@@ -167,6 +167,13 @@ void TransistorLadderFilterTest::test_process_loudInput_shouldStayBounded()
     }
 }
 
+void TransistorLadderFilterTest::test_process_moderateDrive_shouldSaturateOncePerStage()
+{
+    const double peak = gainAt(4000.0, 0.0, 10.0, Mode::LowPass, 1.0);
+    const double fourStages = std::tanh(std::tanh(std::tanh(std::tanh(1.0))));
+    QVERIFY2(peak > 0.50 && peak < 0.56 && std::abs(peak - fourStages) < 0.01, qPrintable(QString { "%1 vs %2" }.arg(peak).arg(fourStages)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::TransistorLadderFilterTest)

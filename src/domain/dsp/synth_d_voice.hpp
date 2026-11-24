@@ -158,12 +158,16 @@ public:
     static constexpr int KeyboardControlReferenceNote { 48 };
     //! LO is this many octaves below 8'
     static constexpr double LoRangeOctaves { 7.0 };
+    //! How many octaves OSC 3's Frequency knob sweeps either way in LO range when Keyboard Control is off
+    static constexpr double Osc3LoSweepOctaves { 4.0 };
     //! The key OSC 3 is tuned to when the keyboard does not control it
     static constexpr int Osc3FixedNote { 60 };
 
     SynthDVoice();
 
     void setSampleRate(double sampleRate);
+    void setOversampleFactor(uint8_t factor);
+    uint8_t oversampleFactor() const;
     void setSettings(const Settings & settings);
 
     //! Moves the voice to @p note: at once, or gliding when the glide is up. @p trigger restarts
@@ -186,7 +190,7 @@ public:
     double lfoValue() const;
     void reset();
 
-    static constexpr size_t Oversampling { 2 };
+    static constexpr uint8_t MaxOversampling { 4 };
 
 private:
     //! An ADS contour generator: a capacitor charged and discharged through the time knobs
@@ -223,18 +227,18 @@ private:
         double next(Waveform waveform, bool reverse, double increment);
     };
 
-    double noteHz(double note) const;
     double modulationSource1(double filterEnvelope) const;
 
     Settings m_settings {};
-    double m_sampleRate { 48000.0 };
+    double m_sampleRate { 0.0 };
+    uint8_t m_oversampleFactor { 2 };
 
     std::array<Vco, 3> m_vcos {};
     std::array<double, 3> m_vcoOutputs {};
     std::array<AnalogDrift, 3> m_vcoDrifts {};
     AnalogDrift m_drift {};
     NoiseSource m_noise { 0x4d4f4f47 };
-    double m_noiseValue { 0.0 };
+    Upsampler m_noiseUpsampler { HalfBandStage::Inner };
     double m_lfoPhase { 0.0 };
     double m_lfoValue { -1.0 };
 

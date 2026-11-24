@@ -267,8 +267,8 @@ double SynthDVoice::Vco::next(Waveform waveform, bool reverse, double increment)
 
 SynthDVoice::SynthDVoice()
 {
-    // So that the coefficients worked out from the settings are there before any are given
-    setSettings(m_settings);
+    // Initializes the filters and noise generator at the default sample rate
+    setSampleRate(48000.0);
 }
 
 void SynthDVoice::setSampleRate(double sampleRate)
@@ -278,10 +278,32 @@ void SynthDVoice::setSampleRate(double sampleRate)
     }
     m_sampleRate = sampleRate;
     for (auto && filter : m_filters) {
-        filter.setSampleRate(sampleRate * static_cast<double>(Oversampling));
+        filter.setSampleRate(sampleRate * static_cast<double>(m_oversampleFactor));
     }
     m_noise.setSampleRate(sampleRate);
     setSettings(m_settings);
+}
+
+void SynthDVoice::setOversampleFactor(uint8_t factor)
+{
+    const uint8_t clamped = clampOversampleFactor(factor);
+    if (clamped == m_oversampleFactor) {
+        return;
+    }
+    m_oversampleFactor = clamped;
+    for (auto && filter : m_filters) {
+        filter.setSampleRate(m_sampleRate * static_cast<double>(m_oversampleFactor));
+    }
+    m_feedbackCoupling = onePoleCoefficient(1.0 / (2.0 * std::numbers::pi * FeedbackCouplingHz), m_sampleRate * static_cast<double>(m_oversampleFactor));
+    m_noiseUpsampler.reset();
+    for (auto && decimator : m_decimators) {
+        decimator.reset();
+    }
+}
+
+uint8_t SynthDVoice::oversampleFactor() const
+{
+    return m_oversampleFactor;
 }
 
 void SynthDVoice::setSettings(const Settings & settings)
@@ -293,7 +315,7 @@ void SynthDVoice::setSettings(const Settings & settings)
     // Fixed by the settings and the rate, so worked out here rather than once a sample
     m_baseCutoffHz = cutoffHz(settings.cutoff);
     m_lfoHz = lfoHz(settings.lfoRate);
-    m_feedbackCoupling = onePoleCoefficient(1.0 / (2.0 * std::numbers::pi * FeedbackCouplingHz), m_sampleRate * static_cast<double>(Oversampling));
+    m_feedbackCoupling = onePoleCoefficient(1.0 / (2.0 * std::numbers::pi * FeedbackCouplingHz), m_sampleRate * static_cast<double>(m_oversampleFactor));
     m_overloadDecay = 1.0 - onePoleCoefficient(0.1, m_sampleRate);
     m_noise.setColour(settings.noiseColour == NoiseColour::Pink ? 1.0 / 3.0 : 2.0 / 3.0);
     for (auto && filter : m_filters) {
@@ -337,63 +359,127 @@ double SynthDVoice::modulationSource1(double filterEnvelope) const
 void SynthDVoice::process(double & left, double & right)
 {
     const auto & s = m_settings;
-    const double rate = m_sampleRate * static_cast<double>(Oversampling);
+    const uint8_t factor = m_oversampleFactor;
+    const double rate = m_sampleRate * static_cast<double>(factor);
 
     // The control voltages, once a sample
     m_note += m_glideCoefficient * (m_targetNote - m_note);
 
     advanceLfo(1);
-    m_noiseValue = m_noise.nextSample();
+
+    std::array<float, MaxOversampling> noiseHighRate {};
+    m_noiseUpsampler.process(static_cast<float>(m_noise.nextSample()), noiseHighRate.data(), factor);
 
     const double filterEnvelope = m_filterContour.next();
     const double loudness = m_loudnessContour.next();
 
-    const double source2 = s.modSource2 == ModSource2::Noise ? m_noiseValue : m_lfoValue;
-    const double modulation = ((1.0 - s.modMix) * modulationSource1(filterEnvelope) + s.modMix * source2) * s.modDepth * s.modDepth;
-
     const double drift = s.drift > 0.0 ? s.drift * MaxDriftCents * m_drift.next(m_sampleRate) / 100.0 : 0.0;
-    std::array<double, 3> increments {};
+    std::array<double, 3> baseNotes {};
     for (size_t i = 0; i < 3; i++) {
         const auto & oscillator = s.oscillators[i];
-        double note = oscillator.frequency + s.tolerance * MaxToleranceCents * AnalogDrift::tolerance(i, ToleranceTune) / 100.0;
+        const double frequency = (i == 2 && !s.osc3KeyboardControl && oscillator.range == Range::Lo)
+          ? oscillator.frequency * (Osc3LoSweepOctaves * 12.0 / 7.0)
+          : oscillator.frequency;
+        double note = frequency + s.tolerance * MaxToleranceCents * AnalogDrift::tolerance(i, ToleranceTune) / 100.0;
         if (s.instability > 0.0) {
             note += s.instability * MaxInstabilityCents * m_vcoDrifts[i].next(m_sampleRate) / 100.0;
         }
         if (i < 2 || s.osc3KeyboardControl) {
             note += m_note + s.tune + m_pitchBend + drift;
-            if (s.oscillatorModulation) {
-                note += modulation * MaxOscModSemitones;
-            }
         } else {
             note += Osc3FixedNote;
         }
-        increments[i] = std::min(oscillatorHz(oscillator.range, note) / rate, 0.45);
+        baseNotes[i] = note;
     }
 
     const double keyboardControl = (s.keyboardControl1 ? 1.0 / 3.0 : 0.0) + (s.keyboardControl2 ? 2.0 / 3.0 : 0.0);
-    double octaves = s.contourAmount * MaxContourOctaves * filterEnvelope
+    const double baseOctaves = s.contourAmount * MaxContourOctaves * filterEnvelope
       + keyboardControl * (m_note + m_pitchBend - KeyboardControlReferenceNote) / 12.0
       + s.tolerance * MaxToleranceCutoffOctaves * AnalogDrift::tolerance(0, ToleranceCutoff);
-    if (s.filterModulation) {
-        octaves += modulation * MaxFilterModOctaves;
-    }
-    const double cutoff = m_baseCutoffHz * std::exp2(octaves);
-    for (auto && filter : m_filters) {
-        filter.setCutoff(cutoff);
+
+    const double modMix = std::clamp(s.modMix, 0.0, 1.0);
+    const double modScale = s.modDepth * s.modDepth;
+    const bool anyMod = modScale > 0.0 && (s.oscillatorModulation || s.filterModulation);
+    const bool audioRateMod = anyMod && ((s.modSource1 == ModSource1::Osc3 && modMix < 1.0) || (s.modSource2 == ModSource2::Noise && modMix > 0.0));
+
+    const auto incrementFor = [rate](Range range, double note) {
+        return std::min(oscillatorHz(range, note) / rate, 0.45);
+    };
+
+    std::array<double, 3> increments {};
+    if (!audioRateMod) {
+        const double source2 = s.modSource2 == ModSource2::Noise ? static_cast<double>(noiseHighRate[0]) : m_lfoValue;
+        const double modulation = ((1.0 - modMix) * modulationSource1(filterEnvelope) + modMix * source2) * modScale;
+        for (size_t i = 0; i < 3; i++) {
+            double note = baseNotes[i];
+            if (s.oscillatorModulation && (i < 2 || s.osc3KeyboardControl)) {
+                note += modulation * MaxOscModSemitones;
+            }
+            increments[i] = incrementFor(s.oscillators[i].range, note);
+        }
+        double octaves = baseOctaves;
+        if (s.filterModulation) {
+            octaves += modulation * MaxFilterModOctaves;
+        }
+        const double cutoff = m_baseCutoffHz * std::exp2(octaves);
+        for (auto && filter : m_filters) {
+            filter.setCutoff(cutoff);
+        }
+    } else {
+        if (!s.oscillatorModulation) {
+            for (size_t i = 0; i < 3; i++) {
+                increments[i] = incrementFor(s.oscillators[i].range, baseNotes[i]);
+            }
+        } else if (!s.osc3KeyboardControl) {
+            increments[2] = incrementFor(s.oscillators[2].range, baseNotes[2]);
+        }
+        if (!s.filterModulation) {
+            const double cutoff = m_baseCutoffHz * std::exp2(baseOctaves);
+            for (auto && filter : m_filters) {
+                filter.setCutoff(cutoff);
+            }
+        }
     }
 
     const double vca = loudness * m_velocity;
     const double feedbackGain = s.feedbackOn ? s.feedback * s.feedback * MaxFeedbackGain : 0.0;
     const std::array<double, 3> positions { -s.panSpread, s.panSpread, 0.0 };
-    const double noise = (s.noiseOn ? s.noise * MixerLevel : NoiseFloor) * m_noiseValue;
+    const double noiseGain = s.noiseOn ? s.noise * MixerLevel : NoiseFloor;
 
-    std::array<std::array<float, Oversampling>, 2> highRate {};
+    std::array<std::array<float, MaxOversampling>, 2> highRate {};
     double peak = 0.0;
-    for (size_t step = 0; step < Oversampling; step++) {
-        for (size_t i = 0; i < 3; i++) {
-            const auto & oscillator = s.oscillators[i];
-            m_vcoOutputs[i] = m_vcos[i].next(oscillator.waveform, i == 2, increments[i]);
+    for (uint8_t step = 0; step < factor; step++) {
+        const double noiseStep = static_cast<double>(noiseHighRate[step]);
+        if (audioRateMod) {
+            const double source2 = s.modSource2 == ModSource2::Noise ? noiseStep : m_lfoValue;
+            if (s.oscillatorModulation && s.osc3KeyboardControl) {
+                const double prevMod = ((1.0 - modMix) * modulationSource1(filterEnvelope) + modMix * source2) * modScale;
+                increments[2] = incrementFor(s.oscillators[2].range, baseNotes[2] + prevMod * MaxOscModSemitones);
+            }
+            m_vcoOutputs[2] = m_vcos[2].next(s.oscillators[2].waveform, true, increments[2]);
+
+            const double modulation = ((1.0 - modMix) * modulationSource1(filterEnvelope) + modMix * source2) * modScale;
+            if (s.oscillatorModulation) {
+                for (size_t i = 0; i < 2; i++) {
+                    increments[i] = incrementFor(s.oscillators[i].range, baseNotes[i] + modulation * MaxOscModSemitones);
+                }
+            }
+            for (size_t i = 0; i < 2; i++) {
+                m_vcoOutputs[i] = m_vcos[i].next(s.oscillators[i].waveform, false, increments[i]);
+            }
+            if (s.filterModulation) {
+                const double cutoff = m_baseCutoffHz * std::exp2(baseOctaves + modulation * MaxFilterModOctaves);
+                for (auto && filter : m_filters) {
+                    filter.setCutoff(cutoff);
+                }
+            }
+        } else {
+            for (size_t i = 0; i < 3; i++) {
+                m_vcoOutputs[i] = m_vcos[i].next(s.oscillators[i].waveform, i == 2, increments[i]);
+            }
         }
+
+        const double noise = noiseGain * noiseStep;
         for (size_t side = 0; side < 2; side++) {
             double mix = noise;
             for (size_t i = 0; i < 3; i++) {
@@ -412,8 +498,8 @@ void SynthDVoice::process(double & left, double & right)
         }
     }
 
-    left += static_cast<double>(m_decimators[0].process(highRate[0].data(), static_cast<uint8_t>(Oversampling)));
-    right += static_cast<double>(m_decimators[1].process(highRate[1].data(), static_cast<uint8_t>(Oversampling)));
+    left += static_cast<double>(m_decimators[0].process(highRate[0].data(), factor));
+    right += static_cast<double>(m_decimators[1].process(highRate[1].data(), factor));
 
     // The LED lights at once and fades over a tenth of a second, so a peak is seen
     if (peak > OverloadLevel) {
@@ -454,7 +540,7 @@ void SynthDVoice::reset()
     }
     m_drift.initialize(0);
     m_noise.reset();
-    m_noiseValue = 0.0;
+    m_noiseUpsampler.reset();
     m_lfoPhase = 0.0;
     m_lfoValue = -1.0;
     for (size_t side = 0; side < 2; side++) {

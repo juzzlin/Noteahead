@@ -35,6 +35,7 @@ private slots:
     void test_resonance_raised_shouldThinTheBassUncompensated();
     void test_process_loudInput_shouldRoundOffHarmonically();
     void test_process_loudInput_shouldStayBounded();
+    void test_process_moderateDrive_shouldSaturateOncePerStage();
 };
 
 } // namespace noteahead

@@ -344,6 +344,14 @@ void SynthDDevice::processAudio(AudioContext & context)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     m_voice.setSampleRate(static_cast<double>(context.sampleRate));
+    m_voice.setOversampleFactor(context.oversampleFactor);
+    if (!m_voice.isActive()) {
+        m_voice.advanceLfo(context.frameCount);
+        publishLfoLed(LfoLed, m_voice.lfoValue());
+        publishLfoLed(OverloadLed, -1.0);
+        return;
+    }
+
     m_lpfL.setSampleRate(context.sampleRate);
     m_lpfR.setSampleRate(context.sampleRate);
     m_hpfL.setSampleRate(context.sampleRate);
@@ -357,16 +365,11 @@ void SynthDDevice::processAudio(AudioContext & context)
     m_panner.setPan(static_cast<double>(panInternal()));
 
     const double gain = OutputGain * linearGainInternal();
-    const bool active = m_voice.isActive();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         double left = 0.0;
         double right = 0.0;
-        // The LFO and the VCOs run whether a key is down or not, as on the instrument
         m_voice.process(left, right);
-        if (!active) {
-            continue;
-        }
         left *= gain;
         right *= gain;
         m_panner.process(left, right);

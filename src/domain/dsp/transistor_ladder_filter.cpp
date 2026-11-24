@@ -60,15 +60,17 @@ double TransistorLadderFilter::process(double input)
     const double fromStates = (G * G * G * m_state[0] + G * G * m_state[1] + G * m_state[2] + m_state[3]) * stateShare;
     const double ladderInput = std::tanh((input - m_feedback * fromStates) / (1.0 + m_feedback * G * G * G * G));
 
-    // Every stage's pair rounds off what it is given. Small signals pass through it untouched, so the
-    // loop solved above still holds for them.
+    // The input pair rounds off ladderInput above, and each subsequent stage's pair rounds off what
+    // it is given from the stage before it. Small signals pass through untouched, so the loop
+    // solved above still holds for them.
     std::array<double, 4> outputs {};
-    double value = ladderInput;
+    double stageInput = ladderInput;
     for (size_t i = 0; i < m_state.size(); i++) {
-        const double v = (std::tanh(value) - m_state[i]) * G;
-        value = v + m_state[i];
-        m_state[i] = value + v;
-        outputs[i] = value;
+        const double v = (stageInput - m_state[i]) * G;
+        const double output = v + m_state[i];
+        m_state[i] = output + v;
+        outputs[i] = output;
+        stageInput = std::tanh(output);
     }
 
     if (m_mode == Mode::HighPass) {

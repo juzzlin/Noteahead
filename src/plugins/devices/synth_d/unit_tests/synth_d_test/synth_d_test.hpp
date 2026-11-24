@@ -45,6 +45,11 @@ private slots:
     void test_panSpread_full_shouldPutOsc1Left();
     void test_presets_all_shouldPlayAtSimilarLevels();
     void test_presets_all_shouldStayFinite();
+    void test_filter_selfOscillation_shouldMatchCutoffAt48kHz();
+    void test_oversampleFactor_1x2x4x_shouldMatchPitchAndLevel();
+    void test_osc3_audioRateModulation_shouldProduceCleanFmSidebands();
+    void test_osc3_loRange_keyboardControlOff_shouldSweepWideLfoRange();
+    void test_processAudio_whenInactive_shouldAdvanceLfoAndStaySilent();
 };
 
 } // namespace noteahead

@@ -51,13 +51,13 @@ struct Stereo
     }
 };
 
-void render(SynthDDevice & device, double seconds, Stereo & out)
+void render(SynthDDevice & device, double seconds, Stereo & out, uint8_t oversampleFactor = 2)
 {
     const auto blocks = static_cast<int>(seconds * SampleRate / 512.0);
     std::vector<double> block(512 * 2);
     for (int b = 0; b < blocks; b++) {
         std::ranges::fill(block, 0.0);
-        AudioContext context { .buffer = block, .frameCount = 512, .sampleRate = static_cast<uint32_t>(SampleRate) };
+        AudioContext context { .buffer = block, .frameCount = 512, .sampleRate = static_cast<uint32_t>(SampleRate), .oversampleFactor = oversampleFactor };
         device.processAudio(context);
         for (size_t i = 0; i < 512; i++) {
             out.left.push_back(block.at(i * 2));
@@ -128,6 +128,20 @@ double peakHz(const std::vector<double> & x, double nominalHz, double from, doub
 double cents(double hz, double reference)
 {
     return 1200.0 * std::log2(hz / reference);
+}
+
+double magnitudeAtHz(const std::vector<double> & x, double hz, double from, double to)
+{
+    const auto a = static_cast<size_t>(from * SampleRate);
+    const auto b = std::min(x.size(), static_cast<size_t>(to * SampleRate));
+    const auto n = b - a;
+    std::complex<double> sum {};
+    const double w = 2.0 * M_PI * hz / SampleRate;
+    for (size_t i = 0; i < n; i++) {
+        const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * static_cast<double>(i) / static_cast<double>(n));
+        sum += x.at(a + i) * window * std::polar(1.0, -w * static_cast<double>(i));
+    }
+    return std::abs(sum) / static_cast<double>(n);
 }
 
 //! A patch whose loudness contour decays to silence in a tenth of a second and stays there
@@ -421,6 +435,209 @@ void SynthDTest::test_presets_all_shouldStayFinite()
             QVERIFY2(std::abs(v) < 2.0, presets.at(i).name.c_str());
         }
     }
+}
+
+void SynthDTest::test_filter_selfOscillation_shouldMatchCutoffAt48kHz()
+{
+    const float cutoffKnob = static_cast<float>(std::log(1000.0 / Voice::LowestCutoffHz) / std::log(Voice::HighestCutoffHz / Voice::LowestCutoffHz));
+    for (const uint8_t factor : { uint8_t { 1 }, uint8_t { 2 }, uint8_t { 4 } }) {
+        auto device = exactDevice();
+        device->setChoice(Xml::xmlKeyVco1On(), 0);
+        device->setChoice(Xml::xmlKeyKeyboardControl1(), 0);
+        device->setChoice(Xml::xmlKeyKeyboardControl2(), 0);
+        device->setKnob(Xml::xmlKeyEnvMod(), 0.0f);
+        device->setKnob(Xml::xmlKeyResonance(), 1.0f);
+        device->setKnob(Xml::xmlKeyCutoff(), cutoffKnob);
+        device->processMidiNoteOn(60, 100);
+        Stereo out;
+        render(*device, 1.5, out, factor);
+        const auto mono = out.mono();
+        QVERIFY2(db(rms(mono, 0.8, 1.5)) > -40.0, qPrintable(QString { "%1x level %2" }.arg(factor).arg(db(rms(mono, 0.8, 1.5)))));
+        const double hz = peakHz(mono, 1000.0, 0.8, 1.5);
+        QVERIFY2(std::abs(cents(hz, 1000.0)) < 25.0, qPrintable(QString { "%1x self-osc %2 Hz" }.arg(factor).arg(hz)));
+    }
+}
+
+void SynthDTest::test_oversampleFactor_1x2x4x_shouldMatchPitchAndLevel()
+{
+    double sawBaselineDb = 0.0;
+    for (const uint8_t factor : { uint8_t { 1 }, uint8_t { 2 }, uint8_t { 4 } }) {
+        auto device = exactDevice();
+        device->setKnob(Xml::xmlKeyCutoff(), 0.9f);
+        device->processMidiNoteOn(69, 100);
+        Stereo out;
+        render(*device, 0.6, out, factor);
+        const auto mono = out.mono();
+        const double hz = peakHz(mono, 440.0, 0.1, 0.6);
+        QVERIFY2(std::abs(cents(hz, 440.0)) < 3.0, qPrintable(QString { "%1x saw %2 Hz" }.arg(factor).arg(hz)));
+        const double levelDb = db(rms(mono, 0.1, 0.6));
+        if (factor == 1) {
+            sawBaselineDb = levelDb;
+        } else {
+            QVERIFY2(std::abs(levelDb - sawBaselineDb) < 1.5, qPrintable(QString { "%1x saw level %2 vs %3" }.arg(factor).arg(levelDb).arg(sawBaselineDb)));
+        }
+    }
+
+    for (const int colour : { static_cast<int>(Voice::NoiseColour::White), static_cast<int>(Voice::NoiseColour::Pink) }) {
+        double noiseBaselineDb = 0.0;
+        for (const uint8_t factor : { uint8_t { 1 }, uint8_t { 2 }, uint8_t { 4 } }) {
+            auto device = exactDevice();
+            device->setChoice(Xml::xmlKeyVco1On(), 0);
+            device->setChoice(Xml::xmlKeyNoiseOn(), 1);
+            device->setKnob(Xml::xmlKeyNoiseLevel(), 1.0f);
+            device->setChoice(Xml::xmlKeyColor(), colour);
+            device->setKnob(Xml::xmlKeyCutoff(), 1.0f);
+            device->setKnob(Xml::xmlKeyEnvMod(), 0.0f);
+            device->processMidiNoteOn(60, 100);
+            Stereo out;
+            render(*device, 0.6, out, factor);
+            const double levelDb = db(rms(out.mono(), 0.1, 0.6));
+            if (factor == 1) {
+                noiseBaselineDb = levelDb;
+            } else {
+                QVERIFY2(std::abs(levelDb - noiseBaselineDb) < 1.5, qPrintable(QString { "colour %1 %2x noise level %3 vs %4" }.arg(colour).arg(factor).arg(levelDb).arg(noiseBaselineDb)));
+            }
+        }
+    }
+}
+
+void SynthDTest::test_osc3_audioRateModulation_shouldProduceCleanFmSidebands()
+{
+    const double osc3Hz = Voice::oscillatorHz(Voice::Range::Feet8, Voice::Osc3FixedNote);
+    const double sidebandHz = 440.0 + osc3Hz;
+
+    for (const uint8_t factor : { uint8_t { 2 }, uint8_t { 4 } }) {
+        // VCO audio-rate FM
+        {
+            auto device = exactDevice();
+            device->setChoice(Xml::xmlKeyVco1Waveform(), static_cast<int>(Voice::Waveform::Triangle));
+            device->setChoice(Xml::xmlKeyVco3Waveform(), static_cast<int>(Voice::Waveform::Triangle));
+            device->setChoice(Xml::xmlKeyVco3Range(), static_cast<int>(Voice::Range::Feet8));
+            device->setChoice(Xml::xmlKeyVco3KeyboardControl(), 0);
+            device->setChoice(Xml::xmlKeyModSource1(), static_cast<int>(Voice::ModSource1::Osc3));
+            device->setChoice(Xml::xmlKeyOscillatorModulation(), 1);
+            device->setKnob(Xml::xmlKeyModMix(), 0.0f);
+            device->setKnob(Xml::xmlKeyModDepth(), 0.6f);
+            device->setKnob(Xml::xmlKeyCutoff(), 0.9f);
+            device->processMidiNoteOn(69, 100);
+            Stereo out;
+            render(*device, 0.6, out, factor);
+            const auto mono = out.mono();
+            for (const double v : mono) {
+                QVERIFY(std::isfinite(v));
+                QVERIFY(std::abs(v) < 2.0);
+            }
+            const double carrier = magnitudeAtHz(mono, 440.0, 0.1, 0.6);
+            const double sideband = magnitudeAtHz(mono, sidebandHz, 0.1, 0.6);
+            const double floorMag = magnitudeAtHz(mono, 570.0, 0.1, 0.6);
+            QVERIFY2(db(sideband) > db(floorMag) + 20.0, qPrintable(QString { "%1x VCO FM sideband %2 vs floor %3" }.arg(factor).arg(db(sideband)).arg(db(floorMag))));
+            QVERIFY2(db(sideband) > db(carrier) - 20.0, qPrintable(QString { "%1x VCO FM sideband %2 vs carrier %3" }.arg(factor).arg(db(sideband)).arg(db(carrier))));
+        }
+
+        // Filter audio-rate FM
+        {
+            auto device = exactDevice();
+            device->setChoice(Xml::xmlKeyVco1Waveform(), static_cast<int>(Voice::Waveform::Saw));
+            device->setChoice(Xml::xmlKeyVco3Waveform(), static_cast<int>(Voice::Waveform::Triangle));
+            device->setChoice(Xml::xmlKeyVco3Range(), static_cast<int>(Voice::Range::Feet8));
+            device->setChoice(Xml::xmlKeyVco3KeyboardControl(), 0);
+            device->setChoice(Xml::xmlKeyModSource1(), static_cast<int>(Voice::ModSource1::Osc3));
+            device->setChoice(Xml::xmlKeyFilterModulation(), 1);
+            device->setKnob(Xml::xmlKeyModMix(), 0.0f);
+            device->setKnob(Xml::xmlKeyModDepth(), 0.7f);
+            device->setKnob(Xml::xmlKeyCutoff(), 0.55f);
+            device->setKnob(Xml::xmlKeyEnvMod(), 0.0f);
+            device->setKnob(Xml::xmlKeyResonance(), 0.4f);
+            device->processMidiNoteOn(69, 100);
+            Stereo out;
+            render(*device, 0.6, out, factor);
+            const auto mono = out.mono();
+            for (const double v : mono) {
+                QVERIFY(std::isfinite(v));
+                QVERIFY(std::abs(v) < 2.0);
+            }
+            const double sideband = magnitudeAtHz(mono, sidebandHz, 0.1, 0.6);
+            const double floorMag = magnitudeAtHz(mono, 570.0, 0.1, 0.6);
+            QVERIFY2(db(sideband) > db(floorMag) + 15.0, qPrintable(QString { "%1x Filter FM sideband %2 vs floor %3" }.arg(factor).arg(db(sideband)).arg(db(floorMag))));
+        }
+    }
+}
+
+void SynthDTest::test_osc3_loRange_keyboardControlOff_shouldSweepWideLfoRange()
+{
+    const auto measureHz = [](double frequency, double seconds) {
+        Voice voice;
+        voice.setSampleRate(SampleRate);
+        Voice::Settings settings {};
+        settings.oscillators[0].on = false;
+        settings.oscillators[1].on = false;
+        settings.oscillators[2].on = true;
+        settings.oscillators[2].range = Voice::Range::Lo;
+        settings.oscillators[2].waveform = Voice::Waveform::Square;
+        settings.oscillators[2].frequency = frequency;
+        settings.osc3KeyboardControl = false;
+        settings.cutoff = 1.0;
+        settings.contourAmount = 0.0;
+        settings.keyboardControl1 = false;
+        settings.keyboardControl2 = false;
+        settings.drift = 0.0;
+        settings.instability = 0.0;
+        settings.tolerance = 0.0;
+        voice.setSettings(settings);
+        voice.play(60, 1.0, true);
+
+        const auto warmup = static_cast<size_t>(0.1 * SampleRate);
+        const auto frames = static_cast<size_t>(seconds * SampleRate);
+        int crossings = 0;
+        bool below = false;
+        for (size_t i = 0; i < warmup + frames; i++) {
+            double left = 0.0;
+            double right = 0.0;
+            voice.process(left, right);
+            if (left < -0.2) {
+                below = true;
+            } else if (below && left > 0.2) {
+                if (i >= warmup) {
+                    crossings++;
+                }
+                below = false;
+            }
+        }
+        return static_cast<double>(crossings) / seconds;
+    };
+
+    const double lowHz = measureHz(-7.0, 24.0);
+    const double centerHz = measureHz(0.0, 4.0);
+    const double highHz = measureHz(7.0, 2.0);
+    const double expectedCenterHz = Voice::oscillatorHz(Voice::Range::Lo, Voice::Osc3FixedNote);
+
+    QVERIFY2(lowHz > 0.05 && lowHz < 0.25, qPrintable(QString::number(lowHz)));
+    QVERIFY2(std::abs(centerHz - expectedCenterHz) < 0.1 * expectedCenterHz, qPrintable(QString { "%1 vs %2" }.arg(centerHz).arg(expectedCenterHz)));
+    QVERIFY2(highHz > 25.0, qPrintable(QString::number(highHz)));
+}
+
+void SynthDTest::test_processAudio_whenInactive_shouldAdvanceLfoAndStaySilent()
+{
+    auto device = exactDevice();
+    QVERIFY(!device->hasActiveAudio());
+
+    std::vector<double> block(512 * 2);
+    float lowest = 1.0f;
+    float highest = -1.0f;
+    const int blocks = static_cast<int>(SampleRate / 512.0);
+    for (int i = 0; i < blocks; i++) {
+        std::ranges::fill(block, 0.0);
+        AudioContext context { .buffer = block, .frameCount = 512, .sampleRate = static_cast<uint32_t>(SampleRate), .oversampleFactor = 2 };
+        device->processAudio(context);
+        for (const double sample : block) {
+            QCOMPARE(sample, 0.0);
+        }
+        QCOMPARE(device->lfoLed(SynthDDevice::OverloadLed), -1.0f);
+        lowest = std::min(lowest, device->lfoLed(SynthDDevice::LfoLed));
+        highest = std::max(highest, device->lfoLed(SynthDDevice::LfoLed));
+    }
+    QVERIFY(lowest < -0.8f);
+    QVERIFY(highest > 0.8f);
 }
 
 } // namespace noteahead
