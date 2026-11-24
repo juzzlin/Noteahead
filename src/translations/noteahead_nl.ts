@@ -2241,6 +2241,22 @@
         <translation>De sends behouden hun niveau wat de fader ook doet, dus het apparaat wordt natter naarmate je het omlaag trekt.</translation>
     </message>
     <message>
+        <source>Gain Staging</source>
+        <translation>Gain staging</translation>
+    </message>
+    <message>
+        <source>Hold Stage in the Mixer while the device plays, and Gain moves until the loudest part reads at the gain staging target set in the settings. Trim puts this device above or below that target.</source>
+        <translation>Houd Afstemmen in de mixer ingedrukt terwijl het apparaat speelt, en Gain beweegt tot het luidste deel op het gain staging-doel uit de instellingen zit. Trim zet dit apparaat boven of onder dat doel.</translation>
+    </message>
+    <message>
+        <source>Measure:</source>
+        <translation>Meting:</translation>
+    </message>
+    <message>
+        <source>Trim (dB):</source>
+        <translation>Trim (dB):</translation>
+    </message>
+    <message>
         <source>MIDI Mappings</source>
         <translation>MIDI-toewijzingen</translation>
     </message>
@@ -8081,6 +8097,10 @@
         <translation>%1: %2</translation>
     </message>
     <message>
+        <source>Open the device dialog. Right-click for Device Settings.</source>
+        <translation>Open het apparaatvenster. Rechtsklik voor de apparaatinstellingen.</translation>
+    </message>
+    <message>
         <source>Gain</source>
         <translation>Gain</translation>
     </message>
@@ -8095,6 +8115,14 @@
     <message>
         <source>Width</source>
         <translation>Breedte</translation>
+    </message>
+    <message>
+        <source>Stage</source>
+        <translation>Afstemmen</translation>
+    </message>
+    <message>
+        <source>Hold while the device plays: Gain moves until the loudest part reads at the gain staging target</source>
+        <translation>Ingedrukt houden terwijl het apparaat speelt: Gain beweegt tot het luidste deel op het gain staging-doel zit</translation>
     </message>
     <message>
         <source>IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.</source>
@@ -8123,10 +8151,6 @@
     <message>
         <source>Reset every clip indicator in the mixer</source>
         <translation>Reset alle clip-indicatoren in de mixer</translation>
-    </message>
-    <message>
-        <source>Open the device dialog</source>
-        <translation>Open het apparaatvenster</translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -12153,6 +12177,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Waar de markering staat op de niveaumeters van het apparatenrek, oftewel het niveau dat een goed uitgestuurd apparaat zou moeten aangeven. Gebruikelijke keuzes zijn -18 (EBU R128), -20 (SMPTE), -14 en -12.</translation>
     </message>
     <message>
+        <source>Gain staging speed (%):</source>
+        <translation>Gain staging-snelheid (%):</translation>
+    </message>
+    <message>
+        <source>How much of the way to the target Gain moves every tenth of a second while Stage is held in the Mixer. Above about 30 it can overshoot.</source>
+        <translation>Welk deel van de weg naar het doel Gain elke tiende seconde aflegt terwijl Afstemmen in de mixer ingedrukt is. Boven ongeveer 30 kan het doorschieten.</translation>
+    </message>
+    <message>
         <source>Session Timer</source>
         <translation>Sessietimer</translation>
     </message>
@@ -13474,6 +13506,291 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Vibrato Depth</source>
         <translation>Vibratodiepte</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog</name>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Resetten</translation>
+    </message>
+    <message>
+        <source>Restore every control to its factory default, the phrase included.</source>
+        <translation type="unfinished">Zet alle regelaars terug op hun fabrieksinstelling, inclusief de frase.</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Globaal</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panning</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Velocity-gevoeligheid</translation>
+    </message>
+    <message>
+        <source>How much the note&apos;s velocity scales the level. At zero every note speaks at full level.</source>
+        <translation type="unfinished">Hoeveel de velocity van de noot het niveau schaalt. Op nul spreekt elke noot op vol niveau.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF-cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF-cutoff</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Phrase</name>
+    <message>
+        <source>Phrase</source>
+        <translation type="unfinished">Frase</translation>
+    </message>
+    <message>
+        <source>Type what it should say</source>
+        <translation type="unfinished">Typ wat het moet zeggen</translation>
+    </message>
+    <message>
+        <source>Anything between slashes is read as literal phonemes: hello /w er l d/
+An apostrophe marks the stressed syllable: A&apos;merica</source>
+        <translation type="unfinished">Alles tussen schuine strepen wordt als letterlijke fonemen gelezen: hello /w er l d/
+Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
+    </message>
+    <message>
+        <source>Phonemes</source>
+        <translation type="unfinished">Fonemen</translation>
+    </message>
+    <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 syllable(s)</source>
+        <translation type="unfinished">%1 lettergreep/-grepen</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Timing</name>
+    <message>
+        <source>Timing</source>
+        <translation type="unfinished">Timing</translation>
+    </message>
+    <message>
+        <source>Trigger</source>
+        <translation type="unfinished">Trigger</translation>
+    </message>
+    <message>
+        <source>Phrase</source>
+        <translation type="unfinished">Frase</translation>
+    </message>
+    <message>
+        <source>Step</source>
+        <translation type="unfinished">Stap</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation type="unfinished">Regel</translation>
+    </message>
+    <message>
+        <source>A note speaks the whole phrase.</source>
+        <translation type="unfinished">Eén noot spreekt de hele frase uit.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next syllable.</source>
+        <translation type="unfinished">Eén noot spreekt de volgende lettergreep uit.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sync</translation>
+    </message>
+    <message>
+        <source>Free</source>
+        <translation type="unfinished">Vrij</translation>
+    </message>
+    <message>
+        <source>Fit</source>
+        <translation type="unfinished">Passend</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation type="unfinished">Raster</translation>
+    </message>
+    <message>
+        <source>Natural durations, set by Rate.</source>
+        <translation type="unfinished">Natuurlijke duren, bepaald door Rate.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The phrase is stretched to span Length.</source>
+        <translation type="unfinished">De frase wordt uitgerekt tot Length.</translation>
+    </message>
+    <message>
+        <source>Each syllable takes one Division.</source>
+        <translation type="unfinished">Elke lettergreep neemt één Division in.</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Snelheid</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">Portamento</translation>
+    </message>
+    <message>
+        <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length (1/16 steps)</source>
+        <translation type="unfinished">Lengte (1/16-stappen)</translation>
+    </message>
+    <message>
+        <source>Division (1/16 steps)</source>
+        <translation type="unfinished">Divisie (1/16-stappen)</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Voice</name>
+    <message>
+        <source>Voice</source>
+        <translation type="unfinished">Stem</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Male</source>
+        <translation type="unfinished">Mannelijk</translation>
+    </message>
+    <message>
+        <source>Female</source>
+        <translation type="unfinished">Vrouwelijk</translation>
+    </message>
+    <message>
+        <source>Child</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Breathy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Giant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alien</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monster</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Formant Shift</source>
+        <translation type="unfinished">Formantverschuiving</translation>
+    </message>
+    <message>
+        <source>Vocal tract length. Up reads as a smaller speaker.</source>
+        <translation type="unfinished">Lengte van het spraakkanaal. Omhoog klinkt als een kleinere spreker.</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation type="unfinished">Glide</translation>
+    </message>
+    <message>
+        <source>How long a formant takes to reach its target. Short is robotic, long is slurred.</source>
+        <translation type="unfinished">Hoe lang een formant erover doet om zijn doel te bereiken. Kort klinkt robotachtig, lang klinkt uitgesmeerd.</translation>
+    </message>
+    <message>
+        <source>Consonants</source>
+        <translation type="unfinished">Medeklinkers</translation>
+    </message>
+    <message>
+        <source>Level of everything that is not a vowel.</source>
+        <translation type="unfinished">Niveau van alles wat geen klinker is.</translation>
+    </message>
+    <message>
+        <source>Sibilance</source>
+        <translation type="unfinished">Sisklanken</translation>
+    </message>
+    <message>
+        <source>How loud and how bright the s-sounds are. Half way is what the phoneme table asks for.</source>
+        <translation type="unfinished">Hoe luid en hoe helder de s-klanken zijn. De middenstand is wat de fonemetabel vraagt.</translation>
+    </message>
+    <message>
+        <source>Breathiness</source>
+        <translation type="unfinished">Ademigheid</translation>
+    </message>
+    <message>
+        <source>Openness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Intonation</source>
+        <translation type="unfinished">Intonatie</translation>
+    </message>
+    <message>
+        <source>How far the pitch falls across a phrase. At zero every phrase is a monotone.</source>
+        <translation type="unfinished">Hoe ver de toonhoogte over een frase heen daalt. Op nul is elke frase monotoon.</translation>
+    </message>
+    <message>
+        <source>Vibrato Rate</source>
+        <translation type="unfinished">Vibratosnelheid</translation>
+    </message>
+    <message>
+        <source>Vibrato Depth</source>
+        <translation type="unfinished">Vibratodiepte</translation>
     </message>
 </context>
 <context>

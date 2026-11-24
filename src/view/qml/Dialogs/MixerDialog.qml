@@ -32,7 +32,13 @@ AnimatedDialog {
     height: parent ? parent.height * Constants.largeDialogScale : 640
 
     // The level taps are a no-op until switched on, so they only run while the mixer is on screen.
-    onVisibleChanged: deviceMetersController.setMetersActive(visible)
+    onVisibleChanged: {
+        deviceMetersController.setMetersActive(visible);
+        // Gain Stage only runs under a held button, and a closed dialog holds nothing
+        if (!visible) {
+            deviceMixerController.stopGainStaging();
+        }
+    }
 
     readonly property int populatedCount: {
         deviceRackController.revision;
@@ -226,14 +232,21 @@ AnimatedDialog {
 
                                 ToolTip.visible: nameArea.containsMouse
                                 ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.text: qsTr("Open the device dialog")
+                                ToolTip.text: qsTr("Open the device dialog. Right-click for Device Settings.")
 
                                 MouseArea {
                                     id: nameArea
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
-                                    onClicked: deviceRackController.openDevice(slotIndex)
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    onClicked: mouse => {
+                                        if (mouse.button === Qt.RightButton) {
+                                            UiService.requestDeviceSettingsDialog(strip.deviceName);
+                                        } else {
+                                            deviceRackController.openDevice(slotIndex);
+                                        }
+                                    }
                                 }
                             }
 
@@ -313,17 +326,39 @@ AnimatedDialog {
                                     Layout.alignment: Qt.AlignVCenter
                                 }
 
-                                LevelMeterBar {
-                                    // The one thing here that reads better the longer it is, so it
-                                    // takes what the strip has spare -- up to the point where a
-                                    // level meter stops telling you anything more.
+                                // Gain Stage sits under the reading it stages against, which costs the
+                                // strip no width: at 1024 px the knobs have none left to give.
+                                ColumnLayout {
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 90
                                     Layout.maximumWidth: 180
                                     Layout.alignment: Qt.AlignVCenter
-                                    peakDb: strip.meterLevels.length ? strip.meterLevels[0] : -120
-                                    rmsDb: strip.meterLevels.length ? strip.meterLevels[1] : -120
-                                    markerDb: settingsService.gainStagingTargetDb
+                                    spacing: 4
+
+                                    LevelMeterBar {
+                                        // The one thing here that reads better the longer it is, so its
+                                        // column takes what the strip has spare -- up to the point where
+                                        // a level meter stops telling you anything more.
+                                        Layout.fillWidth: true
+                                        peakDb: strip.meterLevels.length ? strip.meterLevels[0] : -120
+                                        rmsDb: strip.meterLevels.length ? strip.meterLevels[1] : -120
+                                        // The device's own target: its trim moves it off the common one
+                                        markerDb: {
+                                            deviceRackController.revision;
+                                            return settingsService.gainStagingTargetDb + deviceMixerController.deviceGainStagingTrim(slotIndex);
+                                        }
+                                    }
+
+                                    AppButton {
+                                        text: qsTr("Stage")
+                                        font.pointSize: 8
+                                        Layout.preferredHeight: 20
+                                        Layout.fillWidth: true
+                                        highlighted: deviceMixerController.gainStagingSlot === slotIndex
+                                        toolTipText: qsTr("Hold while the device plays: Gain moves until the loudest part reads at the gain staging target")
+                                        onHoldStarted: deviceMixerController.startGainStaging(slotIndex)
+                                        onHoldEnded: deviceMixerController.stopGainStaging()
+                                    }
                                 }
 
                                 Text {

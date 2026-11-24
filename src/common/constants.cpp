@@ -3871,6 +3871,16 @@ QString xmlKeySendTap()
     return "sendTap";
 }
 
+QString xmlKeyGainStagingTrim()
+{
+    return "gainStagingTrim";
+}
+
+QString xmlKeyGainStagingMode()
+{
+    return "gainStagingMode";
+}
+
 QString xmlKeyCrossMod()
 {
     return "crossMod";

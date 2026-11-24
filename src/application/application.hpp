@@ -52,6 +52,7 @@ class DeviceRackController;
 class MidiMappingController;
 class SendController;
 class DeviceService;
+class GainStagingService;
 class PresetService;
 class PerformancePanelController;
 class PerformancePanelModel;
@@ -190,6 +191,7 @@ private:
     std::shared_ptr<AudioOverviewService> m_audioOverviewService;
     std::shared_ptr<AudioOverviewController> m_audioOverviewController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
+    std::shared_ptr<GainStagingService> m_gainStagingService;
     std::shared_ptr<DeviceMixerController> m_deviceMixerController;
     std::shared_ptr<DeviceMetersController> m_deviceMetersController;
     std::shared_ptr<MidiMappingController> m_midiMappingController;

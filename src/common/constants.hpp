@@ -187,6 +187,20 @@ constexpr int defaultGainStagingTargetDb()
     return -18;
 }
 
+//! Share of the distance to the gain staging target that each step of Gain Stage covers, in percent.
+//! A step is taken every gainStagingIntervalMs(); much faster than this overshoots, since the RMS
+//! reading it follows lags 300 ms behind.
+constexpr int defaultGainStagingSpeedPercent()
+{
+    return 20;
+}
+
+//! Interval of the steps Gain Stage takes while its button is held.
+constexpr int gainStagingIntervalMs()
+{
+    return 100;
+}
+
 //! Minutes without input or playback after which the session timer stops counting.
 constexpr int defaultIdleTimeoutMinutes()
 {
@@ -1103,6 +1117,8 @@ QString xmlKeyAxis();
 QString xmlKeyReturnTime();
 QString xmlKeyFaderPosition();
 QString xmlKeySendTap();
+QString xmlKeyGainStagingTrim();
+QString xmlKeyGainStagingMode();
 
 QString xmlKeyCrossMod();
 QString xmlKeyVco1Range();

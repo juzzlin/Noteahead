@@ -43,6 +43,10 @@ Button {
     // no width to give. Setting this is what makes the whole label readable on hover; the tooltip
     // is wired here rather than per button so a row costs one line each.
     property string toolTipText: ""
+    // A press-and-hold button listens to these: Button's own pressed and released never fire under
+    // the overlay. Ended also covers the grab being taken away, so a hold can never get stuck.
+    signal holdStarted
+    signal holdEnded
     ToolTip.delay: Constants.toolTipDelay
     ToolTip.timeout: Constants.toolTipTimeout
     ToolTip.visible: root.toolTipText !== "" && root.hovered
@@ -74,5 +78,8 @@ Button {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
+        onPressed: root.holdStarted()
+        onReleased: root.holdEnded()
+        onCanceled: root.holdEnded()
     }
 }

@@ -2242,6 +2242,22 @@
         <translation>Wysyłki zachowują swój poziom niezależnie od suwaka, więc urządzenie staje się bardziej mokre w miarę jego ściszania.</translation>
     </message>
     <message>
+        <source>Gain Staging</source>
+        <translation>Poziomy wzmocnienia</translation>
+    </message>
+    <message>
+        <source>Hold Stage in the Mixer while the device plays, and Gain moves until the loudest part reads at the gain staging target set in the settings. Trim puts this device above or below that target.</source>
+        <translation>Przytrzymaj Ustaw w mikserze, gdy urządzenie gra, a Gain będzie się przesuwać, aż najgłośniejszy fragment osiągnie docelowy poziom wzmocnienia ustawiony w ustawieniach. Trim ustawia to urządzenie powyżej lub poniżej tego poziomu.</translation>
+    </message>
+    <message>
+        <source>Measure:</source>
+        <translation>Pomiar:</translation>
+    </message>
+    <message>
+        <source>Trim (dB):</source>
+        <translation>Trim (dB):</translation>
+    </message>
+    <message>
         <source>MIDI Mappings</source>
         <translation>Mapowania MIDI</translation>
     </message>
@@ -8082,6 +8098,10 @@
         <translation>%1: %2</translation>
     </message>
     <message>
+        <source>Open the device dialog. Right-click for Device Settings.</source>
+        <translation>Otwórz okno urządzenia. Prawy przycisk otwiera ustawienia urządzenia.</translation>
+    </message>
+    <message>
         <source>Gain</source>
         <translation>Wzmocnienie</translation>
     </message>
@@ -8096,6 +8116,14 @@
     <message>
         <source>Width</source>
         <translation>Szerokość</translation>
+    </message>
+    <message>
+        <source>Stage</source>
+        <translation>Ustaw</translation>
+    </message>
+    <message>
+        <source>Hold while the device plays: Gain moves until the loudest part reads at the gain staging target</source>
+        <translation>Przytrzymaj, gdy urządzenie gra: Gain przesuwa się, aż najgłośniejszy fragment osiągnie docelowy poziom wzmocnienia</translation>
     </message>
     <message>
         <source>IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.</source>
@@ -8124,10 +8152,6 @@
     <message>
         <source>Reset every clip indicator in the mixer</source>
         <translation>Wyzeruj wszystkie wskaźniki przesterowania w mikserze</translation>
-    </message>
-    <message>
-        <source>Open the device dialog</source>
-        <translation>Otwórz okno urządzenia</translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -12155,6 +12179,14 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <translation>Gdzie znajduje się znacznik na miernikach racka urządzeń, czyli poziom, jaki powinno wskazywać prawidłowo wysterowane urządzenie. Typowe wartości to -18 (EBU R128), -20 (SMPTE), -14 i -12.</translation>
     </message>
     <message>
+        <source>Gain staging speed (%):</source>
+        <translation>Szybkość ustawiania wzmocnienia (%):</translation>
+    </message>
+    <message>
+        <source>How much of the way to the target Gain moves every tenth of a second while Stage is held in the Mixer. Above about 30 it can overshoot.</source>
+        <translation>Jaką część drogi do celu Gain pokonuje co dziesiątą część sekundy, gdy Ustaw jest przytrzymany w mikserze. Powyżej około 30 może przestrzelić.</translation>
+    </message>
+    <message>
         <source>Session Timer</source>
         <translation>Licznik sesji</translation>
     </message>
@@ -13476,6 +13508,291 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Vibrato Depth</source>
         <translation>Głębokość vibrato</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog</name>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Resetuj</translation>
+    </message>
+    <message>
+        <source>Restore every control to its factory default, the phrase included.</source>
+        <translation type="unfinished">Przywraca wszystkie regulatory do ustawień fabrycznych, łącznie z frazą.</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Suwak</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Czułość velocity</translation>
+    </message>
+    <message>
+        <source>How much the note&apos;s velocity scales the level. At zero every note speaks at full level.</source>
+        <translation type="unfinished">Jak mocno velocity nuty skaluje poziom. Przy zerze każda nuta mówi na pełnym poziomie.</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Phrase</name>
+    <message>
+        <source>Phrase</source>
+        <translation type="unfinished">Fraza</translation>
+    </message>
+    <message>
+        <source>Type what it should say</source>
+        <translation type="unfinished">Wpisz, co ma powiedzieć</translation>
+    </message>
+    <message>
+        <source>Anything between slashes is read as literal phonemes: hello /w er l d/
+An apostrophe marks the stressed syllable: A&apos;merica</source>
+        <translation type="unfinished">Wszystko między ukośnikami jest czytane jako dosłowne fonemy: hello /w er l d/
+Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
+    </message>
+    <message>
+        <source>Phonemes</source>
+        <translation type="unfinished">Fonemy</translation>
+    </message>
+    <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 syllable(s)</source>
+        <translation type="unfinished">%1 sylab(y)</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Timing</name>
+    <message>
+        <source>Timing</source>
+        <translation type="unfinished">Timing</translation>
+    </message>
+    <message>
+        <source>Trigger</source>
+        <translation type="unfinished">Wyzwalacz</translation>
+    </message>
+    <message>
+        <source>Phrase</source>
+        <translation type="unfinished">Fraza</translation>
+    </message>
+    <message>
+        <source>Step</source>
+        <translation type="unfinished">Krok</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation type="unfinished">Wiersz</translation>
+    </message>
+    <message>
+        <source>A note speaks the whole phrase.</source>
+        <translation type="unfinished">Jedna nuta wypowiada całą frazę.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next syllable.</source>
+        <translation type="unfinished">Jedna nuta wypowiada następną sylabę.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sync</translation>
+    </message>
+    <message>
+        <source>Free</source>
+        <translation type="unfinished">Swobodny</translation>
+    </message>
+    <message>
+        <source>Fit</source>
+        <translation type="unfinished">Dopasuj</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation type="unfinished">Siatka</translation>
+    </message>
+    <message>
+        <source>Natural durations, set by Rate.</source>
+        <translation type="unfinished">Naturalne czasy trwania, określone przez Rate.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The phrase is stretched to span Length.</source>
+        <translation type="unfinished">Fraza jest rozciągana na długość Length.</translation>
+    </message>
+    <message>
+        <source>Each syllable takes one Division.</source>
+        <translation type="unfinished">Każda sylaba zajmuje jedną Division.</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Szybkość</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">Portamento</translation>
+    </message>
+    <message>
+        <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length (1/16 steps)</source>
+        <translation type="unfinished">Długość (kroki 1/16)</translation>
+    </message>
+    <message>
+        <source>Division (1/16 steps)</source>
+        <translation type="unfinished">Podział (kroki 1/16)</translation>
+    </message>
+</context>
+<context>
+    <name>SpeechV2Dialog_Voice</name>
+    <message>
+        <source>Voice</source>
+        <translation type="unfinished">Głos</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Male</source>
+        <translation type="unfinished">Męski</translation>
+    </message>
+    <message>
+        <source>Female</source>
+        <translation type="unfinished">Żeński</translation>
+    </message>
+    <message>
+        <source>Child</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Breathy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Giant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alien</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monster</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Formant Shift</source>
+        <translation type="unfinished">Przesunięcie formantów</translation>
+    </message>
+    <message>
+        <source>Vocal tract length. Up reads as a smaller speaker.</source>
+        <translation type="unfinished">Długość traktu głosowego. W górę brzmi jak mniejszy mówca.</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation type="unfinished">Glide</translation>
+    </message>
+    <message>
+        <source>How long a formant takes to reach its target. Short is robotic, long is slurred.</source>
+        <translation type="unfinished">Jak długo formant dochodzi do wartości docelowej. Krótko brzmi robotycznie, długo — bełkotliwie.</translation>
+    </message>
+    <message>
+        <source>Consonants</source>
+        <translation type="unfinished">Spółgłoski</translation>
+    </message>
+    <message>
+        <source>Level of everything that is not a vowel.</source>
+        <translation type="unfinished">Poziom wszystkiego, co nie jest samogłoską.</translation>
+    </message>
+    <message>
+        <source>Sibilance</source>
+        <translation type="unfinished">Sybilanty</translation>
+    </message>
+    <message>
+        <source>How loud and how bright the s-sounds are. Half way is what the phoneme table asks for.</source>
+        <translation type="unfinished">Jak głośne i jasne są głoski „s”. Środek to wartość, o którą prosi tablica fonemów.</translation>
+    </message>
+    <message>
+        <source>Breathiness</source>
+        <translation type="unfinished">Oddechowość</translation>
+    </message>
+    <message>
+        <source>Openness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Intonation</source>
+        <translation type="unfinished">Intonacja</translation>
+    </message>
+    <message>
+        <source>How far the pitch falls across a phrase. At zero every phrase is a monotone.</source>
+        <translation type="unfinished">O ile opada wysokość dźwięku w obrębie frazy. Przy zerze każda fraza jest monotonna.</translation>
+    </message>
+    <message>
+        <source>Vibrato Rate</source>
+        <translation type="unfinished">Szybkość vibrato</translation>
+    </message>
+    <message>
+        <source>Vibrato Depth</source>
+        <translation type="unfinished">Głębokość vibrato</translation>
     </message>
 </context>
 <context>

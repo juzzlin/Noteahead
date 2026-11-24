@@ -38,6 +38,7 @@ const auto automationDisplayModeKey = "automationDisplayMode";
 const auto mixerOutputMeterViewKey = "mixerOutputMeterView";
 const auto automationCurveThicknessTenthsKey = "automationCurveThicknessTenths";
 const auto gainStagingTargetDbKey = "gainStagingTargetDb";
+const auto gainStagingSpeedPercentKey = "gainStagingSpeedPercent";
 const auto idleTimeoutMinutesKey = "idleTimeoutMinutes";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
@@ -806,6 +807,23 @@ void setGainStagingTargetDb(int gainStagingTargetDb)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(gainStagingTargetDbKey, gainStagingTargetDb);
+    settings.endGroup();
+}
+
+int gainStagingSpeedPercent(int defaultGainStagingSpeedPercent)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto speedPercent = settings.value(gainStagingSpeedPercentKey, defaultGainStagingSpeedPercent).toInt();
+    settings.endGroup();
+    return speedPercent;
+}
+
+void setGainStagingSpeedPercent(int gainStagingSpeedPercent)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(gainStagingSpeedPercentKey, gainStagingSpeedPercent);
     settings.endGroup();
 }
 

@@ -17,16 +17,19 @@
 
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/gain_staging_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 
 namespace noteahead {
 
-DeviceMixerController::DeviceMixerController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
+DeviceMixerController::DeviceMixerController(DeviceServiceS deviceService, EditorServiceS editorService, GainStagingServiceS gainStagingService, QObject * parent)
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
   , m_editorService { std::move(editorService) }
+  , m_gainStagingService { std::move(gainStagingService) }
 {
+    connect(m_gainStagingService.get(), &GainStagingService::activeSlotChanged, this, &DeviceMixerController::gainStagingSlotChanged);
 }
 
 DeviceMixerController::~DeviceMixerController() = default;
@@ -115,6 +118,54 @@ void DeviceMixerController::setDeviceSendTap(int slotIndex, int value)
 {
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
         device->setSendTap(static_cast<Device::SendTap>(value));
+        m_editorService->setIsModified(true);
+    }
+}
+
+void DeviceMixerController::startGainStaging(int slotIndex)
+{
+    if (slotIndex >= 0) {
+        m_gainStagingService->start(static_cast<size_t>(slotIndex));
+    }
+}
+
+void DeviceMixerController::stopGainStaging()
+{
+    if (m_gainStagingService->stop()) {
+        m_editorService->setIsModified(true);
+    }
+}
+
+int DeviceMixerController::gainStagingSlot() const
+{
+    const auto slot = m_gainStagingService->activeSlot();
+    return slot ? static_cast<int>(*slot) : -1;
+}
+
+double DeviceMixerController::deviceGainStagingTrim(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? device->gainStagingTrimDb() : 0.0;
+}
+
+void DeviceMixerController::setDeviceGainStagingTrim(int slotIndex, double trimDb)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setGainStagingTrimDb(trimDb);
+        m_editorService->setIsModified(true);
+    }
+}
+
+int DeviceMixerController::deviceGainStagingMode(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? static_cast<int>(device->gainStagingMode()) : static_cast<int>(Device::GainStagingMode::Peak);
+}
+
+void DeviceMixerController::setDeviceGainStagingMode(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setGainStagingMode(value ? Device::GainStagingMode::Rms : Device::GainStagingMode::Peak);
         m_editorService->setIsModified(true);
     }
 }

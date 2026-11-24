@@ -184,7 +184,8 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     device->applyWidth(audioContext);
 
     // Level tap for gain staging: post-gain and pre-insert, the level the Gain knob is set against.
-    device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+    // Given the gain as well, so that the staging latches can refer the level to before it.
+    device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate, device->linearGain());
 
     // Where the fader sits relative to the insert rack is per-device. Pre-inserts is how devices
     // behaved before the setting existed and stays the default; post-inserts is the gain-staging

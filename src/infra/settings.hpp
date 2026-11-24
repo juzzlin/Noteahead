@@ -147,6 +147,8 @@ void setPlaybackOversampleFactor(int factor);
 
 int gainStagingTargetDb(int defaultGainStagingTargetDb);
 void setGainStagingTargetDb(int gainStagingTargetDb);
+int gainStagingSpeedPercent(int defaultGainStagingSpeedPercent);
+void setGainStagingSpeedPercent(int gainStagingSpeedPercent);
 
 int idleTimeoutMinutes(int defaultIdleTimeoutMinutes);
 void setIdleTimeoutMinutes(int idleTimeoutMinutes);

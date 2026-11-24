@@ -226,7 +226,7 @@ SectionBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 2
-                rows: 1
+                rows: 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
@@ -255,6 +255,33 @@ SectionBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.")
                     onValueModified: settingsService.gainStagingTargetDb = value
+                }
+                Label {
+                    text: qsTr("Gain staging speed (%):")
+                    Layout.column: 0
+                    Layout.columnSpan: 1
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+                SpinBox {
+                    id: gainStagingSpeedSpinBox
+                    Layout.column: 1
+                    Layout.columnSpan: 1
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    from: 1
+                    to: 100
+                    stepSize: 5
+                    editable: true
+                    value: settingsService.gainStagingSpeedPercent
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("How much of the way to the target Gain moves every tenth of a second while Stage is held in the Mixer. Above about 30 it can overshoot.")
+                    onValueModified: settingsService.gainStagingSpeedPercent = value
                 }
             }
         }

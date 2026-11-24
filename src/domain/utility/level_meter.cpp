@@ -30,6 +30,15 @@ float toDecibels(float linear)
     return std::max(LevelMeter::MinimumDb, 20.0f * std::log10(linear));
 }
 
+//! Raises the latch to @p value. The reader clears it with exchange(), which a plain load and store
+//! here could undo.
+void raiseLatch(std::atomic<float> & latch, float value)
+{
+    float current = latch.load();
+    while (value > current && !latch.compare_exchange_weak(current, value)) {
+    }
+}
+
 } // namespace
 
 void LevelMeter::setActive(bool active)
@@ -45,7 +54,7 @@ bool LevelMeter::active() const
     return m_active.load();
 }
 
-void LevelMeter::write(const double * interleavedStereo, uint32_t frameCount, uint32_t sampleRate)
+void LevelMeter::write(const double * interleavedStereo, uint32_t frameCount, uint32_t sampleRate, float sourceGain)
 {
     if (!m_active.load() || !frameCount || !sampleRate) {
         return;
@@ -69,6 +78,20 @@ void LevelMeter::write(const double * interleavedStereo, uint32_t frameCount, ui
     const float smoothing = 1.0f - std::exp(-seconds / RmsWindowSeconds);
     const float meanSquare = m_meanSquare.load();
     m_meanSquare.store(meanSquare + smoothing * (bufferMeanSquare - meanSquare));
+
+    if (m_sourceRestartRequested.exchange(false)) {
+        m_sourceMeanSquare.store(0.0f);
+        m_sourcePeakLatch.store(0.0f);
+        m_sourceRmsLatch.store(0.0f);
+    }
+    if (sourceGain > 0.0f) {
+        const float inverseGain = 1.0f / sourceGain;
+        const float sourceMeanSquare = m_sourceMeanSquare.load();
+        const float newSourceMeanSquare = sourceMeanSquare + smoothing * (bufferMeanSquare * inverseGain * inverseGain - sourceMeanSquare);
+        m_sourceMeanSquare.store(newSourceMeanSquare);
+        raiseLatch(m_sourcePeakLatch, bufferPeak * inverseGain);
+        raiseLatch(m_sourceRmsLatch, std::sqrt(newSourceMeanSquare));
+    }
 }
 
 float LevelMeter::peakDb() const
@@ -81,10 +104,30 @@ float LevelMeter::rmsDb() const
     return toDecibels(std::sqrt(m_meanSquare.load()));
 }
 
+float LevelMeter::takeSourcePeakDb()
+{
+    return toDecibels(m_sourcePeakLatch.exchange(0.0f));
+}
+
+float LevelMeter::takeSourceRmsDb()
+{
+    return toDecibels(m_sourceRmsLatch.exchange(0.0f));
+}
+
+void LevelMeter::restartSource()
+{
+    m_sourcePeakLatch.store(0.0f);
+    m_sourceRmsLatch.store(0.0f);
+    m_sourceRestartRequested.store(true);
+}
+
 void LevelMeter::reset()
 {
     m_peak.store(0.0f);
     m_meanSquare.store(0.0f);
+    m_sourceMeanSquare.store(0.0f);
+    m_sourcePeakLatch.store(0.0f);
+    m_sourceRmsLatch.store(0.0f);
 }
 
 } // namespace noteahead

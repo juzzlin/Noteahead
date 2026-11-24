@@ -40,11 +40,24 @@ public:
     bool active() const;
 
     //! Audio-thread: fold one interleaved stereo buffer into the running levels. No-op when inactive.
-    void write(const double * interleavedStereo, uint32_t frameCount, uint32_t sampleRate);
+    //!
+    //! \param sourceGain The linear gain the buffer was already scaled by, which the source latches
+    //! below divide out again.
+    void write(const double * interleavedStereo, uint32_t frameCount, uint32_t sampleRate, float sourceGain = 1.0f);
 
     //! UI-thread: current levels in dBFS, clamped at MinimumDb.
     float peakDb() const;
     float rmsDb() const;
+
+    //! UI-thread: the loudest peak and RMS reading since the last call, referred to the signal before
+    //! the source gain, in dBFS; each call clears its latch. Gain staging reads these: a level taken
+    //! before the gain it adjusts does not move when the gain does, and a latch misses no transient
+    //! between two reads, as the falling peakDb() would.
+    float takeSourcePeakDb();
+    float takeSourceRmsDb();
+    //! UI-thread: forgets everything the source readings hold, the RMS window included, so that what
+    //! played before a gain staging session cannot leak into it. Takes effect from the next write().
+    void restartSource();
 
     void reset();
 
@@ -57,6 +70,13 @@ private:
     std::atomic<bool> m_active { false };
     std::atomic<float> m_peak { 0.0f };
     std::atomic<float> m_meanSquare { 0.0f };
+    //! The RMS reading with the source gain divided out, so a gain change does not smear into it
+    std::atomic<float> m_sourceMeanSquare { 0.0f };
+    std::atomic<float> m_sourcePeakLatch { 0.0f };
+    std::atomic<float> m_sourceRmsLatch { 0.0f };
+    //! Asks the audio thread to clear the source readings; clearing the window from the UI thread
+    //! could be undone by a write() in progress.
+    std::atomic<bool> m_sourceRestartRequested { false };
 };
 
 } // namespace noteahead

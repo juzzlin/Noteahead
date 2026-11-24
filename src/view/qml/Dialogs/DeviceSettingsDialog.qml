@@ -50,6 +50,8 @@ AnimatedDialog {
         root.slotIndex = deviceRackController.slotOfDevice(root.deviceName);
         faderPositionCombo.currentIndex = deviceMixerController.deviceFaderPosition(root.slotIndex);
         sendTapCombo.currentIndex = deviceMixerController.deviceSendTap(root.slotIndex);
+        gainStagingModeCombo.currentIndex = deviceMixerController.deviceGainStagingMode(root.slotIndex);
+        gainStagingTrimSpinBox.value = Math.round(deviceMixerController.deviceGainStagingTrim(root.slotIndex) * 10);
         root.learningRow = -1;
         root.mappingTargets = propertyService.midiMappingTargets(root.slotIndex);
         mappingsModel.clear();
@@ -187,6 +189,66 @@ AnimatedDialog {
                 Layout.fillWidth: true
                 Layout.leftMargin: 150
                 wrapMode: Text.WordWrap
+            }
+
+            SectionHeading {
+                text: qsTr("Gain Staging")
+                Layout.topMargin: 10
+            }
+
+            Label {
+                text: qsTr("Hold Stage in the Mixer while the device plays, and Gain moves until the loudest part reads at the gain staging target set in the settings. Trim puts this device above or below that target.")
+                font.pixelSize: 12
+                opacity: 0.7
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+
+                Label {
+                    text: qsTr("Measure:")
+                    Layout.preferredWidth: 140
+                }
+
+                ComboBox {
+                    id: gainStagingModeCombo
+                    // Not translated: unit names
+                    model: ["Peak", "RMS"]
+                    Layout.fillWidth: true
+                    onActivated: deviceMixerController.setDeviceGainStagingMode(root.slotIndex, currentIndex)
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+
+                Label {
+                    text: qsTr("Trim (dB):")
+                    Layout.preferredWidth: 140
+                }
+
+                // In tenths of a dB, as a SpinBox only counts in integers
+                SpinBox {
+                    id: gainStagingTrimSpinBox
+                    from: -60
+                    to: 60
+                    stepSize: 5
+                    editable: true
+                    Layout.fillWidth: true
+                    textFromValue: (value, locale) => Number(value / 10).toLocaleString(locale, "f", 1)
+                    valueFromText: (text, locale) => Math.round(Number.fromLocaleString(locale, text) * 10)
+                    validator: DoubleValidator {
+                        bottom: -6
+                        top: 6
+                        decimals: 1
+                    }
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: deviceMixerController.setDeviceGainStagingTrim(root.slotIndex, value / 10)
+                }
             }
 
             SectionHeading {

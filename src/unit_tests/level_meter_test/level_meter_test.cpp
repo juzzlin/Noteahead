@@ -139,6 +139,49 @@ void LevelMeterTest::test_setActive_false_shouldClearLevels()
     QVERIFY(!meter.active());
 }
 
+void LevelMeterTest::test_takeSourcePeakDb_shouldDivideOutTheGainAndClear()
+{
+    LevelMeter meter;
+    meter.setActive(true);
+    // A -12 dBFS source after +6 dB of gain
+    const double gain = std::pow(10.0, 6.0 / 20.0);
+    const auto samples = constantBuffer(std::pow(10.0, -12.0 / 20.0) * gain);
+    meter.write(samples.data(), FrameCount, SampleRate, static_cast<float>(gain));
+
+    QVERIFY(std::abs(meter.takeSourcePeakDb() + 12.0f) < 0.01f);
+    QCOMPARE(meter.takeSourcePeakDb(), LevelMeter::MinimumDb);
+}
+
+void LevelMeterTest::test_takeSourcePeakDb_shouldKeepTheLoudestPeakBetweenReads()
+{
+    LevelMeter meter;
+    meter.setActive(true);
+    // A short hit and then a long quiet stretch: the falling peakDb() would have let it go
+    feed(meter, constantBuffer(0.5), 1);
+    feed(meter, constantBuffer(0.01), 400);
+
+    QVERIFY(std::abs(meter.takeSourcePeakDb() - 20.0f * std::log10(0.5f)) < 0.01f);
+}
+
+void LevelMeterTest::test_takeSourceRmsDb_gainChange_shouldNotMoveTheReading()
+{
+    LevelMeter meter;
+    meter.setActive(true);
+    const double source = std::pow(10.0, -20.0 / 20.0);
+    for (int i = 0; i < 200; i++) {
+        const auto samples = constantBuffer(source * 2.0);
+        meter.write(samples.data(), FrameCount, SampleRate, 2.0f);
+    }
+    meter.takeSourceRmsDb();
+
+    // Gain falls by 12 dB: the source did not change, so neither may the reading
+    for (int i = 0; i < 5; i++) {
+        const auto samples = constantBuffer(source * 0.5);
+        meter.write(samples.data(), FrameCount, SampleRate, 0.5f);
+    }
+    QVERIFY2(std::abs(meter.takeSourceRmsDb() + 20.0f) < 0.05f, "source RMS moved with the gain");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LevelMeterTest)

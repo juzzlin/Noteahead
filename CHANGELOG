@@ -11,6 +11,8 @@ New features:
 
 * Limiter: factory presets, Init and user presets
 
+* Mixer: hold Stage on a strip while the device plays, and its Gain moves until the loudest part reads at the gain staging target; per-device Trim and Peak or RMS in Device Settings
+
 * Device Rack: slots can be reordered with Move Up and Move Down; a device keeps its slot number, so nothing routed to it changes
 
 Bug fixes:

@@ -30,6 +30,7 @@ set(HEADER_FILES
     service/audio_analysis_service.hpp
     service/audio_analysis_worker.hpp
     service/audio_overview_service.hpp
+    service/gain_staging_service.hpp
     service/audio_service.hpp
     service/drum_hit_preview.hpp
     service/dummy_audio_service.hpp
@@ -103,6 +104,7 @@ set(SOURCE_FILES
     service/audio_analysis_service.cpp
     service/audio_analysis_worker.cpp
     service/audio_overview_service.cpp
+    service/gain_staging_service.cpp
     service/audio_service.cpp
     service/drum_hit_preview.cpp
     service/dummy_audio_service.cpp

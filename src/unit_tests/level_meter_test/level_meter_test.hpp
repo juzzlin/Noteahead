@@ -32,6 +32,9 @@ private slots:
     void test_peak_shouldFallBackWhenSignalStops();
     void test_reset_shouldClearLevels();
     void test_setActive_false_shouldClearLevels();
+    void test_takeSourcePeakDb_shouldDivideOutTheGainAndClear();
+    void test_takeSourcePeakDb_shouldKeepTheLoudestPeakBetweenReads();
+    void test_takeSourceRmsDb_gainChange_shouldNotMoveTheReading();
 };
 
 } // namespace noteahead

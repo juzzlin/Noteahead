@@ -87,6 +87,7 @@
 #include "service/dummy_audio_service.hpp"
 #include "service/dummy_midi_service.hpp"
 #include "service/editor_service.hpp"
+#include "service/gain_staging_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
 #include "service/language_service.hpp"
@@ -185,7 +186,8 @@ Application::Application(int & argc, char ** argv)
   , m_audioOverviewService { std::make_shared<AudioOverviewService>(m_deviceService, m_editorService) }
   , m_audioOverviewController { std::make_shared<AudioOverviewController>(m_audioOverviewService, m_effectRackController) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginDialogModels(std::vector<DeviceDialogModel::DeviceDialogModelS> {}, m_pluginDeviceDialogModels), m_editorService) }
-  , m_deviceMixerController { std::make_shared<DeviceMixerController>(m_deviceService, m_editorService) }
+  , m_gainStagingService { std::make_shared<GainStagingService>(m_deviceService, m_settingsService) }
+  , m_deviceMixerController { std::make_shared<DeviceMixerController>(m_deviceService, m_editorService, m_gainStagingService) }
   , m_deviceMetersController { std::make_shared<DeviceMetersController>(m_deviceService, m_editorService) }
   , m_midiMappingController { std::make_shared<MidiMappingController>(m_deviceService, m_editorService) }
   , m_sendController { std::make_shared<SendController>(m_deviceService) }

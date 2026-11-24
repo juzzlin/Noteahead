@@ -96,6 +96,16 @@ public:
         PreFader = 1
     };
 
+    //! Which reading Gain Stage sets Gain against. Persisted as its ordinal: append only.
+    enum class GainStagingMode
+    {
+        Peak = 0,
+        Rms = 1
+    };
+
+    //! Range of the gain staging trim, in dB either way of the target.
+    static constexpr double GainStagingTrimRangeDb { 6.0 };
+
     Device();
     virtual ~Device() override = default;
 
@@ -331,6 +341,12 @@ public:
 
     SendTap sendTap() const;
     void setSendTap(SendTap tap);
+
+    //! How far from the gain staging target Gain Stage puts this device, in dB.
+    double gainStagingTrimDb() const;
+    void setGainStagingTrimDb(double trimDb);
+    GainStagingMode gainStagingMode() const;
+    void setGainStagingMode(GainStagingMode mode);
     //! Device slots whose direct contribution to the master this device takes over.
     //!
     //! A device that mixes other devices' outputs lists them here so the engine can suppress
@@ -525,6 +541,9 @@ public:
 
     float gain() const;
     virtual void setGain(float gain);
+    //! The linear gain Gain applies, as the audio thread reads it: what the engine tells the level
+    //! tap, so gain staging can refer the level to before Gain.
+    float linearGain() const;
 
     float pan() const;
     virtual void setPan(float pan);
@@ -667,6 +686,8 @@ private:
     // Manual settings for CC reset
     FaderPosition m_faderPosition { FaderPosition::PreInserts };
     SendTap m_sendTap { SendTap::PostFader };
+    double m_gainStagingTrimDb { 0.0 };
+    GainStagingMode m_gainStagingMode { GainStagingMode::Peak };
     EffectRack m_insertEffectRack;
     AudioScope m_scope;
     LevelMeter m_meter;

@@ -70,6 +70,9 @@ Device::Device()
     // back then — which carries neither key — loads and sounds exactly as it did.
     addParameter(Parameter { Constants::NahdXml::xmlKeyFaderPosition().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySendTap().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    // Gain staging's own settings, which only matter while Gain Stage is held: no trim, Peak
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGainStagingTrim().toStdString(), 0.5f, -600, 600, 0, 100, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGainStagingMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     // The channel strip every device has, so that a parameter automation can ride it like any
     // other control: in the units the Global section reads out in
@@ -780,6 +783,12 @@ void Device::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySendTap().toStdString()); p) {
         m_sendTap = p->get().xmlValue() ? SendTap::PreFader : SendTap::PostFader;
     }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyGainStagingTrim().toStdString()); p) {
+        m_gainStagingTrimDb = (static_cast<double>(p->get().value()) - 0.5) * 2.0 * GainStagingTrimRangeDb;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyGainStagingMode().toStdString()); p) {
+        m_gainStagingMode = p->get().xmlValue() ? GainStagingMode::Rms : GainStagingMode::Peak;
+    }
 }
 
 void Device::setContinuousParameterValue(const std::string & key, float value)
@@ -1162,6 +1171,29 @@ void Device::setSendTap(SendTap tap)
     setDiscreteParameterValue(Constants::NahdXml::xmlKeySendTap().toStdString(), static_cast<int>(tap));
 }
 
+double Device::gainStagingTrimDb() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_gainStagingTrimDb;
+}
+
+void Device::setGainStagingTrimDb(double trimDb)
+{
+    const double clamped = std::clamp(trimDb, -GainStagingTrimRangeDb, GainStagingTrimRangeDb);
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyGainStagingTrim().toStdString(), static_cast<float>(clamped / (2.0 * GainStagingTrimRangeDb) + 0.5));
+}
+
+Device::GainStagingMode Device::gainStagingMode() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_gainStagingMode;
+}
+
+void Device::setGainStagingMode(GainStagingMode mode)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyGainStagingMode().toStdString(), static_cast<int>(mode));
+}
+
 std::vector<size_t> Device::claimedOutputSlots() const
 {
     return {};
@@ -1222,6 +1254,8 @@ void Device::adoptChannelStripFrom(const Device & other)
     setWidth(other.width());
     setFaderPosition(other.faderPosition());
     setSendTap(other.sendTap());
+    setGainStagingTrimDb(other.gainStagingTrimDb());
+    setGainStagingMode(other.gainStagingMode());
 
     // The send count is fixed by the constructor and identical for every device, but take the
     // smaller of the two anyway so this can never write past either end.
@@ -1310,6 +1344,11 @@ float Device::gainInternal() const
 float Device::panInternal() const
 {
     return m_pan;
+}
+
+float Device::linearGain() const
+{
+    return m_linearGain;
 }
 
 float Device::linearGainInternal() const

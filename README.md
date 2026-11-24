@@ -217,6 +217,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Per-device Effect Sends for flexible mixing.
 - Mixer View
   - Every device side by side as channel strips, with the same Gain, Fader and Pan as the device's own dialog, its meter and clip LED, and shortcuts to the device, its insert rack and its sends.
+  - Gain Stage: hold it while a device plays and its Gain moves until the loudest part reads at the gain staging target, by Peak or RMS, with a per-device trim.
 - Song Overview
   - The whole song at a glance: a lane per track with its notes drawn as a piano roll, the play order running across them. A playhead follows the song and lights up each note it reaches with a circle sized by its velocity; clicking a note puts the editor on it.
 - Audio Overview

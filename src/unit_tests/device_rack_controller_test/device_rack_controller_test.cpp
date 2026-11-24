@@ -17,6 +17,8 @@
 
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/gain_staging_service.hpp"
+#include "../../application/service/settings_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -345,7 +347,7 @@ void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip(
 
     const auto editorService = std::make_shared<MockEditorService>();
     DeviceRackController controller { deviceService, {}, editorService };
-    DeviceMixerController mixer { deviceService, editorService };
+    DeviceMixerController mixer { deviceService, editorService, std::make_shared<GainStagingService>(deviceService, std::make_shared<SettingsService>()) };
 
     // Centre of the -30..+30 dB range, so a fresh Sub Mixer passes its group through untouched.
     QCOMPARE(mixer.deviceGain(0), 500);
@@ -375,7 +377,7 @@ void DeviceRackControllerTest::test_revision_burstOfChanges_shouldRefreshOncePer
     deviceService->setDevice(0, std::make_shared<SubMixerDevice>("Sub"));
     const auto editorService = std::make_shared<MockEditorService>();
     DeviceRackController controller { deviceService, {}, editorService };
-    DeviceMixerController mixer { deviceService, editorService };
+    DeviceMixerController mixer { deviceService, editorService, std::make_shared<GainStagingService>(deviceService, std::make_shared<SettingsService>()) };
     QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
 
     // As a knob drag does: many changes before the event loop gets a turn. Each refresh re-reads
@@ -754,7 +756,7 @@ void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughControl
 
     DeviceRackController controller { deviceService, {}, editorService };
 
-    DeviceMixerController mixer { deviceService, editorService };
+    DeviceMixerController mixer { deviceService, editorService, std::make_shared<GainStagingService>(deviceService, std::make_shared<SettingsService>()) };
 
     QCOMPARE(controller.slotOfDevice(QString::fromStdString(prefix + " 3")), 2);
     QCOMPARE(controller.slotOfDevice("No Such Device"), -1);

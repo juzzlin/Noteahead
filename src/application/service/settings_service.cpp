@@ -59,6 +59,7 @@ SettingsService::SettingsService()
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
   , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
+  , m_gainStagingSpeedPercent { Settings::gainStagingSpeedPercent(Constants::defaultGainStagingSpeedPercent()) }
   , m_idleTimeoutMinutes { std::clamp(Settings::idleTimeoutMinutes(Constants::defaultIdleTimeoutMinutes()), Constants::minIdleTimeoutMinutes(), Constants::maxIdleTimeoutMinutes()) }
   , m_mixerOutputMeterView { Settings::mixerOutputMeterView(Constants::defaultMixerOutputMeterView()) }
   , m_automationDisplayMode { Settings::automationDisplayMode(Constants::defaultAutomationDisplayMode()) }
@@ -533,6 +534,20 @@ void SettingsService::setGainStagingTargetDb(int targetDb)
         m_gainStagingTargetDb = targetDb;
         Settings::setGainStagingTargetDb(targetDb);
         emit gainStagingTargetDbChanged();
+    }
+}
+
+int SettingsService::gainStagingSpeedPercent() const
+{
+    return m_gainStagingSpeedPercent;
+}
+
+void SettingsService::setGainStagingSpeedPercent(int speedPercent)
+{
+    if (m_gainStagingSpeedPercent != speedPercent) {
+        m_gainStagingSpeedPercent = speedPercent;
+        Settings::setGainStagingSpeedPercent(speedPercent);
+        emit gainStagingSpeedPercentChanged();
     }
 }
 
