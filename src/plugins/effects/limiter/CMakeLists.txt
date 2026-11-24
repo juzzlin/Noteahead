@@ -2,6 +2,8 @@ noteahead_add_effect(
     DOMAIN_SOURCES
         limiter.cpp
         limiter.hpp
+        limiter_presets.cpp
+        limiter_presets.hpp
         limiter_registration.cpp
     VIEW_SOURCES
         limiter_dialog_model.cpp

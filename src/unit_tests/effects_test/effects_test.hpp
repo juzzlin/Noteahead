@@ -57,6 +57,8 @@ private slots:
     void test_limiterEffect_shouldLimitPeaksToCeiling();
     void test_limiterEffect_shouldBoostToCeiling();
     void test_limiterEffect_slidingWindow_shouldTrackPeaksAcrossWraps();
+    void test_limiterEffect_factoryPresets_shouldStartWithInitAndHaveUniqueNames();
+    void test_limiterEffect_masterLoudPreset_shouldBoostToItsCeiling();
     void test_endlessReverb_shouldProduceStableWetTail();
     void test_endlessReverb_mixZero_shouldPassDrySignal();
     void test_endlessReverb_freeze_shouldSustainTail();

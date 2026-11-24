@@ -15,6 +15,7 @@
 
 #include "limiter.hpp"
 #include "../../../domain/dsp/audio_context.hpp"
+#include "limiter_presets.hpp"
 
 #include "../../../common/constants.hpp"
 #include "../../../common/parameter_mapper.hpp"
@@ -162,6 +163,31 @@ void Limiter::reset()
 void Limiter::sync()
 {
     m_shouldUpdateBuffers = true;
+}
+
+float Limiter::thresholdPosition(double db)
+{
+    return static_cast<float>(std::clamp((db + 24.0) / 24.0, 0.0, 1.0));
+}
+
+float Limiter::ceilingPosition(double db)
+{
+    return static_cast<float>(std::clamp((db + 3.0) / 3.0, 0.0, 1.0));
+}
+
+float Limiter::releasePosition(double ms)
+{
+    return static_cast<float>(std::clamp(ParameterMapper::unmapExponential(ms, 1.0, 1000.0), 0.0, 1.0));
+}
+
+float Limiter::lookaheadPosition(double ms)
+{
+    return static_cast<float>(std::clamp(ms / 10.0, 0.0, 1.0));
+}
+
+const EffectPresetList & Limiter::factoryPresets() const
+{
+    return LimiterPresets::presets();
 }
 
 float Limiter::reductionDb() const

@@ -17,6 +17,7 @@
 #define LIMITER_HPP
 
 #include "../../../domain/effects/effect.hpp"
+#include "../../../domain/effects/effect_presets.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -32,6 +33,7 @@ public:
     std::string type() const override;
     std::string typeId() const override;
     std::vector<std::string> modulationPriority() const override;
+    const EffectPresetList & factoryPresets() const override;
 
     void processSample(double & left, double & right) override;
     void processBlock(AudioContext & context) override;
@@ -39,6 +41,11 @@ public:
     void sync() override;
 
     float reductionDb() const;
+
+    static float thresholdPosition(double db);
+    static float ceilingPosition(double db);
+    static float releasePosition(double ms);
+    static float lookaheadPosition(double ms);
 
 private:
     void updateBuffers();

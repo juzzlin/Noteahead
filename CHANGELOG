@@ -9,6 +9,8 @@ New features:
 
 * Compressor 76: feedback FET limiting amplifier with Blackface and Blue Stripe revisions, All-Buttons-In ratio, sidechain Low Cut and oversampled saturation
 
+* Limiter: factory presets, Init and user presets
+
 * Device Rack: slots can be reordered with Move Up and Move Down; a device keeps its slot number, so nothing routed to it changes
 
 Bug fixes:

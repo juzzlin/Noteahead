@@ -39,10 +39,12 @@
 
 #include <QTest>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <numbers>
 #include <random>
+#include <set>
 
 namespace noteahead {
 
@@ -1214,6 +1216,50 @@ void EffectsTest::test_limiterEffect_shouldBoostToCeiling()
     // Boost make-up brings -12dB up to the -0.3dB ceiling without gain reduction (signal sits at threshold).
     QVERIFY(std::abs(std::abs(left) - ceilingLin) < 1e-3);
     QVERIFY(std::abs(std::abs(right) - ceilingLin) < 1e-3);
+}
+
+void EffectsTest::test_limiterEffect_factoryPresets_shouldStartWithInitAndHaveUniqueNames()
+{
+    Limiter effect;
+    const auto & presets = effect.factoryPresets();
+    QVERIFY(presets.size() > 1);
+    QCOMPARE(presets.front().name, std::string { "Init" });
+
+    std::set<std::string> names;
+    for (size_t i = 0; i < presets.size(); i++) {
+        QVERIFY2(names.insert(presets[i].name).second, presets[i].name.c_str());
+        QVERIFY(effect.applyFactoryPreset(i));
+    }
+
+    // Init is the way back to the defaults
+    QVERIFY(effect.applyFactoryPreset(0));
+    for (const auto & [key, value] : presets.back().parameters) {
+        if (const auto p = effect.parameter(key); p) {
+            QCOMPARE(p->get().value(), p->get().defaultValue());
+        }
+    }
+}
+
+void EffectsTest::test_limiterEffect_masterLoudPreset_shouldBoostToItsCeiling()
+{
+    Limiter effect;
+    effect.setSampleRate(44100.0);
+    const auto & presets = effect.factoryPresets();
+    const auto preset = std::ranges::find_if(presets, [](const auto & p) { return p.name == "Master Loud"; });
+    QVERIFY(preset != presets.end());
+    QVERIFY(effect.applyFactoryPreset(static_cast<size_t>(std::distance(presets.begin(), preset))));
+    effect.sync();
+
+    // -14.5 dB threshold, -1.2 dB ceiling: a signal at the threshold comes out at the ceiling
+    const double val = Utils::Dsp::dbToLinear(-14.5f);
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 2000; i++) {
+        left = val;
+        right = val;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left - Utils::Dsp::dbToLinear(-1.2f)) < 1e-3);
 }
 
 void EffectsTest::test_endlessReverb_shouldProduceStableWetTail()
