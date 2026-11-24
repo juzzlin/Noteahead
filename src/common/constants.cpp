@@ -1442,6 +1442,11 @@ QString xmlKeySlot()
     return "slot";
 }
 
+QString xmlKeySlotOrder()
+{
+    return "slotOrder";
+}
+
 QString xmlKeyMembers()
 {
     return "Members";

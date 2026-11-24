@@ -565,6 +565,8 @@ QString xmlKeyNoteOff();
 QString xmlKeyNoteData();
 
 QString xmlKeySlot();
+//! Device slots in the order the rack draws them. Written only when they are not the plain 0..rackSize-1.
+QString xmlKeySlotOrder();
 QString xmlKeyMembers();
 QString xmlKeyMember();
 QString xmlKeyMidiMappings();

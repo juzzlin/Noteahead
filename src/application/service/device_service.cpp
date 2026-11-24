@@ -40,6 +40,7 @@
 
 #include <algorithm>
 #include <format>
+#include <numeric>
 #include <ranges>
 #include <set>
 
@@ -47,16 +48,70 @@ namespace noteahead {
 
 static const auto TAG = "DeviceService";
 
+static std::vector<size_t> defaultSlotOrder()
+{
+    std::vector<size_t> order(Constants::deviceRackSize());
+    std::iota(order.begin(), order.end(), size_t { 0 });
+    return order;
+}
+
 DeviceService::DeviceService(AudioEngineS audioEngine, DataServiceS dataService, QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
   , m_dataService { std::move(dataService) }
   , m_internalDevicePortPrefix { Constants::internalDevicePortPrefix() }
 {
+    m_slotOrder = defaultSlotOrder();
     m_deviceCache.resize(Constants::deviceRackSize());
 }
 
 DeviceService::~DeviceService() = default;
+
+size_t DeviceService::slotAt(size_t position) const
+{
+    return position < m_slotOrder.size() ? m_slotOrder.at(position) : position;
+}
+
+size_t DeviceService::positionOf(size_t slotIndex) const
+{
+    if (const auto it = std::ranges::find(m_slotOrder, slotIndex); it != m_slotOrder.end()) {
+        return static_cast<size_t>(std::distance(m_slotOrder.begin(), it));
+    }
+    return slotIndex;
+}
+
+void DeviceService::moveSlot(size_t slotIndex, size_t position)
+{
+    const auto from = positionOf(slotIndex);
+    if (slotIndex >= m_slotOrder.size() || position >= m_slotOrder.size() || from == position) {
+        return;
+    }
+    m_slotOrder.erase(m_slotOrder.begin() + static_cast<std::ptrdiff_t>(from));
+    m_slotOrder.insert(m_slotOrder.begin() + static_cast<std::ptrdiff_t>(position), slotIndex);
+    emit dataChanged();
+}
+
+void DeviceService::readSlotOrder(ProjectReader & reader)
+{
+    // Anything that is not a slot, or a slot already listed, is dropped, and whatever slot the list
+    // left out goes to the end: a damaged attribute, or one written for a smaller rack, can then
+    // only put slots in an odd place, never lose one.
+    m_slotOrder.clear();
+    if (const auto attribute = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeySlotOrder(), false); attribute.has_value()) {
+        for (auto && slotString : attribute->split(",", Qt::SkipEmptyParts)) {
+            bool converted = false;
+            const auto slotIndex = static_cast<size_t>(slotString.trimmed().toUInt(&converted));
+            if (converted && slotIndex < Constants::deviceRackSize() && std::ranges::find(m_slotOrder, slotIndex) == m_slotOrder.end()) {
+                m_slotOrder.push_back(slotIndex);
+            }
+        }
+    }
+    for (const auto slotIndex : defaultSlotOrder()) {
+        if (std::ranges::find(m_slotOrder, slotIndex) == m_slotOrder.end()) {
+            m_slotOrder.push_back(slotIndex);
+        }
+    }
+}
 
 void DeviceService::setDevice(size_t slotIndex, DeviceS device)
 {
@@ -809,6 +864,12 @@ void DeviceService::serializeToXml(ProjectWriter & writer)
     materializeEphemeralSamples();
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
+    // Absent on a rack that was never reordered, which also keeps such projects as they were
+    if (m_slotOrder != defaultSlotOrder()) {
+        QStringList slotStrings;
+        std::ranges::transform(m_slotOrder, std::back_inserter(slotStrings), [](auto && slotIndex) { return QString::number(slotIndex); });
+        writer.writeAttribute(Constants::NahdXml::xmlKeySlotOrder(), slotStrings.join(","));
+    }
 
     serializeDevices(writer);
     serializeMasterEffects(writer);
@@ -957,6 +1018,7 @@ float DeviceService::legacyPresetParameterValue(ProjectReader & reader, const st
 void DeviceService::deserializeFromXml(ProjectReader & reader)
 {
     m_unknownDevices.clear();
+    readSlotOrder(reader);
 
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
@@ -1177,6 +1239,7 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
 
 void DeviceService::reset()
 {
+    m_slotOrder = defaultSlotOrder();
     clearDeviceCache();
     m_audioEngine->clear();
     emit dataChanged();

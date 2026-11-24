@@ -303,6 +303,21 @@ void AudioOverviewServiceTest::test_emptyProject_shouldStillHaveAMaster()
     QCOMPARE(graph.rowCount, 1);
 }
 
+void AudioOverviewServiceTest::test_rows_movedSlots_shouldFollowTheRackOrder()
+{
+    Fixture fixture;
+    fixture.addDevice(0, "Internal 1");
+    fixture.addDevice(1, "Internal 2");
+    fixture.addDevice(4, "Internal 5");
+    fixture.deviceService->moveSlot(4, 0);
+
+    const auto graph = fixture.service->build();
+
+    QCOMPARE(nodeForSlot(graph, 4).row, 0);
+    QCOMPARE(nodeForSlot(graph, 0).row, 1);
+    QCOMPARE(nodeForSlot(graph, 1).row, 2);
+}
+
 void AudioOverviewServiceTest::test_controller_shouldResolveEffectNamesRegisteredByEitherKey()
 {
     Fixture fixture;

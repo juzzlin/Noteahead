@@ -136,44 +136,49 @@ AnimatedDialog {
                         radius: 5
                         border.color: Theme.borderStrong
 
+                        // In the Device Rack's order; everything below takes the slot
+                        readonly property int slotIndex: {
+                            deviceRackController.revision;
+                            return deviceRackController.slotAt(index);
+                        }
                         readonly property string deviceType: {
                             deviceRackController.revision;
-                            return deviceRackController.deviceType(index);
+                            return deviceRackController.deviceType(slotIndex);
                         }
                         readonly property bool producesAudio: {
                             deviceRackController.revision;
-                            return deviceRackController.deviceProducesAudio(index);
+                            return deviceRackController.deviceProducesAudio(slotIndex);
                         }
                         readonly property string deviceTypeName: {
                             deviceRackController.revision;
-                            return deviceRackController.deviceTypeName(index);
+                            return deviceRackController.deviceTypeName(slotIndex);
                         }
                         readonly property string displayName: {
                             deviceRackController.revision;
-                            return deviceRackController.deviceDisplayName(index);
+                            return deviceRackController.deviceDisplayName(slotIndex);
                         }
                         readonly property string deviceName: {
                             deviceRackController.revision;
-                            return deviceRackController.deviceName(index);
+                            return deviceRackController.deviceName(slotIndex);
                         }
                         readonly property string trackNames: {
                             deviceRackController.revision;
-                            return deviceRackController.trackNames(index);
+                            return deviceRackController.trackNames(slotIndex);
                         }
                         readonly property var meterLevels: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceMetersController.deviceMeterLevels(index);
+                            return deviceMetersController.deviceMeterLevels(slotIndex);
                         }
                         readonly property var outputMeters: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceMetersController.deviceOutputMeters(index);
+                            return deviceMetersController.deviceOutputMeters(slotIndex);
                         }
                         readonly property bool deviceClipped: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceMetersController.deviceClipped(index);
+                            return deviceMetersController.deviceClipped(slotIndex);
                         }
 
                         RowLayout {
@@ -202,7 +207,7 @@ AnimatedDialog {
 
                                     Text {
                                         // What it is, not the port name the tracks route to
-                                        text: qsTr("%1: %2").arg(index + 1).arg(strip.displayName)
+                                        text: qsTr("%1: %2").arg(slotIndex + 1).arg(strip.displayName)
                                         color: nameArea.containsMouse ? themeService.accentColor : "white"
                                         font.pointSize: 12
                                         font.bold: true
@@ -228,7 +233,7 @@ AnimatedDialog {
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
-                                    onClicked: deviceRackController.openDevice(index)
+                                    onClicked: deviceRackController.openDevice(slotIndex)
                                 }
                             }
 
@@ -244,9 +249,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceMixerController.deviceGain(index);
+                                    return deviceMixerController.deviceGain(slotIndex);
                                 }
-                                onMoved: v => deviceMixerController.setDeviceGain(index, v)
+                                onMoved: v => deviceMixerController.setDeviceGain(slotIndex, v)
                             }
 
                             Knob {
@@ -256,9 +261,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceMixerController.deviceVolume(index);
+                                    return deviceMixerController.deviceVolume(slotIndex);
                                 }
-                                onMoved: v => deviceMixerController.setDeviceVolume(index, v)
+                                onMoved: v => deviceMixerController.setDeviceVolume(slotIndex, v)
                             }
 
                             Knob {
@@ -268,9 +273,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceMixerController.devicePan(index);
+                                    return deviceMixerController.devicePan(slotIndex);
                                 }
-                                onMoved: v => deviceMixerController.setDevicePan(index, v)
+                                onMoved: v => deviceMixerController.setDevicePan(slotIndex, v)
                             }
 
                             Knob {
@@ -279,9 +284,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceMixerController.deviceWidth(index);
+                                    return deviceMixerController.deviceWidth(slotIndex);
                                 }
-                                onMoved: v => deviceMixerController.setDeviceWidth(index, v)
+                                onMoved: v => deviceMixerController.setDeviceWidth(slotIndex, v)
                             }
 
                             // Vertical Separator
@@ -349,7 +354,7 @@ AnimatedDialog {
                                     Layout.alignment: Qt.AlignVCenter
                                     clipped: strip.deviceClipped
                                     onClicked: {
-                                        deviceMetersController.clearDeviceClip(index);
+                                        deviceMetersController.clearDeviceClip(slotIndex);
                                         mainLayout.meterTick++;
                                     }
                                 }

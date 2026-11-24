@@ -2109,6 +2109,14 @@
         <translation>更换设备...</translation>
     </message>
     <message>
+        <source>Move Up</source>
+        <translation>上移</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>下移</translation>
+    </message>
+    <message>
         <source>Export Settings...</source>
         <translation>导出设置...</translation>
     </message>

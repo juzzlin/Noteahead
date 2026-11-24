@@ -2110,6 +2110,14 @@
         <translation>Vaihda laite...</translation>
     </message>
     <message>
+        <source>Move Up</source>
+        <translation>Siirrä ylös</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Siirrä alas</translation>
+    </message>
+    <message>
         <source>Export Settings...</source>
         <translation>Vie asetukset...</translation>
     </message>

@@ -29,6 +29,7 @@ private slots:
     void cleanupTestCase();
 
     void test_devices_shouldReturnDeviceNames();
+    void test_moveSlot_shouldReorderSlotAtAndKeepTheSlotsDevice();
     void test_trackNames_shouldReturnTrackNamesForDevice();
     void test_subMixerCandidates_shouldCarryTrackNames();
     void test_usageSummary_device_shouldReturnTrackNames();

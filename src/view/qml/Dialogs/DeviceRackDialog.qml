@@ -83,44 +83,50 @@ AnimatedDialog {
                 color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
                 border.color: Theme.borderStrong
+                // The rows are positions; the rack can draw its slots in any order, and everything
+                // below takes the slot.
+                readonly property int slotIndex: {
+                    deviceRackController.revision;
+                    return deviceRackController.slotAt(index);
+                }
                 readonly property string deviceType: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceType(index);
+                    return deviceRackController.deviceType(slotIndex);
                 }
                 readonly property bool producesAudio: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceProducesAudio(index);
+                    return deviceRackController.deviceProducesAudio(slotIndex);
                 }
                 readonly property string deviceTypeName: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceTypeName(index);
+                    return deviceRackController.deviceTypeName(slotIndex);
                 }
                 readonly property string displayName: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceDisplayName(index);
+                    return deviceRackController.deviceDisplayName(slotIndex);
                 }
                 readonly property string deviceName: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceName(index);
+                    return deviceRackController.deviceName(slotIndex);
                 }
                 readonly property string usageSummary: {
                     deviceRackController.revision;
-                    return deviceRackController.usageSummary(index);
+                    return deviceRackController.usageSummary(slotIndex);
                 }
                 readonly property var meterLevels: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceMetersController.deviceMeterLevels(index);
+                    return deviceMetersController.deviceMeterLevels(slotIndex);
                 }
                 readonly property real deviceLoad: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceMetersController.deviceLoad(index);
+                    return deviceMetersController.deviceLoad(slotIndex);
                 }
                 readonly property bool deviceClipped: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceMetersController.deviceClipped(index);
+                    return deviceMetersController.deviceClipped(slotIndex);
                 }
 
                 Menu {
@@ -128,16 +134,37 @@ AnimatedDialog {
                     delegate: MenuItemDelegate {}
                     MenuItem {
                         text: qsTr("Change Device...")
-                        onClicked: UiService.requestDeviceGalleryDialog(index)
+                        onClicked: UiService.requestDeviceGalleryDialog(slotIndex)
+                    }
+                    MenuSeparator {}
+                    // Only the drawing order changes: the slot keeps its number, and everything
+                    // routed to it stays routed to it.
+                    MenuItem {
+                        text: qsTr("Move Up")
+                        enabled: index > 0
+                        onClicked: {
+                            if (index > 0) {
+                                deviceRackController.moveSlot(slotIndex, index - 1);
+                            }
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Move Down")
+                        enabled: index < deviceRackController.deviceCount - 1
+                        onClicked: {
+                            if (index < deviceRackController.deviceCount - 1) {
+                                deviceRackController.moveSlot(slotIndex, index + 1);
+                            }
+                        }
                     }
                     MenuSeparator {}
                     MenuItem {
                         text: qsTr("Export Settings...")
-                        onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
+                        onClicked: UiService.requestExportDeviceSettings(slotIndex, deviceName, deviceTypeName)
                     }
                     MenuItem {
                         text: qsTr("Import Settings...")
-                        onClicked: UiService.requestImportDeviceSettings(index)
+                        onClicked: UiService.requestImportDeviceSettings(slotIndex)
                     }
                 }
                 MouseArea {
@@ -159,9 +186,9 @@ AnimatedDialog {
                         }
                         deviceListView.hoveredIndex = -1;
                         if (deviceType === "") {
-                            UiService.requestDeviceGalleryDialog(index);
+                            UiService.requestDeviceGalleryDialog(slotIndex);
                         } else {
-                            deviceRackController.openDevice(index);
+                            deviceRackController.openDevice(slotIndex);
                         }
                     }
                 }
@@ -171,7 +198,7 @@ AnimatedDialog {
                     spacing: 10
 
                     Text {
-                        text: deviceType === "" ? "" : qsTr("Slot %1: %2").arg(index + 1).arg(displayName)
+                        text: deviceType === "" ? "" : qsTr("Slot %1: %2").arg(slotIndex + 1).arg(displayName)
                         color: "white"
                         font.pointSize: 13
                         font.bold: deviceListView.hoveredIndex === index && root.activeFocus
@@ -226,7 +253,7 @@ AnimatedDialog {
                         visible: deviceType !== ""
                         clipped: deviceClipped
                         onClicked: {
-                            deviceMetersController.clearDeviceClip(index);
+                            deviceMetersController.clearDeviceClip(slotIndex);
                             deviceListView.meterTick++;
                         }
                     }
@@ -295,7 +322,7 @@ AnimatedDialog {
                             fillMode: Image.PreserveAspectFit
                             opacity: parent.hovered ? 1.0 : 0.6
                         }
-                        onClicked: deviceRackController.clearDevice(index)
+                        onClicked: deviceRackController.clearDevice(slotIndex)
                     }
                 }
             }

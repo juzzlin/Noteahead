@@ -98,7 +98,9 @@ AudioOverviewService::Graph AudioOverviewService::build() const
     // Node index by device slot, so edges can be resolved once every node exists.
     std::map<int, int> nodeBySlot;
 
-    for (int slot = 0; slot < slotCount; slot++) {
+    // In the Device Rack's order, which the rows below follow
+    for (int position = 0; position < slotCount; position++) {
+        const auto slot = static_cast<int>(m_deviceService->slotAt(static_cast<size_t>(position)));
         const auto device = m_deviceService->device(static_cast<size_t>(slot));
         if (!device) {
             continue;
@@ -243,7 +245,7 @@ AudioOverviewService::Graph AudioOverviewService::build() const
     }
     graph.nodes.at(static_cast<size_t>(masterNode)).column = deepest;
 
-    // Rows: sources first in slot order, then the send band, so that the sends read as the parallel
+    // Rows: sources first in rack order, then the send band, so that the sends read as the parallel
     // path they are rather than as another instrument.
     std::map<int, int> nextRowByColumn;
     for (auto & node : graph.nodes) {

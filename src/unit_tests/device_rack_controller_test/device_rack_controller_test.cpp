@@ -213,6 +213,22 @@ void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
     QCOMPARE(controller.data(controller.index(2), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString(""));
 }
 
+void DeviceRackControllerTest::test_moveSlot_shouldReorderSlotAtAndKeepTheSlotsDevice()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    deviceService->setDevice(2, std::make_shared<MockDevice>("Internal 3"));
+    DeviceRackController controller { deviceService, {}, nullptr };
+
+    controller.moveSlot(2, 0);
+
+    QCOMPARE(controller.slotAt(0), 2);
+    QCOMPARE(controller.slotAt(1), 0);
+    QCOMPARE(controller.positionOf(2), 0);
+    QCOMPARE(controller.deviceName(2), QString { "Internal 3" });
+    QCOMPARE(controller.slotOfDevice("Internal 3"), 2);
+}
+
 void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

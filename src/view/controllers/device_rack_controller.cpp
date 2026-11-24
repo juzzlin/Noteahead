@@ -190,6 +190,23 @@ void DeviceRackController::openDevice(int slotIndex)
     }
 }
 
+int DeviceRackController::slotAt(int position) const
+{
+    return position >= 0 ? static_cast<int>(m_deviceService->slotAt(static_cast<size_t>(position))) : position;
+}
+
+int DeviceRackController::positionOf(int slotIndex) const
+{
+    return slotIndex >= 0 ? static_cast<int>(m_deviceService->positionOf(static_cast<size_t>(slotIndex))) : slotIndex;
+}
+
+void DeviceRackController::moveSlot(int slotIndex, int position)
+{
+    if (slotIndex >= 0 && position >= 0) {
+        m_deviceService->moveSlot(static_cast<size_t>(slotIndex), static_cast<size_t>(position));
+    }
+}
+
 int DeviceRackController::slotOfDevice(const QString & deviceName) const
 {
     for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {

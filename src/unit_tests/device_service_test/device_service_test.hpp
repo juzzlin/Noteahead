@@ -88,6 +88,16 @@ private slots:
     void test_rankModulationParameters_groupedKeys_shouldMatchByWhatFollowsThePrefix();
     void test_modulationPriority_everyDevice_shouldNameItsOwnParameters();
     void test_resetAudio_everyDevice_shouldRenderTheSameAgain();
+
+    void test_slotAt_default_shouldBeTheSlotItself();
+    void test_moveSlot_up_shouldShiftTheSlotsInBetweenDown();
+    void test_moveSlot_down_shouldShiftTheSlotsInBetweenUp();
+    void test_moveSlot_shouldLeaveTheDevicesInTheirSlots();
+    void test_moveSlot_outOfRange_shouldChangeNothing();
+    void test_reset_movedSlots_shouldRestoreTheDefaultOrder();
+    void test_slotOrder_xml_shouldSurviveRoundTrip();
+    void test_slotOrder_xml_default_shouldNotBeWritten();
+    void test_slotOrder_xml_damaged_shouldKeepEverySlot();
 };
 
 } // namespace noteahead

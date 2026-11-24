@@ -2110,6 +2110,14 @@
         <translation>Alterar dispositivo...</translation>
     </message>
     <message>
+        <source>Move Up</source>
+        <translation>Mover para cima</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Mover para baixo</translation>
+    </message>
+    <message>
         <source>Export Settings...</source>
         <translation>Exportar configurações...</translation>
     </message>

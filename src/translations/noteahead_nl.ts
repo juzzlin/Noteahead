@@ -2110,6 +2110,14 @@
         <translation>Apparaat wijzigen...</translation>
     </message>
     <message>
+        <source>Move Up</source>
+        <translation>Omhoog</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Omlaag</translation>
+    </message>
+    <message>
         <source>Export Settings...</source>
         <translation>Instellingen exporteren...</translation>
     </message>

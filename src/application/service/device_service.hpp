@@ -66,6 +66,18 @@ public:
     //! both sides. Falls back to a plain setDevice() when the slot was empty to begin with.
     void replaceDevice(size_t slotIndex, DeviceS device);
     void clearDevice(size_t slotIndex);
+
+    //! The slot the rack draws at @p position.
+    //!
+    //! The devices never move: the rack only draws its slots in an order of its own. Everything
+    //! that names a slot -- a track's port, a side-chain source, a SubMixer member, the device's
+    //! own name -- keeps naming the same device however the rack is reordered.
+    size_t slotAt(size_t position) const;
+    //! Where the rack draws @p slotIndex. The inverse of slotAt().
+    size_t positionOf(size_t slotIndex) const;
+    //! Draws @p slotIndex at @p position, shifting the slots in between by one.
+    void moveSlot(size_t slotIndex, size_t position);
+
     virtual DeviceS device(size_t slotIndex) const;
     virtual DeviceS device(const std::string & name) const;
     //! How many modulation slots in the rack -- LFOs, pad axes -- are aimed at @p target. Over one,
@@ -308,6 +320,11 @@ private:
     //! nothing held the slot and nothing wrote it back. Keeping the element verbatim makes opening
     //! and saving a project here harmless to whatever it carries that this version cannot show.
     std::map<size_t, QString> m_unknownDevices;
+
+    //! Slots in the order the rack draws them. See slotAt().
+    using SlotOrder = std::vector<size_t>;
+    SlotOrder m_slotOrder;
+    void readSlotOrder(ProjectReader & reader);
 
     //! Slot a MIDI port name addresses, or nothing when the name is not "<prefix> <n>".
     std::optional<size_t> slotFromPortName(const QString & portName) const;

@@ -34,6 +34,7 @@ private slots:
     void test_subMixerMember_shouldRouteThroughTheGroupAndKeepItsSends();
     void test_ranking_shouldPlaceGroupsRightOfMembersAndMasterLast();
     void test_emptyProject_shouldStillHaveAMaster();
+    void test_rows_movedSlots_shouldFollowTheRackOrder();
 
     // The controller is thin translation, but the effect-name lookup in it has a trap worth
     // pinning: the gallery keys some effects by type string and others by id.

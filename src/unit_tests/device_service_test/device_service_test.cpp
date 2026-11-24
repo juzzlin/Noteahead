@@ -1674,6 +1674,160 @@ void DeviceServiceTest::test_resetAudio_everyDevice_shouldRenderTheSameAgain()
     QVERIFY2(mismatches.isEmpty(), qPrintable(mismatches.join(", ")));
 }
 
+namespace {
+std::vector<size_t> drawnOrder(const DeviceService & service)
+{
+    std::vector<size_t> order;
+    for (size_t position = 0; position < Constants::deviceRackSize(); position++) {
+        order.push_back(service.slotAt(position));
+    }
+    return order;
+}
+
+std::vector<size_t> orderStartingWith(std::vector<size_t> head)
+{
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (std::ranges::find(head, slotIndex) == head.end()) {
+            head.push_back(slotIndex);
+        }
+    }
+    return head;
+}
+
+QString devicesXml(DeviceService & service)
+{
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+    return xml;
+}
+
+void readDevicesXml(DeviceService & service, const QString & xml)
+{
+    NahdXmlReader reader { xml };
+    reader.readNextStartElement();
+    service.deserializeFromXml(reader);
+}
+} // namespace
+
+void DeviceServiceTest::test_slotAt_default_shouldBeTheSlotItself()
+{
+    const DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+
+    QCOMPARE(drawnOrder(service), orderStartingWith({}));
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        QCOMPARE(service.positionOf(slotIndex), slotIndex);
+    }
+}
+
+void DeviceServiceTest::test_moveSlot_up_shouldShiftTheSlotsInBetweenDown()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const QSignalSpy spy { &service, &DeviceService::dataChanged };
+
+    service.moveSlot(5, 2);
+
+    QCOMPARE(drawnOrder(service), orderStartingWith({ 0, 1, 5, 2, 3, 4 }));
+    QCOMPARE(service.positionOf(5), size_t { 2 });
+    QCOMPARE(service.positionOf(2), size_t { 3 });
+    QCOMPARE(spy.count(), 1);
+}
+
+void DeviceServiceTest::test_moveSlot_down_shouldShiftTheSlotsInBetweenUp()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+
+    service.moveSlot(1, 4);
+    service.moveSlot(0, Constants::deviceRackSize() - 1);
+
+    auto expected = orderStartingWith({ 2, 3, 4, 1 });
+    std::erase(expected, size_t { 0 });
+    expected.push_back(0);
+    QCOMPARE(drawnOrder(service), expected);
+    for (size_t position = 0; position < Constants::deviceRackSize(); position++) {
+        QCOMPARE(service.positionOf(service.slotAt(position)), position);
+    }
+}
+
+void DeviceServiceTest::test_moveSlot_shouldLeaveTheDevicesInTheirSlots()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Internal 4");
+    service.setDevice(3, synth);
+
+    service.moveSlot(3, 0);
+
+    QCOMPARE(service.slotAt(0), size_t { 3 });
+    QCOMPARE(service.device(3), synth);
+    QCOMPARE(service.device(0), DeviceService::DeviceS {});
+    QCOMPARE(service.device("Internal 4"), synth);
+}
+
+void DeviceServiceTest::test_moveSlot_outOfRange_shouldChangeNothing()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const QSignalSpy spy { &service, &DeviceService::dataChanged };
+
+    service.moveSlot(Constants::deviceRackSize(), 0);
+    service.moveSlot(0, Constants::deviceRackSize());
+    service.moveSlot(3, 3);
+
+    QCOMPARE(drawnOrder(service), orderStartingWith({}));
+    QCOMPARE(spy.count(), 0);
+}
+
+void DeviceServiceTest::test_reset_movedSlots_shouldRestoreTheDefaultOrder()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    service.moveSlot(7, 0);
+
+    service.reset();
+
+    QCOMPARE(drawnOrder(service), orderStartingWith({}));
+}
+
+void DeviceServiceTest::test_slotOrder_xml_shouldSurviveRoundTrip()
+{
+    DeviceService source { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    source.setDevice(2, DeviceFactory::createDevice(SynthDevice::typeIdString(), "Internal 3"));
+    source.moveSlot(2, 0);
+    source.moveSlot(9, 1);
+
+    DeviceService target { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    readDevicesXml(target, devicesXml(source));
+
+    QCOMPARE(drawnOrder(target), drawnOrder(source));
+    QVERIFY(target.device(2));
+    QCOMPARE(target.device(2)->name(), std::string { "Internal 3" });
+}
+
+void DeviceServiceTest::test_slotOrder_xml_default_shouldNotBeWritten()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    service.setDevice(2, DeviceFactory::createDevice(SynthDevice::typeIdString(), "Internal 3"));
+
+    QVERIFY(!devicesXml(service).contains(Constants::NahdXml::xmlKeySlotOrder()));
+
+    // Moved back where it was is the default again
+    service.moveSlot(2, 0);
+    service.moveSlot(2, 2);
+    QVERIFY(!devicesXml(service).contains(Constants::NahdXml::xmlKeySlotOrder()));
+}
+
+void DeviceServiceTest::test_slotOrder_xml_damaged_shouldKeepEverySlot()
+{
+    DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    service.moveSlot(5, 0);
+
+    readDevicesXml(service, QString { "<%1 %2=\"3,3,999,x,-1,1\"/>" }.arg(Constants::NahdXml::xmlKeyDevices(), Constants::NahdXml::xmlKeySlotOrder()));
+    QCOMPARE(drawnOrder(service), orderStartingWith({ 3, 1 }));
+
+    // A project from before the order existed loads in slot order, whatever was there before it
+    service.moveSlot(5, 0);
+    readDevicesXml(service, QString { "<%1/>" }.arg(Constants::NahdXml::xmlKeyDevices()));
+    QCOMPARE(drawnOrder(service), orderStartingWith({}));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceServiceTest)

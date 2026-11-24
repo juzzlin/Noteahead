@@ -70,6 +70,13 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openDevice(const QString & name);
     Q_INVOKABLE void openDevice(int slotIndex);
+    //! The slot the rack draws at @p position. Lists that follow the rack's order ask this for
+    //! each row and pass the slot on to everything else, which only ever takes slots.
+    Q_INVOKABLE int slotAt(int position) const;
+    Q_INVOKABLE int positionOf(int slotIndex) const;
+    //! Draws @p slotIndex at @p position in the rack. No device moves, so nothing routed to one is
+    //! touched. See DeviceService::slotAt().
+    Q_INVOKABLE void moveSlot(int slotIndex, int position);
 
     Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
     //! Puts a new device in the slot but keeps the channel strip the old one had. What the Device
