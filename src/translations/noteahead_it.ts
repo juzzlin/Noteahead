@@ -15154,6 +15154,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>La velocità dell&apos;LFO. Il LED lo segue. Scegli LFO come seconda sorgente di modulazione per sentirlo.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Una modifica, non presente sullo strumento: dopo che si preme un tasto senza altri tenuti, l’LFO resta escluso per la prima metà di questo tempo, poi entra in dissolvenza. Le note legato lo lasciano in funzione.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

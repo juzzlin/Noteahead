@@ -15154,6 +15154,14 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>A velocidade do LFO. O LED o acompanha. Escolha LFO como segunda fonte de modulação para ouvi-lo.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Uma modificação, não presente no instrumento: depois que uma tecla é pressionada sem nenhuma segurada, o LFO fica de fora na primeira metade deste tempo e então entra gradualmente. Notas em legato o deixam rodando.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

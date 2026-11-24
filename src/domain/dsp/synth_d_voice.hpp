@@ -115,6 +115,9 @@ public:
         bool filterModulation { false };
         LfoWaveform lfoWaveform { LfoWaveform::Triangle };
         double lfoRate { 0.5 }; //!< Knob travel 0..1
+        //! Not on the instrument: how long the LFO takes to come in after a key goes down with none
+        //! held. Silent for the first half, then fading in.
+        double lfoDelaySeconds { 0.0 };
 
         std::array<Oscillator, 3> oscillators {};
         bool osc3KeyboardControl { true };
@@ -150,6 +153,7 @@ public:
     //! Frequency of the VCO at @p range for @p note with no tuning or modulation
     static double oscillatorHz(Range range, double note);
 
+    static constexpr double MaxLfoDelaySeconds { 3.0 };
     static constexpr double LowestCutoffHz { 10.0 };
     static constexpr double HighestCutoffHz { 20000.0 };
     //! How far a full contour amount opens the filter, as Moog specifies it
@@ -182,6 +186,8 @@ public:
     void process(double & left, double & right);
     //! Runs the LFO on for @p frames while nothing sounds, as the instrument's does
     void advanceLfo(uint32_t frames);
+    //! Starts the LFO delay over, as a key going down with none held does
+    void restartLfoDelay();
 
     bool isActive() const;
     //! The mixer's overload LED, 0..1
@@ -241,6 +247,7 @@ private:
     Upsampler m_noiseUpsampler { HalfBandStage::Inner };
     double m_lfoPhase { 0.0 };
     double m_lfoValue { -1.0 };
+    double m_lfoDelayElapsedSeconds { 0.0 };
 
     std::array<TransistorLadderFilter, 2> m_filters {};
     std::array<double, 2> m_feedback {};

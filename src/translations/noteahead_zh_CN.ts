@@ -15152,6 +15152,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>LFO 的运行速度。LED 随之闪烁。将第二调制源选为 LFO 才能听到它。</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>延迟</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>改装功能，原乐器上没有：在没有按住任何键时按下一个键后，LFO 在这段时间的前一半不起作用，随后渐入。连奏音符不会打断它。</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

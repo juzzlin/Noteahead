@@ -64,4 +64,15 @@ ColumnLayout {
         ToolTip.text: qsTr("How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.")
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Delay")
+        suffix: "ms"
+        mapMin: 0
+        mapMax: 3000
+        value: synthDController.lfoDelay
+        onMoved: v => synthDController.lfoDelay = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.")
+        Layout.fillWidth: true
+    }
 }

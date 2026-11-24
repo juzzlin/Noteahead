@@ -15154,6 +15154,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>Hoe snel de LFO loopt. De led volgt hem. Kies LFO als tweede modulatiebron om hem te horen.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Een modificatie, niet op het instrument: nadat een toets wordt ingedrukt terwijl er geen andere vastgehouden wordt, blijft de LFO de eerste helft van deze tijd uit en komt dan geleidelijk in. Legato-noten laten hem doorlopen.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

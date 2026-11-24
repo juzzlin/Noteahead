@@ -221,6 +221,16 @@ void SynthDDialogModel::setLfoRate(int value)
     setKnob(Xml::xmlKeyLfoRate(), value);
 }
 
+int SynthDDialogModel::lfoDelay() const
+{
+    return knob(Xml::xmlKeyLfoDelay());
+}
+
+void SynthDDialogModel::setLfoDelay(int value)
+{
+    setKnob(Xml::xmlKeyLfoDelay(), value);
+}
+
 int SynthDDialogModel::osc1Range() const
 {
     return choice(Xml::xmlKeyVco1Range());

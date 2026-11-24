@@ -366,6 +366,14 @@ void SynthDVoice::process(double & left, double & right)
     m_note += m_glideCoefficient * (m_targetNote - m_note);
 
     advanceLfo(1);
+    // The LFO as the modulation hears it, delayed; the LED keeps showing the LFO itself
+    double lfoLevel = 1.0;
+    if (s.lfoDelaySeconds > 0.0) {
+        const double hold = 0.5 * s.lfoDelaySeconds;
+        lfoLevel = std::clamp((m_lfoDelayElapsedSeconds - hold) / (s.lfoDelaySeconds - hold), 0.0, 1.0);
+        m_lfoDelayElapsedSeconds += 1.0 / m_sampleRate;
+    }
+    const double lfo = m_lfoValue * lfoLevel;
 
     std::array<float, MaxOversampling> noiseHighRate {};
     m_noiseUpsampler.process(static_cast<float>(m_noise.nextSample()), noiseHighRate.data(), factor);
@@ -408,7 +416,7 @@ void SynthDVoice::process(double & left, double & right)
 
     std::array<double, 3> increments {};
     if (!audioRateMod) {
-        const double source2 = s.modSource2 == ModSource2::Noise ? static_cast<double>(noiseHighRate[0]) : m_lfoValue;
+        const double source2 = s.modSource2 == ModSource2::Noise ? static_cast<double>(noiseHighRate[0]) : lfo;
         const double modulation = ((1.0 - modMix) * modulationSource1(filterEnvelope) + modMix * source2) * modScale;
         for (size_t i = 0; i < 3; i++) {
             double note = baseNotes[i];
@@ -451,7 +459,7 @@ void SynthDVoice::process(double & left, double & right)
     for (uint8_t step = 0; step < factor; step++) {
         const double noiseStep = static_cast<double>(noiseHighRate[step]);
         if (audioRateMod) {
-            const double source2 = s.modSource2 == ModSource2::Noise ? noiseStep : m_lfoValue;
+            const double source2 = s.modSource2 == ModSource2::Noise ? noiseStep : lfo;
             if (s.oscillatorModulation && s.osc3KeyboardControl) {
                 const double prevMod = ((1.0 - modMix) * modulationSource1(filterEnvelope) + modMix * source2) * modScale;
                 increments[2] = incrementFor(s.oscillators[2].range, baseNotes[2] + prevMod * MaxOscModSemitones);
@@ -526,6 +534,11 @@ void SynthDVoice::advanceLfo(uint32_t frames)
     m_lfoValue = m_settings.lfoWaveform == LfoWaveform::Triangle ? 1.0 - 4.0 * std::abs(m_lfoPhase - 0.5) : (m_lfoPhase < 0.5 ? 1.0 : -1.0);
 }
 
+void SynthDVoice::restartLfoDelay()
+{
+    m_lfoDelayElapsedSeconds = 0.0;
+}
+
 double SynthDVoice::lfoValue() const
 {
     return m_lfoValue;
@@ -543,6 +556,7 @@ void SynthDVoice::reset()
     m_noiseUpsampler.reset();
     m_lfoPhase = 0.0;
     m_lfoValue = -1.0;
+    m_lfoDelayElapsedSeconds = 0.0;
     for (size_t side = 0; side < 2; side++) {
         m_filters[side].reset();
         m_feedback[side] = 0.0;

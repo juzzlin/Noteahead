@@ -51,6 +51,9 @@ private slots:
     void test_osc3_loRange_keyboardControlOff_shouldSweepWideLfoRange();
     void test_processAudio_whenInactive_shouldAdvanceLfoAndStaySilent();
     void test_dialogModel_pitchKnobs_shouldSetCents();
+    void test_lfoDelay_firstKey_shouldFadeTheLfoIn();
+    void test_lfoDelay_legatoNote_shouldLeaveTheLfoRunning();
+    void test_lfoDelay_keyAfterSilence_shouldStartTheDelayOver();
 };
 
 } // namespace noteahead

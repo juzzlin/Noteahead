@@ -15154,6 +15154,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>La vitesse du LFO. La LED le suit. Choisissez LFO comme seconde source de modulation pour l&apos;entendre.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Une modification, absente de l’instrument : après l’enfoncement d’une touche sans qu’aucune ne soit tenue, le LFO reste coupé pendant la première moitié de ce temps, puis arrive en fondu. Les notes legato le laissent tourner.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

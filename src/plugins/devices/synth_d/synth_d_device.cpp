@@ -52,6 +52,7 @@ const std::vector<Knob> & knobs()
         { Xml::xmlKeyModMix(), 0.0f },
         { Xml::xmlKeyModDepth(), 0.0f },
         { Xml::xmlKeyLfoRate(), 0.5f },
+        { Xml::xmlKeyLfoDelay(), 0.0f },
         { Xml::xmlKeyVco2Pitch(), 0.5f },
         { Xml::xmlKeyVco3Pitch(), 0.5f },
         { Xml::xmlKeyVco1Level(), 1.0f },
@@ -176,6 +177,7 @@ SynthDDevice::SynthDDevice(std::string name)
     setParameterDisplay(Xml::xmlKeyTune().toStdString(), { .mapping = Display::Mapping::Bipolar, .unit = "semitones", .min = -2.0, .max = 2.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Tune") });
     setParameterDisplay(Xml::xmlKeyVco2Pitch().toStdString(), { .mapping = Display::Mapping::Bipolar, .unit = "semitones", .min = -7.0, .max = 7.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "OSC 2 Frequency") });
     setParameterDisplay(Xml::xmlKeyVco3Pitch().toStdString(), { .mapping = Display::Mapping::Bipolar, .unit = "semitones", .min = -7.0, .max = 7.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "OSC 3 Frequency") });
+    setParameterDisplay(Xml::xmlKeyLfoDelay().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "ms", .min = 0.0, .max = SynthDVoice::MaxLfoDelaySeconds * 1000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LFO Delay") });
     setParameterDisplay(Xml::xmlKeyLfoRate().toStdString(), { .mapping = Display::Mapping::Exponential, .unit = "Hz", .min = 0.05, .max = 200.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LFO Rate") });
     setParameterDisplay(Xml::xmlKeyCutoff().toStdString(), { .mapping = Display::Mapping::Exponential, .unit = "Hz", .min = SynthDVoice::LowestCutoffHz, .max = SynthDVoice::HighestCutoffHz, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Cutoff") });
     DeviceParameterDisplay::percent(*this, Xml::xmlKeyEnv1Attack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Filter Attack"));
@@ -262,6 +264,9 @@ void SynthDDevice::followKeys()
         return;
     }
     const bool firstKey = !m_soundingNote;
+    if (firstKey) {
+        m_voice.restartLfoDelay();
+    }
     // A key that does not take priority changes nothing: the voice stays where it is
     if (!firstKey && *note == *m_soundingNote) {
         return;
@@ -579,6 +584,7 @@ void SynthDDevice::syncParameters()
     s.filterModulation = on(Xml::xmlKeyFilterModulation());
     s.lfoWaveform = static_cast<V::LfoWaveform>(choiceValue(Xml::xmlKeyLfoWaveform(), 2));
     s.lfoRate = knobValue(Xml::xmlKeyLfoRate());
+    s.lfoDelaySeconds = knobValue(Xml::xmlKeyLfoDelay()) * V::MaxLfoDelaySeconds;
 
     const std::array<QString, 3> ranges { Xml::xmlKeyVco1Range(), Xml::xmlKeyVco2Range(), Xml::xmlKeyVco3Range() };
     const std::array<QString, 3> waveforms { Xml::xmlKeyVco1Waveform(), Xml::xmlKeyVco2Waveform(), Xml::xmlKeyVco3Waveform() };

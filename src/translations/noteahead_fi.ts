@@ -15154,6 +15154,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>Kuinka nopeasti LFO käy. LED seuraa sitä. Valitse toiseksi modulaatiolähteeksi LFO kuullaksesi sen.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Muunnos, ei soittimessa: kun kosketin painetaan muiden ollessa ylhäällä, LFO pysyy poissa tämän ajan ensimmäisen puoliskon ja häivyttyy sitten sisään. Legato-nuotit jättävät sen käyntiin.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

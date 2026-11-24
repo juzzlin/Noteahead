@@ -13,6 +13,8 @@ New features:
 
 * Mixer: hold Stage on a strip while the device plays, and its Gain moves until the loudest part reads at the gain staging target; per-device Trim and Peak or RMS in Device Settings
 
+* Synth D: LFO Delay, a mod not on the instrument that fades the LFO in after the first key
+
 * Device Rack: slots can be reordered with Move Up and Move Down; a device keeps its slot number, so nothing routed to it changes
 
 Bug fixes:

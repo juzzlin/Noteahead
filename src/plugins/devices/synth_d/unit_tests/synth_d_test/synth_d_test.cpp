@@ -145,6 +145,28 @@ double magnitudeAtHz(const std::vector<double> & x, double hz, double from, doub
     return std::abs(sum) / static_cast<double>(n);
 }
 
+//! A 2 Hz square LFO opening and closing the filter, with an LFO delay of 1.2 s
+std::unique_ptr<SynthDDevice> delayedLfoDevice()
+{
+    auto device = exactDevice();
+    device->setKnob(Xml::xmlKeyCutoff(), 0.3f);
+    device->setKnob(Xml::xmlKeyEnvMod(), 0.0f);
+    device->setChoice(Xml::xmlKeyModSource2(), static_cast<int>(Voice::ModSource2::Lfo));
+    device->setChoice(Xml::xmlKeyLfoWaveform(), static_cast<int>(Voice::LfoWaveform::Square));
+    device->setChoice(Xml::xmlKeyFilterModulation(), 1);
+    device->setKnob(Xml::xmlKeyModMix(), 1.0f);
+    device->setKnob(Xml::xmlKeyModDepth(), 1.0f);
+    device->setKnob(Xml::xmlKeyLfoRate(), static_cast<float>(std::log(2.0 / 0.05) / std::log(4000.0)));
+    device->setKnob(Xml::xmlKeyLfoDelay(), static_cast<float>(1.2 / Voice::MaxLfoDelaySeconds));
+    return device;
+}
+
+//! How far the level moves between the open and the closed half of the LFO cycle starting at @p from
+double lfoSwingDb(const std::vector<double> & x, double from)
+{
+    return std::abs(db(rms(x, from + 0.05, from + 0.2)) - db(rms(x, from + 0.3, from + 0.45)));
+}
+
 //! A patch whose loudness contour decays to silence in a tenth of a second and stays there
 void percussive(SynthDDevice & device)
 {
@@ -660,6 +682,53 @@ void SynthDTest::test_dialogModel_pitchKnobs_shouldSetCents()
     const int tuneFiveCents = static_cast<int>(std::round(0.05 / 4.0 * SynthDDialogModel::FineKnobScaling));
     model.setTune(centre + tuneFiveCents);
     QVERIFY(std::abs((device->knob(Constants::NahdXml::xmlKeyTune()) - 0.5f) * 4.0f - 0.05f) < 0.001f);
+}
+
+void SynthDTest::test_lfoDelay_firstKey_shouldFadeTheLfoIn()
+{
+    auto device = delayedLfoDevice();
+    device->processMidiNoteOn(48, 100);
+    Stereo out;
+    render(*device, 2.5, out);
+    const auto x = out.mono();
+
+    // Held out for the first half of the delay, fully in once it is over
+    QVERIFY2(lfoSwingDb(x, 0.0) < 0.5, qPrintable(QString::number(lfoSwingDb(x, 0.0))));
+    QVERIFY2(lfoSwingDb(x, 1.5) > 6.0, qPrintable(QString::number(lfoSwingDb(x, 1.5))));
+
+    // And without the delay, it is there from the start
+    auto undelayed = delayedLfoDevice();
+    undelayed->setKnob(Xml::xmlKeyLfoDelay(), 0.0f);
+    undelayed->processMidiNoteOn(48, 100);
+    Stereo direct;
+    render(*undelayed, 0.5, direct);
+    QVERIFY(lfoSwingDb(direct.mono(), 0.0) > 6.0);
+}
+
+void SynthDTest::test_lfoDelay_legatoNote_shouldLeaveTheLfoRunning()
+{
+    auto device = delayedLfoDevice();
+    device->processMidiNoteOn(48, 100);
+    Stereo out;
+    render(*device, 2.0, out);
+    device->processMidiNoteOn(50, 100);
+    render(*device, 0.5, out);
+
+    QVERIFY2(lfoSwingDb(out.mono(), 2.0) > 6.0, qPrintable(QString::number(lfoSwingDb(out.mono(), 2.0))));
+}
+
+void SynthDTest::test_lfoDelay_keyAfterSilence_shouldStartTheDelayOver()
+{
+    auto device = delayedLfoDevice();
+    device->processMidiNoteOn(48, 100);
+    Stereo out;
+    render(*device, 2.0, out);
+    device->processMidiNoteOff(48);
+    render(*device, 0.5, out);
+    device->processMidiNoteOn(48, 100);
+    render(*device, 0.5, out);
+
+    QVERIFY2(lfoSwingDb(out.mono(), 2.5) < 0.5, qPrintable(QString::number(lfoSwingDb(out.mono(), 2.5))));
 }
 
 } // namespace noteahead

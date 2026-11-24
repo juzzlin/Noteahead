@@ -15154,6 +15154,14 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <source>How fast the LFO runs. The LED follows it. Choose LFO as the second modulation source to hear it.</source>
         <translation>Wie schnell der LFO läuft. Die LED folgt ihm. Wähle LFO als zweite Modulationsquelle, um ihn zu hören.</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>A mod, not on the instrument: the LFO stays out for the first half of this time after a key goes down with none held, then fades in. Legato notes leave it running.</source>
+        <translation>Eine Modifikation, nicht am Instrument: Nachdem eine Taste gedrückt wird, während keine gehalten ist, bleibt das LFO die erste Hälfte dieser Zeit aus und wird dann eingeblendet. Legato-Noten lassen es weiterlaufen.</translation>
+    </message>
 </context>
 <context>
     <name>SynthDDialog_Mixer</name>

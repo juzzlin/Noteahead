@@ -44,6 +44,7 @@ class SynthDDialogModel : public DeviceDialogModel
     Q_PROPERTY(bool filterModulation READ filterModulation WRITE setFilterModulation NOTIFY controlsChanged)
     Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY controlsChanged)
     Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY controlsChanged)
+    Q_PROPERTY(int lfoDelay READ lfoDelay WRITE setLfoDelay NOTIFY controlsChanged)
     Q_PROPERTY(int osc1Range READ osc1Range WRITE setOsc1Range NOTIFY controlsChanged)
     Q_PROPERTY(int osc2Range READ osc2Range WRITE setOsc2Range NOTIFY controlsChanged)
     Q_PROPERTY(int osc3Range READ osc3Range WRITE setOsc3Range NOTIFY controlsChanged)
@@ -123,6 +124,8 @@ public:
     void setLfoWaveform(int value);
     int lfoRate() const;
     void setLfoRate(int value);
+    int lfoDelay() const;
+    void setLfoDelay(int value);
     int osc1Range() const;
     void setOsc1Range(int value);
     int osc2Range() const;
