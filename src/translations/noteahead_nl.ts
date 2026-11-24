@@ -14967,6 +14967,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Sustainniveau</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>Het niveau dat de contour vasthoudt zolang de toets is ingedrukt, als het decay voorbij is</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Decay</translation>
     </message>
@@ -14986,8 +14990,16 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Stemming</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Stemt alle drie oscillatoren samen, tot 2 halve tonen naar beide kanten</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Glide</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Hoe lang de toonhoogte naar de volgende noot glijdt, per octaaf: van 1 ms bij 0 tot 10 s bij 10</translation>
     </message>
 </context>
 <context>
@@ -15009,12 +15021,24 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Cutofffrequentie</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Waar het filter begint te snijden. De -4 tot +4 van het paneel loopt van 10 Hz tot 20 kHz, met 0 op 447 Hz en elke stap ongeveer 1,4 octaaf.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Emphasis</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Resonantie bij de cutoff. Vanaf ongeveer 8 gaat het filter vanzelf oscilleren.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Contourhoeveelheid</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>Hoe ver de filtercontour de cutoff opent boven waar de knop hem zet: tot 4 octaven bij 10</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15146,6 +15170,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>Niveau van %1 naar het filter. Samen opengedraaid overbelasten de bronnen het.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15158,8 +15186,16 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Ruis</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Niveau van de ruis naar het filter, wit of roze zoals hieronder gekozen</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>De uitgang teruggevoerd naar de mixer, zoals op het instrument zonder iets ingeplugd: maakt de bas voller en laat hem opengedraaid grommen</translation>
     </message>
     <message>
         <source>On</source>

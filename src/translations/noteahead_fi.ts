@@ -14967,6 +14967,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Sustain-taso</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>Taso, jolla kontuuri pysyy koskettimen ollessa pohjassa, kun decay on ohi</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Decay</translation>
     </message>
@@ -14986,8 +14990,16 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Viritys</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Virittää kaikkia kolmea oskillaattoria yhdessä, enintään 2 puolisävelaskelta kumpaankin suuntaan</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Kuinka kauan sävelkorkeus liukuu seuraavaan nuottiin oktaavia kohden: 1 ms nollassa, 10 s kympissä</translation>
     </message>
 </context>
 <context>
@@ -15009,12 +15021,24 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Cutoff-taajuus</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Mistä suodin alkaa leikata. Paneelin -4…+4 kattaa 10 Hz – 20 kHz, nolla on 447 Hz ja jokainen askel noin 1,4 oktaavia.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Korostus</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Resonanssi rajataajuudella. Noin kahdeksasta ylöspäin suodin soi itsestään.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Verhokäyrän määrä</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>Kuinka paljon suotimen kontuuri avaa rajataajuutta nupin asetuksen yläpuolelle: enintään 4 oktaavia kympissä</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15146,6 +15170,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>%1:n taso suotimeen. Yhdessä kovalle käännettyinä lähteet ylikuormittavat sen.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15158,8 +15186,16 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Kohina</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Kohinan taso suotimeen, valkoinen tai vaaleanpunainen alta valitun mukaan</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>Lähtö syötettynä takaisin mikseriin, kuten soittimessa kun mitään ei ole kytketty: se tuhdistaa bassoa ja kovalla saa sen murisemaan</translation>
     </message>
     <message>
         <source>On</source>

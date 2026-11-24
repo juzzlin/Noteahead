@@ -14969,6 +14969,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Poziom sustain</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>Poziom, który kontur utrzymuje, gdy klawisz jest wciśnięty, po zakończeniu decay</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Opadanie</translation>
     </message>
@@ -14988,8 +14992,16 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Strojenie</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Stroi wszystkie trzy oscylatory razem, do 2 półtonów w każdą stronę</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Glide</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Jak długo wysokość dźwięku przesuwa się do następnej nuty, na oktawę: od 1 ms przy 0 do 10 s przy 10</translation>
     </message>
 </context>
 <context>
@@ -15011,12 +15023,24 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Częstotliwość odcięcia</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Gdzie filtr zaczyna obcinać. Zakres -4 do +4 na panelu to 10 Hz do 20 kHz, 0 to 447 Hz, a każdy krok to około 1,4 oktawy.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Emfaza</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Rezonans przy częstotliwości odcięcia. Od około 8 filtr zaczyna sam oscylować.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Głębokość konturu</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>Jak daleko kontur filtra otwiera odcięcie ponad ustawienie pokrętła: do 4 oktaw przy 10</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15148,6 +15172,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>Poziom %1 do filtra. Podkręcone razem źródła przesterowują go.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15160,8 +15188,16 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Szum</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Poziom szumu do filtra, białego lub różowego, jak wybrano poniżej</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>Wyjście zawrócone do miksera, jak w instrumencie bez niczego podłączonego: pogrubia bas, a podkręcone sprawia, że warczy</translation>
     </message>
     <message>
         <source>On</source>

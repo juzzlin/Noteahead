@@ -56,23 +56,28 @@ ColumnLayout {
                 return [{
                         "label": qsTr("OSC 1"),
                         "volume": "osc1Volume",
-                        "on": "osc1On"
+                        "on": "osc1On",
+                        "tip": qsTr("Level of %1 into the filter. Turned up together, the sources overload it.").arg("OSC 1")
                     }, {
                         "label": qsTr("OSC 2"),
                         "volume": "osc2Volume",
-                        "on": "osc2On"
+                        "on": "osc2On",
+                        "tip": qsTr("Level of %1 into the filter. Turned up together, the sources overload it.").arg("OSC 2")
                     }, {
                         "label": qsTr("OSC 3"),
                         "volume": "osc3Volume",
-                        "on": "osc3On"
+                        "on": "osc3On",
+                        "tip": qsTr("Level of %1 into the filter. Turned up together, the sources overload it.").arg("OSC 3")
                     }, {
                         "label": qsTr("Noise"),
                         "volume": "noiseVolume",
-                        "on": "noiseOn"
+                        "on": "noiseOn",
+                        "tip": qsTr("Level of the noise into the filter, white or pink as chosen below")
                     }, {
                         "label": qsTr("Ext In"),
                         "volume": "extVolume",
-                        "on": "extOn"
+                        "on": "extOn",
+                        "tip": qsTr("The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl")
                     }];
             }
             ColumnLayout {
@@ -88,6 +93,8 @@ ColumnLayout {
                     mapMax: 10
                     value: synthDController[modelData.volume]
                     onMoved: v => synthDController[modelData.volume] = v
+                    ToolTip.visible: hovered
+                    ToolTip.text: modelData.tip
                     Layout.fillWidth: true
                 }
                 CheckBox {

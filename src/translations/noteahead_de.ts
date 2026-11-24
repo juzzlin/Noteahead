@@ -14967,6 +14967,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Sustain-Pegel</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>Der Pegel, den die Hüllkurve hält, solange die Taste gedrückt ist und das Decay vorbei ist</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Decay</translation>
     </message>
@@ -14986,8 +14990,16 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Stimmung</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Stimmt alle drei Oszillatoren gemeinsam, bis zu 2 Halbtöne in jede Richtung</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Glide</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Wie lange die Tonhöhe zum nächsten Ton gleitet, pro Oktave: von 1 ms bei 0 bis 10 s bei 10</translation>
     </message>
 </context>
 <context>
@@ -15009,12 +15021,24 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Cutoff-Frequenz</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Wo das Filter zu schneiden beginnt. Die -4 bis +4 des Panels reichen von 10 Hz bis 20 kHz, 0 liegt bei 447 Hz, und jeder Schritt ist etwa 1,4 Oktaven.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Emphasis</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Resonanz an der Cutoff-Frequenz. Ab etwa 8 schwingt das Filter von selbst.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Konturanteil</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>Wie weit die Filterhüllkurve den Cutoff über die Knopfstellung hinaus öffnet: bis zu 4 Oktaven bei 10</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15146,6 +15170,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>Pegel von %1 ins Filter. Gemeinsam aufgedreht übersteuern die Quellen es.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15158,8 +15186,16 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Rauschen</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Pegel des Rauschens ins Filter, weiß oder rosa wie unten gewählt</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>Der Ausgang, zurück in den Mixer geführt, wie beim Instrument ohne eingesteckten Stecker: Er verdickt den Bass und lässt ihn aufgedreht knurren</translation>
     </message>
     <message>
         <source>On</source>

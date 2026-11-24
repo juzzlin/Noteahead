@@ -318,6 +318,24 @@ void KnobControllerTest::test_fineValueMapping_shouldReadAndParseHundredths()
     QVERIFY(std::abs(controller.parse("0.03", "fineValue", "", -7.0, 7.0).toDouble() - (0.5 + 0.03 / 14.0)) < 1.0e-9);
 }
 
+void KnobControllerTest::test_exponentialHzMapping_shouldReadAndParseFrequencies()
+{
+    KnobController controller;
+
+    // Synth D's cutoff, 10 Hz to 20 kHz: 447 Hz in the middle, where the panel reads 0
+    QCOMPARE(controller.format(0.0, "exponentialHz", "Hz", 10.0, 20000.0), QString { "10.0 Hz" });
+    QCOMPARE(controller.format(0.5, "exponentialHz", "Hz", 10.0, 20000.0), QString { "447 Hz" });
+    QCOMPARE(controller.format(1.0, "exponentialHz", "Hz", 10.0, 20000.0), QString { "20.0 kHz" });
+    QCOMPARE(controller.format(controller.unmap(2500.0, "exponentialHz", 10.0, 20000.0), "exponentialHz", "Hz", 10.0, 20000.0), QString { "2.50 kHz" });
+
+    // Synth D's LFO, from a twentieth of a hertz: one decimal would read it as twice that
+    QCOMPARE(controller.format(0.0, "exponentialHz", "Hz", 0.05, 200.0), QString { "0.05 Hz" });
+
+    // Typed back in, in either unit
+    QVERIFY(std::abs(controller.map(controller.parse("2.5 kHz", "exponentialHz", "Hz", 10.0, 20000.0).toDouble(), "exponentialHz", 10.0, 20000.0) - 2500.0) < 1.0e-6);
+    QVERIFY(std::abs(controller.map(controller.parse("447", "exponentialHz", "Hz", 10.0, 20000.0).toDouble(), "exponentialHz", 10.0, 20000.0) - 447.0) < 1.0e-6);
+}
+
 void KnobControllerTest::test_valueMapping_shouldReadPastFullScale()
 {
     KnobController controller;

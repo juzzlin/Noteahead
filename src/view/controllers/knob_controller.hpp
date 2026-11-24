@@ -58,6 +58,8 @@ public:
     //! @p forceHz reads the top of the travel as a frequency rather than as Bypass, for a filter
     //! that is not out of the way there.
     Q_INVOKABLE QString frequencyToString(double value, double cutoffHz, bool forceHz) const;
+    //! A frequency to as many decimals as it needs: "0.05 Hz", "640 Hz", "2.50 kHz"
+    Q_INVOKABLE QString hertzToString(double hz) const;
 
     Q_INVOKABLE int syncIndex(double value) const;
     Q_INVOKABLE double syncValue(int index) const;

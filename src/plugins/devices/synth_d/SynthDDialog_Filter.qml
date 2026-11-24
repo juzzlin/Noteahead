@@ -45,12 +45,14 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Cutoff Frequency")
-        mapping: "value"
-        suffix: ""
-        mapMin: -4
-        mapMax: 4
+        mapping: "exponentialHz"
+        suffix: "Hz"
+        mapMin: 10
+        mapMax: 20000
         value: synthDController.cutoff
         onMoved: v => synthDController.cutoff = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Where the filter starts to cut. The panel's -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.")
         Layout.fillWidth: true
     }
     Knob {
@@ -61,6 +63,8 @@ ColumnLayout {
         mapMax: 10
         value: synthDController.emphasis
         onMoved: v => synthDController.emphasis = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Resonance at the cutoff. From about 8 the filter rings on its own.")
         Layout.fillWidth: true
     }
     Knob {
@@ -71,6 +75,8 @@ ColumnLayout {
         mapMax: 10
         value: synthDController.contourAmount
         onMoved: v => synthDController.contourAmount = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10")
         Layout.fillWidth: true
     }
     CheckBox {

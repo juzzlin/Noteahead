@@ -14967,6 +14967,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Niveau de sustain</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>Le niveau que tient le contour tant que la touche est enfoncée, une fois le decay terminé</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Déclin</translation>
     </message>
@@ -14986,8 +14990,16 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Accord</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Accorde les trois oscillateurs ensemble, jusqu’à 2 demi-tons dans chaque sens</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Glissando</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Le temps que met la hauteur à glisser vers la note suivante, par octave : de 1 ms à 0 à 10 s à 10</translation>
     </message>
 </context>
 <context>
@@ -15009,12 +15021,24 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Fréquence de coupure</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Là où le filtre commence à couper. Le -4 à +4 du panneau va de 10 Hz à 20 kHz, avec 0 à 447 Hz et chaque pas d’environ 1,4 octave.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Emphase</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Résonance à la coupure. À partir de 8 environ, le filtre oscille de lui-même.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Quantité de contour</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>De combien le contour du filtre ouvre la coupure au-dessus du réglage du bouton : jusqu’à 4 octaves à 10</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15146,6 +15170,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>Niveau de %1 vers le filtre. Montées ensemble, les sources le saturent.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15158,8 +15186,16 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Bruit</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Niveau du bruit vers le filtre, blanc ou rose selon le choix ci-dessous</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>La sortie renvoyée dans le mixeur, comme sur l’instrument sans rien de branché : elle épaissit la basse et, montée, la fait gronder</translation>
     </message>
     <message>
         <source>On</source>

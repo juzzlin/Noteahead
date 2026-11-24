@@ -40,6 +40,8 @@ ColumnLayout {
         mapMax: 2
         value: synthDController.tune
         onMoved: v => synthDController.tune = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Tunes all three oscillators together, up to 2 semitones either way")
         Layout.fillWidth: true
     }
     Knob {
@@ -50,6 +52,8 @@ ColumnLayout {
         mapMax: 10
         value: synthDController.glide
         onMoved: v => synthDController.glide = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10")
         Layout.fillWidth: true
     }
 }

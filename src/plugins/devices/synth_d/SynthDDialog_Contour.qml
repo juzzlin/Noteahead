@@ -69,6 +69,8 @@ ColumnLayout {
         mapMax: 10
         value: synthDController[root.prefix + "Sustain"]
         onMoved: v => synthDController[root.prefix + "Sustain"] = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("The level the contour holds while the key is down, once the decay is over")
         Layout.fillWidth: true
     }
     CheckBox {

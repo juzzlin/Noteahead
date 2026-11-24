@@ -21,6 +21,8 @@ Bug fixes:
 
 Other:
 
+* Synth D: Cutoff and LFO Rate read out in Hz, and its own knobs have tooltips
+
 13.0.0
 ======
 

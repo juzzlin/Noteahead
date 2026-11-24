@@ -14967,6 +14967,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Nível de sustain</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>O nível que o contorno mantém enquanto a tecla está pressionada, terminado o decay</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>Decaimento</translation>
     </message>
@@ -14986,8 +14990,16 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Afinação</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>Afina os três osciladores juntos, até 2 semitons para cada lado</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>Glide</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>Quanto tempo a altura leva para deslizar até a próxima nota, por oitava: de 1 ms em 0 a 10 s em 10</translation>
     </message>
 </context>
 <context>
@@ -15009,12 +15021,24 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Frequência de corte</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>Onde o filtro começa a cortar. O -4 a +4 do painel vai de 10 Hz a 20 kHz, com 0 em 447 Hz e cada passo de cerca de 1,4 oitava.</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>Ênfase</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>Ressonância no corte. A partir de cerca de 8 o filtro oscila sozinho.</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>Quantidade de contorno</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>Quanto o contorno do filtro abre o corte acima de onde o botão o coloca: até 4 oitavas em 10</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15146,6 +15170,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>Nível de %1 para o filtro. Aumentadas juntas, as fontes o saturam.</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15158,8 +15186,16 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Ruído</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>Nível do ruído para o filtro, branco ou rosa conforme escolhido abaixo</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>A saída realimentada no mixer, como no instrumento sem nada conectado: engorda o grave e, aumentada, o faz rosnar</translation>
     </message>
     <message>
         <source>On</source>

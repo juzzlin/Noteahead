@@ -14965,6 +14965,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>延持电平</translation>
     </message>
     <message>
+        <source>The level the contour holds while the key is down, once the decay is over</source>
+        <translation>按住琴键时、衰减结束后包络保持的电平</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation>衰减</translation>
     </message>
@@ -14984,8 +14988,16 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>调音</translation>
     </message>
     <message>
+        <source>Tunes all three oscillators together, up to 2 semitones either way</source>
+        <translation>同时调整三个振荡器的音高，向上或向下最多 2 个半音</translation>
+    </message>
+    <message>
         <source>Glide</source>
         <translation>滑音</translation>
+    </message>
+    <message>
+        <source>How long the pitch takes to slide to the next note, per octave: from 1 ms at 0 to 10 s at 10</source>
+        <translation>音高滑向下一个音所需的时间（每八度）：0 时为 1 ms，10 时为 10 s</translation>
     </message>
 </context>
 <context>
@@ -15007,12 +15019,24 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>截止频率</translation>
     </message>
     <message>
+        <source>Where the filter starts to cut. The panel&apos;s -4 to +4 runs from 10 Hz to 20 kHz, with 0 at 447 Hz and each step about 1.4 octaves.</source>
+        <translation>滤波器开始切除的位置。面板上的 -4 到 +4 对应 10 Hz 到 20 kHz，0 为 447 Hz，每一格约 1.4 个八度。</translation>
+    </message>
+    <message>
         <source>Emphasis</source>
         <translation>强调</translation>
     </message>
     <message>
+        <source>Resonance at the cutoff. From about 8 the filter rings on its own.</source>
+        <translation>截止频率处的谐振。约从 8 起滤波器会自激振荡。</translation>
+    </message>
+    <message>
         <source>Amount of Contour</source>
         <translation>轮廓量</translation>
+    </message>
+    <message>
+        <source>How far the filter contour opens the cutoff above where the knob sets it: up to 4 octaves at 10</source>
+        <translation>滤波器包络在旋钮设定之上打开截止频率的幅度：10 时最多 4 个八度</translation>
     </message>
     <message>
         <source>Keyboard Control 1</source>
@@ -15144,6 +15168,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>OSC 1</translation>
     </message>
     <message>
+        <source>Level of %1 into the filter. Turned up together, the sources overload it.</source>
+        <translation>%1 进入滤波器的电平。几路一起调高会使其过载。</translation>
+    </message>
+    <message>
         <source>OSC 2</source>
         <translation>OSC 2</translation>
     </message>
@@ -15156,8 +15184,16 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>噪声</translation>
     </message>
     <message>
+        <source>Level of the noise into the filter, white or pink as chosen below</source>
+        <translation>噪声进入滤波器的电平，白噪声或粉红噪声按下方选择</translation>
+    </message>
+    <message>
         <source>Ext In</source>
         <translation>Ext In</translation>
+    </message>
+    <message>
+        <source>The output fed back into the mixer, as on the instrument with nothing plugged in: it thickens the bass and, turned up, makes it growl</source>
+        <translation>输出回送到调音器，就像乐器上什么都不插时那样：使低音更厚，调高时会发出咆哮声</translation>
     </message>
     <message>
         <source>On</source>

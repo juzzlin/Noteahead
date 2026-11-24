@@ -99,7 +99,7 @@ KnobController::KnobController(QObject * parent)
 
 double KnobController::map(double value, const QString & type, double min, double max) const
 {
-    if (type == "exponential")
+    if (type == "exponential" || type == "exponentialHz")
         return ParameterMapper::mapExponential(value, min, max);
     if (type == "exponentialFromZero")
         return ParameterMapper::mapExponentialFromZero(value, min, max);
@@ -126,7 +126,7 @@ double KnobController::map(double value, const QString & type, double min, doubl
 
 double KnobController::unmap(double mappedValue, const QString & type, double min, double max) const
 {
-    if (type == "exponential")
+    if (type == "exponential" || type == "exponentialHz")
         return ParameterMapper::unmapExponential(mappedValue, min, max);
     if (type == "exponentialFromZero")
         return ParameterMapper::unmapExponentialFromZero(mappedValue, min, max);
@@ -205,6 +205,9 @@ QString KnobController::format(double value, const QString & type, const QString
     }
     if (type == "decibel") {
         return decibelMultiplierToString(mappedValue);
+    }
+    if (type == "exponentialHz") {
+        return hertzToString(mappedValue);
     }
     if (type == "exponential" && suffix.isEmpty()) {
         return QString { "%1" }.arg(mappedValue, 0, 'f', 2);
@@ -302,6 +305,8 @@ QVariant KnobController::parse(const QString & text, const QString & type, const
     if (suffix == "dB" && min == 0 && max == Constants::uiInternalScaling()) {
         // Legacy: the readout is -30..30 dB across a 0..1000 value
         mappedValue = (input->number / 60.0 + 0.5) * Constants::uiInternalScaling();
+    } else if (type == "exponentialHz") {
+        mappedValue = input->number * (input->unit == "khz" ? 1000.0 : 1.0);
     } else if (suffix == "s" || suffix == "ms") {
         // Time readouts scale themselves between μs, ms and s, so honour the unit that was typed
         const double seconds = input->number * unitToSeconds(input->unit).value_or(suffix == "s" ? 1.0 : 0.001);
@@ -427,6 +432,22 @@ QString KnobController::valueToString(double value, const QString & suffix, doub
         return timeToString(value, suffix);
     }
     return QString::number(isInteger ? std::round(value) : value, 'f', isInteger ? 0 : 2) + suffix;
+}
+
+QString KnobController::hertzToString(double hz) const
+{
+    // Two significant decimals wherever they still mean something: an LFO at a twentieth of a
+    // hertz read to one decimal is 0.1 Hz, twice what it is
+    if (hz < 10.0) {
+        return QString { "%1 Hz" }.arg(hz, 0, 'f', 2);
+    }
+    if (hz < 100.0) {
+        return QString { "%1 Hz" }.arg(hz, 0, 'f', 1);
+    }
+    if (hz < 1000.0) {
+        return QString { "%1 Hz" }.arg(std::round(hz));
+    }
+    return QString { "%1 kHz" }.arg(hz / 1000.0, 0, 'f', hz < 10000.0 ? 2 : 1);
 }
 
 QString KnobController::frequencyToString(double linearValue, double mappedValue, bool forceHz) const

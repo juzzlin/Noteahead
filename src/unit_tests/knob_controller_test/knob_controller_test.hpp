@@ -45,6 +45,7 @@ private slots:
     void test_bipolarMapping_shouldReadZeroAtTheCentre();
     void test_valueMapping_shouldReadPastFullScale();
     void test_fineValueMapping_shouldReadAndParseHundredths();
+    void test_exponentialHzMapping_shouldReadAndParseFrequencies();
     void test_valueMapping_shouldHonourTheUnit();
     void test_frequencyToString_shouldFormatFrequencyStrings();
     void test_format_highPass_shouldBypassAtTheBottom();

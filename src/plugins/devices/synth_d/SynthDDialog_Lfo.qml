@@ -55,7 +55,7 @@ ColumnLayout {
     Knob {
         label: qsTr("Rate")
         suffix: "Hz"
-        mapping: "exponential"
+        mapping: "exponentialHz"
         mapMin: 0.05
         mapMax: 200.0
         value: synthDController.lfoRate
