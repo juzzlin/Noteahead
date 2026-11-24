@@ -130,7 +130,6 @@ void FormantVoiceV2::NasalPoleZero::reset()
 
 FormantVoiceV2::FormantVoiceV2()
 {
-    m_glottis.setModel(GlottalSource::Model::Rosenberg);
     for (auto & filter : m_fricationFormants) {
         filter.setMode(CascadedSvf::Mode::BandPass);
         filter.setOrder(2);
@@ -159,6 +158,8 @@ void FormantVoiceV2::setSampleRate(double sampleRate)
     }
 
     m_levelCoefficient = smoothingCoefficient(LevelGlideTime, sampleRate);
+    m_voicingAttackCoeff = smoothingCoefficient(VoicingAttackTime, sampleRate);
+    m_voicingReleaseCoeff = smoothingCoefficient(VoicingReleaseTime, sampleRate);
     m_glideCoefficient = smoothingCoefficient(m_glideTime, sampleRate / ControlBlockFrames);
     m_seamCoefficient = smoothingCoefficient(SeamFadeTime, sampleRate);
     m_burstAttack = smoothingCoefficient(PlosiveBurstAttackTime, sampleRate);
@@ -194,19 +195,21 @@ void FormantVoiceV2::setSourceRolloff(double frequency)
 void FormantVoiceV2::setBreathiness(double breathiness)
 {
     m_breathiness = std::clamp(breathiness, 0.0, 1.0);
+    m_effectiveBreathiness = m_breathiness;
 }
 
 void FormantVoiceV2::setOpenQuotient(double openQuotient)
 {
     m_openQuotient = std::clamp(openQuotient, 0.0, 1.0);
-    m_glottis.setOpenQuotient(openQuotient);
+    m_effectiveOpenQuotient = m_openQuotient;
+    m_glottis.setOpenQuotient(m_openQuotient);
 }
 
 void FormantVoiceV2::setVoicePerturbation(double perturbation)
 {
-    const double amount = std::max(0.0, perturbation);
-    m_glottis.setJitter(amount * JitterRange);
-    m_glottis.setShimmer(amount * ShimmerRange);
+    m_basePerturbation = std::max(0.0, perturbation);
+    m_glottis.setJitter(m_basePerturbation * JitterRange);
+    m_glottis.setShimmer(m_basePerturbation * ShimmerRange);
 }
 
 void FormantVoiceV2::setSpeedQuotient(double speedQuotient)
@@ -214,9 +217,26 @@ void FormantVoiceV2::setSpeedQuotient(double speedQuotient)
     m_glottis.setSpeedQuotient(speedQuotient);
 }
 
+void FormantVoiceV2::setReturnPhase(double returnPhase)
+{
+    m_returnPhase = std::clamp(returnPhase, 0.002, 0.12);
+    m_glottis.setReturnPhase(m_returnPhase);
+}
+
 void FormantVoiceV2::setSubharmonic(double subharmonic)
 {
-    m_glottis.setSubharmonic(subharmonic);
+    m_baseSubharmonic = std::clamp(subharmonic, 0.0, 1.0);
+    m_glottis.setSubharmonic(m_baseSubharmonic);
+}
+
+void FormantVoiceV2::setPhraseDynamics(double amount)
+{
+    m_phraseDynamics = std::clamp(amount, 0.0, 1.0);
+}
+
+void FormantVoiceV2::setUtteranceProgress(double progress)
+{
+    m_utteranceProgress = std::clamp(progress, 0.0, 1.0);
 }
 
 void FormantVoiceV2::setConsonantLevel(double level)
@@ -368,7 +388,7 @@ std::array<FormantVoiceV2::FormantPair, 3> FormantVoiceV2::effectiveCascadeTarge
         return m_currentCascade;
     }
 
-    const double glottalBwLoss = std::max(0.0, m_openQuotient - 0.5) * 120.0;
+    const double glottalBwLoss = std::max(0.0, m_effectiveOpenQuotient - 0.5) * 120.0;
 
     auto shapeFromSpec = [](const PhonemeSpec & spec, double progress) {
         std::array<FormantPair, 3> out {};
@@ -555,8 +575,37 @@ void FormantVoiceV2::updateControl()
         m_voicingTarget = 0.0;
         m_fricationTarget = 0.0;
         m_aspirationTarget = 0.0;
+        m_voicedAge = 0.0;
         return;
     }
+
+    const double baseVoicingTarget = voicingTargetFor(*m_phoneme);
+    if (baseVoicingTarget > 0.01) {
+        m_voicedAge = std::min(1.0, m_voicedAge + static_cast<double>(ControlBlockFrames) / std::max(1.0, m_sampleRate));
+    } else if (m_voicingLevel < 0.05) {
+        m_voicedAge = 0.0;
+    }
+
+    // Soft breathy-to-modal onset and gentle phrase-final glottal relaxation
+    const double onsetFade = (baseVoicingTarget > 0.01)
+      ? (1.0 - std::clamp(m_voicedAge / VoicingOnsetSeconds, 0.0, 1.0))
+      : 0.0;
+    const double finalFactor = (m_phraseDynamics > 0.0 && m_utteranceProgress > PhraseFinalStart)
+      ? std::clamp((m_utteranceProgress - PhraseFinalStart) / (1.0 - PhraseFinalStart), 0.0, 1.0) * m_phraseDynamics
+      : 0.0;
+
+    m_effectiveOpenQuotient = std::clamp(m_openQuotient + 0.14 * onsetFade + 0.10 * finalFactor, 0.25, 0.85);
+    const double effRa = std::clamp(m_returnPhase + 0.022 * onsetFade + 0.018 * finalFactor, 0.002, 0.12);
+    const double lowPitchWeight = std::clamp((180.0 - m_frequency) / 80.0, 0.0, 1.0);
+    const double effSub = std::clamp(m_baseSubharmonic + 0.12 * finalFactor * lowPitchWeight, 0.0, 1.0);
+    const double effPerturb = m_basePerturbation + 0.25 * finalFactor;
+
+    m_glottis.setOpenQuotient(m_effectiveOpenQuotient);
+    m_glottis.setReturnPhase(effRa);
+    m_glottis.setSubharmonic(effSub);
+    m_glottis.setJitter(effPerturb * JitterRange);
+    m_glottis.setShimmer(effPerturb * ShimmerRange);
+    m_effectiveBreathiness = std::clamp(m_breathiness + 0.08 * onsetFade + 0.08 * finalFactor, 0.0, 1.0);
 
     applyCascadeTargets(effectiveCascadeTargets(), effectiveNasalTargets(), false);
 
@@ -572,7 +621,7 @@ void FormantVoiceV2::updateControl()
         m_cascadeFormants[3 + i].configure(UpperCascadeFormants[i].frequency * m_formantShift, UpperCascadeFormants[i].bandwidth * m_formantShift, m_sampleRate);
     }
 
-    m_voicingTarget = voicingTargetFor(*m_phoneme);
+    m_voicingTarget = baseVoicingTarget * (1.0 - 0.28 * finalFactor);
     m_fricationTarget = fricationTargetFor(*m_phoneme);
     m_aspirationTarget = aspirationTargetFor(*m_phoneme);
 
@@ -631,12 +680,13 @@ double FormantVoiceV2::nextSample()
         fricationNoise = filter.lowPass();
     }
 
-    m_voicingLevel += (m_voicingTarget - m_voicingLevel) * m_levelCoefficient;
+    const double voicingCoeff = (m_voicingTarget > m_voicingLevel) ? m_voicingAttackCoeff : m_voicingReleaseCoeff;
+    m_voicingLevel += (m_voicingTarget - m_voicingLevel) * voicingCoeff;
     m_fricationLevel += (m_fricationTarget - m_fricationLevel) * m_levelCoefficient;
     m_aspirationLevel += (m_aspirationTarget - m_aspirationLevel) * m_levelCoefficient;
     m_seam += (1.0 - m_seam) * m_seamCoefficient;
 
-    double aspiration = m_voicingLevel * m_breathiness * rawNoise * m_glottis.openness() * CascadeAspirationLevel;
+    double aspiration = m_voicingLevel * m_effectiveBreathiness * rawNoise * m_glottis.openness() * CascadeAspirationLevel;
     aspiration += m_aspirationLevel * rawNoise;
 
     if (m_phoneme->type == PhonemeType::Plosive) {
@@ -713,6 +763,10 @@ void FormantVoiceV2::reset()
 
     m_voicingLevel = 0.0;
     m_voicingTarget = 0.0;
+    m_voicedAge = 0.0;
+    m_utteranceProgress = 0.0;
+    m_effectiveBreathiness = m_breathiness;
+    m_effectiveOpenQuotient = m_openQuotient;
     m_fricationLevel = 0.0;
     m_fricationTarget = 0.0;
     m_previousFricationLevel = 0.0;
@@ -738,6 +792,11 @@ void FormantVoiceV2::reset()
     }
 
     m_glottis.reset();
+    m_glottis.setOpenQuotient(m_openQuotient);
+    m_glottis.setReturnPhase(m_returnPhase);
+    m_glottis.setSubharmonic(m_baseSubharmonic);
+    m_glottis.setJitter(m_basePerturbation * JitterRange);
+    m_glottis.setShimmer(m_basePerturbation * ShimmerRange);
     m_radiation.reset();
     m_aspirationFilter.reset();
     m_sourceRolloffFilter.reset();

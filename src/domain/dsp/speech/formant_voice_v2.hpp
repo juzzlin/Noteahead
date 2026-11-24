@@ -19,7 +19,7 @@
 #include "../cascaded_svf.hpp"
 #include "../dsp_component.hpp"
 #include "../one_pole_filter.hpp"
-#include "glottal_source.hpp"
+#include "glottal_source_v2.hpp"
 #include "phoneme.hpp"
 
 #include <array>
@@ -62,7 +62,10 @@ public:
     void setOpenQuotient(double openQuotient);
     void setVoicePerturbation(double perturbation);
     void setSpeedQuotient(double speedQuotient);
+    void setReturnPhase(double returnPhase);
     void setSubharmonic(double subharmonic);
+    void setPhraseDynamics(double amount);
+    void setUtteranceProgress(double progress);
 
     void setConsonantLevel(double level);
     void setSibilance(double sibilance);
@@ -126,7 +129,7 @@ private:
     static constexpr double CascadeMakeupGain { 4.8 };
     static constexpr double FricationMakeupGain { 1.0 };
     static constexpr double BurstMakeupGain { 0.95 };
-    static constexpr double SourceMakeupGain { 0.56 };
+    static constexpr double SourceMakeupGain { 0.80 };
 
     static constexpr double CascadeAspirationLevel { 0.16 };
     static constexpr double HhAspirationLevel { 0.028 };
@@ -139,6 +142,10 @@ private:
     static constexpr double NoiseSourceLevel { 0.30 };
 
     static constexpr double LevelGlideTime { 0.008 };
+    static constexpr double VoicingAttackTime { 0.016 };
+    static constexpr double VoicingReleaseTime { 0.010 };
+    static constexpr double VoicingOnsetSeconds { 0.022 };
+    static constexpr double PhraseFinalStart { 0.85 };
     static constexpr double AspiratedReleaseSeconds { 0.040 };
     static constexpr double UnaspiratedReleaseSeconds { 0.012 };
     static constexpr double UnvoicedClosureFraction { 0.45 };
@@ -186,7 +193,14 @@ private:
     double m_formantShift { 1.0 };
     double m_sourceRolloff { 0.0 };
     double m_breathiness { 0.0 };
+    double m_effectiveBreathiness { 0.0 };
     double m_openQuotient { 0.5 };
+    double m_effectiveOpenQuotient { 0.5 };
+    double m_returnPhase { 0.010 };
+    double m_basePerturbation { 0.0 };
+    double m_baseSubharmonic { 0.0 };
+    double m_phraseDynamics { 0.0 };
+    double m_utteranceProgress { 0.0 };
     double m_consonantLevel { 1.0 };
     double m_sibilance { 0.5 };
 
@@ -197,6 +211,9 @@ private:
 
     double m_voicingLevel { 0.0 };
     double m_voicingTarget { 0.0 };
+    double m_voicingAttackCoeff { 0.0 };
+    double m_voicingReleaseCoeff { 0.0 };
+    double m_voicedAge { 0.0 };
     double m_fricationLevel { 0.0 };
     double m_fricationTarget { 0.0 };
     double m_previousFricationLevel { 0.0 };
@@ -223,7 +240,7 @@ private:
     std::array<CascadedSvf, 3> m_fricationFormants {};
     std::array<CascadedSvf, 3> m_previousFricationFormants {};
 
-    GlottalSource m_glottis {};
+    GlottalSourceV2 m_glottis {};
     OnePoleFilter m_radiation {};
     OnePoleFilter m_aspirationFilter {};
     OnePoleFilter m_sourceRolloffFilter {};

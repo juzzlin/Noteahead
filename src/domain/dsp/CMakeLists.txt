@@ -33,6 +33,7 @@ set(DSP_SOURCES
     speech/formant_voice.cpp
     speech/formant_voice_v2.cpp
     speech/glottal_source.cpp
+    speech/glottal_source_v2.cpp
     speech/phoneme_table.cpp
     speech/speech_sequencer.cpp
     speech/text_to_phonemes.cpp

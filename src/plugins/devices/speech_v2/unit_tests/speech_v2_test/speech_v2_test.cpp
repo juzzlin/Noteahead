@@ -328,6 +328,41 @@ void SpeechV2Test::test_triggerAndSyncModes_shouldBehaveAndSeek()
     QVERIFY(device.hasActiveAudio());
 }
 
+void SpeechV2Test::test_vibrato_shouldRampInSmoothlyOnSustainedVowel()
+{
+    SpeechV2Device device { "Speech V2" };
+    device.setPhrase("/AA/");
+    device.setIntonation(0.0f);
+    device.setVoicePerturbation(0.0f);
+    device.setVibratoRate(0.6f);
+    device.setVibratoDepth(1.0f);
+    device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Fit));
+    device.processDeviceMidiNoteOn(57, 100);
+
+    const auto audio = renderDevice(device, static_cast<uint32_t>(SampleRate * 1.0));
+    constexpr size_t windowFrames = 2048;
+    constexpr size_t hopFrames = 480;
+    const auto centsSwing = [&](size_t fromFrame, size_t toFrame) {
+        double minCents = 1e9;
+        double maxCents = -1e9;
+        for (size_t start = fromFrame; start + windowFrames <= toFrame; start += hopFrames) {
+            const std::vector<double> slice(
+              audio.begin() + static_cast<long>(start * 2),
+              audio.begin() + static_cast<long>((start + windowFrames) * 2));
+            const double f0 = preciseFundamental(slice);
+            const double cents = 1200.0 * std::log2(std::max(1.0, f0) / 220.0);
+            minCents = std::min(minCents, cents);
+            maxCents = std::max(maxCents, cents);
+        }
+        return maxCents - minCents;
+    };
+
+    const double onsetSwing = centsSwing(240, 3200); // ~5..67 ms
+    const double sustainedSwing = centsSwing(16800, 43200); // ~350..900 ms
+    QVERIFY2(sustainedSwing > onsetSwing * 3.0 && sustainedSwing > 35.0,
+             qPrintable(QString { "onset=%1 st, sustained=%2 st" }.arg(onsetSwing / 100.0).arg(sustainedSwing / 100.0)));
+}
+
 void SpeechV2Test::test_dialogModel_roundTripAndRequestSettings()
 {
     const auto device = std::make_shared<SpeechV2Device>("Speech V2");

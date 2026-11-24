@@ -76,6 +76,7 @@ set(HEADER_FILES
     dsp/speech/formant_voice.hpp
     dsp/speech/formant_voice_v2.hpp
     dsp/speech/glottal_source.hpp
+    dsp/speech/glottal_source_v2.hpp
     dsp/speech/phoneme.hpp
     dsp/speech/speech_sequencer.hpp
     dsp/speech/text_to_phonemes.hpp
@@ -235,6 +236,7 @@ set(SOURCE_FILES
     dsp/speech/formant_voice.cpp
     dsp/speech/formant_voice_v2.cpp
     dsp/speech/glottal_source.cpp
+    dsp/speech/glottal_source_v2.cpp
     dsp/speech/phoneme_table.cpp
     dsp/speech/speech_sequencer.cpp
     dsp/speech/text_to_phonemes.cpp

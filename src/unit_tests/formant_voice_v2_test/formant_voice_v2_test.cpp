@@ -193,14 +193,21 @@ void FormantVoiceV2Test::test_heldVowel_shouldPeakAtFormantsAndReflectOpenness()
     QVERIFY2(aaDb - iyDb > 2.0 && aaDb - iyDb < 10.0, qPrintable(QString { "AA-IY=%1 dB" }.arg(aaDb - iyDb)));
     QVERIFY2(aaDb - uwDb > 2.0 && aaDb - uwDb < 10.0, qPrintable(QString { "AA-UW=%1 dB" }.arg(aaDb - uwDb)));
 
-    // Upper formants provide real energy above 3 kHz
+    // Upper formants provide real energy above 3 kHz (steeper LF return rolloff on /AA/, brisk presence on /IY/)
     const double body = bandEnergy(aaSpec, 200.0, 3000.0);
     const double high = bandEnergy(aaSpec, 3000.0, 6000.0);
-    QVERIFY2(high > body * 1.0e-5, qPrintable(QString::number(10.0 * std::log10(high / body), 'f', 1)));
+    QVERIFY2(high > body * 2.0e-6, qPrintable(QString::number(10.0 * std::log10(high / body), 'f', 1)));
 
     const double iyBody = bandEnergy(iySpec, 200.0, 3000.0);
     const double iyHigh = bandEnergy(iySpec, 3000.0, 6000.0);
-    QVERIFY2(iyHigh > iyBody * 5.0e-4, qPrintable(QString::number(10.0 * std::log10(iyHigh / iyBody), 'f', 1)));
+    QVERIFY2(iyHigh > iyBody * 2.0e-4, qPrintable(QString::number(10.0 * std::log10(iyHigh / iyBody), 'f', 1)));
+
+    auto brightVoice = makeVoice();
+    brightVoice.setReturnPhase(0.004);
+    const auto brightIySpec = spectrum(render(brightVoice, { { "IY", SettleFrames + FftSize } }), SettleFrames);
+    const double brightBody = bandEnergy(brightIySpec, 200.0, 3000.0);
+    const double brightHigh = bandEnergy(brightIySpec, 3000.0, 6000.0);
+    QVERIFY2(brightHigh > brightBody * 5.0e-4, qPrintable(QString::number(10.0 * std::log10(brightHigh / brightBody), 'f', 1)));
 }
 
 void FormantVoiceV2Test::test_nasal_shouldHaveMurmurAndAntiresonanceNotch()
@@ -436,6 +443,64 @@ void FormantVoiceV2Test::test_highPitch_shouldPreserveFundamentalThroughF1Floor(
     const double fundamentalEnergy = bandEnergy(mags, 550.0, 650.0);
     const double totalVocal = bandEnergy(mags, 200.0, 4000.0);
     QVERIFY2(fundamentalEnergy > totalVocal * 0.02, qPrintable(QString::number(fundamentalEnergy / totalVocal)));
+}
+
+void FormantVoiceV2Test::test_returnPhase_shouldControlHighFrequencyTilt()
+{
+    const auto upperVsF1 = [](double returnPhase) {
+        auto voice = makeVoice();
+        voice.setReturnPhase(returnPhase);
+        const auto rendered = render(voice, { { "AA", SettleFrames + FftSize } });
+        const auto mags = spectrum(rendered, SettleFrames);
+        return bandEnergy(mags, 1500.0, 4000.0) / std::max(1.0e-12, bandEnergy(mags, 500.0, 900.0));
+    };
+
+    const double bright = upperVsF1(0.005);
+    const double soft = upperVsF1(0.060);
+    QVERIFY2(bright > soft * 4.0, qPrintable(QString { "bright=%1 vs soft=%2" }.arg(bright).arg(soft)));
+}
+
+void FormantVoiceV2Test::test_voicingOnset_shouldBeSofterThanSteadyState()
+{
+    auto voice = makeVoice();
+    const auto sFrames = static_cast<size_t>(SampleRate * 0.08);
+    const auto aaFrames = static_cast<size_t>(SampleRate * 0.16);
+    const auto rendered = render(voice, { { "S", sFrames }, { "AA", aaFrames } });
+
+    const double onsetRms = rms(rendered, sFrames, sFrames + static_cast<size_t>(SampleRate * 0.015));
+    const double steadyRms = rms(rendered, sFrames + static_cast<size_t>(SampleRate * 0.10), sFrames + static_cast<size_t>(SampleRate * 0.15));
+    QVERIFY2(onsetRms < steadyRms * 0.65, qPrintable(QString { "onsetRms=%1 vs steadyRms=%2" }.arg(onsetRms).arg(steadyRms)));
+
+    auto cleanOnsetVoice = makeVoice(200.0);
+    const auto cleanRendered = render(cleanOnsetVoice, { { "AA", aaFrames } });
+    constexpr int onsetFft = 1024;
+    const auto onsetSpec = spectrum(cleanRendered, 0, onsetFft);
+    const auto steadySpec = spectrum(cleanRendered, static_cast<size_t>(SampleRate * 0.10), onsetFft);
+    const double onsetF1VsH1 = bandEnergy(onsetSpec, 550.0, 950.0, onsetFft) / std::max(1.0e-12, bandEnergy(onsetSpec, 140.0, 260.0, onsetFft));
+    const double steadyF1VsH1 = bandEnergy(steadySpec, 550.0, 950.0, onsetFft) / std::max(1.0e-12, bandEnergy(steadySpec, 140.0, 260.0, onsetFft));
+    QVERIFY2(onsetF1VsH1 < steadyF1VsH1 * 0.85, qPrintable(QString { "onsetF1/H1=%1 vs steadyF1/H1=%2" }.arg(onsetF1VsH1).arg(steadyF1VsH1)));
+}
+
+void FormantVoiceV2Test::test_phraseFinal_shouldTaperAndSoftenAtTail()
+{
+    const auto renderAtProgress = [](double progress) {
+        auto voice = makeVoice();
+        voice.setPhraseDynamics(1.0);
+        voice.setUtteranceProgress(progress);
+        return render(voice, { { "AA", SettleFrames + 8192 } });
+    };
+
+    const auto midAudio = renderAtProgress(0.50);
+    const auto tailAudio = renderAtProgress(0.97);
+    const double midRms = rms(midAudio, SettleFrames, midAudio.size());
+    const double tailRms = rms(tailAudio, SettleFrames, tailAudio.size());
+    QVERIFY2(tailRms < midRms * 0.85, qPrintable(QString { "tailRms=%1 vs midRms=%2" }.arg(tailRms).arg(midRms)));
+
+    const auto midSpec = spectrum(midAudio, SettleFrames, 8192);
+    const auto tailSpec = spectrum(tailAudio, SettleFrames, 8192);
+    const double midBright = bandEnergy(midSpec, 1500.0, 4000.0, 8192) / std::max(1.0e-12, bandEnergy(midSpec, 80.0, 350.0, 8192));
+    const double tailBright = bandEnergy(tailSpec, 1500.0, 4000.0, 8192) / std::max(1.0e-12, bandEnergy(tailSpec, 80.0, 350.0, 8192));
+    QVERIFY2(tailBright < midBright * 0.6, qPrintable(QString { "tailBright=%1 vs midBright=%2" }.arg(tailBright).arg(midBright)));
 }
 
 void FormantVoiceV2Test::test_afterReset_shouldBeSilent()

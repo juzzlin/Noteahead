@@ -38,6 +38,9 @@ private slots:
     void test_boundaries_shouldNotClick_data();
     void test_boundaries_shouldNotClick();
     void test_highPitch_shouldPreserveFundamentalThroughF1Floor();
+    void test_returnPhase_shouldControlHighFrequencyTilt();
+    void test_voicingOnset_shouldBeSofterThanSteadyState();
+    void test_phraseFinal_shouldTaperAndSoftenAtTail();
     void test_afterReset_shouldBeSilent();
 };
 

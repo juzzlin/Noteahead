@@ -33,6 +33,7 @@ private slots:
     void test_loudness_helloWorld_shouldMatchSpeechV1();
     void test_midiCc_shouldReachParametersAndResetCleanly();
     void test_triggerAndSyncModes_shouldBehaveAndSeek();
+    void test_vibrato_shouldRampInSmoothlyOnSustainedVowel();
     void test_dialogModel_roundTripAndRequestSettings();
 };
 

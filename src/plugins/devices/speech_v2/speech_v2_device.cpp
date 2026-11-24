@@ -50,19 +50,20 @@ struct VoiceTypeSettings
     double breathiness;
     double perturbation;
     double speedQuotient;
+    double returnPhase;
     double subharmonic;
 };
 
 constexpr VoiceTypeSettings VoiceTypes[] {
-    { 1.0, 0.0, 0.48, 0.04, 0.35, 2.5, 0.0 },
-    { 1.17, 0.0, 0.62, 0.10, 0.45, 2.5, 0.0 },
-    { 1.35, 0.0, 0.66, 0.12, 0.75, 2.5, 0.0 },
-    { 0.87, 0.0, 0.34, 0.02, 0.30, 2.5, 0.0 },
-    { 1.04, 0.0, 0.80, 0.30, 0.55, 2.5, 0.0 },
-    { 0.72, 0.0, 0.38, 0.05, 0.45, 2.5, 0.0 },
-    { 0.96, 0.0, 0.72, 0.20, 1.00, 2.5, 0.0 },
-    { 1.55, 0.0, 0.30, 0.02, 0.08, 2.5, 0.0 },
-    { 0.80, 0.0, 0.32, 0.06, 0.70, 4.5, 0.60 }
+    { 1.0, 0.0, 0.48, 0.04, 0.35, 2.5, 0.010, 0.0 },
+    { 1.17, 0.0, 0.62, 0.10, 0.45, 2.5, 0.018, 0.0 },
+    { 1.35, 0.0, 0.66, 0.12, 0.75, 2.5, 0.022, 0.0 },
+    { 0.87, 0.0, 0.34, 0.02, 0.30, 2.8, 0.006, 0.0 },
+    { 1.04, 0.0, 0.80, 0.30, 0.55, 2.0, 0.045, 0.0 },
+    { 0.72, 0.0, 0.38, 0.05, 0.45, 2.6, 0.008, 0.0 },
+    { 0.96, 0.0, 0.72, 0.20, 1.00, 2.2, 0.032, 0.0 },
+    { 1.55, 0.0, 0.30, 0.02, 0.08, 3.2, 0.004, 0.0 },
+    { 0.80, 0.0, 0.32, 0.06, 0.70, 4.5, 0.005, 0.60 }
 };
 
 constexpr double StressAccentSemitones = 3.0;
@@ -249,6 +250,8 @@ void SpeechV2Device::handleNoteOn(uint8_t note, uint8_t velocity)
     if (!legato) {
         m_sequencer.trigger();
         m_vibrato.setPhase(0.0);
+        m_vibratoAge = 0.0;
+        m_vibratoEnvelope = 0.0;
     }
 }
 
@@ -396,12 +399,15 @@ void SpeechV2Device::syncParameters()
     m_voice.setFormantShift(voiceType.formantShift * (MinFormantShift + FormantShiftRange * static_cast<double>(m_formantShift)));
     m_voice.setSourceRolloff(voiceType.sourceRolloff);
     m_voice.setOpenQuotient(voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5));
+    const double returnPhase = std::clamp(voiceType.returnPhase * std::exp2((static_cast<double>(m_openQuotient) - 0.5) * 2.0), 0.003, 0.090);
+    m_voice.setReturnPhase(returnPhase);
     m_voice.setVoicePerturbation(voiceType.perturbation * PerturbationRange * static_cast<double>(m_voicePerturbation) * 2.0);
     m_voice.setSpeedQuotient(voiceType.speedQuotient);
     m_voice.setSubharmonic(voiceType.subharmonic);
     m_voice.setBreathiness(static_cast<double>(m_breathiness) + voiceType.breathiness);
     m_voice.setConsonantLevel(static_cast<double>(m_consonantLevel) * ConsonantLevelRange);
     m_voice.setSibilance(static_cast<double>(m_sibilance));
+    m_voice.setPhraseDynamics(static_cast<double>(m_intonation));
 }
 
 double SpeechV2Device::nextFlutter(double sampleRate)
@@ -456,12 +462,25 @@ void SpeechV2Device::processAudio(AudioContext & context)
     const double sensitivity = static_cast<double>(m_velocitySensitivity);
     const double gain = OutputGain * linearGainInternal() * (1.0 - sensitivity + sensitivity * m_velocity);
 
+    const double dt = 1.0 / context.sampleRate;
     for (uint32_t i = 0; i < context.frameCount; i++) {
         const auto * spec = m_sequencer.phoneme();
 
         if (spec) {
             m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
             m_voice.setPhonemeProgress(m_sequencer.progress());
+            m_voice.setUtteranceProgress(m_sequencer.utteranceProgress());
+
+            const bool voicedSonorant = spec->type == PhonemeType::Vowel
+              || spec->type == PhonemeType::Liquid
+              || spec->type == PhonemeType::Nasal;
+            if (voicedSonorant) {
+                m_vibratoAge = std::min(VibratoOnsetSeconds, m_vibratoAge + dt);
+            } else {
+                m_vibratoAge = std::max(0.0, m_vibratoAge - dt * (VibratoOnsetSeconds / VibratoReleaseSeconds));
+            }
+            const double vt = m_vibratoAge / VibratoOnsetSeconds;
+            m_vibratoEnvelope = vt * vt * (3.0 - 2.0 * vt);
 
             const double askedNote = std::log2(noteToFrequency(m_note));
             m_notePitch = m_notePitch.has_value() ? *m_notePitch + (askedNote - *m_notePitch) * m_portamentoCoefficient : askedNote;
@@ -469,8 +488,12 @@ void SpeechV2Device::processAudio(AudioContext & context)
             const double asked = std::log2(currentFrequency());
             m_pitch = m_pitch < 0.0 ? asked : m_pitch + (asked - m_pitch) * m_pitchCoefficient;
 
-            const double vibrato = m_vibrato.nextSample() * static_cast<double>(m_vibratoDepth) * VibratoDepthSemitones;
+            const double vibrato = m_vibrato.nextSample() * static_cast<double>(m_vibratoDepth) * VibratoDepthSemitones * m_vibratoEnvelope;
             m_voice.setFrequency(std::exp2(m_pitch) * nextFlutter(context.sampleRate) * std::pow(2.0, vibrato / 12.0));
+        } else {
+            m_vibratoAge = std::max(0.0, m_vibratoAge - dt * (VibratoOnsetSeconds / VibratoReleaseSeconds));
+            const double vt = m_vibratoAge / VibratoOnsetSeconds;
+            m_vibratoEnvelope = vt * vt * (3.0 - 2.0 * vt);
         }
 
         m_fade += ((spec ? 1.0 : 0.0) - m_fade) * m_fadeCoefficient;
@@ -494,7 +517,7 @@ void SpeechV2Device::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
-    publishLfoLed(0, m_sequencer.isActive() ? m_vibrato.shapeValue() : LfoLedDark);
+    publishLfoLed(0, m_sequencer.isActive() ? m_vibrato.shapeValue() * m_vibratoEnvelope : LfoLedDark);
 }
 
 void SpeechV2Device::advanceIdle(const AudioContext &)
@@ -538,6 +561,8 @@ void SpeechV2Device::resetDeviceAudio()
     m_pitch = -1.0;
     m_notePitch.reset();
     m_flutterPhases = {};
+    m_vibratoAge = 0.0;
+    m_vibratoEnvelope = 0.0;
 }
 
 float SpeechV2Device::rate() const

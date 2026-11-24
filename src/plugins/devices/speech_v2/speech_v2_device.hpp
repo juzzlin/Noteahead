@@ -133,6 +133,8 @@ private:
     static constexpr double OutputFadeTime { 0.006 };
     static constexpr double FadeFloor { 0.0001 };
     static constexpr double PitchGlideTime { 0.045 };
+    static constexpr double VibratoOnsetSeconds { 0.22 };
+    static constexpr double VibratoReleaseSeconds { 0.030 };
     static constexpr double FlutterRates[] { 12.7, 7.1, 4.7 };
     static constexpr double FlutterDepth { 0.004 };
 
@@ -161,6 +163,8 @@ private:
     std::optional<double> m_notePitch;
     double m_portamentoCoefficient { 1.0 };
     std::array<double, std::size(FlutterRates)> m_flutterPhases {};
+    double m_vibratoAge { 0.0 };
+    double m_vibratoEnvelope { 0.0 };
 
     double m_fade { 0.0 };
     double m_fadeCoefficient { 0.0 };
