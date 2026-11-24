@@ -63,8 +63,9 @@ ColumnLayout {
     Knob {
         visible: root.number > 1
         label: qsTr("Frequency")
-        mapping: "value"
+        mapping: "fineValue"
         suffix: ""
+        to: synthDController.fineKnobScaling
         mapMin: -7
         mapMax: 7
         value: root.number > 1 ? synthDController[root.prefix + "Frequency"] : 0

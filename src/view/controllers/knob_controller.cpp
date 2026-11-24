@@ -115,7 +115,8 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     if (type == "fader")
         return ParameterMapper::mapFader(value);
-    // Pan is linear, as its readout and its typed entry both are. "bipolar" and "value" are too:
+    // Pan is linear, as its readout and its typed entry both are. "bipolar", "value" and
+    // "fineValue" are too:
     // they differ only in how they read out, which format() handles. Neither can use the plain
     // percentage readout, which ignores the range and shows the knob's own position: a control centred on zero would read 50 % at neutral and never read
     // negative, and one running past 100 % would report full travel as 100 % however far it
@@ -182,13 +183,16 @@ QString KnobController::format(double value, const QString & type, const QString
     // runs to 200 %, and renormalising it onto the travel would flatten it back onto 0 - 100 %.
     // Percent sits tight against its number the way it is written everywhere else here; any other
     // unit takes a space.
-    if (type == "value") {
+    // "fineValue" is the same with two decimals, for what is set in hundredths: a detune of a few
+    // cents read out to a tenth of a semitone shows as nothing at all.
+    if (type == "value" || type == "fineValue") {
+        const int decimals = type == "fineValue" ? 2 : 1;
         if (suffix.isEmpty()) {
-            return QString { "%1" }.arg(mappedValue, 0, 'f', 1);
+            return QString { "%1" }.arg(mappedValue, 0, 'f', decimals);
         }
         return suffix == "%"
-          ? QString { "%1%" }.arg(mappedValue, 0, 'f', 1)
-          : QString { "%1 %2" }.arg(mappedValue, 0, 'f', 1).arg(suffix);
+          ? QString { "%1%" }.arg(mappedValue, 0, 'f', decimals)
+          : QString { "%1 %2" }.arg(mappedValue, 0, 'f', decimals).arg(suffix);
     }
     if (type == "logFrequency" || type == "logFrequencyHighPass" || type == "frequency") {
         const double linearValue = value * Constants::uiInternalScaling();
@@ -285,7 +289,7 @@ QVariant KnobController::parse(const QString & text, const QString & type, const
 
     // The bipolar family, integers and anything reading out its mapped value take the number as it
     // stands, unit and all.
-    if (type == "integer" || type == "intensity" || type == "cubicCentered" || type == "bipolar" || type == "value") {
+    if (type == "integer" || type == "intensity" || type == "cubicCentered" || type == "bipolar" || type == "value" || type == "fineValue") {
         return clampToPosition(unmap(input->number, type, min, max));
     }
 

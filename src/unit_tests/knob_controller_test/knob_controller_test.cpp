@@ -306,6 +306,18 @@ void KnobControllerTest::test_bipolarMapping_shouldReadZeroAtTheCentre()
     QCOMPARE(controller.map(0.25, "bipolar", -100.0, 100.0), -50.0);
 }
 
+void KnobControllerTest::test_fineValueMapping_shouldReadAndParseHundredths()
+{
+    KnobController controller;
+
+    // A detune of five cents on a ±7 semitone knob, which "value" rounds to a tenth
+    const double position = 0.5 + 0.05 / 14.0;
+    QCOMPARE(controller.format(position, "fineValue", "", -7.0, 7.0), QString { "0.05" });
+    QCOMPARE(controller.format(0.5 - 0.03 / 14.0, "fineValue", "", -7.0, 7.0), QString { "-0.03" });
+
+    QVERIFY(std::abs(controller.parse("0.03", "fineValue", "", -7.0, 7.0).toDouble() - (0.5 + 0.03 / 14.0)) < 1.0e-9);
+}
+
 void KnobControllerTest::test_valueMapping_shouldReadPastFullScale()
 {
     KnobController controller;

@@ -19,6 +19,7 @@
 #include "../../../../../domain/dsp/audio_context.hpp"
 #include "../../../../../domain/dsp/synth_d_voice.hpp"
 #include "../../synth_d_device.hpp"
+#include "../../synth_d_dialog_model.hpp"
 #include "../../synth_d_presets.hpp"
 
 #include <QTest>
@@ -638,6 +639,27 @@ void SynthDTest::test_processAudio_whenInactive_shouldAdvanceLfoAndStaySilent()
     }
     QVERIFY(lowest < -0.8f);
     QVERIFY(highest > 0.8f);
+}
+
+void SynthDTest::test_dialogModel_pitchKnobs_shouldSetCents()
+{
+    const auto device = std::make_shared<SynthDDevice>("SynthD");
+    SynthDDialogModel model { device };
+    const int centre = SynthDDialogModel::FineKnobScaling / 2;
+
+    // One step is 14 semitones over FineKnobScaling, under a cent and a half; a thousandth of the
+    // range was 1.4 cents, too coarse to set a slow beat with
+    model.setOsc2Frequency(centre + 1);
+    QVERIFY((device->knob(Constants::NahdXml::xmlKeyVco2Pitch()) - 0.5f) * 14.0f < 0.002f);
+    QCOMPARE(model.osc2Frequency(), centre + 1);
+
+    // Five cents either way, on all three pitch knobs
+    const int fiveCents = static_cast<int>(std::round(0.05 / 14.0 * SynthDDialogModel::FineKnobScaling));
+    model.setOsc3Frequency(centre - fiveCents);
+    QVERIFY(std::abs((device->knob(Constants::NahdXml::xmlKeyVco3Pitch()) - 0.5f) * 14.0f + 0.05f) < 0.001f);
+    const int tuneFiveCents = static_cast<int>(std::round(0.05 / 4.0 * SynthDDialogModel::FineKnobScaling));
+    model.setTune(centre + tuneFiveCents);
+    QVERIFY(std::abs((device->knob(Constants::NahdXml::xmlKeyTune()) - 0.5f) * 4.0f - 0.05f) < 0.001f);
 }
 
 } // namespace noteahead

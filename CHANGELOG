@@ -17,6 +17,8 @@ New features:
 
 Bug fixes:
 
+* Synth D: Tune and the OSC 2 and OSC 3 Frequency knobs set and show hundredths of a semitone, for a slow beat between the oscillators
+
 Other:
 
 13.0.0

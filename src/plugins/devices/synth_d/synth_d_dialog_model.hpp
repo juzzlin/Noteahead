@@ -31,6 +31,9 @@ class SynthDDialogModel : public DeviceDialogModel
     Q_OBJECT
 
     // Every control changes with the others on a preset or a reload, so they share one signal
+    //! The pitch knobs count in FineKnobScaling steps rather than uiInternalScaling ones: a detune
+    //! is set in cents, which a thousandth of 14 semitones cannot reach.
+    Q_PROPERTY(int fineKnobScaling READ fineKnobScaling CONSTANT)
     Q_PROPERTY(int tune READ tune WRITE setTune NOTIFY controlsChanged)
     Q_PROPERTY(int glide READ glide WRITE setGlide NOTIFY controlsChanged)
     Q_PROPERTY(int modMix READ modMix WRITE setModMix NOTIFY controlsChanged)
@@ -96,6 +99,9 @@ public:
 
     QStringList factoryPresetNames() const override;
     void loadFactoryPreset(int index) override;
+
+    static constexpr int FineKnobScaling { 10000 };
+    int fineKnobScaling() const;
 
     int tune() const;
     void setTune(int value);
@@ -215,6 +221,8 @@ signals:
 private:
     int knob(const QString & key) const;
     void setKnob(const QString & key, int value);
+    int fineKnob(const QString & key) const;
+    void setFineKnob(const QString & key, int value);
     int choice(const QString & key) const;
     void setChoice(const QString & key, int value);
 

@@ -50,6 +50,7 @@ private slots:
     void test_osc3_audioRateModulation_shouldProduceCleanFmSidebands();
     void test_osc3_loRange_keyboardControlOff_shouldSweepWideLfoRange();
     void test_processAudio_whenInactive_shouldAdvanceLfoAndStaySilent();
+    void test_dialogModel_pitchKnobs_shouldSetCents();
 };
 
 } // namespace noteahead

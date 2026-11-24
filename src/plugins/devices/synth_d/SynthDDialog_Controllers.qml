@@ -33,8 +33,9 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Tune")
-        mapping: "value"
+        mapping: "fineValue"
         suffix: ""
+        to: synthDController.fineKnobScaling
         mapMin: -2
         mapMax: 2
         value: synthDController.tune

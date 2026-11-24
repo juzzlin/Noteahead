@@ -92,6 +92,23 @@ void SynthDDialogModel::setKnob(const QString & key, int value)
     }
 }
 
+int SynthDDialogModel::fineKnob(const QString & key) const
+{
+    return m_device ? static_cast<int>(std::round(m_device->knob(key) * FineKnobScaling)) : 0;
+}
+
+void SynthDDialogModel::setFineKnob(const QString & key, int value)
+{
+    if (m_device) {
+        m_device->setKnob(key, static_cast<float>(value) / FineKnobScaling);
+    }
+}
+
+int SynthDDialogModel::fineKnobScaling() const
+{
+    return FineKnobScaling;
+}
+
 int SynthDDialogModel::choice(const QString & key) const
 {
     return m_device ? m_device->choice(key) : 0;
@@ -106,12 +123,12 @@ void SynthDDialogModel::setChoice(const QString & key, int value)
 
 int SynthDDialogModel::tune() const
 {
-    return knob(Xml::xmlKeyTune());
+    return fineKnob(Xml::xmlKeyTune());
 }
 
 void SynthDDialogModel::setTune(int value)
 {
-    setKnob(Xml::xmlKeyTune(), value);
+    setFineKnob(Xml::xmlKeyTune(), value);
 }
 
 int SynthDDialogModel::glide() const
@@ -266,22 +283,22 @@ void SynthDDialogModel::setOsc3Waveform(int value)
 
 int SynthDDialogModel::osc2Frequency() const
 {
-    return knob(Xml::xmlKeyVco2Pitch());
+    return fineKnob(Xml::xmlKeyVco2Pitch());
 }
 
 void SynthDDialogModel::setOsc2Frequency(int value)
 {
-    setKnob(Xml::xmlKeyVco2Pitch(), value);
+    setFineKnob(Xml::xmlKeyVco2Pitch(), value);
 }
 
 int SynthDDialogModel::osc3Frequency() const
 {
-    return knob(Xml::xmlKeyVco3Pitch());
+    return fineKnob(Xml::xmlKeyVco3Pitch());
 }
 
 void SynthDDialogModel::setOsc3Frequency(int value)
 {
-    setKnob(Xml::xmlKeyVco3Pitch(), value);
+    setFineKnob(Xml::xmlKeyVco3Pitch(), value);
 }
 
 bool SynthDDialogModel::osc3KeyboardControl() const
