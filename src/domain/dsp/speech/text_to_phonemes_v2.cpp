@@ -29,11 +29,13 @@ namespace {
 constexpr std::string_view PausePunctuation = ".,;:!?-";
 constexpr std::string_view LineEndPunctuation = ".!?";
 
-constexpr double FunctionWordLength = 0.75;
-constexpr double StressedLength = 1.3;
-constexpr double UnstressedLength = 0.8;
+constexpr double FunctionWordLength = 0.65;
+constexpr double StressedLength = 0.96;
+constexpr double UnstressedLength = 0.62;
+constexpr double MonosyllableContentLength = 0.92;
+constexpr double WordConsonantScale = 0.86;
 constexpr double UnaspiratedStopLength = 0.55;
-constexpr double PhraseFinalLength = 1.45;
+constexpr double PhraseFinalLength = 1.25;
 constexpr double PreFortisClipScale = 0.70;
 constexpr double PreFortisClusterClipScale = 0.80;
 
@@ -615,8 +617,14 @@ void applyLexiconStress(PhonemeEventList & events, size_t from, size_t to, int s
         }
         const bool stressed = started && syllable == targetSyllable;
         events[i].stressed = stressed;
-        if (syllables > 1 && events[i].spec->type == PhonemeType::Vowel) {
-            events[i].lengthScale *= stressed ? StressedLength : UnstressedLength;
+        if (events[i].spec->type == PhonemeType::Vowel) {
+            if (syllables > 1) {
+                events[i].lengthScale *= stressed ? StressedLength : UnstressedLength;
+            } else {
+                events[i].lengthScale *= MonosyllableContentLength;
+            }
+        } else {
+            events[i].lengthScale *= WordConsonantScale;
         }
     }
 }
@@ -641,8 +649,21 @@ void appendWordFallback(std::string_view rawWord, bool lineStartContext, Phoneme
     if (lastWordStart < sub.size()) {
         sub.erase(sub.begin() + static_cast<ptrdiff_t>(lastWordStart), sub.end());
     }
+    size_t vowelCount = 0;
+    for (const auto & event : sub) {
+        if (event.spec->type == PhonemeType::Vowel) {
+            vowelCount++;
+        }
+    }
     for (auto & event : sub) {
         event.lineStart = false;
+        if (vowelCount > 1 && event.spec->type == PhonemeType::Vowel) {
+            event.lengthScale *= event.stressed ? (StressedLength / 1.3) : (UnstressedLength / 0.8);
+        } else if (event.spec->type == PhonemeType::Vowel) {
+            event.lengthScale *= MonosyllableContentLength;
+        } else {
+            event.lengthScale *= WordConsonantScale;
+        }
         events.push_back(event);
     }
 }
@@ -751,6 +772,21 @@ void shortenUnaspiratedStops(PhonemeEventList & events)
     }
 }
 
+void tightenAffricates(PhonemeEventList & events)
+{
+    for (size_t i = 0; i + 1 < events.size(); i++) {
+        if (events[i + 1].wordStart) {
+            continue;
+        }
+        const auto first = events[i].spec->name;
+        const auto second = events[i + 1].spec->name;
+        if ((first == "T" && second == "SH") || (first == "D" && second == "ZH")) {
+            events[i].lengthScale *= 0.42;
+            events[i + 1].lengthScale *= 0.78;
+        }
+    }
+}
+
 void applyPhraseFinalLengthening(PhonemeEventList & events)
 {
     for (size_t i = 0; i < events.size(); i++) {
@@ -803,6 +839,17 @@ PhonemeEventList textToPhonemesV2(std::string_view text)
             const size_t before = events.size();
             appendSpacePhonemes(upper, events, true);
             markWordSyllables(events, before, events.size());
+            size_t syllables = 0;
+            for (size_t k = before; k < events.size(); k++) {
+                if (events[k].syllableStart) {
+                    syllables++;
+                }
+            }
+            if (syllables == 1) {
+                for (size_t k = before; k < events.size(); k++) {
+                    events[k].stressed = true;
+                }
+            }
             pos = std::min(end + 1, view.size());
         } else if (std::isalpha(static_cast<unsigned char>(view[pos])) || isApostrophe(view, pos)) {
             const size_t wordStart = pos;
@@ -856,6 +903,7 @@ PhonemeEventList textToPhonemesV2(std::string_view text)
 
     applyContextAwareThe(events, theSpans);
     applyAlveolarFlap(events);
+    tightenAffricates(events);
     applyPreFortisClipping(events);
     shortenUnaspiratedStops(events);
     applyPhraseFinalLengthening(events);

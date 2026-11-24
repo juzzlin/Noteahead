@@ -184,6 +184,28 @@ void SpeechProsodyTest::test_microprosody_shouldLiftAfterUnvoicedAndDipAfterVoic
     QVERIFY(onsetP > decayedP + 0.7);
 }
 
+void SpeechProsodyTest::test_unpunctuatedPhrase_shouldHaveDeclarativeFallAndContinuousContour()
+{
+    auto events = textToPhonemes("hello world");
+    const auto prosody = SpeechProsody::analyze("hello world", events);
+    QCOMPARE(prosody.size(), events.size());
+    QVERIFY(!events.empty());
+    QCOMPARE(prosody.front().boundaryTone, BoundaryTone::Statement);
+
+    const double startPitch = SpeechProsody::pitchOffsetSemitones(prosody.front(), *events.front().spec, 0.0, 0.0, 1.0);
+    const double endPitch = SpeechProsody::pitchOffsetSemitones(prosody.back(), *events.back().spec, 1.0, 0.10, 1.0);
+    QVERIFY2(endPitch < startPitch - 2.0, qPrintable(QString { "start=%1 vs end=%2" }.arg(startPitch).arg(endPitch)));
+
+    // Seam continuity between adjacent voiced sonorants (no zero-reset step between OW and W)
+    for (size_t i = 0; i + 1 < events.size(); i++) {
+        if (events[i].spec->name == "OW" && events[i + 1].spec->name == "W") {
+            const double tailOw = SpeechProsody::pitchOffsetSemitones(prosody[i], *events[i].spec, 1.0, 0.20, 1.0);
+            const double headW = SpeechProsody::pitchOffsetSemitones(prosody[i + 1], *events[i + 1].spec, 0.0, 0.0, 1.0);
+            QVERIFY2(std::abs(tailOw - headW) < 0.05, qPrintable(QString { "tailOw=%1 vs headW=%2" }.arg(tailOw).arg(headW)));
+        }
+    }
+}
+
 void SpeechProsodyTest::test_sequencerV2_stepModeDiphthong_shouldHoldNucleusAndReleaseOffglide()
 {
     SpeechSequencerV2 sequencer {};

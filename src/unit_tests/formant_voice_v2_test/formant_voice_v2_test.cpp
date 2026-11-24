@@ -194,21 +194,21 @@ void FormantVoiceV2Test::test_heldVowel_shouldPeakAtFormantsAndReflectOpenness()
     QVERIFY2(aaDb - iyDb > 2.0 && aaDb - iyDb < 10.0, qPrintable(QString { "AA-IY=%1 dB" }.arg(aaDb - iyDb)));
     QVERIFY2(aaDb - uwDb > 2.0 && aaDb - uwDb < 10.0, qPrintable(QString { "AA-UW=%1 dB" }.arg(aaDb - uwDb)));
 
-    // Upper formants provide real energy above 3 kHz (steeper LF return rolloff on /AA/, brisk presence on /IY/)
+    // Upper formants provide real energy above 3 kHz with 48 kHz higher-pole correction
     const double body = bandEnergy(aaSpec, 200.0, 3000.0);
     const double high = bandEnergy(aaSpec, 3000.0, 6000.0);
-    QVERIFY2(high > body * 2.0e-6, qPrintable(QString::number(10.0 * std::log10(high / body), 'f', 1)));
+    QVERIFY2(high > body * 5.0e-5, qPrintable(QString::number(10.0 * std::log10(high / body), 'f', 1)));
 
     const double iyBody = bandEnergy(iySpec, 200.0, 3000.0);
     const double iyHigh = bandEnergy(iySpec, 3000.0, 6000.0);
-    QVERIFY2(iyHigh > iyBody * 2.0e-4, qPrintable(QString::number(10.0 * std::log10(iyHigh / iyBody), 'f', 1)));
+    QVERIFY2(iyHigh > iyBody * 1.0e-3, qPrintable(QString::number(10.0 * std::log10(iyHigh / iyBody), 'f', 1)));
 
     auto brightVoice = makeVoice();
     brightVoice.setReturnPhase(0.004);
     const auto brightIySpec = spectrum(render(brightVoice, { { "IY", SettleFrames + FftSize } }), SettleFrames);
     const double brightBody = bandEnergy(brightIySpec, 200.0, 3000.0);
     const double brightHigh = bandEnergy(brightIySpec, 3000.0, 6000.0);
-    QVERIFY2(brightHigh > brightBody * 5.0e-4, qPrintable(QString::number(10.0 * std::log10(brightHigh / brightBody), 'f', 1)));
+    QVERIFY2(brightHigh > brightBody * 2.0e-3, qPrintable(QString::number(10.0 * std::log10(brightHigh / brightBody), 'f', 1)));
 }
 
 void FormantVoiceV2Test::test_nasal_shouldHaveMurmurAndAntiresonanceNotch()
@@ -396,7 +396,7 @@ void FormantVoiceV2Test::test_plosives_closureAspirationAndPhraseFinal()
         QVERIFY(breathAfterFric < breathAlone * 0.25);
     }
 
-    // Phrase-final stop is unreleased
+    // Phrase-final stop releases softly rather than vanishing
     {
         auto endVoice = makeVoice();
         const auto atEnd = render(endVoice, { { "AA", frames }, { "T", frames } });
@@ -405,7 +405,10 @@ void FormantVoiceV2Test::test_plosives_closureAspirationAndPhraseFinal()
         const auto tailPeak = [&](const std::vector<double> & s) {
             return peakAmplitude(std::vector<double>(s.begin() + static_cast<long>(frames + frames / 2), s.begin() + static_cast<long>(2 * frames)));
         };
-        QVERIFY(tailPeak(atEnd) < tailPeak(released) * 0.25);
+        const double endPeak = tailPeak(atEnd);
+        const double relPeak = tailPeak(released);
+        QVERIFY2(endPeak > 0.005 && endPeak < relPeak * 0.78,
+                 qPrintable(QString { "endPeak=%1 vs relPeak=%2" }.arg(endPeak).arg(relPeak)));
     }
 }
 
@@ -564,6 +567,46 @@ void FormantVoiceV2Test::test_allophones_darkLAndFlap()
     const double aeRms = rms(out, vFrames / 3, vFrames * 2 / 3);
     const double dxRms = rms(out, vFrames + 200, vFrames + dxFrames - 100);
     QVERIFY2(dxRms > 0.005 && dxRms < aeRms * 0.85, qPrintable(QString { "dxRms=%1 vs aeRms=%2" }.arg(dxRms).arg(aeRms)));
+}
+
+void FormantVoiceV2Test::test_unstressedVowel_shouldCentralizeTowardSchwa()
+{
+    const auto measureCentroid = [](const std::string & vowel, bool stressed, double lowHz, double highHz) {
+        auto voice = makeVoice();
+        voice.setPhonemeStressed(stressed);
+        const auto rendered = render(voice, { { vowel, SettleFrames + FftSize } });
+        return centroidInBand(spectrum(rendered, SettleFrames), lowHz, highHz, FftSize);
+    };
+
+    const double stressedIyF2 = measureCentroid("IY", true, 1400.0, 2600.0);
+    const double unstressedIyF2 = measureCentroid("IY", false, 1400.0, 2600.0);
+    QVERIFY2(unstressedIyF2 < stressedIyF2 - 120.0,
+             qPrintable(QString { "stressed=%1 vs unstressed=%2" }.arg(stressedIyF2).arg(unstressedIyF2)));
+
+    const double stressedAaF1 = measureCentroid("AA", true, 350.0, 950.0);
+    const double unstressedAaF1 = measureCentroid("AA", false, 350.0, 950.0);
+    QVERIFY2(unstressedAaF1 < stressedAaF1 - 40.0,
+             qPrintable(QString { "stressedAA=%1 vs unstressedAA=%2" }.arg(stressedAaF1).arg(unstressedAaF1)));
+}
+
+void FormantVoiceV2Test::test_breathiness_shouldAddHighFrequencyAirWithoutLowRumble()
+{
+    const auto bands = [](double breathiness) {
+        auto voice = makeVoice();
+        voice.setBreathiness(breathiness);
+        const auto rendered = render(voice, { { "AA", SettleFrames + FftSize } });
+        const auto mags = spectrum(rendered, SettleFrames);
+        return std::pair {
+            bandEnergy(mags, 100.0, 400.0),
+            bandEnergy(mags, 2000.0, 5000.0)
+        };
+    };
+
+    const auto [lowDry, highDry] = bands(0.0);
+    const auto [lowBreathy, highBreathy] = bands(0.5);
+    QVERIFY2(highBreathy > highDry * 1.8, qPrintable(QString { "highDry=%1 vs highBreathy=%2" }.arg(highDry).arg(highBreathy)));
+    QVERIFY2(std::abs(lowBreathy - lowDry) < lowDry * 0.20,
+             qPrintable(QString { "lowDry=%1 vs lowBreathy=%2" }.arg(lowDry).arg(lowBreathy)));
 }
 
 void FormantVoiceV2Test::test_afterReset_shouldBeSilent()

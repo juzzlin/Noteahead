@@ -13729,6 +13729,30 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Monstre</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Robot</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Cyborg</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Chuchotement</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Démon</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutant</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Décalage de formants</translation>
     </message>

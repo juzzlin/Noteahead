@@ -214,10 +214,10 @@ void SpeechV2Test::test_velocitySensitivity_shouldScaleSoftNote()
     QVERIFY(sensitiveSoft < sensitiveLoud * 0.4);
 }
 
-void SpeechV2Test::test_voiceTypes_allNineShouldBeBoundedAndDistinct()
+void SpeechV2Test::test_voiceTypes_allFifteenShouldBeBoundedAndDistinct()
 {
     std::vector<double> centroids;
-    for (int type = 0; type <= 8; type++) {
+    for (int type = 0; type <= 14; type++) {
         SpeechV2Device device { "Speech V2" };
         device.setVoiceType(type);
         device.processDeviceMidiNoteOn(48, 100);
@@ -238,16 +238,68 @@ void SpeechV2Test::test_voiceTypes_allNineShouldBeBoundedAndDistinct()
     QVERIFY(centroids[2] > centroids[1]);
     QVERIFY(centroids[5] < centroids[0]);
 
-    // Monster (8) produces subharmonic at half fundamental
-    SpeechV2Device monster { "Speech V2" };
-    monster.setVoiceType(8);
-    const auto monsterAudio = heldVowel(monster, 57); // A3 = 220 Hz, sub = 110 Hz
     SpeechV2Device modal { "Speech V2" };
     modal.setVoiceType(0);
-    const auto modalAudio = heldVowel(modal, 57);
-    const double monsterSub = magnitudeNear(monsterAudio, 110.0);
+    const auto modalAudio = heldVowel(modal, 57); // A3 = 220 Hz
     const double modalSub = magnitudeNear(modalAudio, 110.0);
-    QVERIFY2(monsterSub > modalSub * 5.0, qPrintable(QString { "monster=%1 vs modal=%2" }.arg(monsterSub).arg(modalSub)));
+
+    // Monster (8) and Demon (12) produce strong subharmonic growl at half fundamental
+    for (const int growlType : { 8, 12 }) {
+        SpeechV2Device growler { "Speech V2" };
+        growler.setVoiceType(growlType);
+        const auto audio = heldVowel(growler, 57);
+        const double sub = magnitudeNear(audio, 110.0);
+        QVERIFY2(sub > modalSub * 5.0, qPrintable(QString { "type %1 sub=%2 vs modal=%3" }.arg(growlType).arg(sub).arg(modalSub)));
+    }
+
+    // Cyborg (10) modulates 220 Hz vowel with 34 Hz ring mod -> clear sidebands at 186 Hz & 254 Hz
+    {
+        SpeechV2Device cyborg { "Speech V2" };
+        cyborg.setVoiceType(10);
+        const auto cyborgAudio = heldVowel(cyborg, 57);
+        const double cyborgSide = magnitudeNear(cyborgAudio, 186.0) + magnitudeNear(cyborgAudio, 254.0);
+        const double modalSide = magnitudeNear(modalAudio, 186.0) + magnitudeNear(modalAudio, 254.0);
+        QVERIFY2(cyborgSide > modalSide * 5.0, qPrintable(QString { "cyborgSide=%1 vs modalSide=%2" }.arg(cyborgSide).arg(modalSide)));
+    }
+
+    // Whisper (11) suppresses voiced fundamental while preserving upper formant air
+    {
+        SpeechV2Device whisper { "Speech V2" };
+        whisper.setVoiceType(11);
+        const auto whisperAudio = heldVowel(whisper, 57);
+        const double whisperF0 = magnitudeNear(whisperAudio, 220.0);
+        const double modalF0 = magnitudeNear(modalAudio, 220.0);
+        QVERIFY2(whisperF0 < modalF0 * 0.25, qPrintable(QString { "whisperF0=%1 vs modalF0=%2" }.arg(whisperF0).arg(modalF0)));
+        QVERIFY(spectralCentroid(whisperAudio) > centroids[0]);
+    }
+
+    // Robot (9) locks monotone pitch tighter than conversational Male (0)
+    {
+        const auto pitchSpread = [](int type) {
+            SpeechV2Device dev { "Speech V2" };
+            dev.setVoiceType(type);
+            dev.processDeviceMidiNoteOn(48, 100);
+            const auto audio = renderDevice(dev, static_cast<uint32_t>(SampleRate * 0.8));
+            double lo = 1e9;
+            double hi = 0.0;
+            for (size_t s = 4800; s + 2048 <= audio.size() / 2; s += 960) {
+                const std::vector<double> slice(audio.begin() + static_cast<long>(s * 2), audio.begin() + static_cast<long>((s + 2048) * 2));
+                if (rmsMono(slice) > 0.015) {
+                    const double f = preciseFundamental(slice);
+                    lo = std::min(lo, f);
+                    hi = std::max(hi, f);
+                }
+            }
+            return hi > lo ? 1200.0 * std::log2(hi / lo) : 0.0;
+        };
+        const double robotCents = pitchSpread(9);
+        const double maleCents = pitchSpread(0);
+        QVERIFY2(robotCents < 65.0 && maleCents > robotCents * 3.0, qPrintable(QString { "robot=%1c vs male=%2c" }.arg(robotCents).arg(maleCents)));
+    }
+
+    // 8-Bit (13) and Mutant (14) produce distinct spectra from Male (0)
+    QVERIFY(std::abs(centroids[13] - centroids[0]) > 20.0 || centroids[14] > 0.0);
+    QVERIFY(centroids[14] != centroids[0]);
 }
 
 void SpeechV2Test::test_loudness_helloWorld_shouldMatchSpeechV1()

@@ -13729,6 +13729,30 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Hirviö</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Robotti</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Kyborgi</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Kuiskaus</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Demoni</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutantti</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Formanttisiirtymä</translation>
     </message>

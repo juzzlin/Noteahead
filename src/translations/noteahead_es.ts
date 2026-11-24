@@ -13729,6 +13729,30 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Monstruo</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Robot</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Cíborg</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Susurro</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Demonio</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutante</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Desplazamiento de formantes</translation>
     </message>

@@ -132,6 +132,23 @@ void TextToPhonemesV2Test::test_exceptionLexicon_shouldFixIrregularWords()
     QCOMPARE(phonemeNames(textToPhonemesV2("/w er l d/")), std::string { "W ER L D" });
 }
 
+void TextToPhonemesV2Test::test_affricates_shouldShortenClosureInsideWord()
+{
+    const auto firstTMillis = [](std::string_view word) {
+        for (const auto & event : textToPhonemesV2(word)) {
+            if (event.spec->name == "T") {
+                return static_cast<double>(event.spec->nominalMs) * event.lengthScale;
+            }
+        }
+        return 0.0;
+    };
+
+    const double affricateT = firstTMillis("change");
+    const double standaloneT = firstTMillis("top");
+    QVERIFY2(affricateT > 0.0 && affricateT < standaloneT * 0.55,
+             qPrintable(QString { "affricate=%1 ms vs standalone=%2 ms" }.arg(affricateT).arg(standaloneT)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::TextToPhonemesV2Test)

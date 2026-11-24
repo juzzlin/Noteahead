@@ -13731,6 +13731,30 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Potwór</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Robot</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Cyborg</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Szept</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Demon</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutant</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Przesunięcie formantów</translation>
     </message>

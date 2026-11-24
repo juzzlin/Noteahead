@@ -43,6 +43,8 @@ private slots:
     void test_phraseFinal_shouldTaperAndSoftenAtTail();
     void test_diphthong_shouldHoldNucleusThenGlideSmoothly();
     void test_allophones_darkLAndFlap();
+    void test_unstressedVowel_shouldCentralizeTowardSchwa();
+    void test_breathiness_shouldAddHighFrequencyAirWithoutLowRumble();
     void test_afterReset_shouldBeSilent();
 };
 

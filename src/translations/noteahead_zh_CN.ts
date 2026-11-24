@@ -13727,6 +13727,30 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>怪兽</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>机器人</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>赛博格</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>耳语</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>恶魔</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>变异体</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>共振峰偏移</translation>
     </message>

@@ -37,6 +37,8 @@ struct ProsodyEvent
 {
     BoundaryTone boundaryTone { BoundaryTone::None };
     double clausePosition { 0.0 };
+    double contourStartSemitones { 0.0 };
+    double contourEndSemitones { 0.0 };
     double accentSemitones { 0.0 };
     double loudnessGain { 1.0 };
     double microprosodySemitones { 0.0 };

@@ -40,7 +40,11 @@ ColumnLayout {
         ComboBox {
             model: {
                 languageService.activeLanguage;
-                return [qsTr("Male"), qsTr("Female"), qsTr("Child"), qsTr("Deep"), qsTr("Breathy"), qsTr("Giant"), qsTr("Elder"), qsTr("Alien"), qsTr("Monster")];
+                return [
+                    qsTr("Male"), qsTr("Female"), qsTr("Child"), qsTr("Deep"), qsTr("Breathy"),
+                    qsTr("Giant"), qsTr("Elder"), qsTr("Alien"), qsTr("Monster"),
+                    qsTr("Robot"), qsTr("Cyborg"), qsTr("Whisper"), qsTr("Demon"), qsTr("8-Bit"), qsTr("Mutant")
+                ];
             }
             currentIndex: speechV2Controller.voiceType
             onActivated: i => speechV2Controller.voiceType = i

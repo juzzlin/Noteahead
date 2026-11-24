@@ -140,7 +140,7 @@ private:
     static constexpr double VibratoOnsetSeconds { 0.22 };
     static constexpr double VibratoReleaseSeconds { 0.030 };
     static constexpr double FlutterRates[] { 12.7, 7.1, 4.7 };
-    static constexpr double FlutterDepth { 0.004 };
+    static constexpr double FlutterDepth { 0.0085 };
 
     std::string m_name;
     std::string m_phrase;
@@ -177,6 +177,8 @@ private:
     double m_fadeCoefficient { 0.0 };
     double m_prosodyGain { 1.0 };
     double m_prosodyGainCoefficient { 1.0 };
+    double m_voiceIntonationScale { 1.0 };
+    bool m_voiceFlutterEnabled { true };
 
     float m_rate { 0.25f };
     float m_portamento { 0.0f };

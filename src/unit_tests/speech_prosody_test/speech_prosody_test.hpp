@@ -30,6 +30,7 @@ private slots:
     void test_downstep_shouldLowerSuccessiveAccentsAndResetAfterComma();
     void test_vowelAccent_shouldPeakNearFortyPercent();
     void test_microprosody_shouldLiftAfterUnvoicedAndDipAfterVoiced();
+    void test_unpunctuatedPhrase_shouldHaveDeclarativeFallAndContinuousContour();
     void test_sequencerV2_stepModeDiphthong_shouldHoldNucleusAndReleaseOffglide();
 };
 

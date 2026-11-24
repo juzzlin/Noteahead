@@ -32,6 +32,7 @@ private slots:
     void test_numbers_shouldExpandNaturally();
     void test_contractions_shouldPronounceNaturally();
     void test_exceptionLexicon_shouldFixIrregularWords();
+    void test_affricates_shouldShortenClosureInsideWord();
 };
 
 } // namespace noteahead

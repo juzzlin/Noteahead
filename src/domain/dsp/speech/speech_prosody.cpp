@@ -31,8 +31,9 @@ constexpr double DashPauseMs = 115.0;
 constexpr double TerminalPauseMs = 280.0;
 
 constexpr double AccentPeakProgress = 0.40;
-constexpr double BoundaryRiseStart = 0.20;
 constexpr double MicroprosodyTimeConstantSeconds = 0.030;
+constexpr double AccentShoulderShare = 0.38;
+constexpr double AccentShoulderSeconds = 0.140;
 
 std::vector<char> collectPausePunctuation(std::string_view text)
 {
@@ -123,26 +124,55 @@ std::vector<ProsodyEvent> SpeechProsody::analyze(std::string_view text, PhonemeE
             cursor++;
         }
         const size_t clauseEnd = cursor;
-        const BoundaryTone clauseTone = (clauseEnd < events.size()) ? prosody[clauseEnd].boundaryTone : BoundaryTone::None;
+        const BoundaryTone clauseTone = (clauseEnd < events.size()) ? prosody[clauseEnd].boundaryTone : BoundaryTone::Statement;
 
         size_t lastVowelIdx = clauseEnd;
+        size_t lastStressedVowelIdx = clauseEnd;
+        size_t firstStressedVowelIdx = clauseEnd;
         for (size_t i = clauseEnd; i > clauseStart; i--) {
             if (events[i - 1].spec->type == PhonemeType::Vowel) {
-                lastVowelIdx = i - 1;
-                break;
+                if (lastVowelIdx == clauseEnd) {
+                    lastVowelIdx = i - 1;
+                }
+                if (events[i - 1].stressed) {
+                    if (lastStressedVowelIdx == clauseEnd) {
+                        lastStressedVowelIdx = i - 1;
+                    }
+                    firstStressedVowelIdx = i - 1;
+                }
             }
         }
 
         const size_t span = clauseEnd - clauseStart;
+        std::vector<double> t0(span, 0.0);
+        std::vector<double> t1(span, 1.0);
+        double totalNominalMs = 0.0;
+        for (size_t k = 0; k < span; k++) {
+            totalNominalMs += std::max(1.0, static_cast<double>(events[clauseStart + k].spec->nominalMs) * events[clauseStart + k].lengthScale);
+        }
+        double accumMs = 0.0;
+        for (size_t k = 0; k < span; k++) {
+            const double durMs = std::max(1.0, static_cast<double>(events[clauseStart + k].spec->nominalMs) * events[clauseStart + k].lengthScale);
+            t0[k] = accumMs / totalNominalMs;
+            accumMs += durMs;
+            t1[k] = accumMs / totalNominalMs;
+        }
+
+        struct AccentPeak
+        {
+            double tPeak { 0.0 };
+            double height { 0.0 };
+        };
+        std::vector<AccentPeak> peaks;
+
         size_t accentIndex = 0;
         bool inStressedSyllable = false;
         double currentAccent = 0.0;
 
         for (size_t i = clauseStart; i < clauseEnd; i++) {
+            const size_t k = i - clauseStart;
             prosody[i].boundaryTone = clauseTone;
-            prosody[i].clausePosition = (span > 1)
-              ? static_cast<double>(i - clauseStart) / static_cast<double>(span - 1)
-              : 0.0;
+            prosody[i].clausePosition = 0.5 * (t0[k] + t1[k]);
 
             if (lastVowelIdx < clauseEnd) {
                 if (i == lastVowelIdx) {
@@ -156,8 +186,8 @@ std::vector<ProsodyEvent> SpeechProsody::analyze(std::string_view text, PhonemeE
             const bool newSyllable = (i == clauseStart) || events[i].syllableStart || events[i].wordStart;
             if (newSyllable) {
                 if (events[i].stressed) {
-                    const double baseAccent = (clauseTone == BoundaryTone::Exclamation) ? 3.6 : 2.6;
-                    const double downstep = std::max(0.38, std::pow(0.80, static_cast<double>(accentIndex)));
+                    const double baseAccent = (clauseTone == BoundaryTone::Exclamation) ? 5.2 : 4.0;
+                    const double downstep = std::max(0.38, std::pow(0.78, static_cast<double>(accentIndex)));
                     currentAccent = baseAccent * downstep;
                     accentIndex++;
                     inStressedSyllable = true;
@@ -173,9 +203,12 @@ std::vector<ProsodyEvent> SpeechProsody::analyze(std::string_view text, PhonemeE
             if (events[i].spec->type == PhonemeType::Vowel) {
                 if (inStressedSyllable) {
                     prosody[i].accentSemitones = currentAccent;
-                    prosody[i].loudnessGain = (clauseTone == BoundaryTone::Exclamation) ? 1.32 : 1.26;
+                    prosody[i].loudnessGain = (clauseTone == BoundaryTone::Exclamation) ? 1.38 : 1.30;
+                    peaks.push_back({ t0[k] + AccentPeakProgress * (t1[k] - t0[k]), currentAccent });
                 } else if (events[i].spec->name == "AX") {
-                    prosody[i].loudnessGain = 0.86;
+                    prosody[i].loudnessGain = 0.80;
+                } else {
+                    prosody[i].loudnessGain = 0.92;
                 }
 
                 if (i > clauseStart) {
@@ -188,8 +221,82 @@ std::vector<ProsodyEvent> SpeechProsody::analyze(std::string_view text, PhonemeE
 
             if (lastVowelIdx < clauseEnd && i >= lastVowelIdx
                 && clauseTone != BoundaryTone::Question && clauseTone != BoundaryTone::Exclamation) {
-                prosody[i].loudnessGain *= 0.90;
+                prosody[i].loudnessGain *= 0.86;
             }
+        }
+
+        const double shoulderHalf = std::clamp((AccentShoulderSeconds * 1000.0) / std::max(1.0, totalNominalMs), 0.06, 0.45);
+        double boundaryStart = 0.72;
+        if (lastStressedVowelIdx < clauseEnd) {
+            const size_t k = lastStressedVowelIdx - clauseStart;
+            boundaryStart = t0[k] + AccentPeakProgress * (t1[k] - t0[k]);
+        } else if (lastVowelIdx < clauseEnd) {
+            const size_t k = lastVowelIdx - clauseStart;
+            boundaryStart = 0.5 * (t0[k] + t1[k]);
+        }
+        boundaryStart = std::min(boundaryStart, 0.92);
+
+        double initialRiseEnd = 0.0;
+        if (firstStressedVowelIdx < clauseEnd && firstStressedVowelIdx > clauseStart) {
+            const size_t k = firstStressedVowelIdx - clauseStart;
+            if (!events[clauseStart].stressed) {
+                initialRiseEnd = t0[k];
+            }
+        }
+
+        const auto evalClauseBase = [&](double t) {
+            double declinationSlope = -2.8;
+            if (clauseTone == BoundaryTone::Question) {
+                declinationSlope = -1.0;
+            } else if (clauseTone == BoundaryTone::Exclamation) {
+                declinationSlope = -2.0;
+            }
+            const double declination = declinationSlope * t;
+
+            double initRise = 0.0;
+            if (initialRiseEnd > 1.0e-4 && t < initialRiseEnd) {
+                const double u = std::clamp(t / initialRiseEnd, 0.0, 1.0);
+                const double s = u * u * (3.0 - 2.0 * u);
+                initRise = -1.4 * (1.0 - s);
+            }
+
+            double shoulder = 0.0;
+            for (const auto & peak : peaks) {
+                const double d = std::abs(t - peak.tPeak);
+                if (d < shoulderHalf) {
+                    const double win = 0.5 * (1.0 + std::cos(std::numbers::pi * d / shoulderHalf));
+                    shoulder += AccentShoulderShare * peak.height * win;
+                }
+            }
+
+            double boundary = 0.0;
+            if (t >= boundaryStart) {
+                const double u = std::clamp((t - boundaryStart) / std::max(1.0e-4, 1.0 - boundaryStart), 0.0, 1.0);
+                const double s = u * u * (3.0 - 2.0 * u);
+                switch (clauseTone) {
+                case BoundaryTone::Question:
+                    boundary = 6.0 * s;
+                    break;
+                case BoundaryTone::Continuation:
+                    boundary = -0.6 * std::sin(std::numbers::pi * u) + 1.6 * s;
+                    break;
+                case BoundaryTone::Statement:
+                    boundary = -4.2 * s;
+                    break;
+                case BoundaryTone::Exclamation:
+                    boundary = 1.4 * (1.0 - s) - 2.8 * s;
+                    break;
+                case BoundaryTone::None:
+                    break;
+                }
+            }
+
+            return declination + initRise + shoulder + boundary;
+        };
+
+        for (size_t k = 0; k < span; k++) {
+            prosody[clauseStart + k].contourStartSemitones = evalClauseBase(t0[k]);
+            prosody[clauseStart + k].contourEndSemitones = evalClauseBase(t1[k]);
         }
     }
 
@@ -208,50 +315,18 @@ double SpeechProsody::pitchOffsetSemitones(
     }
 
     const double p = std::clamp(phonemeProgress, 0.0, 1.0);
+    const double base = cue.contourStartSemitones + (cue.contourEndSemitones - cue.contourStartSemitones) * p;
 
-    double declinationSlope = -2.0;
-    if (cue.boundaryTone == BoundaryTone::Question) {
-        declinationSlope = -0.8;
-    } else if (cue.boundaryTone == BoundaryTone::Exclamation) {
-        declinationSlope = -1.5;
-    }
-    const double declination = declinationSlope * cue.clausePosition;
-
-    double accent = 0.0;
+    double vowelArch = 0.0;
     if (spec.type == PhonemeType::Vowel && cue.accentSemitones > 0.0) {
         const double arch = (p <= AccentPeakProgress)
-          ? 0.25 + 0.75 * 0.5 * (1.0 - std::cos(std::numbers::pi * (p / AccentPeakProgress)))
-          : 0.25 + 0.75 * 0.5 * (1.0 + std::cos(std::numbers::pi * ((p - AccentPeakProgress) / (1.0 - AccentPeakProgress))));
-        accent = cue.accentSemitones * arch;
-    }
-
-    double boundary = 0.0;
-    if (cue.inBoundaryRegion) {
-        double s = 1.0;
-        if (cue.carriesBoundaryTone) {
-            const double bp = std::clamp((p - BoundaryRiseStart) / (1.0 - BoundaryRiseStart), 0.0, 1.0);
-            s = bp * bp * (3.0 - 2.0 * bp);
-        }
-        switch (cue.boundaryTone) {
-        case BoundaryTone::Question:
-            boundary = 3.5 * s;
-            break;
-        case BoundaryTone::Continuation:
-            boundary = 1.2 * s;
-            break;
-        case BoundaryTone::Statement:
-            boundary = -2.0 * s;
-            break;
-        case BoundaryTone::Exclamation:
-            boundary = 1.0 * (1.0 - s) - 1.5 * s;
-            break;
-        case BoundaryTone::None:
-            break;
-        }
+          ? 0.5 * (1.0 - std::cos(std::numbers::pi * (p / AccentPeakProgress)))
+          : 0.5 * (1.0 + std::cos(std::numbers::pi * ((p - AccentPeakProgress) / (1.0 - AccentPeakProgress))));
+        vowelArch = (1.0 - AccentShoulderShare) * cue.accentSemitones * arch;
     }
 
     const double micro = cue.microprosodySemitones * std::exp(-std::max(0.0, phonemeElapsedSeconds) / MicroprosodyTimeConstantSeconds);
-    return (declination + accent + boundary) * intonation + micro * std::min(1.0, intonation * 1.5);
+    return (base + vowelArch) * intonation + micro * std::min(1.0, intonation * 1.5);
 }
 
 double SpeechProsody::loudnessGain(const ProsodyEvent & cue, double intonation)

@@ -29,7 +29,7 @@ private slots:
     void test_noteOn_shouldFollowNotePitch_data();
     void test_noteOn_shouldFollowNotePitch();
     void test_velocitySensitivity_shouldScaleSoftNote();
-    void test_voiceTypes_allNineShouldBeBoundedAndDistinct();
+    void test_voiceTypes_allFifteenShouldBeBoundedAndDistinct();
     void test_loudness_helloWorld_shouldMatchSpeechV1();
     void test_midiCc_shouldReachParametersAndResetCleanly();
     void test_triggerAndSyncModes_shouldBehaveAndSeek();

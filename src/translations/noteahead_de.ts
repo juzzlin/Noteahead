@@ -13729,6 +13729,30 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Monster</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Roboter</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Cyborg</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Flüstern</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Dämon</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutant</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Formantverschiebung</translation>
     </message>

@@ -52,18 +52,42 @@ struct VoiceTypeSettings
     double speedQuotient;
     double returnPhase;
     double subharmonic;
+    double intonationScale;
+    double glideScale;
+    FormantVoiceV2::VoiceCharacter character;
 };
 
 constexpr VoiceTypeSettings VoiceTypes[] {
-    { 1.0, 0.0, 0.48, 0.04, 0.35, 2.5, 0.010, 0.0 },
-    { 1.17, 0.0, 0.62, 0.10, 0.45, 2.5, 0.018, 0.0 },
-    { 1.35, 0.0, 0.66, 0.12, 0.75, 2.5, 0.022, 0.0 },
-    { 0.87, 0.0, 0.34, 0.02, 0.30, 2.8, 0.006, 0.0 },
-    { 1.04, 0.0, 0.80, 0.30, 0.55, 2.0, 0.045, 0.0 },
-    { 0.72, 0.0, 0.38, 0.05, 0.45, 2.6, 0.008, 0.0 },
-    { 0.96, 0.0, 0.72, 0.20, 1.00, 2.2, 0.032, 0.0 },
-    { 1.55, 0.0, 0.30, 0.02, 0.08, 3.2, 0.004, 0.0 },
-    { 0.80, 0.0, 0.32, 0.06, 0.70, 4.5, 0.005, 0.60 }
+    // 0: Male
+    { 1.00, 0.0, 0.54, 0.08, 0.35, 2.3, 0.016, 0.00, 1.00, 1.00, {} },
+    // 1: Female
+    { 1.17, 0.0, 0.64, 0.14, 0.45, 2.1, 0.024, 0.00, 1.00, 1.00, {} },
+    // 2: Child
+    { 1.35, 0.0, 0.68, 0.16, 0.75, 2.1, 0.026, 0.00, 1.00, 1.00, {} },
+    // 3: Deep
+    { 0.87, 0.0, 0.38, 0.04, 0.30, 2.7, 0.010, 0.00, 1.00, 1.00, {} },
+    // 4: Breathy
+    { 1.04, 0.0, 0.80, 0.34, 0.55, 1.9, 0.055, 0.00, 1.00, 1.00, {} },
+    // 5: Giant
+    { 0.72, 0.0, 0.42, 0.06, 0.45, 2.5, 0.012, 0.00, 1.00, 1.00, {} },
+    // 6: Elder
+    { 0.96, 0.0, 0.73, 0.24, 1.00, 2.1, 0.040, 0.00, 1.00, 1.00, {} },
+    // 7: Alien (warped stretched formants, FM warble, shimmer ring mod)
+    { 1.30, 0.0, 0.32, 0.02, 0.08, 3.2, 0.005, 0.00, 1.15, 0.85, { .bandwidthScale = 0.72, .f2Stretch = 1.22, .f3Stretch = 1.18, .ringModHz = 145.0, .ringModDepth = 0.22, .fmWarbleHz = 22.0, .fmWarbleSemitones = 0.45 } },
+    // 8: Monster (subharmonic growl, octave sub layer, warm drive)
+    { 0.76, 0.0, 0.34, 0.06, 0.75, 4.5, 0.006, 0.72, 0.85, 1.00, { .drive = 1.8, .subOctaveMix = 0.32 } },
+    // 9: Robot (monotone, sharp pulse, metallic comb resonance)
+    { 1.00, 0.0, 0.28, 0.00, 0.00, 4.0, 0.003, 0.00, 0.00, 0.30, { .bandwidthScale = 0.58, .combDelayMs = 6.8, .combFeedback = 0.58, .combMix = 0.38, .bypassPhaseDispersion = true } },
+    // 10: Cyborg (Dalek/vocoder ring-modulated buzz + drive)
+    { 0.96, 0.0, 0.30, 0.02, 0.05, 3.8, 0.004, 0.00, 0.15, 0.45, { .bandwidthScale = 0.78, .ringModHz = 34.0, .ringModDepth = 0.75, .drive = 1.6, .bypassPhaseDispersion = true } },
+    // 11: Whisper (aspirated unvoiced vocal tract excitation)
+    { 1.04, 0.0, 0.82, 0.20, 0.30, 2.0, 0.060, 0.00, 0.40, 1.00, { .bandwidthScale = 1.25, .whisperMix = 0.94 } },
+    // 12: Demon (cavernous sub-octave + slow growl ring mod + heavy drive)
+    { 0.66, 0.0, 0.32, 0.08, 0.85, 4.8, 0.005, 0.78, 0.75, 1.15, { .ringModHz = 17.0, .ringModDepth = 0.38, .drive = 2.8, .subOctaveMix = 0.65 } },
+    // 13: 8-Bit (retro Speak & Spell / SAM stepped control + sample-and-hold crush)
+    { 1.02, 0.0, 0.32, 0.00, 0.00, 3.5, 0.003, 0.00, 0.00, 0.25, { .bandwidthScale = 0.70, .sampleHoldHz = 10500.0, .bitCrushSteps = 20, .steppedControlDiv = 28, .bypassPhaseDispersion = true } },
+    // 14: Mutant (unstable wobbling formants, FM warble, ring mod + subharmonic)
+    { 0.92, 0.0, 0.42, 0.12, 0.80, 3.4, 0.010, 0.42, 1.20, 0.90, { .bandwidthScale = 0.80, .ringModHz = 58.0, .ringModDepth = 0.30, .fmWarbleHz = 13.5, .fmWarbleSemitones = 0.55, .formantWobbleHz = 3.8, .formantWobbleDepth = 0.19, .drive = 1.2 } }
 };
 
 constexpr double ConsonantLevelRange = 2.0;
@@ -92,7 +116,7 @@ SpeechV2Device::SpeechV2Device(std::string name)
     addParameter(Parameter(Xml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
     addParameter(Parameter(Xml::xmlKeyConsonantLevel().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Xml::xmlKeySibilance().toStdString(), 0.31f, 0, 10000, 3100, 100));
-    addParameter(Parameter(Xml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Xml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 14, 0, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Xml::xmlKeyOpenQuotient().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Xml::xmlKeyVoicePerturbation().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Xml::xmlKeyVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 5000, 100));
@@ -403,11 +427,10 @@ void SpeechV2Device::syncParameters()
     m_sequencer.setLengthBeats(static_cast<double>(m_syncLength) / 4.0);
     m_sequencer.setDivisionBeats(static_cast<double>(m_syncDivision) / 4.0);
 
-    m_voice.setGlideTime(MinGlideSeconds + GlideSecondsRange * static_cast<double>(m_glide));
-
     const auto index = static_cast<size_t>(std::clamp(static_cast<int>(m_voiceType), 0, static_cast<int>(std::size(VoiceTypes)) - 1));
     const auto & voiceType = VoiceTypes[index];
 
+    m_voice.setGlideTime((MinGlideSeconds + GlideSecondsRange * static_cast<double>(m_glide)) * voiceType.glideScale);
     m_voice.setFormantShift(voiceType.formantShift * (MinFormantShift + FormantShiftRange * static_cast<double>(m_formantShift)));
     m_voice.setSourceRolloff(voiceType.sourceRolloff);
     m_voice.setOpenQuotient(voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5));
@@ -419,18 +442,25 @@ void SpeechV2Device::syncParameters()
     m_voice.setBreathiness(static_cast<double>(m_breathiness) + voiceType.breathiness);
     m_voice.setConsonantLevel(static_cast<double>(m_consonantLevel) * ConsonantLevelRange);
     m_voice.setSibilance(static_cast<double>(m_sibilance));
-    m_voice.setPhraseDynamics(static_cast<double>(m_intonation));
+    m_voice.setVoiceCharacter(voiceType.character);
+    m_voiceIntonationScale = voiceType.intonationScale;
+    m_voiceFlutterEnabled = voiceType.perturbation > 0.0;
+    m_voice.setPhraseDynamics(static_cast<double>(m_intonation) * voiceType.intonationScale);
 }
 
 double SpeechV2Device::nextFlutter(double sampleRate)
 {
+    if (!m_voiceFlutterEnabled) {
+        return 1.0;
+    }
     double sum = 0.0;
     for (size_t i = 0; i < m_flutterPhases.size(); i++) {
         m_flutterPhases[i] += FlutterRates[i] / sampleRate;
         m_flutterPhases[i] -= std::floor(m_flutterPhases[i]);
         sum += std::sin(2.0 * std::numbers::pi * m_flutterPhases[i]);
     }
-    return 1.0 + FlutterDepth * sum / static_cast<double>(m_flutterPhases.size());
+    const double perturbScale = 0.25 + 0.75 * std::clamp(static_cast<double>(m_voicePerturbation), 0.0, 1.0);
+    return 1.0 + FlutterDepth * perturbScale * sum / static_cast<double>(m_flutterPhases.size());
 }
 
 double SpeechV2Device::currentFrequency() const
@@ -441,8 +471,12 @@ double SpeechV2Device::currentFrequency() const
     if (const auto * spec = m_sequencer.phoneme(); spec != nullptr) {
         const size_t idx = m_sequencer.currentIndex();
         if (idx < m_prosody.size()) {
+            double prosodyIntonation = (triggerModeEnum() == SpeechSequencer::TriggerMode::Step)
+              ? static_cast<double>(m_intonation) * 0.25
+              : static_cast<double>(m_intonation);
+            prosodyIntonation *= m_voiceIntonationScale;
             const double semitones = SpeechProsody::pitchOffsetSemitones(
-              m_prosody[idx], *spec, m_sequencer.progress(), m_sequencer.phonemeElapsedSeconds(), static_cast<double>(m_intonation));
+              m_prosody[idx], *spec, m_sequencer.progress(), m_sequencer.phonemeElapsedSeconds(), prosodyIntonation);
             frequency *= std::pow(2.0, semitones / 12.0);
         }
     }
@@ -488,6 +522,7 @@ void SpeechV2Device::processAudio(AudioContext & context)
 
         if (spec) {
             m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
+            m_voice.setPhonemeStressed(m_sequencer.isStressed());
             m_voice.setPhonemeProgress(m_sequencer.progress());
             m_voice.setUtteranceProgress(m_sequencer.isSustaining() ? 0.0 : m_sequencer.utteranceProgress());
 

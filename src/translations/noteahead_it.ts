@@ -13729,6 +13729,30 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Mostro</translation>
     </message>
     <message>
+        <source>Robot</source>
+        <translation>Robot</translation>
+    </message>
+    <message>
+        <source>Cyborg</source>
+        <translation>Cyborg</translation>
+    </message>
+    <message>
+        <source>Whisper</source>
+        <translation>Sussurro</translation>
+    </message>
+    <message>
+        <source>Demon</source>
+        <translation>Demone</translation>
+    </message>
+    <message>
+        <source>8-Bit</source>
+        <translation>8-Bit</translation>
+    </message>
+    <message>
+        <source>Mutant</source>
+        <translation>Mutante</translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Spostamento delle formanti</translation>
     </message>
