@@ -3841,6 +3841,10 @@
         <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>selectivity</source>
+        <translation>selektywność</translation>
+    </message>
 </context>
 <context>
     <name>EffectsGalleryDialog</name>
@@ -10223,6 +10227,26 @@
         <source>Output</source>
         <translation>Wyjście</translation>
     </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selektywność</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Ostrość</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Dół</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Góra</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Nacisk</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -11149,6 +11173,129 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderowanie...</translation>
+    </message>
+</context>
+<context>
+    <name>ResonanceTamerDialog</name>
+    <message>
+        <source>Resonance Tamer (Slot %1)</source>
+        <translation>Resonance Tamer (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Widmo</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve. Pre − Post shows what is being taken out.</source>
+        <translation>Widmo na żywo za krzywą. Pre − Post pokazuje, co jest usuwane.</translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation>Tryb stereo</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Połączony</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation>Stereo</translation>
+    </message>
+    <message>
+        <source>Linked hears both sides and cuts both alike. Stereo and Mid/Side find and cut the peaks of each side on its own.</source>
+        <translation>Połączony słucha obu stron i tnie je jednakowo. Stereo i Mid/Side znajdują i tną szczyty każdej strony osobno.</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Jakość</translation>
+    </message>
+    <message>
+        <source>%1 bells</source>
+        <translation>%1 dzwonów</translation>
+    </message>
+    <message>
+        <source>How many peaks it may cut at once. More bells catch more of a busy spectrum and cost more.</source>
+        <translation>Ile szczytów może ciąć naraz. Więcej dzwonów obejmuje więcej gęstego widma i więcej kosztuje.</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation>Delta</translation>
+    </message>
+    <message>
+        <source>Play only what is being taken out</source>
+        <translation>Odtwarzaj tylko to, co jest usuwane</translation>
+    </message>
+    <message>
+        <source>Cutting now</source>
+        <translation>Tnie teraz</translation>
+    </message>
+    <message>
+        <source>(solid: left, dashed: right)</source>
+        <translation>(ciągła: lewy, przerywana: prawy)</translation>
+    </message>
+    <message>
+        <source>(solid: mid, dashed: side)</source>
+        <translation>(ciągła: mid, przerywana: side)</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Głębokość</translation>
+    </message>
+    <message>
+        <source>The most taken out of any one peak</source>
+        <translation>Najwięcej usuwane z jednego szczytu</translation>
+    </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selektywność</translation>
+    </message>
+    <message>
+        <source>How far a peak must stand above the spectrum&apos;s outline before anything is taken out. Lower catches more.</source>
+        <translation>Jak bardzo szczyt musi wystawać ponad zarys widma, zanim cokolwiek zostanie usunięte. Niżej łapie więcej.</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Ostrość</translation>
+    </message>
+    <message>
+        <source>The Q of the cuts: higher takes out narrower slices</source>
+        <translation>Q cięć: wyższe usuwa węższe pasma</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Nacisk</translation>
+    </message>
+    <message>
+        <source>Positive makes it more eager towards the top and less towards the bottom, negative the other way round</source>
+        <translation>Dodatni czyni go chętniejszym na górze i mniej chętnym na dole, ujemny odwrotnie</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Atak</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Zwolnienie</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Dół</translation>
+    </message>
+    <message>
+        <source>Peaks below this are left alone</source>
+        <translation>Szczyty poniżej tego pozostają nietknięte</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Góra</translation>
+    </message>
+    <message>
+        <source>Peaks above this are left alone</source>
+        <translation>Szczyty powyżej tego pozostają nietknięte</translation>
     </message>
 </context>
 <context>

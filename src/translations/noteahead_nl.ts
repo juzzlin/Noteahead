@@ -3840,6 +3840,10 @@
         <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>selectivity</source>
+        <translation>selectiviteit</translation>
+    </message>
 </context>
 <context>
     <name>EffectsGalleryDialog</name>
@@ -10222,6 +10226,26 @@
         <source>Output</source>
         <translation>Uitgang</translation>
     </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selectiviteit</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Scherpte</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Laag</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Hoog</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Focus</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -11148,6 +11172,129 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderen...</translation>
+    </message>
+</context>
+<context>
+    <name>ResonanceTamerDialog</name>
+    <message>
+        <source>Resonance Tamer (Slot %1)</source>
+        <translation>Resonance Tamer (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Spectrum</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve. Pre − Post shows what is being taken out.</source>
+        <translation>Het live spectrum achter de curve. Pre − Post toont wat er wordt weggenomen.</translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation>Stereomodus</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Gekoppeld</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation>Stereo</translation>
+    </message>
+    <message>
+        <source>Linked hears both sides and cuts both alike. Stereo and Mid/Side find and cut the peaks of each side on its own.</source>
+        <translation>Gekoppeld luistert naar beide kanten en snijdt ze gelijk. Stereo en Mid/Side vinden en snijden de pieken van elke kant afzonderlijk.</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Kwaliteit</translation>
+    </message>
+    <message>
+        <source>%1 bells</source>
+        <translation>%1 klokken</translation>
+    </message>
+    <message>
+        <source>How many peaks it may cut at once. More bells catch more of a busy spectrum and cost more.</source>
+        <translation>Hoeveel pieken er tegelijk gesneden kunnen worden. Meer klokken vangen meer van een vol spectrum en kosten meer.</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation>Delta</translation>
+    </message>
+    <message>
+        <source>Play only what is being taken out</source>
+        <translation>Speel alleen wat er wordt weggenomen</translation>
+    </message>
+    <message>
+        <source>Cutting now</source>
+        <translation>Snijdt nu</translation>
+    </message>
+    <message>
+        <source>(solid: left, dashed: right)</source>
+        <translation>(doorgetrokken: links, gestreept: rechts)</translation>
+    </message>
+    <message>
+        <source>(solid: mid, dashed: side)</source>
+        <translation>(doorgetrokken: mid, gestreept: side)</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Diepte</translation>
+    </message>
+    <message>
+        <source>The most taken out of any one peak</source>
+        <translation>Het meeste dat van één piek wordt weggenomen</translation>
+    </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selectiviteit</translation>
+    </message>
+    <message>
+        <source>How far a peak must stand above the spectrum&apos;s outline before anything is taken out. Lower catches more.</source>
+        <translation>Hoe ver een piek boven de omtrek van het spectrum moet uitsteken voordat er iets wordt weggenomen. Lager vangt meer.</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Scherpte</translation>
+    </message>
+    <message>
+        <source>The Q of the cuts: higher takes out narrower slices</source>
+        <translation>De Q van de sneden: hoger neemt smallere plakken weg</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Focus</translation>
+    </message>
+    <message>
+        <source>Positive makes it more eager towards the top and less towards the bottom, negative the other way round</source>
+        <translation>Positief maakt hem gretiger naar boven en minder naar beneden, negatief andersom</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Laag</translation>
+    </message>
+    <message>
+        <source>Peaks below this are left alone</source>
+        <translation>Pieken hieronder blijven ongemoeid</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Hoog</translation>
+    </message>
+    <message>
+        <source>Peaks above this are left alone</source>
+        <translation>Pieken hierboven blijven ongemoeid</translation>
     </message>
 </context>
 <context>

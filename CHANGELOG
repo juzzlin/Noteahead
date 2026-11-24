@@ -11,6 +11,8 @@ New features:
 
 * Limiter: factory presets, Init and user presets
 
+* Resonance Tamer: finds narrow peaks that stick out of the spectrum as it plays and cuts only those, with no latency
+
 * Mixer: hold Stage on a strip while the device plays, and its Gain moves until the loudest part reads at the gain staging target; per-device Trim and Peak or RMS in Device Settings
 
 * Synth D: LFO Delay, a mod not on the instrument that fades the LFO in after the first key

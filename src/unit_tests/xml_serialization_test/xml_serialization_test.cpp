@@ -113,6 +113,7 @@
 #include "../../plugins/effects/reference/reference.hpp"
 #include "../../plugins/effects/reference/reference_environments.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
+#include "../../plugins/effects/resonance_tamer/resonance_tamer.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
 #include "../../plugins/effects/room_mics/room_mics.hpp"
 #include "../../plugins/effects/saturator/saturator.hpp"
@@ -3040,6 +3041,62 @@ void XmlSerializationTest::test_toXmlFromXml_dynamicEqEffect_shouldLoadCorrectly
     QCOMPARE(valueOf(C::xmlKeyStereoMode()), 2.0f);
     QVERIFY(std::abs(valueOf(C::xmlKeyGain()) - 0.25f) < 0.001f);
     QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 3 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_resonanceTamerEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto tamer = std::make_shared<ResonanceTamer>();
+    const auto setParam = [&tamer](const QString & key, float value) {
+        if (auto p = tamer->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    namespace C = Constants::NahdXml;
+    setParam(C::xmlKeyDepth(), 0.5f);
+    setParam(C::xmlKeySelectivity(), 0.25f);
+    setParam(C::xmlKeySharpness(), 0.7f);
+    setParam(C::xmlKeyAttack(), 0.2f);
+    setParam(C::xmlKeyRelease(), 0.8f);
+    setParam(C::xmlKeyLowFreq(), 0.3f);
+    setParam(C::xmlKeyHighFreq(), 0.9f);
+    setParam(C::xmlKeyFocus(), 0.75f);
+    setParam(C::xmlKeyBandCount(), 24.0f);
+    setParam(C::xmlKeyStereoMode(), 2.0f);
+    setParam(C::xmlKeyMix(), 0.6f);
+    setParam(C::xmlKeySolo(), 1.0f);
+    deviceServiceOut.insertEffectRack().setEffect(0, tamer);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<ResonanceTamer>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -100.0f;
+    };
+    QVERIFY(std::abs(valueOf(C::xmlKeyDepth()) - 0.5f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeySelectivity()) - 0.25f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeySharpness()) - 0.7f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyAttack()) - 0.2f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyRelease()) - 0.8f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyLowFreq()) - 0.3f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyHighFreq()) - 0.9f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyFocus()) - 0.75f) < 0.01f);
+    QCOMPARE(valueOf(C::xmlKeyBandCount()), 24.0f);
+    QCOMPARE(valueOf(C::xmlKeyStereoMode()), 2.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyMix()) - 0.6f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeySolo()), 1.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_ambienceEffect_shouldLoadCorrectly()

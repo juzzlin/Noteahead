@@ -3839,6 +3839,10 @@
         <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>selectivity</source>
+        <translation>选择性</translation>
+    </message>
 </context>
 <context>
     <name>EffectsGalleryDialog</name>
@@ -10221,6 +10225,26 @@
         <source>Output</source>
         <translation>输出</translation>
     </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>选择性</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>锐度</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>侧重</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -11147,6 +11171,129 @@
     <message>
         <source>Rendering...</source>
         <translation>渲染中...</translation>
+    </message>
+</context>
+<context>
+    <name>ResonanceTamerDialog</name>
+    <message>
+        <source>Resonance Tamer (Slot %1)</source>
+        <translation>Resonance Tamer（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>频谱</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve. Pre − Post shows what is being taken out.</source>
+        <translation>曲线后面的实时频谱。Pre − Post 显示正在被削去的部分。</translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation>立体声模式</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>联动</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation>立体声</translation>
+    </message>
+    <message>
+        <source>Linked hears both sides and cuts both alike. Stereo and Mid/Side find and cut the peaks of each side on its own.</source>
+        <translation>联动同时监听两侧并以相同方式削减。立体声和 Mid/Side 分别查找并削减每一侧的峰值。</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>质量</translation>
+    </message>
+    <message>
+        <source>%1 bells</source>
+        <translation>%1 个钟形</translation>
+    </message>
+    <message>
+        <source>How many peaks it may cut at once. More bells catch more of a busy spectrum and cost more.</source>
+        <translation>一次最多可削减多少个峰值。更多钟形能覆盖更密集的频谱，但开销更大。</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation>Delta</translation>
+    </message>
+    <message>
+        <source>Play only what is being taken out</source>
+        <translation>只播放被削去的部分</translation>
+    </message>
+    <message>
+        <source>Cutting now</source>
+        <translation>当前削减</translation>
+    </message>
+    <message>
+        <source>(solid: left, dashed: right)</source>
+        <translation>（实线：左，虚线：右）</translation>
+    </message>
+    <message>
+        <source>(solid: mid, dashed: side)</source>
+        <translation>（实线：mid，虚线：side）</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>深度</translation>
+    </message>
+    <message>
+        <source>The most taken out of any one peak</source>
+        <translation>单个峰值最多削减的量</translation>
+    </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>选择性</translation>
+    </message>
+    <message>
+        <source>How far a peak must stand above the spectrum&apos;s outline before anything is taken out. Lower catches more.</source>
+        <translation>峰值必须高出频谱轮廓多少才会被削减。越低捕捉越多。</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>锐度</translation>
+    </message>
+    <message>
+        <source>The Q of the cuts: higher takes out narrower slices</source>
+        <translation>削减的 Q 值：越高削去的频段越窄</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>侧重</translation>
+    </message>
+    <message>
+        <source>Positive makes it more eager towards the top and less towards the bottom, negative the other way round</source>
+        <translation>正值使其在高频更积极、在低频更保守，负值则相反</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低</translation>
+    </message>
+    <message>
+        <source>Peaks below this are left alone</source>
+        <translation>低于此值的峰值不受影响</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高</translation>
+    </message>
+    <message>
+        <source>Peaks above this are left alone</source>
+        <translation>高于此值的峰值不受影响</translation>
     </message>
 </context>
 <context>

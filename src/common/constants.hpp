@@ -384,6 +384,7 @@ QString bitCrusher();
 QString flanger();
 QString tremolo();
 QString roomMics();
+QString resonanceTamer();
 } // namespace RackEffectType
 
 //! What a Performance Panel element shows. Saved in projects: never rename.
@@ -822,6 +823,9 @@ QString xmlKeyZeroFill();
 QString xmlKeyTimbre();
 QString xmlKeyHarmonics();
 QString xmlKeySolo();
+QString xmlKeySelectivity();
+QString xmlKeySharpness();
+QString xmlKeyFocus();
 QString xmlKeySpread();
 QString xmlKeyMonoBass();
 QString xmlKeyMonoFreq();

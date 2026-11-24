@@ -139,6 +139,9 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString sideChainSourceDevice MEMBER m_sideChainSourceDevice CONSTANT)
     Q_PROPERTY(QString size MEMBER m_size CONSTANT)
     Q_PROPERTY(QString solo MEMBER m_solo CONSTANT)
+    Q_PROPERTY(QString selectivity MEMBER m_selectivity CONSTANT)
+    Q_PROPERTY(QString sharpness MEMBER m_sharpness CONSTANT)
+    Q_PROPERTY(QString focus MEMBER m_focus CONSTANT)
     Q_PROPERTY(QString sourceX MEMBER m_sourceX CONSTANT)
     Q_PROPERTY(QString sourceY MEMBER m_sourceY CONSTANT)
     Q_PROPERTY(QString speed MEMBER m_speed CONSTANT)
@@ -300,6 +303,9 @@ private:
     QString m_sideChainSourceDevice;
     QString m_size;
     QString m_solo;
+    QString m_selectivity;
+    QString m_sharpness;
+    QString m_focus;
     QString m_sourceX;
     QString m_sourceY;
     QString m_speed;

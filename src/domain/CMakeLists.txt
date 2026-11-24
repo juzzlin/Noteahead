@@ -83,9 +83,11 @@ set(HEADER_FILES
     dsp/speech/speech_sequencer_v2.hpp
     dsp/speech/text_to_phonemes.hpp
     dsp/speech/text_to_phonemes_v2.hpp
+    dsp/spectral_peak_detector.hpp
     dsp/svf_filter.hpp
     dsp/sweep_envelope.hpp
     dsp/synth_d_voice.hpp
+    dsp/tracking_bell_bank.hpp
     dsp/transistor_ladder_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
@@ -246,9 +248,11 @@ set(SOURCE_FILES
     dsp/speech/speech_sequencer_v2.cpp
     dsp/speech/text_to_phonemes.cpp
     dsp/speech/text_to_phonemes_v2.cpp
+    dsp/spectral_peak_detector.cpp
     dsp/svf_filter.cpp
     dsp/sweep_envelope.cpp
     dsp/synth_d_voice.cpp
+    dsp/tracking_bell_bank.cpp
     dsp/transistor_ladder_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp

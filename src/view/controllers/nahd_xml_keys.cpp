@@ -133,6 +133,9 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_sideChainSourceDevice { Constants::NahdXml::xmlKeySideChainSourceDevice() }
   , m_size { Constants::NahdXml::xmlKeySize() }
   , m_solo { Constants::NahdXml::xmlKeySolo() }
+  , m_selectivity { Constants::NahdXml::xmlKeySelectivity() }
+  , m_sharpness { Constants::NahdXml::xmlKeySharpness() }
+  , m_focus { Constants::NahdXml::xmlKeyFocus() }
   , m_sourceX { Constants::NahdXml::xmlKeySourceX() }
   , m_sourceY { Constants::NahdXml::xmlKeySourceY() }
   , m_speed { Constants::NahdXml::xmlKeySpeed() }

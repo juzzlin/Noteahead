@@ -37,6 +37,7 @@
 #include "../../plugins/effects/panner/panner.hpp"
 #include "../../plugins/effects/phaser/phaser.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
+#include "../../plugins/effects/resonance_tamer/resonance_tamer.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224_dialog_model.hpp"
 #include "../../plugins/effects/room_mics/room_mics.hpp"
@@ -1347,6 +1348,24 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheRoomMics()
     context.controller.setEffect(0, type);
     QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::roomMics());
     QVERIFY2(context.controller.effectParametersSummary(0).startsWith("(9.0x7.0x3.5 m, RT60 "), qPrintable(context.controller.effectParametersSummary(0)));
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheResonanceTamer()
+{
+    auto context = createContext();
+    const auto type = QString::fromStdString(ResonanceTamer::typeIdString());
+    QStringList types;
+    for (auto && entry : context.controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    // And the factory can make what the gallery offers
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::resonanceTamer());
+    QCOMPARE(context.controller.effectDisplayName(type), QString { "Resonance Tamer" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(6.0 dB, selectivity=6.0 dB, 100-20.0k Hz)" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()

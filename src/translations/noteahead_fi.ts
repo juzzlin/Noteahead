@@ -3840,6 +3840,10 @@
         <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>selectivity</source>
+        <translation>selektiivisyys</translation>
+    </message>
 </context>
 <context>
     <name>EffectsGalleryDialog</name>
@@ -10222,6 +10226,26 @@
         <source>Output</source>
         <translation>Ulostulo</translation>
     </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selektiivisyys</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Terävyys</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Ala</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Ylä</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Painotus</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -11148,6 +11172,129 @@
     <message>
         <source>Rendering...</source>
         <translation>Renderöidään...</translation>
+    </message>
+</context>
+<context>
+    <name>ResonanceTamerDialog</name>
+    <message>
+        <source>Resonance Tamer (Slot %1)</source>
+        <translation>Resonance Tamer (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Spektri</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve. Pre − Post shows what is being taken out.</source>
+        <translation>Live-spektri käyrän takana. Pre − Post näyttää, mitä poistetaan.</translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation>Stereotila</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Linkitetty</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation>Stereo</translation>
+    </message>
+    <message>
+        <source>Linked hears both sides and cuts both alike. Stereo and Mid/Side find and cut the peaks of each side on its own.</source>
+        <translation>Linkitetty kuuntelee molempia puolia ja leikkaa molempia samoin. Stereo ja Mid/Side etsivät ja leikkaavat kummankin puolen piikit erikseen.</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Laatu</translation>
+    </message>
+    <message>
+        <source>%1 bells</source>
+        <translation>%1 kelloa</translation>
+    </message>
+    <message>
+        <source>How many peaks it may cut at once. More bells catch more of a busy spectrum and cost more.</source>
+        <translation>Montako piikkiä voidaan leikata kerralla. Useampi kello tavoittaa enemmän tiheästä spektristä ja kuluttaa enemmän.</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation>Delta</translation>
+    </message>
+    <message>
+        <source>Play only what is being taken out</source>
+        <translation>Soita vain se, mitä poistetaan</translation>
+    </message>
+    <message>
+        <source>Cutting now</source>
+        <translation>Leikkaa nyt</translation>
+    </message>
+    <message>
+        <source>(solid: left, dashed: right)</source>
+        <translation>(yhtenäinen: vasen, katkoviiva: oikea)</translation>
+    </message>
+    <message>
+        <source>(solid: mid, dashed: side)</source>
+        <translation>(yhtenäinen: mid, katkoviiva: side)</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Syvyys</translation>
+    </message>
+    <message>
+        <source>The most taken out of any one peak</source>
+        <translation>Enimmäisleikkaus yhdestä piikistä</translation>
+    </message>
+    <message>
+        <source>Selectivity</source>
+        <translation>Selektiivisyys</translation>
+    </message>
+    <message>
+        <source>How far a peak must stand above the spectrum&apos;s outline before anything is taken out. Lower catches more.</source>
+        <translation>Kuinka paljon piikin on noustava spektrin ääriviivan yläpuolelle, ennen kuin mitään poistetaan. Pienempi arvo tavoittaa enemmän.</translation>
+    </message>
+    <message>
+        <source>Sharpness</source>
+        <translation>Terävyys</translation>
+    </message>
+    <message>
+        <source>The Q of the cuts: higher takes out narrower slices</source>
+        <translation>Leikkausten Q: suurempi poistaa kapeampia siivuja</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation>Painotus</translation>
+    </message>
+    <message>
+        <source>Positive makes it more eager towards the top and less towards the bottom, negative the other way round</source>
+        <translation>Positiivinen tekee siitä herkemmän yläpäässä ja vähemmän herkän alapäässä, negatiivinen päinvastoin</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Ala</translation>
+    </message>
+    <message>
+        <source>Peaks below this are left alone</source>
+        <translation>Tämän alapuolella olevat piikit jätetään rauhaan</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Ylä</translation>
+    </message>
+    <message>
+        <source>Peaks above this are left alone</source>
+        <translation>Tämän yläpuolella olevat piikit jätetään rauhaan</translation>
     </message>
 </context>
 <context>

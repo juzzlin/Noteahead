@@ -494,6 +494,11 @@ QString roomMics()
     return "roommics";
 }
 
+QString resonanceTamer()
+{
+    return "resonancetamer";
+}
+
 QString dimension()
 {
     return "dimension";
@@ -2545,6 +2550,21 @@ QString xmlKeyHarmonics()
 QString xmlKeySolo()
 {
     return "solo";
+}
+
+QString xmlKeySelectivity()
+{
+    return "selectivity";
+}
+
+QString xmlKeySharpness()
+{
+    return "sharpness";
+}
+
+QString xmlKeyFocus()
+{
+    return "focus";
 }
 
 QString xmlKeySpread()

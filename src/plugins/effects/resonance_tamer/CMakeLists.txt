@@ -1,0 +1,12 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        resonance_tamer.cpp
+        resonance_tamer.hpp
+        resonance_tamer_registration.cpp
+    VIEW_SOURCES
+        resonance_tamer_dialog_model.cpp
+        resonance_tamer_dialog_model.hpp
+        resonance_tamer_view_registration.cpp
+    QML_FILES
+        ResonanceTamerDialog.qml
+)
