@@ -12542,7 +12542,7 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Dégradé</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12551,6 +12551,18 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>Animation des notes</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accent</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>Dégradé colore les notes jouées dans la barre inférieure selon leur hauteur, du rouge au vert en passant par le jaune. Accent les dessine toutes dans la couleur d&apos;accent.</translation>
     </message>
     <message>
         <source>Column Flash</source>

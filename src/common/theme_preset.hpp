@@ -35,6 +35,7 @@ struct ThemePreset
     std::optional<QColor> cursorColor {};
     std::optional<int> paletteAccentBlend {};
     std::optional<int> volumeMeterStyle {};
+    std::optional<int> noteAnimationStyle {};
     std::optional<QColor> spectrumPostColor {};
     std::optional<QColor> spectrumPreColor {};
 };

@@ -123,6 +123,7 @@ void ThemeServiceTest::test_themePresets_init_shouldBeTheDefaults()
     QCOMPARE(*init.cursorColor, ThemeService::defaultCursorColor());
     QCOMPARE(*init.paletteAccentBlend, ThemeService::defaultPaletteAccentBlend());
     QCOMPARE(*init.volumeMeterStyle, Constants::defaultVolumeMeterStyle());
+    QCOMPARE(*init.noteAnimationStyle, Constants::defaultNoteAnimationStyle());
     QVERIFY(!init.spectrumPostColor && !init.spectrumPreColor);
 }
 
@@ -131,7 +132,7 @@ void ThemeServiceTest::test_themePresets_factory_shouldSetEverySetting()
     const auto & presets = ThemeService::factoryThemePresets();
     for (size_t i = 0; i < presets.size(); i++) {
         const auto & preset = presets.at(i);
-        QVERIFY2(preset.accentColor && preset.cursorColor && preset.paletteAccentBlend && preset.volumeMeterStyle, qPrintable(preset.name));
+        QVERIFY2(preset.accentColor && preset.cursorColor && preset.paletteAccentBlend && preset.volumeMeterStyle && preset.noteAnimationStyle, qPrintable(preset.name));
         // Init follows the accent; every other theme names its own spectrum colors
         QVERIFY2(i == 0 || (preset.spectrumPostColor && preset.spectrumPreColor), qPrintable(preset.name));
         // Alphabetical after Init
@@ -337,6 +338,55 @@ void ThemeServiceTest::test_volumeMeterStyle_setter_shouldPersistAcrossInstances
     ThemeService reloaded;
 
     QCOMPARE(reloaded.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Lines));
+}
+
+void ThemeServiceTest::test_noteAnimationStyle_unset_shouldDefaultToAccent()
+{
+    ThemeService themeService;
+
+    QCOMPARE(themeService.noteAnimationStyle(), static_cast<int>(Constants::NoteAnimationStyle::Accent));
+}
+
+void ThemeServiceTest::test_noteAnimationStyle_setter_shouldUpdateGetterAndEmitSignal()
+{
+    ThemeService themeService;
+    QSignalSpy spy { &themeService, &ThemeService::noteAnimationStyleChanged };
+
+    themeService.setNoteAnimationStyle(static_cast<int>(Constants::NoteAnimationStyle::Gradient));
+
+    QCOMPARE(themeService.noteAnimationStyle(), static_cast<int>(Constants::NoteAnimationStyle::Gradient));
+    QCOMPARE(spy.count(), 1);
+
+    themeService.setNoteAnimationStyle(static_cast<int>(Constants::NoteAnimationStyle::Gradient));
+
+    QCOMPARE(spy.count(), 1);
+}
+
+void ThemeServiceTest::test_noteAnimationStyle_setter_shouldPersistAcrossInstances()
+{
+    {
+        ThemeService themeService;
+        themeService.setNoteAnimationStyle(static_cast<int>(Constants::NoteAnimationStyle::Gradient));
+    }
+
+    ThemeService reloaded;
+
+    QCOMPARE(reloaded.noteAnimationStyle(), static_cast<int>(Constants::NoteAnimationStyle::Gradient));
+}
+
+void ThemeServiceTest::test_noteAnimationStyle_factoryPresets_shouldFollowVolumeMeterStyleAfterInit()
+{
+    const auto lines = static_cast<int>(Constants::VolumeMeterStyle::Lines);
+    const auto accent = static_cast<int>(Constants::NoteAnimationStyle::Accent);
+    ThemeService themeService;
+    const auto & presets = ThemeService::factoryThemePresets();
+    for (size_t i = 0; i < presets.size(); i++) {
+        // Init has the defaults, the gradient volume meter and the accent notes
+        QVERIFY(i == 0 || (*presets.at(i).noteAnimationStyle == accent) == (*presets.at(i).volumeMeterStyle == lines));
+        themeService.loadThemePreset(static_cast<int>(i));
+        QCOMPARE(themeService.noteAnimationStyle(), *presets.at(i).noteAnimationStyle);
+    }
+    themeService.loadThemePreset(0);
 }
 
 void ThemeServiceTest::test_columnFlashEnabled_unset_shouldDefaultToEnabled()

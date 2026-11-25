@@ -51,6 +51,10 @@ private slots:
     void test_volumeMeterStyle_unset_shouldDefaultToGradient();
     void test_volumeMeterStyle_setter_shouldUpdateGetterAndEmitSignal();
     void test_volumeMeterStyle_setter_shouldPersistAcrossInstances();
+    void test_noteAnimationStyle_unset_shouldDefaultToAccent();
+    void test_noteAnimationStyle_setter_shouldUpdateGetterAndEmitSignal();
+    void test_noteAnimationStyle_setter_shouldPersistAcrossInstances();
+    void test_noteAnimationStyle_factoryPresets_shouldFollowVolumeMeterStyleAfterInit();
     void test_columnFlashEnabled_unset_shouldDefaultToEnabled();
     void test_columnFlashEnabled_setter_shouldUpdateGetterAndEmitSignal();
     void test_columnFlashEnabled_setter_shouldPersistAcrossInstances();

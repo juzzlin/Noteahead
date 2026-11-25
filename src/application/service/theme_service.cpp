@@ -99,6 +99,7 @@ ThemeService::ThemeService()
   , m_userThemePresets { Settings::userThemePresets() }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
   , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
+  , m_noteAnimationStyle { Settings::noteAnimationStyle(Constants::defaultNoteAnimationStyle()) }
   , m_columnFlashEnabled { Settings::columnFlashEnabled() }
 {
     // The theme last picked, by name, so that the list can change under it. A factory theme wins
@@ -170,6 +171,20 @@ void ThemeService::setVolumeMeterStyle(int style)
         m_volumeMeterStyle = style;
         Settings::setVolumeMeterStyle(m_volumeMeterStyle);
         emit volumeMeterStyleChanged();
+    }
+}
+
+int ThemeService::noteAnimationStyle() const
+{
+    return m_noteAnimationStyle;
+}
+
+void ThemeService::setNoteAnimationStyle(int style)
+{
+    if (m_noteAnimationStyle != style) {
+        m_noteAnimationStyle = style;
+        Settings::setNoteAnimationStyle(m_noteAnimationStyle);
+        emit noteAnimationStyleChanged();
     }
 }
 
@@ -313,17 +328,19 @@ const std::vector<ThemePreset> & ThemeService::factoryThemePresets()
 {
     const auto lines = Constants::VolumeMeterStyle::Lines;
     const auto gradient = Constants::VolumeMeterStyle::Gradient;
+    const auto accentNotes = static_cast<int>(Constants::NoteAnimationStyle::Accent);
+    const auto gradientNotes = static_cast<int>(Constants::NoteAnimationStyle::Gradient);
     // Init first, as it is the way back; the rest alphabetical. The names are not translated, like
     // those of effect presets. A spectrum color left out follows the accent: Init's do, and the
     // others name theirs where turning from the accent would land somewhere that clashes with it.
     static const std::vector<ThemePreset> presets {
-        { .name = "Init", .accentColor = defaultAccentColor(), .cursorColor = defaultCursorColor(), .paletteAccentBlend = defaultPaletteAccentBlend(), .volumeMeterStyle = Constants::defaultVolumeMeterStyle(), .spectrumPostColor = std::nullopt, .spectrumPreColor = std::nullopt },
-        { .name = "Ice", .accentColor = QColor { "#7fd4ff" }, .cursorColor = QColor { "#ff5577" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#ffd75e" }, .spectrumPreColor = QColor { "#ff9a5e" } },
-        { .name = "Mono", .accentColor = QColor { "#d0d0d0" }, .cursorColor = QColor { "white" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#a0a0a0" }, .spectrumPreColor = QColor { "#e8e8e8" } },
+        { .name = "Init", .accentColor = defaultAccentColor(), .cursorColor = defaultCursorColor(), .paletteAccentBlend = defaultPaletteAccentBlend(), .volumeMeterStyle = Constants::defaultVolumeMeterStyle(), .noteAnimationStyle = Constants::defaultNoteAnimationStyle(), .spectrumPostColor = std::nullopt, .spectrumPreColor = std::nullopt },
+        { .name = "Ice", .accentColor = QColor { "#7fd4ff" }, .cursorColor = QColor { "#ff5577" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .noteAnimationStyle = accentNotes, .spectrumPostColor = QColor { "#ffd75e" }, .spectrumPreColor = QColor { "#ff9a5e" } },
+        { .name = "Mono", .accentColor = QColor { "#d0d0d0" }, .cursorColor = QColor { "white" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(lines), .noteAnimationStyle = accentNotes, .spectrumPostColor = QColor { "#a0a0a0" }, .spectrumPreColor = QColor { "#e8e8e8" } },
         // The accent and palette the application had before mint
-        { .name = "Orange", .accentColor = QColor { "orange" }, .cursorColor = QColor { "red" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(gradient), .spectrumPostColor = QColor { "#5ec8ff" }, .spectrumPreColor = QColor { "#b48cff" } },
-        { .name = "Rose", .accentColor = QColor { "#ff8fb1" }, .cursorColor = QColor { "#ffd166" }, .paletteAccentBlend = 35, .volumeMeterStyle = static_cast<int>(gradient), .spectrumPostColor = QColor { "#8fe3ff" }, .spectrumPreColor = QColor { "#c8a2ff" } },
-        { .name = "Violet", .accentColor = QColor { "#b69cff" }, .cursorColor = QColor { "#ff6b6b" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#ffd36b" }, .spectrumPreColor = QColor { "#ff9f6b" } },
+        { .name = "Orange", .accentColor = QColor { "orange" }, .cursorColor = QColor { "red" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(gradient), .noteAnimationStyle = gradientNotes, .spectrumPostColor = QColor { "#5ec8ff" }, .spectrumPreColor = QColor { "#b48cff" } },
+        { .name = "Rose", .accentColor = QColor { "#ff8fb1" }, .cursorColor = QColor { "#ffd166" }, .paletteAccentBlend = 35, .volumeMeterStyle = static_cast<int>(gradient), .noteAnimationStyle = gradientNotes, .spectrumPostColor = QColor { "#8fe3ff" }, .spectrumPreColor = QColor { "#c8a2ff" } },
+        { .name = "Violet", .accentColor = QColor { "#b69cff" }, .cursorColor = QColor { "#ff6b6b" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .noteAnimationStyle = accentNotes, .spectrumPostColor = QColor { "#ffd36b" }, .spectrumPreColor = QColor { "#ff9f6b" } },
     };
     return presets;
 }
@@ -379,6 +396,7 @@ void ThemeService::loadThemePreset(int index)
     setCursorColor(preset.cursorColor.value_or(*init.cursorColor));
     setPaletteAccentBlend(preset.paletteAccentBlend.value_or(*init.paletteAccentBlend));
     setVolumeMeterStyle(preset.volumeMeterStyle.value_or(*init.volumeMeterStyle));
+    setNoteAnimationStyle(preset.noteAnimationStyle.value_or(*init.noteAnimationStyle));
     // Left out means following the accent, which is Init's own value, so there is nothing to fall
     // back on
     setSpectrumColors(preset.spectrumPostColor, preset.spectrumPreColor);
@@ -400,6 +418,7 @@ bool ThemeService::saveUserPreset(const QString & name)
                                .cursorColor = m_cursorColor,
                                .paletteAccentBlend = m_paletteAccentBlend,
                                .volumeMeterStyle = m_volumeMeterStyle,
+                               .noteAnimationStyle = m_noteAnimationStyle,
                                .spectrumPostColor = m_spectrumPostColor,
                                .spectrumPreColor = m_spectrumPreColor };
     if (const auto it = std::ranges::find_if(m_userThemePresets, [&name](auto && existing) { return existing.name == name; }); it != m_userThemePresets.end()) {

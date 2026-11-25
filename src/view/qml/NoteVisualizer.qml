@@ -36,6 +36,10 @@ Item {
         }
     }
     function noteColor(midiNote: int): color {
+        // Constants::NoteAnimationStyle::Accent
+        if (themeService.noteAnimationStyle === 1) {
+            return themeService.accentColor;
+        }
         const normalized = (midiNote - 21) / (_numKeys - 1); // Scale from 0 to 1
         let red = 1.0;
         let green = 2.0 * normalized;

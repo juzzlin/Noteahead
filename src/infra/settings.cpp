@@ -91,6 +91,7 @@ const auto themePresetNameKey = "themePreset";
 const auto nameKey = "name";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
 const auto volumeMeterStyleKey = "volumeMeterStyle";
+const auto noteAnimationStyleKey = "noteAnimationStyle";
 const auto columnFlashEnabledKey = "columnFlashEnabled";
 
 const auto userLanguageKey = "userLanguage";
@@ -932,6 +933,7 @@ std::vector<ThemePreset> userThemePresets()
                             .cursorColor = color(cursorColorKey),
                             .paletteAccentBlend = integer(paletteAccentBlendKey),
                             .volumeMeterStyle = integer(volumeMeterStyleKey),
+                            .noteAnimationStyle = integer(noteAnimationStyleKey),
                             .spectrumPostColor = color(spectrumPostColorKey),
                             .spectrumPreColor = color(spectrumPreColorKey) });
     }
@@ -960,6 +962,7 @@ void setUserThemePresets(const std::vector<ThemePreset> & presets)
         write(cursorColorKey, preset.cursorColor);
         write(paletteAccentBlendKey, preset.paletteAccentBlend);
         write(volumeMeterStyleKey, preset.volumeMeterStyle);
+        write(noteAnimationStyleKey, preset.noteAnimationStyle);
         write(spectrumPostColorKey, preset.spectrumPostColor);
         write(spectrumPreColorKey, preset.spectrumPreColor);
     }
@@ -1035,6 +1038,23 @@ void setVolumeMeterStyle(int style)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(volumeMeterStyleKey, style);
+    settings.endGroup();
+}
+
+int noteAnimationStyle(int defaultNoteAnimationStyle)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto style = settings.value(noteAnimationStyleKey, defaultNoteAnimationStyle).toInt();
+    settings.endGroup();
+    return style;
+}
+
+void setNoteAnimationStyle(int style)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(noteAnimationStyleKey, style);
     settings.endGroup();
 }
 

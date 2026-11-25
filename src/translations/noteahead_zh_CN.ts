@@ -12540,7 +12540,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>渐变</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12549,6 +12549,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>音符动画</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>强调色</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>渐变按音高为底栏中演奏的音符着色，从红经黄到绿。强调色则全部以强调色绘制。</translation>
     </message>
     <message>
         <source>Column Flash</source>

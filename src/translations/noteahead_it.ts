@@ -12542,7 +12542,7 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Sfumatura</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12551,6 +12551,18 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>Animazione note</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accento</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>Sfumatura colora le note suonate nella barra inferiore in base all&apos;altezza, dal rosso al verde passando per il giallo. Accento le disegna tutte nel colore d&apos;accento.</translation>
     </message>
     <message>
         <source>Column Flash</source>

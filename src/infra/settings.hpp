@@ -182,6 +182,9 @@ void setPaletteAccentBlend(int paletteAccentBlend);
 int volumeMeterStyle(int defaultVolumeMeterStyle);
 void setVolumeMeterStyle(int style);
 
+int noteAnimationStyle(int defaultNoteAnimationStyle);
+void setNoteAnimationStyle(int style);
+
 bool columnFlashEnabled();
 void setColumnFlashEnabled(bool enabled);
 

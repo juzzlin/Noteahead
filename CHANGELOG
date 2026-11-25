@@ -25,6 +25,8 @@ New features:
 
 * Effects: every effect dialog has the rack's on/off checkbox in its title bar, for A/B
 
+* Theme: the bottom bar's note animation is drawn in the accent color, or in the old pitch gradient
+
 Bug fixes:
 
 * Synth D: Tune and the OSC 2 and OSC 3 Frequency knobs set and show hundredths of a semitone, for a slow beat between the oscillators

@@ -277,6 +277,21 @@ constexpr int defaultVolumeMeterStyle()
     return static_cast<int>(VolumeMeterStyle::Gradient);
 }
 
+//! How the notes played are drawn in the bottom bar.
+//!
+//! Gradient colours each note by its pitch, red through yellow to green; Accent draws them all in
+//! the accent color.
+enum class NoteAnimationStyle
+{
+    Gradient = 0,
+    Accent = 1
+};
+
+constexpr int defaultNoteAnimationStyle()
+{
+    return static_cast<int>(NoteAnimationStyle::Accent);
+}
+
 //! Width of an automation curve in the tracker, in tenths of a pixel. Stored as tenths because the
 //! useful range is finer than a whole pixel, matching how the render settings store their level.
 constexpr int defaultAutomationCurveThicknessTenths()

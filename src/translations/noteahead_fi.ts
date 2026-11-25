@@ -12542,7 +12542,7 @@ Audio files will appear next to the current project file.</source>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Liukuväri</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12551,6 +12551,18 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>Nuottianimaatio</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Korostus</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>Liukuväri värittää alapalkissa soitetut nuotit sävelkorkeuden mukaan punaisesta keltaisen kautta vihreään. Korostus piirtää ne kaikki korostusvärillä.</translation>
     </message>
     <message>
         <source>Column Flash</source>

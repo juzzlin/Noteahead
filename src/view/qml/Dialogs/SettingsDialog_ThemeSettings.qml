@@ -193,6 +193,36 @@ SectionBox {
         }
 
         SectionBox {
+            title: qsTr("Note Animation")
+            Layout.fillWidth: true
+
+            // The notes played in the bottom bar, in their own pitch gradient or in the accent color
+            RowLayout {
+                spacing: 10
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Label {
+                    text: qsTr("Style:")
+                    color: themeService.mainMenuTextColor
+                }
+                ComboBox {
+                    id: noteAnimationStyleComboBox
+                    Layout.fillWidth: true
+                    model: [qsTr("Gradient"), qsTr("Accent")]
+                    currentIndex: themeService.noteAnimationStyle
+                    onActivated: i => themeService.noteAnimationStyle = i
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.")
+                }
+            }
+        }
+
+        SectionBox {
             title: qsTr("Column Flash")
             Layout.fillWidth: true
 

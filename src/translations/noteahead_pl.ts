@@ -12544,7 +12544,7 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12553,6 +12553,18 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>Animacja nut</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Akcent</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>Gradient koloruje nuty grane na dolnym pasku według wysokości, od czerwieni przez żółć do zieleni. Akcent rysuje je wszystkie w kolorze akcentu.</translation>
     </message>
     <message>
         <source>Column Flash</source>

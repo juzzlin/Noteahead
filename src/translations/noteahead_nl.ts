@@ -12542,7 +12542,7 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Verloop</translation>
     </message>
     <message>
         <source>Lines</source>
@@ -12551,6 +12551,18 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Animation</source>
+        <translation>Nootanimatie</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accent</translation>
+    </message>
+    <message>
+        <source>Gradient colors the notes played in the bottom bar by pitch, from red through yellow to green. Accent draws them all in the accent color.</source>
+        <translation>Verloop kleurt de gespeelde noten in de onderbalk naar toonhoogte, van rood via geel naar groen. Accent tekent ze allemaal in de accentkleur.</translation>
     </message>
     <message>
         <source>Column Flash</source>

@@ -56,6 +56,9 @@ class ThemeService : public QObject
     //! How the tracker's per-column volume meters are drawn. See Constants::VolumeMeterStyle.
     Q_PROPERTY(int volumeMeterStyle READ volumeMeterStyle WRITE setVolumeMeterStyle NOTIFY volumeMeterStyleChanged)
 
+    //! How the bottom bar draws the notes played. See Constants::NoteAnimationStyle.
+    Q_PROPERTY(int noteAnimationStyle READ noteAnimationStyle WRITE setNoteAnimationStyle NOTIFY noteAnimationStyleChanged)
+
     //! Flash a column's background in its track color on every note it plays. Not part of a theme
     //! preset, so picking one never turns it on or off.
     Q_PROPERTY(bool columnFlashEnabled READ columnFlashEnabled WRITE setColumnFlashEnabled NOTIFY columnFlashEnabledChanged)
@@ -145,6 +148,9 @@ public:
     int volumeMeterStyle() const;
     void setVolumeMeterStyle(int style);
 
+    int noteAnimationStyle() const;
+    void setNoteAnimationStyle(int style);
+
     bool columnFlashEnabled() const;
     void setColumnFlashEnabled(bool enabled);
 
@@ -196,6 +202,7 @@ signals:
     void themePresetsChanged();
     void paletteAccentBlendChanged();
     void volumeMeterStyleChanged();
+    void noteAnimationStyleChanged();
     void columnFlashEnabledChanged();
     void automationCurveColorsChanged();
     void trackHeaderTextColorsChanged();
@@ -224,6 +231,7 @@ private:
     int m_themePresetIndex { 0 };
     int m_paletteAccentBlend;
     int m_volumeMeterStyle;
+    int m_noteAnimationStyle;
     bool m_columnFlashEnabled;
 };
 
