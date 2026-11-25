@@ -173,6 +173,7 @@ AnimatedDialog {
 
         // Virtual keyboard
         VirtualKeyboard {
+            controller: electricBassController
             Layout.fillWidth: true
             Layout.topMargin: 8
             onNoteOnRequested: note => electricBassController.playNote(note, UiService._activeVelocity / 127.0)

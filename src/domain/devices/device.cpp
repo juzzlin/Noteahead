@@ -241,14 +241,23 @@ std::optional<uint8_t> Device::shiftedNote(uint8_t note, int semitones)
 void Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::optional<uint8_t> shifted;
+    const uint8_t rawNote = note & 0x7f;
     {
         std::lock_guard<std::recursive_mutex> lock { m_mutex };
         const int semitones = supportsOctave() ? m_octave.load(std::memory_order_relaxed) * 12 : 0;
-        m_noteShifts.at(note & 0x7f) = static_cast<int8_t>(semitones);
+        m_noteShifts.at(rawNote) = static_cast<int8_t>(semitones);
         shifted = shiftedNote(note, semitones);
     }
     // A note shifted out of MIDI is not played, and its note-off finds it so in the same way
     if (shifted) {
+        const size_t word = static_cast<size_t>(rawNote >> 6);
+        const uint64_t bit = uint64_t { 1 } << (rawNote & 63);
+        if (velocity > 0) {
+            m_heldNoteMask.at(word).fetch_or(bit, std::memory_order_relaxed);
+            m_triggeredNoteMask.at(word).fetch_or(bit, std::memory_order_relaxed);
+        } else {
+            m_heldNoteMask.at(word).fetch_and(~bit, std::memory_order_relaxed);
+        }
         processDeviceMidiNoteOn(*shifted, velocity);
     }
 }
@@ -256,15 +265,19 @@ void Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
 void Device::processMidiNoteOff(uint8_t note)
 {
     std::optional<uint8_t> shifted;
+    const uint8_t rawNote = note & 0x7f;
     {
         std::lock_guard<std::recursive_mutex> lock { m_mutex };
-        auto & started = m_noteShifts.at(note & 0x7f);
+        auto & started = m_noteShifts.at(rawNote);
         // A note-off with no note-on to match, as the transport sends when it stops, is released
         // where a note-on now would have put it
         const int semitones = started ? *started : (supportsOctave() ? m_octave.load(std::memory_order_relaxed) * 12 : 0);
         started.reset();
         shifted = shiftedNote(note, semitones);
     }
+    const size_t word = static_cast<size_t>(rawNote >> 6);
+    const uint64_t bit = uint64_t { 1 } << (rawNote & 63);
+    m_heldNoteMask.at(word).fetch_and(~bit, std::memory_order_relaxed);
     if (shifted) {
         processDeviceMidiNoteOff(*shifted);
     }
@@ -837,6 +850,51 @@ void Device::publishLfoLed(size_t index, double shapeValue)
     }
 }
 
+Device::ActiveNoteMask Device::heldNoteMask() const
+{
+    return {
+        m_heldNoteMask.at(0).load(std::memory_order_relaxed),
+        m_heldNoteMask.at(1).load(std::memory_order_relaxed)
+    };
+}
+
+Device::ActiveNoteMask Device::pollActiveNoteMask()
+{
+    ActiveNoteMask mask {};
+    for (size_t word = 0; word < 2; word++) {
+        const uint64_t held = m_heldNoteMask.at(word).load(std::memory_order_relaxed);
+        uint64_t triggered = 0;
+        if (m_triggeredNoteMask.at(word).load(std::memory_order_relaxed) != 0) {
+            triggered = m_triggeredNoteMask.at(word).exchange(0, std::memory_order_relaxed);
+        }
+        mask.at(word) = held | triggered;
+    }
+    return mask;
+}
+
+void Device::clearActiveNotes()
+{
+    for (size_t word = 0; word < 2; word++) {
+        m_heldNoteMask.at(word).store(0, std::memory_order_relaxed);
+        m_triggeredNoteMask.at(word).store(0, std::memory_order_relaxed);
+    }
+}
+
+void Device::clearTriggeredNoteMask()
+{
+    for (size_t word = 0; word < 2; word++) {
+        m_triggeredNoteMask.at(word).store(0, std::memory_order_relaxed);
+    }
+}
+
+void Device::clearHeldNote(uint8_t note)
+{
+    const uint8_t rawNote = note & 0x7f;
+    const size_t word = static_cast<size_t>(rawNote >> 6);
+    const uint64_t bit = uint64_t { 1 } << (rawNote & 63);
+    m_heldNoteMask.at(word).fetch_and(~bit, std::memory_order_relaxed);
+}
+
 void Device::setBpm(float bpm)
 {
     m_insertEffectRack.setBpm(bpm);
@@ -857,6 +915,7 @@ void Device::resetAudio()
         // A reset device has forgotten what it was sent, so the next value has to go through
         m_modulatorMidiValues.clear();
     }
+    clearActiveNotes();
     m_insertEffectRack.reset();
     m_widthStage.reset();
     resetDeviceAudio();
@@ -1002,6 +1061,7 @@ void Device::applyScheduledEvents(uint64_t frame)
             processMidiProgramChange(due->programme, due->channel);
             break;
         case ScheduledEvent::Type::AllNotesOff:
+            clearActiveNotes();
             processMidiAllNotesOff();
             break;
         }

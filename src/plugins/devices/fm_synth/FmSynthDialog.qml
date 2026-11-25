@@ -149,6 +149,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: fmSynthController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => fmSynthController.playNote(note, UiService._activeVelocity / 127.0)

@@ -131,6 +131,7 @@ AnimatedDialog {
 
         // Virtual Keyboard
         VirtualKeyboard {
+            controller: bassSynthController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => bassSynthController.playNote(note, UiService._activeVelocity / 127.0)

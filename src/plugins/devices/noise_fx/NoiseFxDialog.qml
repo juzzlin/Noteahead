@@ -179,6 +179,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: noiseFxController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => noiseFxController.playNote(note, UiService._activeVelocity / 127.0)

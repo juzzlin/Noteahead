@@ -173,6 +173,7 @@ AnimatedDialog {
 
         // Virtual keyboard
         VirtualKeyboard {
+            controller: kick808Controller
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => kick808Controller.playNote(note, UiService._activeVelocity / 127.0)

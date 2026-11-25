@@ -147,6 +147,7 @@ AnimatedDialog {
 
         // Virtual Keyboard
         VirtualKeyboard {
+            controller: wavetableSynthController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => wavetableSynthController.playNote(note, UiService._activeVelocity / 127.0)

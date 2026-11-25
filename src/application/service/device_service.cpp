@@ -581,6 +581,7 @@ void DeviceService::processMidiProgramChange(const QString & portName, uint8_t p
 void DeviceService::processMidiAllNotesOff(const QString & portName)
 {
     if (const auto dev = deviceForPort(portName); dev) {
+        dev->clearActiveNotes();
         dev->processMidiAllNotesOff();
     }
 }
@@ -589,6 +590,7 @@ void DeviceService::processMidiAllNotesOff()
 {
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
+            dev->clearActiveNotes();
             dev->processMidiAllNotesOff();
         }
     }

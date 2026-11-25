@@ -228,6 +228,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: synthDController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => synthDController.playNote(note, UiService._activeVelocity / 127.0)

@@ -100,6 +100,7 @@ AnimatedDialog {
 
         // Notes on the device's track restart the LFOs set to; this plays them here
         VirtualKeyboard {
+            controller: lfoController
             Layout.fillWidth: true
             onNoteOnRequested: note => lfoController.playNote(note, 1.0)
             onNoteOffRequested: note => lfoController.stopNote(note)

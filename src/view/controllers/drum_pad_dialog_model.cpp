@@ -420,6 +420,7 @@ void DrumPadDialogModel::playVoice(int index)
     if (m_device) {
         if (const uint8_t note = m_device->voiceNote(index); note > 0) {
             playNote(note, 1.0);
+            m_device->clearHeldNote(note);
         }
     }
 }

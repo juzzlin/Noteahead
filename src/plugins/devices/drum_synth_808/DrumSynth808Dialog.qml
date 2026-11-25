@@ -332,6 +332,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: drumSynth808Controller
             Layout.fillWidth: true
             Layout.topMargin: 10
             activeNotes: drumSynth808Controller.activeNotes

@@ -450,6 +450,17 @@ public:
     //! default.
     virtual void advanceIdle(const AudioContext & context);
 
+    //! Whether LFO @p index is in its shape, -1..1
+    //! (and active MIDI note bitmasks for lock-free UI keyboard visualization)
+    using ActiveNoteMask = std::array<uint64_t, 2>;
+    //! Currently held incoming MIDI notes across both 64-bit words. Safe to call from any thread.
+    ActiveNoteMask heldNoteMask() const;
+    //! Returns currently held notes OR notes triggered since the last poll, clearing triggered bits.
+    ActiveNoteMask pollActiveNoteMask();
+    void clearActiveNotes();
+    void clearTriggeredNoteMask();
+    void clearHeldNote(uint8_t note);
+
     //! How many LFOs the device shows a phase LED for.
     static constexpr size_t MaxLfoLeds { 4 };
     //! Where LFO @p index is in its shape, -1..1, as the audio thread last published it. Safe to call
@@ -718,6 +729,8 @@ private:
     std::optional<double> m_nextNoteBeats;
 
     std::array<std::atomic<float>, MaxLfoLeds> m_lfoLeds {};
+    std::array<std::atomic<uint64_t>, 2> m_heldNoteMask {};
+    std::array<std::atomic<uint64_t>, 2> m_triggeredNoteMask {};
 
     MidiMappingList m_midiMappings;
 

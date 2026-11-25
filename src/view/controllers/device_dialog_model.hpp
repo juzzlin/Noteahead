@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantList>
+#include <array>
+#include <cstdint>
 #include <memory>
 
 namespace noteahead {
@@ -43,6 +45,7 @@ class DeviceDialogModel : public QObject
     Q_PROPERTY(QStringList presetNames READ presetNames NOTIFY presetNamesChanged)
     Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
     Q_PROPERTY(bool currentPresetIsUserPreset READ currentPresetIsUserPreset NOTIFY currentPresetIndexChanged)
+    Q_PROPERTY(QVariantList playingNotes READ playingNotes NOTIFY playingNotesChanged)
 
 public:
     using DeviceS = std::shared_ptr<Device>;
@@ -87,6 +90,10 @@ public:
 
     //! Where the device's LFO @p index is in its shape, -1..1, for its phase LED.
     Q_INVOKABLE float lfoLed(int index) const;
+
+    QVariantList playingNotes() const;
+    //! Polls active held and newly triggered MIDI notes from the device, emitting playingNotesChanged() if changed.
+    Q_INVOKABLE void pollPlayingNotes();
 
     //! The device's built-in patches. A device without any leaves this alone and still gets the
     //! user's own presets, which is the whole reason the list lives here rather than in the two
@@ -135,6 +142,7 @@ signals:
     void sampleRateChanged();
     void presetNamesChanged();
     void currentPresetIndexChanged();
+    void playingNotesChanged();
 
 protected:
     void connectDeviceSignals();
@@ -148,6 +156,7 @@ private:
     QStringList userPresetNames() const;
     QString deviceTypeId() const;
     QString displayName() const;
+    void updatePlayingNotesFromMask(const std::array<uint64_t, 2> & mask);
 
     //! Refreshes the dialog when an automation of the shown device lands. Nothing writes back on a
     //! refresh: the knobs write only when moved, and saving takes the authored values.
@@ -157,6 +166,8 @@ private:
     int m_currentPresetIndex = 0;
     bool m_scopeActive = false;
     std::weak_ptr<Device> m_scopeDevice;
+    std::array<uint64_t, 2> m_lastPlayingNoteMask {};
+    QVariantList m_playingNotes {};
 };
 
 } // namespace noteahead

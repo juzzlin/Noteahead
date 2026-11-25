@@ -23,6 +23,7 @@
 
 #include <QDebug>
 #include <algorithm>
+#include <bit>
 #include <cmath>
 
 namespace noteahead {
@@ -310,6 +311,36 @@ float DeviceDialogModel::lfoLed(int index) const
     return 0.0f;
 }
 
+QVariantList DeviceDialogModel::playingNotes() const
+{
+    return m_playingNotes;
+}
+
+void DeviceDialogModel::updatePlayingNotesFromMask(const std::array<uint64_t, 2> & mask)
+{
+    if (mask == m_lastPlayingNoteMask) {
+        return;
+    }
+    m_lastPlayingNoteMask = mask;
+    m_playingNotes.clear();
+    for (size_t word = 0; word < 2; word++) {
+        uint64_t bits = mask.at(word);
+        while (bits != 0) {
+            const int bit = std::countr_zero(bits);
+            m_playingNotes.append(static_cast<int>(word * 64 + static_cast<size_t>(bit)));
+            bits &= (bits - 1);
+        }
+    }
+    emit playingNotesChanged();
+}
+
+void DeviceDialogModel::pollPlayingNotes()
+{
+    const auto dev = device();
+    const Device::ActiveNoteMask mask = dev ? dev->pollActiveNoteMask() : Device::ActiveNoteMask { 0, 0 };
+    updatePlayingNotesFromMask(mask);
+}
+
 int DeviceDialogModel::scopeSampleRate() const
 {
     if (const auto dev = device(); dev) {
@@ -366,7 +397,9 @@ void DeviceDialogModel::connectDeviceSignals()
 {
     // Every controller calls this as it takes a device, which is when the name can change
     emit displayNameChanged();
-    if (auto dev = device(); dev) {
+    const auto dev = device();
+    if (dev) {
+        dev->clearTriggeredNoteMask();
         connect(dev.get(), &Device::sampleRateChanged, this, &DeviceDialogModel::requestSettings, Qt::UniqueConnection);
         connect(dev.get(), &Device::dataChanged, this, &DeviceDialogModel::requestSettings, Qt::UniqueConnection);
         // The open dialog still follows incoming MIDI CC, but nothing else in the application does
@@ -376,6 +409,7 @@ void DeviceDialogModel::connectDeviceSignals()
         // of the device can move it
         connect(dev.get(), &Device::dataChanged, this, &DeviceDialogModel::octaveChanged, Qt::UniqueConnection);
     }
+    updatePlayingNotesFromMask(dev ? dev->heldNoteMask() : Device::ActiveNoteMask { 0, 0 });
     emit octaveChanged();
 }
 

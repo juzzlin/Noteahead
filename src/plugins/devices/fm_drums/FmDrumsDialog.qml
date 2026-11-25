@@ -317,6 +317,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: fmDrumsController
             Layout.fillWidth: true
             Layout.topMargin: 10
             activeNotes: fmDrumsController.activeNotes

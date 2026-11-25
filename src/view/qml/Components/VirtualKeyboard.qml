@@ -34,9 +34,11 @@ Item {
     signal noteOnRequested(int note)
     signal noteOffRequested(int note)
 
+    property var controller: null
     property int velocityKeyTrack: 0
     property int velocityKeyTrackOffset: 0
     property var activeNotes: []
+    property var playingNotes: controller ? controller.playingNotes : []
     property int mousePressedNote: -1
 
     function getVelocityColor(note: int, baseColor: color): color {
@@ -151,8 +153,9 @@ Item {
                     y: pressed ? 1 : 0
                     height: parent.height - (pressed ? 1 : 0)
                     radius: rootItem.keyRadius
-                    property bool pressed: rootItem.mousePressedNote === note
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index)
+                    property bool playing: rootItem.playingNotes.includes(note)
+                    property bool pressed: rootItem.mousePressedNote === note || playing
                     // The key-track tint stays the key's own colour; the gradient is derived from it
                     // so a tinted key still shades from back to front.
                     property color baseColor: rootItem.getVelocityColor(note, "#ffffff")
@@ -198,8 +201,8 @@ Item {
                         anchors.margins: 1
                         radius: parent.radius
                         color: themeService.accentColor
-                        opacity: 0.3
-                        visible: rootItem.activeNotes.includes(parent.note)
+                        opacity: wkey.playing ? 0.68 : 0.3
+                        visible: wkey.playing || rootItem.activeNotes.includes(parent.note)
                     }
 
                     // The octave on every C, named as the note column names it, faint enough to read
@@ -235,7 +238,8 @@ Item {
                     x: (index + 1) * rootItem.whiteKeyWidth - width / 2
                     y: 0
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index) + 1
-                    property bool pressed: rootItem.mousePressedNote === note
+                    property bool playing: rootItem.playingNotes.includes(note)
+                    property bool pressed: rootItem.mousePressedNote === note || playing
 
                     // Cast onto the white keys below. A rectangle rather than an effect: 36 of these
                     // are on screen at once and a blur on each is not worth the frame.
@@ -293,8 +297,8 @@ Item {
                             anchors.margins: 1
                             radius: parent.radius
                             color: themeService.accentColor
-                            opacity: 0.4
-                            visible: rootItem.activeNotes.includes(bkeySlot.note)
+                            opacity: bkeySlot.playing ? 0.85 : 0.4
+                            visible: bkeySlot.playing || rootItem.activeNotes.includes(bkeySlot.note)
                         }
                     }
                 }
@@ -389,5 +393,13 @@ Item {
                 }
             }
         }
+    }
+
+    Timer {
+        interval: 33 // ~30 FPS, matches LfoLed
+        repeat: true
+        triggeredOnStart: true
+        running: rootItem.visible && rootItem.controller !== null
+        onTriggered: rootItem.controller.pollPlayingNotes()
     }
 }

@@ -236,6 +236,7 @@ AnimatedDialog {
 
         // Virtual Keyboard
         VirtualKeyboard {
+            controller: stringVoiceV2Controller
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => stringVoiceV2Controller.playNote(note, UiService._activeVelocity / 127.0)

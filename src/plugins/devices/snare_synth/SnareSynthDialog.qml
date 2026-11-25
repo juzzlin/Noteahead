@@ -195,6 +195,7 @@ AnimatedDialog {
 
         // Virtual keyboard
         VirtualKeyboard {
+            controller: snareSynthController
             Layout.fillWidth: true
             Layout.topMargin: 8
             onNoteOnRequested: note => snareSynthController.playNote(note, UiService._activeVelocity / 127.0)

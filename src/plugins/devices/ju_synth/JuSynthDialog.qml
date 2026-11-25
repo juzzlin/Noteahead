@@ -146,6 +146,7 @@ AnimatedDialog {
         }
 
         VirtualKeyboard {
+            controller: juSynthController
             Layout.fillWidth: true
             Layout.topMargin: 10
             onNoteOnRequested: note => juSynthController.playNote(note, UiService._activeVelocity / 127.0)

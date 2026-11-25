@@ -167,6 +167,7 @@ AnimatedDialog {
 
         // Virtual keyboard
         VirtualKeyboard {
+            controller: pianoSynthAcousticController
             Layout.fillWidth: true
             Layout.topMargin: 8
             onNoteOnRequested: note => pianoSynthAcousticController.playNote(note, UiService._activeVelocity / 127.0)
