@@ -40,6 +40,7 @@ private slots:
     void test_autoGain_off_leavesOutputAsItWas();
     void test_autoGain_reset_measuresAtOnce();
     void test_reset_restoresExactReplay();
+    void test_processBlock_matchesProcessSample();
 };
 
 } // namespace noteahead

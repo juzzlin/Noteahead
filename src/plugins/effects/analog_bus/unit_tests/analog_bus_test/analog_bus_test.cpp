@@ -16,6 +16,7 @@
 #include "analog_bus_test.hpp"
 
 #include "../../../../../common/constants.hpp"
+#include "../../../../../domain/dsp/audio_context.hpp"
 #include "../../../../../domain/dsp/dc_blocker.hpp"
 #include "../../../../../domain/dsp/noise_source.hpp"
 #include "../../analog_bus.hpp"
@@ -616,6 +617,91 @@ void AnalogBusTest::test_reset_restoresExactReplay()
     bus.reset();
     const auto second = runBlock();
     QVERIFY(rmsDifference(first, second) < 1.0e-12);
+}
+
+void AnalogBusTest::test_processBlock_matchesProcessSample()
+{
+    namespace C = Constants::NahdXml;
+
+    struct Config
+    {
+        AnalogBus::Routing routing;
+        AnalogBus::ColorMode colorMode;
+        uint8_t factor;
+        bool analog;
+        bool sendMode;
+        float mix;
+        bool eqEnabled;
+        bool eqPre;
+        float aspect;
+        bool autoGain;
+    };
+
+    const std::array<Config, 4> configs { {
+      { AnalogBus::Routing::AToN, AnalogBus::ColorMode::LoFi12, 4, true, false, 0.75f, true, true, 0.6f, false },
+      { AnalogBus::Routing::NToA, AnalogBus::ColorMode::Tape, 2, false, false, 1.0f, true, false, 0.0f, true },
+      { AnalogBus::Routing::A, AnalogBus::ColorMode::Vinyl, 4, false, true, 0.5f, false, false, 0.3f, false },
+      { AnalogBus::Routing::N, AnalogBus::ColorMode::Bus4000, 1, true, false, 1.0f, true, true, 0.8f, false },
+    } };
+
+    for (const auto & cfg : configs) {
+        AnalogBus busSample;
+        AnalogBus busBlock;
+        auto configure = [&](AnalogBus & bus) {
+            bus.setSampleRate(SampleRate);
+            bus.setOversampleFactor(cfg.factor);
+            bus.setSendMode(cfg.sendMode);
+            setParameter(bus, C::xmlKeyLowCutMode(), static_cast<float>(AnalogBus::LowCutMode::Mix25Hz));
+            setParameter(bus, C::xmlKeyRouting(), static_cast<float>(cfg.routing));
+            setParameter(bus, C::xmlKeyDriveA(), AnalogBus::drivePosition(16.0));
+            setParameter(bus, C::xmlKeyDriveN(), AnalogBus::drivePosition(14.0));
+            setParameter(bus, C::xmlKeyColorMode(), static_cast<float>(cfg.colorMode));
+            setParameter(bus, C::xmlKeyColorDrive(), 0.55f);
+            setParameter(bus, C::xmlKeyColorMix(), 0.8f);
+            setParameter(bus, C::xmlKeyEqEnabled(), cfg.eqEnabled ? 1.0f : 0.0f);
+            setParameter(bus, C::xmlKeyEqPre(), cfg.eqPre ? 1.0f : 0.0f);
+            setParameter(bus, C::xmlKeyLowGain(), AnalogBus::eqGainPosition(3.0));
+            setParameter(bus, C::xmlKeyHighGain(), AnalogBus::eqGainPosition(-2.0));
+            setParameter(bus, C::xmlKeyAirGain(), AnalogBus::airGainPosition(2.5));
+            setParameter(bus, C::xmlKeyVintage(), 1.0f);
+            setParameter(bus, C::xmlKeyAnalog(), cfg.analog ? 1.0f : 0.0f);
+            setParameter(bus, C::xmlKeyAspect(), cfg.aspect);
+            setParameter(bus, C::xmlKeyGain(), AnalogBus::outputGainPosition(-1.5));
+            setParameter(bus, C::xmlKeyAutoGain(), cfg.autoGain ? 1.0f : 0.0f);
+            setParameter(bus, C::xmlKeyMix(), cfg.mix);
+            bus.reset();
+        };
+        configure(busSample);
+        configure(busBlock);
+
+        constexpr size_t totalFrames = 512;
+        std::vector<double> sampleBuf(totalFrames * 2, 0.0);
+        for (size_t i = 0; i < totalFrames; i++) {
+            const double t = static_cast<double>(i) / SampleRate;
+            sampleBuf[i * 2] = 0.14 * std::sin(2.0 * std::numbers::pi * 330.0 * t) + 0.07 * std::sin(2.0 * std::numbers::pi * 1200.0 * t);
+            sampleBuf[i * 2 + 1] = 0.11 * std::cos(2.0 * std::numbers::pi * 440.0 * t) - 0.06 * std::sin(2.0 * std::numbers::pi * 900.0 * t);
+        }
+        auto blockBuf = sampleBuf;
+
+        for (size_t i = 0; i < totalFrames; i++) {
+            busSample.process(sampleBuf[i * 2], sampleBuf[i * 2 + 1]);
+        }
+
+        const std::array<uint32_t, 3> chunkSizes { 64, 128, 320 };
+        size_t offset = 0;
+        for (const uint32_t frames : chunkSizes) {
+            AudioContext ctx {};
+            ctx.buffer = std::span<double> { blockBuf.data() + offset * 2, static_cast<size_t>(frames) * 2 };
+            ctx.frameCount = frames;
+            ctx.sampleRate = static_cast<uint32_t>(SampleRate);
+            ctx.oversampleFactor = cfg.factor;
+            busBlock.process(ctx);
+            offset += frames;
+        }
+
+        QVERIFY2(rmsDifference(sampleBuf, blockBuf) < 1.0e-12, qPrintable(QString { "rmsDiff=%1" }.arg(rmsDifference(sampleBuf, blockBuf))));
+        QVERIFY(std::abs(busSample.saturationDb() - busBlock.saturationDb()) < 1.0e-6f);
+    }
 }
 
 } // namespace noteahead

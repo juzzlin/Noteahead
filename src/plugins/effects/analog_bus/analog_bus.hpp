@@ -130,6 +130,7 @@ public:
     std::vector<std::string> modulationPriority() const override;
 
     void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
@@ -151,13 +152,32 @@ public:
     static std::string routingLabel(Routing routing);
 
 private:
+    struct StageGains
+    {
+        double driveAL { 1.0 };
+        double driveAR { 1.0 };
+        double compAL { 1.0 };
+        double compAR { 1.0 };
+        double driveNL { 1.0 };
+        double driveNR { 1.0 };
+        double compNL { 1.0 };
+        double compNR { 1.0 };
+        double lfDriveNL { 1.0 };
+        double lfDriveNR { 1.0 };
+        double lfCompNL { 1.0 };
+        double lfCompNR { 1.0 };
+    };
+
     void syncParameters();
     void updateFilters(double baseSampleRate, double stageSampleRate);
+    void updateCachedGains();
+    void prepareForAudio(double & baseSampleRate, uint8_t & factor, double & stageSampleRate);
+    void processFrame(double & left, double & right, double baseSampleRate, uint8_t factor, double stageSampleRate, double mixValue, bool needAlignedDry);
     void processToneEq(double & left, double & right);
-    void processStageFrame(double & left, double & right, double stageSampleRate, double driveScaleL, double driveScaleR, double & peakPre, double & peakPost);
-    double processStageA(double sample, double driveLin, double & peakPre, double & peakPost);
-    double processStageN(double sample, double driveLin, size_t channel, double & peakPre, double & peakPost);
-    void processColorFrame(double & left, double & right, double stageSampleRate, double & peakPre, double & peakPost);
+    void processStageFrame(double & left, double & right, const StageGains & gains, double & peakPre, double & peakPost);
+    double processStageA(double sample, double driveLin, double comp, double & peakPre, double & peakPost);
+    double processStageN(double sample, double driveLin, double comp, double lfDrive, double lfComp, size_t channel, double & peakPre, double & peakPost);
+    void processColorFrame(double & left, double & right, double & peakPre, double & peakPost);
 
     void startCalibration(double sampleRate);
     //! Plays @p frames more of the noise through the calibrator. True once the measurement is done.
@@ -218,10 +238,31 @@ private:
 
     double m_saturationDb { 0.0 };
     double m_meterReleaseCoeff { 0.0 };
+    double m_meterOneMinusReleaseCoeff { 1.0 };
     double m_lastBaseSampleRate { -1.0 };
     double m_lastStageSampleRate { -1.0 };
     bool m_filtersDirty { true };
     bool m_shouldSyncParameters { true };
+    bool m_prevNeedAlignedDry { false };
+
+    double m_driveLinA { 1.0 };
+    double m_driveLinN { 1.0 };
+    double m_compA { 1.0 };
+    double m_compN { 1.0 };
+    double m_lfDriveFactor { 1.0 };
+    double m_lfDriveN { 1.0 };
+    double m_lfCompN { 1.0 };
+    StageGains m_stageGainsFlat {};
+    double m_colorDriveLin { 1.0 };
+    double m_colorComp { 1.0 };
+    double m_vinylBlendFactor { 0.0 };
+    double m_colorLoFiStep { 1.0 };
+    double m_loFiPhaseInc { 0.0 };
+    double m_outputGain { 1.0 };
+    double m_tolDriveL { 1.0 };
+    double m_tolDriveR { 1.0 };
+    double m_tolGainL { 1.0 };
+    double m_tolGainR { 1.0 };
 
     struct Oversampling;
     std::unique_ptr<Oversampling> m_oversampling;

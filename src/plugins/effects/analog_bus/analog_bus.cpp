@@ -18,6 +18,7 @@
 
 #include "../../../common/constants.hpp"
 #include "../../../common/utils.hpp"
+#include "../../../domain/dsp/audio_context.hpp"
 #include "../../../domain/dsp/upsampler.hpp"
 
 #include <QtGlobal>
@@ -121,6 +122,11 @@ AnalogBus::AnalogBus(CalibrationTag)
 
     m_driftL.initialize(0);
     m_driftR.initialize(1);
+
+    m_tolDriveL = 1.0 + 0.04 * AnalogDrift::tolerance(0, 0);
+    m_tolDriveR = 1.0 + 0.04 * AnalogDrift::tolerance(1, 0);
+    m_tolGainL = 1.0 + 0.015 * AnalogDrift::tolerance(0, 1);
+    m_tolGainR = 1.0 + 0.015 * AnalogDrift::tolerance(1, 1);
 
     syncParameters();
 }
@@ -241,7 +247,12 @@ void AnalogBus::syncParameters()
     m_airGainDb = airGainDb(valueOf(C::xmlKeyAirGain()));
     m_vintage = valueOf(C::xmlKeyVintage()) > 0.5f;
     m_analog = valueOf(C::xmlKeyAnalog()) > 0.5f;
-    m_aspect = std::clamp(static_cast<double>(valueOf(C::xmlKeyAspect())), 0.0, 1.0);
+    const double nextAspect = std::clamp(static_cast<double>(valueOf(C::xmlKeyAspect())), 0.0, 1.0);
+    if (nextAspect > 0.0 && m_aspect == 0.0) {
+        m_aspectSideHp.reset();
+        m_aspectSideShelf.reset();
+    }
+    m_aspect = nextAspect;
     m_outputDb = outputGainDb(valueOf(C::xmlKeyGain()));
     m_autoGainEnabled = m_calibrator && valueOf(C::xmlKeyAutoGain()) > 0.5f;
 
@@ -256,6 +267,7 @@ void AnalogBus::syncParameters()
     m_appliedAutoGainDb = targetDb;
 
     m_filtersDirty = true;
+    updateCachedGains();
 }
 
 AnalogBus::SaturationSettings AnalogBus::saturationSettings(double sampleRate) const
@@ -450,10 +462,75 @@ void AnalogBus::updateFilters(double baseSampleRate, double stageSampleRate)
         break;
     }
 
+    m_loFiPhaseInc = (28000.0 - 20000.0 * m_colorDrive) / stageSampleRate;
+    m_dcBlockerL.setSampleRate(baseSampleRate);
+    m_dcBlockerR.setSampleRate(baseSampleRate);
     m_meterReleaseCoeff = std::exp(-1.0 / ((MeterReleaseMs / 1000.0) * baseSampleRate));
+    m_meterOneMinusReleaseCoeff = 1.0 - m_meterReleaseCoeff;
     m_lastBaseSampleRate = baseSampleRate;
     m_lastStageSampleRate = stageSampleRate;
     m_filtersDirty = false;
+    updateCachedGains();
+}
+
+void AnalogBus::updateCachedGains()
+{
+    m_driveLinA = std::pow(10.0, (m_driveA * MaxConsoleDriveDb) / 20.0);
+    m_driveLinN = std::pow(10.0, (m_driveN * MaxConsoleDriveDb) / 20.0);
+    m_compA = StageReferenceLevel / std::tanh(StageReferenceLevel * m_driveLinA);
+    m_compN = StageReferenceLevel / std::tanh(StageReferenceLevel * m_driveLinN);
+    m_lfDriveFactor = 1.0 + 0.65 * m_driveN;
+    m_lfDriveN = m_driveLinN * m_lfDriveFactor;
+    m_lfCompN = StageReferenceLevel / std::tanh(StageReferenceLevel * m_lfDriveN);
+
+    m_stageGainsFlat = {
+        m_driveLinA, m_driveLinA, m_compA, m_compA,
+        m_driveLinN, m_driveLinN, m_compN, m_compN,
+        m_lfDriveN, m_lfDriveN, m_lfCompN, m_lfCompN
+    };
+
+    switch (m_colorMode) {
+    case ColorMode::Off:
+        m_colorDriveLin = 1.0;
+        m_colorComp = 1.0;
+        break;
+    case ColorMode::Bus4000:
+        m_colorDriveLin = 1.0 + 4.5 * m_colorDrive;
+        m_colorComp = StageReferenceLevel / std::tanh(StageReferenceLevel * m_colorDriveLin);
+        break;
+    case ColorMode::Tape:
+        m_colorDriveLin = 1.0 + 6.0 * m_colorDrive;
+        m_colorComp = StageReferenceLevel / std::tanh(StageReferenceLevel * m_colorDriveLin);
+        break;
+    case ColorMode::Vinyl:
+        m_colorDriveLin = 1.0 + 5.0 * m_colorDrive;
+        m_colorComp = StageReferenceLevel / std::tanh(StageReferenceLevel * m_colorDriveLin);
+        m_vinylBlendFactor = 0.65 * m_colorDrive;
+        break;
+    case ColorMode::LoFi12:
+        m_colorDriveLin = 1.0 + 4.0 * m_colorDrive;
+        m_colorComp = StageReferenceLevel / std::tanh(StageReferenceLevel * m_colorDriveLin);
+        m_colorLoFiStep = std::pow(2.0, -(12.0 - 4.0 * m_colorDrive));
+        break;
+    }
+
+    m_outputGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_outputDb)));
+}
+
+void AnalogBus::prepareForAudio(double & baseSampleRate, uint8_t & factor, double & stageSampleRate)
+{
+    if (m_shouldSyncParameters) {
+        syncParameters();
+        m_shouldSyncParameters = false;
+    }
+
+    baseSampleRate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
+    factor = clampOversampleFactor(oversampleFactor());
+    stageSampleRate = baseSampleRate * factor;
+
+    if (m_filtersDirty || baseSampleRate != m_lastBaseSampleRate || stageSampleRate != m_lastStageSampleRate) {
+        updateFilters(baseSampleRate, stageSampleRate);
+    }
 }
 
 void AnalogBus::processToneEq(double & left, double & right)
@@ -466,26 +543,23 @@ void AnalogBus::processToneEq(double & left, double & right)
     right = m_eqAirR.process(right);
 }
 
-double AnalogBus::processStageA(double sample, double driveLin, double & peakPre, double & peakPost)
+double AnalogBus::processStageA(double sample, double driveLin, double comp, double & peakPre, double & peakPost)
 {
     const double u = sample * driveLin;
     const double shaped = consoleCurveA(u);
     peakPre = std::max(peakPre, std::abs(u));
     peakPost = std::max(peakPost, std::abs(shaped));
 
-    const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
     return shaped * comp;
 }
 
-double AnalogBus::processStageN(double sample, double driveLin, size_t channel, double & peakPre, double & peakPost)
+double AnalogBus::processStageN(double sample, double driveLin, double comp, double lfDrive, double lfComp, size_t channel, double & peakPre, double & peakPost)
 {
     // Split low frequencies to emulate core flux saturation in an iron output transformer
     m_stageNLfFilter[channel].process(sample);
     const double lf = m_stageNLfFilter[channel].lowPass();
     const double hf = m_stageNLfFilter[channel].highPass();
 
-    const double lfDrive = driveLin * (1.0 + 0.65 * m_driveN);
-    const double lfComp = StageReferenceLevel / std::tanh(StageReferenceLevel * lfDrive);
     const double lfU = lf * lfDrive;
     const double lfShaped = consoleCurveN(lfU) * lfComp;
 
@@ -495,13 +569,13 @@ double AnalogBus::processStageN(double sample, double driveLin, size_t channel, 
     peakPre = std::max(peakPre, std::abs(u));
     peakPost = std::max(peakPost, std::abs(shaped));
 
-    const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
-    m_stageNSilkFilter[channel].process(shaped * comp);
+    const double out = shaped * comp;
+    m_stageNSilkFilter[channel].process(out);
     // Subtle 16 kHz top-end smoothing characteristic of discrete Class-A iron output stages
-    return m_stageNSilkFilter[channel].lowPass() * 0.25 + shaped * comp * 0.75;
+    return m_stageNSilkFilter[channel].lowPass() * 0.25 + out * 0.75;
 }
 
-void AnalogBus::processColorFrame(double & left, double & right, double stageSampleRate, double & peakPre, double & peakPost)
+void AnalogBus::processColorFrame(double & left, double & right, double & peakPre, double & peakPost)
 {
     if (m_colorMode == ColorMode::Off) {
         return;
@@ -521,8 +595,8 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
         colL = m_colorMidL.process(colL);
         colR = m_colorMidR.process(colR);
 
-        const double driveLin = 1.0 + 4.5 * m_colorDrive;
-        const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
+        const double driveLin = m_colorDriveLin;
+        const double comp = m_colorComp;
         const double uL = colL * driveLin;
         const double uR = colR * driveLin;
         // Tight VCA / 4000-style predominantly odd compression curve
@@ -538,8 +612,8 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
         colL = m_colorLowL.process(colL);
         colR = m_colorLowR.process(colR);
 
-        const double driveLin = 1.0 + 6.0 * m_colorDrive;
-        const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
+        const double driveLin = m_colorDriveLin;
+        const double comp = m_colorComp;
         const double uL = colL * driveLin;
         const double uR = colR * driveLin;
         const double sL = std::tanh(uL + 0.05 * uL * uL);
@@ -557,12 +631,12 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
         const double mid = 0.5 * (colL + colR);
         const double side = 0.5 * (colL - colR);
         const double sideHp = m_vinylSideHp.process(side);
-        const double blendedSide = side * (1.0 - 0.65 * m_colorDrive) + sideHp * (0.65 * m_colorDrive);
+        const double blendedSide = side * (1.0 - m_vinylBlendFactor) + sideHp * m_vinylBlendFactor;
         colL = m_colorMidL.process(m_colorLowL.process(mid + blendedSide));
         colR = m_colorMidR.process(m_colorLowR.process(mid - blendedSide));
 
-        const double driveLin = 1.0 + 5.0 * m_colorDrive;
-        const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
+        const double driveLin = m_colorDriveLin;
+        const double comp = m_colorComp;
         const double uL = colL * driveLin;
         const double uR = colR * driveLin;
         const double sL = std::tanh(uL + 0.12 * uL * uL);
@@ -579,8 +653,8 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
         colL = m_colorLowL.process(colL);
         colR = m_colorLowR.process(colR);
 
-        const double driveLin = 1.0 + 4.0 * m_colorDrive;
-        const double comp = StageReferenceLevel / std::tanh(StageReferenceLevel * driveLin);
+        const double driveLin = m_colorDriveLin;
+        const double comp = m_colorComp;
         const double uL = colL * driveLin;
         const double uR = colR * driveLin;
         const double sL = std::tanh(uL);
@@ -588,13 +662,11 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
         peakPre = std::max(peakPre, std::max(std::abs(uL), std::abs(uR)));
         peakPost = std::max(peakPost, std::max(std::abs(sL), std::abs(sR)));
 
-        const double bits = 12.0 - 4.0 * m_colorDrive;
-        const double step = std::pow(2.0, -bits);
+        const double step = m_colorLoFiStep;
         const double qL = std::round((sL * comp) / step) * step;
         const double qR = std::round((sR * comp) / step) * step;
 
-        const double holdRateHz = 28000.0 - 20000.0 * m_colorDrive;
-        m_loFiPhase += holdRateHz / stageSampleRate;
+        m_loFiPhase += m_loFiPhaseInc;
         if (m_loFiPhase >= 1.0) {
             m_loFiPhase -= std::floor(m_loFiPhase);
             m_loFiHoldSample[0] = qL;
@@ -612,65 +684,39 @@ void AnalogBus::processColorFrame(double & left, double & right, double stageSam
     right = preR + m_colorMix * (colR - preR);
 }
 
-void AnalogBus::processStageFrame(double & left, double & right, double stageSampleRate, double driveScaleL, double driveScaleR, double & peakPre, double & peakPost)
+void AnalogBus::processStageFrame(double & left, double & right, const StageGains & gains, double & peakPre, double & peakPost)
 {
-    const double driveLinA = std::pow(10.0, (m_driveA * MaxConsoleDriveDb) / 20.0);
-    const double driveLinN = std::pow(10.0, (m_driveN * MaxConsoleDriveDb) / 20.0);
-
     switch (m_routing) {
     case Routing::Off:
         break;
     case Routing::A:
-        left = processStageA(left, driveLinA * driveScaleL, peakPre, peakPost);
-        right = processStageA(right, driveLinA * driveScaleR, peakPre, peakPost);
+        left = processStageA(left, gains.driveAL, gains.compAL, peakPre, peakPost);
+        right = processStageA(right, gains.driveAR, gains.compAR, peakPre, peakPost);
         break;
     case Routing::N:
-        left = processStageN(left, driveLinN * driveScaleL, 0, peakPre, peakPost);
-        right = processStageN(right, driveLinN * driveScaleR, 1, peakPre, peakPost);
+        left = processStageN(left, gains.driveNL, gains.compNL, gains.lfDriveNL, gains.lfCompNL, 0, peakPre, peakPost);
+        right = processStageN(right, gains.driveNR, gains.compNR, gains.lfDriveNR, gains.lfCompNR, 1, peakPre, peakPost);
         break;
     case Routing::AToN:
-        left = processStageA(left, driveLinA * driveScaleL, peakPre, peakPost);
-        right = processStageA(right, driveLinA * driveScaleR, peakPre, peakPost);
-        left = processStageN(left, driveLinN * driveScaleL, 0, peakPre, peakPost);
-        right = processStageN(right, driveLinN * driveScaleR, 1, peakPre, peakPost);
+        left = processStageA(left, gains.driveAL, gains.compAL, peakPre, peakPost);
+        right = processStageA(right, gains.driveAR, gains.compAR, peakPre, peakPost);
+        left = processStageN(left, gains.driveNL, gains.compNL, gains.lfDriveNL, gains.lfCompNL, 0, peakPre, peakPost);
+        right = processStageN(right, gains.driveNR, gains.compNR, gains.lfDriveNR, gains.lfCompNR, 1, peakPre, peakPost);
         break;
     case Routing::NToA:
-        left = processStageN(left, driveLinN * driveScaleL, 0, peakPre, peakPost);
-        right = processStageN(right, driveLinN * driveScaleR, 1, peakPre, peakPost);
-        left = processStageA(left, driveLinA * driveScaleL, peakPre, peakPost);
-        right = processStageA(right, driveLinA * driveScaleR, peakPre, peakPost);
+        left = processStageN(left, gains.driveNL, gains.compNL, gains.lfDriveNL, gains.lfCompNL, 0, peakPre, peakPost);
+        right = processStageN(right, gains.driveNR, gains.compNR, gains.lfDriveNR, gains.lfCompNR, 1, peakPre, peakPost);
+        left = processStageA(left, gains.driveAL, gains.compAL, peakPre, peakPost);
+        right = processStageA(right, gains.driveAR, gains.compAR, peakPre, peakPost);
         break;
     }
 
-    processColorFrame(left, right, stageSampleRate, peakPre, peakPost);
+    processColorFrame(left, right, peakPre, peakPost);
 }
 
-void AnalogBus::processSample(double & left, double & right)
+void AnalogBus::processFrame(double & left, double & right, double baseSampleRate, uint8_t factor, double stageSampleRate, double mixValue, bool needAlignedDry)
 {
-    if (m_shouldSyncParameters) {
-        syncParameters();
-        m_shouldSyncParameters = false;
-    }
-
-    const double baseSampleRate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
-    const uint8_t factor = clampOversampleFactor(oversampleFactor());
-    const double stageSampleRate = baseSampleRate * factor;
-
-    if (m_filtersDirty || baseSampleRate != m_lastBaseSampleRate || stageSampleRate != m_lastStageSampleRate) {
-        updateFilters(baseSampleRate, stageSampleRate);
-    }
-
-    // A frame of the measurement per frame played, so that a change costs no more than a second
-    // copy of the stages for a moment
-    if (m_autoGainEnabled) {
-        if (!m_calibrating && m_measuredSettings != saturationSettings(baseSampleRate)) {
-            startCalibration(baseSampleRate);
-        }
-        if (m_calibrating && stepCalibration(1)) {
-            finishCalibration(baseSampleRate);
-        }
-    }
-
+    (void)stageSampleRate;
     const double rawDryL = left;
     const double rawDryR = right;
     double alignedDryL = rawDryL;
@@ -685,57 +731,81 @@ void AnalogBus::processSample(double & left, double & right)
         processToneEq(wetL, wetR);
     }
 
-    // 2. Deterministic L/R analog hardware component tolerance + slow drift
-    double driveScaleL = 1.0;
-    double driveScaleR = 1.0;
+    // 2. Deterministic L/R analog hardware component tolerance + slow drift (computed once per base frame)
+    StageGains analogGains {};
+    const StageGains * gains = &m_stageGainsFlat;
     double trimGainL = 1.0;
     double trimGainR = 1.0;
     if (m_analog) {
         const double driftL = m_driftL.next(baseSampleRate);
         const double driftR = m_driftR.next(baseSampleRate);
-        const double tolDriveL = AnalogDrift::tolerance(0, 0);
-        const double tolDriveR = AnalogDrift::tolerance(1, 0);
-        const double tolGainL = AnalogDrift::tolerance(0, 1);
-        const double tolGainR = AnalogDrift::tolerance(1, 1);
-        driveScaleL = 1.0 + 0.04 * tolDriveL + 0.008 * driftL;
-        driveScaleR = 1.0 + 0.04 * tolDriveR + 0.008 * driftR;
-        trimGainL = 1.0 + 0.015 * tolGainL + 0.003 * driftL;
-        trimGainR = 1.0 + 0.015 * tolGainR + 0.003 * driftR;
+        const double driveScaleL = m_tolDriveL + 0.008 * driftL;
+        const double driveScaleR = m_tolDriveR + 0.008 * driftR;
+        trimGainL = m_tolGainL + 0.003 * driftL;
+        trimGainR = m_tolGainR + 0.003 * driftR;
+
+        if (m_routing == Routing::A || m_routing == Routing::AToN || m_routing == Routing::NToA) {
+            analogGains.driveAL = m_driveLinA * driveScaleL;
+            analogGains.driveAR = m_driveLinA * driveScaleR;
+            analogGains.compAL = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.driveAL);
+            analogGains.compAR = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.driveAR);
+        }
+        if (m_routing == Routing::N || m_routing == Routing::AToN || m_routing == Routing::NToA) {
+            analogGains.driveNL = m_driveLinN * driveScaleL;
+            analogGains.driveNR = m_driveLinN * driveScaleR;
+            analogGains.compNL = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.driveNL);
+            analogGains.compNR = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.driveNR);
+            analogGains.lfDriveNL = analogGains.driveNL * m_lfDriveFactor;
+            analogGains.lfDriveNR = analogGains.driveNR * m_lfDriveFactor;
+            analogGains.lfCompNL = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.lfDriveNL);
+            analogGains.lfCompNR = StageReferenceLevel / std::tanh(StageReferenceLevel * analogGains.lfDriveNR);
+        }
+        gains = &analogGains;
     }
 
     // 3. Oversampled nonlinear Console + Color stages
     double peakPre = 0.0;
     double peakPost = 0.0;
     if (factor == 1) {
-        processStageFrame(wetL, wetR, stageSampleRate, driveScaleL, driveScaleR, peakPre, peakPost);
+        processStageFrame(wetL, wetR, *gains, peakPre, peakPost);
     } else {
-        std::array<float, 4> dryHighL {};
-        std::array<float, 4> dryHighR {};
         std::array<float, 4> wetHighL {};
         std::array<float, 4> wetHighR {};
 
-        m_oversampling->dryUpsamplerL.process(static_cast<float>(rawDryL), dryHighL.data(), factor);
-        m_oversampling->dryUpsamplerR.process(static_cast<float>(rawDryR), dryHighR.data(), factor);
         m_oversampling->upsamplerL.process(static_cast<float>(wetL), wetHighL.data(), factor);
         m_oversampling->upsamplerR.process(static_cast<float>(wetR), wetHighR.data(), factor);
 
         for (uint8_t k = 0; k < factor; k++) {
             double sL = static_cast<double>(wetHighL[k]);
             double sR = static_cast<double>(wetHighR[k]);
-            processStageFrame(sL, sR, stageSampleRate, driveScaleL, driveScaleR, peakPre, peakPost);
+            processStageFrame(sL, sR, *gains, peakPre, peakPost);
             wetHighL[k] = static_cast<float>(sL);
             wetHighR[k] = static_cast<float>(sR);
         }
 
         wetL = static_cast<double>(m_oversampling->decimatorL.process(wetHighL.data(), factor));
         wetR = static_cast<double>(m_oversampling->decimatorR.process(wetHighR.data(), factor));
-        alignedDryL = static_cast<double>(m_oversampling->dryDecimatorL.process(dryHighL.data(), factor));
-        alignedDryR = static_cast<double>(m_oversampling->dryDecimatorR.process(dryHighR.data(), factor));
+
+        if (needAlignedDry) {
+            if (!m_prevNeedAlignedDry) {
+                m_oversampling->dryUpsamplerL.reset();
+                m_oversampling->dryUpsamplerR.reset();
+                m_oversampling->dryDecimatorL.reset();
+                m_oversampling->dryDecimatorR.reset();
+                m_prevNeedAlignedDry = true;
+            }
+            std::array<float, 4> dryHighL {};
+            std::array<float, 4> dryHighR {};
+            m_oversampling->dryUpsamplerL.process(static_cast<float>(rawDryL), dryHighL.data(), factor);
+            m_oversampling->dryUpsamplerR.process(static_cast<float>(rawDryR), dryHighR.data(), factor);
+            alignedDryL = static_cast<double>(m_oversampling->dryDecimatorL.process(dryHighL.data(), factor));
+            alignedDryR = static_cast<double>(m_oversampling->dryDecimatorR.process(dryHighR.data(), factor));
+        } else {
+            m_prevNeedAlignedDry = false;
+        }
     }
 
     // 4. DC blocking + analog trim
-    m_dcBlockerL.setSampleRate(baseSampleRate);
-    m_dcBlockerR.setSampleRate(baseSampleRate);
     const double autoGain = m_autoGain.next();
     wetL = m_dcBlockerL.process(wetL) * trimGainL * autoGain;
     wetR = m_dcBlockerR.process(wetR) * trimGainR * autoGain;
@@ -751,13 +821,15 @@ void AnalogBus::processSample(double & left, double & right)
         wetR = m_vintageFilter[1].lowPass();
     }
 
-    const double mid = 0.5 * (wetL + wetR);
-    const double side = 0.5 * (wetL - wetR);
-    const double sideFocused = m_aspectSideHp.process(side);
-    const double sideEnhanced = m_aspectSideShelf.process(sideFocused);
-    const double totalSide = side + m_aspect * (0.65 * sideEnhanced + 0.15 * side);
-    wetL = mid + totalSide;
-    wetR = mid - totalSide;
+    if (m_aspect > 0.0) {
+        const double mid = 0.5 * (wetL + wetR);
+        const double side = 0.5 * (wetL - wetR);
+        const double sideFocused = m_aspectSideHp.process(side);
+        const double sideEnhanced = m_aspectSideShelf.process(sideFocused);
+        const double totalSide = side + m_aspect * (0.65 * sideEnhanced + 0.15 * side);
+        wetL = mid + totalSide;
+        wetR = mid - totalSide;
+    }
 
     // 6. Saturation meter update
     double instantSaturationDb = 0.0;
@@ -766,18 +838,76 @@ void AnalogBus::processSample(double & left, double & right)
     }
     if (instantSaturationDb < m_saturationDb) {
         m_saturationDb = instantSaturationDb;
-    } else {
-        m_saturationDb = m_meterReleaseCoeff * m_saturationDb + (1.0 - m_meterReleaseCoeff) * instantSaturationDb;
+    } else if (m_saturationDb != 0.0 || instantSaturationDb != 0.0) {
+        m_saturationDb = m_meterReleaseCoeff * m_saturationDb + m_meterOneMinusReleaseCoeff * instantSaturationDb;
     }
     if (std::abs(m_saturationDb) < 1.0e-15) {
         m_saturationDb = 0.0;
     }
 
     // 7. Parallel mix + master output gain
-    const double outputGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_outputDb)));
+    left = completeBlend(rawDryL, blendWetPart(alignedDryL, wetL, mixValue), m_outputGain);
+    right = completeBlend(rawDryR, blendWetPart(alignedDryR, wetR, mixValue), m_outputGain);
+}
+
+void AnalogBus::processSample(double & left, double & right)
+{
+    double baseSampleRate = 0.0;
+    uint8_t factor = 1;
+    double stageSampleRate = 0.0;
+    prepareForAudio(baseSampleRate, factor, stageSampleRate);
+
+    // A frame of the measurement per frame played, so that a change costs no more than a second
+    // copy of the stages for a moment
+    if (m_autoGainEnabled) {
+        if (!m_calibrating && m_measuredSettings != saturationSettings(baseSampleRate)) {
+            startCalibration(baseSampleRate);
+        }
+        if (m_calibrating && stepCalibration(1)) {
+            finishCalibration(baseSampleRate);
+        }
+    }
+
     const double mixValue = static_cast<double>(mix());
-    left = completeBlend(rawDryL, blendWetPart(alignedDryL, wetL, mixValue), outputGain);
-    right = completeBlend(rawDryR, blendWetPart(alignedDryR, wetR, mixValue), outputGain);
+    const bool needAlignedDry = !sendMode() && (mixValue < 1.0);
+    processFrame(left, right, baseSampleRate, factor, stageSampleRate, mixValue, needAlignedDry);
+}
+
+void AnalogBus::processBlock(AudioContext & context)
+{
+    if (context.frameCount == 0) {
+        return;
+    }
+
+    double baseSampleRate = 0.0;
+    uint8_t factor = 1;
+    double stageSampleRate = 0.0;
+    prepareForAudio(baseSampleRate, factor, stageSampleRate);
+
+    bool stepCalibrationPerFrame = false;
+    if (m_autoGainEnabled) {
+        if (!m_calibrating && m_measuredSettings != saturationSettings(baseSampleRate)) {
+            startCalibration(baseSampleRate);
+        }
+        if (m_calibrating) {
+            const size_t calEnd = m_calibrationWarmUpFrames + m_calibrationFrames;
+            if (m_calibrationFrame + context.frameCount < calEnd) {
+                stepCalibration(context.frameCount);
+            } else {
+                stepCalibrationPerFrame = true;
+            }
+        }
+    }
+
+    const double mixValue = static_cast<double>(mix());
+    const bool needAlignedDry = !sendMode() && (mixValue < 1.0);
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        if (stepCalibrationPerFrame && m_calibrating && stepCalibration(1)) {
+            finishCalibration(baseSampleRate);
+        }
+        processFrame(context.buffer[i * 2], context.buffer[i * 2 + 1], baseSampleRate, factor, stageSampleRate, mixValue, needAlignedDry);
+    }
 }
 
 void AnalogBus::reset()
@@ -826,6 +956,7 @@ void AnalogBus::reset()
     m_loFiHoldSample = { 0.0, 0.0 };
     m_loFiPhase = 0.0;
     m_saturationDb = 0.0;
+    m_prevNeedAlignedDry = false;
 
     // A render starts at the right level: what is still to be measured is measured now
     if (m_shouldSyncParameters) {
