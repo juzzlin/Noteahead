@@ -57,7 +57,6 @@ void RoomConvolver::configure(size_t maxLength)
         m_fadeTail[o].assign(BlockSize, 0.0);
     }
     m_scratchRe.assign(transform, 0.0);
-    m_scratchIm.assign(transform, 0.0);
     m_mixRe.assign(BlockSize + 1, 0.0);
     m_mixIm.assign(BlockSize + 1, 0.0);
     m_frame.assign(transform, 0.0);
@@ -179,17 +178,24 @@ bool RoomConvolver::isRinging() const
     return m_lastBlockPeak > silentLevel || m_silentFrames < length;
 }
 
-double RoomConvolver::directPart(const KernelSet & set, size_t output) const
+void RoomConvolver::directPartPair(const KernelSet & set, double & out0, double & out1) const
 {
-    double sum = 0.0;
-    for (size_t input = 0; input < InputCount; input++) {
-        const double * recent = m_recent[input].data() + m_recentIndex + 1;
-        const double * head = set.head[kernelIndex(input, output)].data();
-        for (size_t j = 0; j < BlockSize; j++) {
-            sum += head[j] * recent[j];
-        }
+    const double * __restrict r0 = m_recent[0].data() + m_recentIndex + 1;
+    const double * __restrict r1 = m_recent[1].data() + m_recentIndex + 1;
+    const double * __restrict h00 = set.head[0].data();
+    const double * __restrict h01 = set.head[1].data();
+    const double * __restrict h10 = set.head[2].data();
+    const double * __restrict h11 = set.head[3].data();
+    double s0 = 0.0;
+    double s1 = 0.0;
+    for (size_t j = 0; j < BlockSize; j++) {
+        const double x0 = r0[j];
+        const double x1 = r1[j];
+        s0 += h00[j] * x0 + h10[j] * x1;
+        s1 += h01[j] * x0 + h11[j] * x1;
     }
-    return sum;
+    out0 = s0;
+    out1 = s1;
 }
 
 void RoomConvolver::process(double & left, double & right)
@@ -208,20 +214,23 @@ void RoomConvolver::process(double & left, double & right)
     // The newest sample sits at m_recentIndex + BlockSize, the window starts one after the index
     std::array<double, OutputCount> output {};
     const auto & active = m_sets[m_active];
-    for (size_t o = 0; o < OutputCount; o++) {
-        output[o] = directPart(active, o) + m_tail[o][m_position];
-    }
+    directPartPair(active, output[0], output[1]);
+    output[0] += m_tail[0][m_position];
+    output[1] += m_tail[1][m_position];
     if (m_fadeRemaining > 0) {
         const auto & previous = m_sets[1 - m_active];
         const size_t progressed = FadeSamples - m_fadeRemaining + 1;
         const double t = 0.5 * (1.0 - std::cos(std::numbers::pi * static_cast<double>(progressed) / static_cast<double>(FadeSamples)));
-        for (size_t o = 0; o < OutputCount; o++) {
-            const double old = directPart(previous, o) + m_fadeTail[o][m_position];
-            output[o] = old * (1.0 - t) + output[o] * t;
-        }
+        double old0 = 0.0;
+        double old1 = 0.0;
+        directPartPair(previous, old0, old1);
+        output[0] = (old0 + m_fadeTail[0][m_position]) * (1.0 - t) + output[0] * t;
+        output[1] = (old1 + m_fadeTail[1][m_position]) * (1.0 - t) + output[1] * t;
         m_fadeRemaining--;
     }
-    m_recentIndex = (m_recentIndex + 1) % BlockSize;
+    if (++m_recentIndex == BlockSize) {
+        m_recentIndex = 0;
+    }
     left = output[0];
     right = output[1];
     m_blockPeak = std::max({ m_blockPeak, std::abs(left), std::abs(right) });
@@ -235,31 +244,30 @@ void RoomConvolver::convolve(const KernelSet & set, size_t output, std::vector<d
 {
     std::ranges::fill(m_mixRe, 0.0);
     std::ranges::fill(m_mixIm, 0.0);
+    double * __restrict mixRe = m_mixRe.data();
+    double * __restrict mixIm = m_mixIm.data();
     for (size_t input = 0; input < InputCount; input++) {
         const auto & partitions = set.partitions[kernelIndex(input, output)];
+        const auto & history = m_history[input];
+        size_t histIdx = m_historyIndex;
         for (size_t q = 0; q < set.partitionCount; q++) {
-            const auto & x = m_history[input][(m_historyIndex + m_maxPartitions - q) % m_maxPartitions];
+            const auto & x = history[histIdx];
             const auto & h = partitions[q];
+            const double * __restrict xRe = x.re.data();
+            const double * __restrict xIm = x.im.data();
+            const double * __restrict hRe = h.re.data();
+            const double * __restrict hIm = h.im.data();
             for (size_t bin = 0; bin <= BlockSize; bin++) {
-                m_mixRe[bin] += x.re[bin] * h.re[bin] - x.im[bin] * h.im[bin];
-                m_mixIm[bin] += x.re[bin] * h.im[bin] + x.im[bin] * h.re[bin];
+                mixRe[bin] += xRe[bin] * hRe[bin] - xIm[bin] * hIm[bin];
+                mixIm[bin] += xRe[bin] * hIm[bin] + xIm[bin] * hRe[bin];
             }
+            histIdx = histIdx == 0 ? m_maxPartitions - 1 : histIdx - 1;
         }
     }
     constexpr size_t transform = BlockSize * 2;
-    for (size_t bin = 0; bin <= BlockSize; bin++) {
-        m_scratchRe[bin] = m_mixRe[bin];
-        m_scratchIm[bin] = m_mixIm[bin];
-    }
-    for (size_t bin = 1; bin < BlockSize; bin++) {
-        m_scratchRe[transform - bin] = m_mixRe[bin];
-        m_scratchIm[transform - bin] = -m_mixIm[bin];
-    }
-    Fft::inverse(m_scratchRe.data(), m_scratchIm.data(), static_cast<int>(transform));
+    Fft::inverseReal(mixRe, mixIm, m_scratchRe.data(), static_cast<int>(transform));
     // Overlap-save: the second half is the part that did not wrap around
-    for (size_t n = 0; n < BlockSize; n++) {
-        out[n] = m_scratchRe[BlockSize + n];
-    }
+    std::copy(m_scratchRe.data() + BlockSize, m_scratchRe.data() + transform, out.data());
 }
 
 void RoomConvolver::processBlock()
@@ -286,7 +294,9 @@ void RoomConvolver::processBlock()
             convolve(m_sets[1 - m_active], o, m_fadeTail[o]);
         }
     }
-    m_historyIndex = (m_historyIndex + 1) % m_maxPartitions;
+    if (++m_historyIndex == m_maxPartitions) {
+        m_historyIndex = 0;
+    }
 }
 
 } // namespace noteahead

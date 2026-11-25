@@ -16,6 +16,7 @@
 #include "room_tail.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <numbers>
 
@@ -74,16 +75,15 @@ double flushDenormal(double value)
     return std::abs(value) < 1.0e-20 ? 0.0 : value;
 }
 
-double readCubic(const std::vector<double> & buffer, size_t writePos, double delaySamples)
+double readCubic(const std::vector<double> & buffer, size_t mask, size_t writePos, double delaySamples)
 {
-    const size_t size = buffer.size();
-    const double clamped = std::clamp(delaySamples, 2.0, static_cast<double>(size - 4));
-    const auto whole = static_cast<size_t>(std::floor(clamped));
+    const double clamped = std::clamp(delaySamples, 2.0, static_cast<double>(buffer.size() - 4));
+    const auto whole = static_cast<size_t>(clamped);
     const double mu = clamped - static_cast<double>(whole);
-    const double y0 = buffer[(writePos + size - whole + 1) % size];
-    const double y1 = buffer[(writePos + size - whole) % size];
-    const double y2 = buffer[(writePos + size - whole - 1) % size];
-    const double y3 = buffer[(writePos + size - whole - 2) % size];
+    const double y0 = buffer[(writePos - whole + 1) & mask];
+    const double y1 = buffer[(writePos - whole) & mask];
+    const double y2 = buffer[(writePos - whole - 1) & mask];
+    const double y3 = buffer[(writePos - whole - 2) & mask];
     const double c0 = y1;
     const double c1 = 0.5 * (y2 - y0);
     const double c2 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3;
@@ -104,7 +104,9 @@ double RoomTail::Allpass::process(double input)
     const double buffered = buffer[writePos];
     const double stored = flushDenormal(input + buffered * coeff);
     buffer[writePos] = stored;
-    writePos = (writePos + 1) % size;
+    if (++writePos == size) {
+        writePos = 0;
+    }
     return buffered - stored * coeff;
 }
 
@@ -116,12 +118,12 @@ void RoomTail::Allpass::reset()
 
 double RoomTail::Line::read(double delaySamples) const
 {
-    return readCubic(buffer, writePos, delaySamples);
+    return readCubic(buffer, mask, writePos, delaySamples);
 }
 
 double RoomTail::Input::read(double delaySamples) const
 {
-    return readCubic(buffer, writePos, delaySamples);
+    return readCubic(buffer, mask, writePos, delaySamples);
 }
 
 void RoomTail::configure(double sampleRate)
@@ -130,18 +132,31 @@ void RoomTail::configure(double sampleRate)
     m_smoothCoeff = 1.0 - std::exp(-1.0 / std::max(1.0, parameterSmoothSeconds * sampleRate));
     m_modDepthSamples = modDepthMs * 0.001 * sampleRate;
     const auto lineCapacity = static_cast<size_t>(std::ceil((lineLengthsMs.back() * maxLineScale + modDepthMs + 2.0) * 0.001 * sampleRate)) + 8;
+    m_lineUsableCapacity = lineCapacity;
+    const auto lineAlloc = std::bit_ceil(lineCapacity);
     for (size_t i = 0; i < LineCount; i++) {
         auto && line = m_lines[i];
-        line.buffer.assign(lineCapacity, 0.0);
+        line.buffer.assign(lineAlloc, 0.0);
+        line.mask = lineAlloc - 1;
         line.currentLength = 2.0;
         line.targetLength = 2.0;
-        line.lfoPhase = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(LineCount);
-        line.lfoInc = 2.0 * std::numbers::pi * (modBaseRateHz + modRateStepHz * static_cast<double>(i)) / sampleRate;
+        const double phase0 = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(LineCount);
+        line.lfoInitRe = std::cos(phase0);
+        line.lfoInitIm = std::sin(phase0);
+        line.lfoRe = line.lfoInitRe;
+        line.lfoIm = line.lfoInitIm;
+        const double lfoInc = 2.0 * std::numbers::pi * (modBaseRateHz + modRateStepHz * static_cast<double>(i)) / sampleRate;
+        line.lfoStepRe = std::cos(lfoInc);
+        line.lfoStepIm = std::sin(lfoInc);
+        line.lfoCounter = 0;
     }
     const auto preDelayCapacity = static_cast<size_t>(std::ceil(maxPreDelaySeconds * sampleRate)) + 8;
+    m_inputUsableCapacity = preDelayCapacity;
+    const auto preDelayAlloc = std::bit_ceil(preDelayCapacity);
     for (size_t i = 0; i < 2; i++) {
         auto && input = m_inputs[i];
-        input.buffer.assign(preDelayCapacity, 0.0);
+        input.buffer.assign(preDelayAlloc, 0.0);
+        input.mask = preDelayAlloc - 1;
         input.low.calculate(lowShelfHz, sampleRate);
         input.high.calculate(highShelfHz, sampleRate);
         input.lowCut.calculate(lowCutHz, sampleRate);
@@ -171,7 +186,9 @@ void RoomTail::reset()
         line.writePos = 0;
         line.currentLength = line.targetLength;
         line.currentGain = line.targetGain;
-        line.lfoPhase = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(LineCount);
+        line.lfoRe = line.lfoInitRe;
+        line.lfoIm = line.lfoInitIm;
+        line.lfoCounter = 0;
         line.low.reset();
         line.high.reset();
     }
@@ -207,7 +224,7 @@ void RoomTail::set(const RoomSettings & settings, const Bands & reverbTimes, dou
 
     const auto times = bandGroupTimes(reverbTimes);
     double meanLength = 0.0;
-    const double maxLength = static_cast<double>(m_lines.front().buffer.size() - 6) - m_modDepthSamples;
+    const double maxLength = static_cast<double>(m_lineUsableCapacity - 6) - m_modDepthSamples;
     for (size_t i = 0; i < LineCount; i++) {
         auto && line = m_lines[i];
         line.targetLength = std::clamp(lineLengthsMs[i] * scale * 0.001 * m_sampleRate, 4.0 + m_modDepthSamples, maxLength);
@@ -230,7 +247,7 @@ void RoomTail::set(const RoomSettings & settings, const Bands & reverbTimes, dou
     // In from where the first line would hand the tail over to the start
     const double shortest = m_lines.front().targetLength / m_sampleRate;
     const double preDelaySeconds = std::clamp(startSeconds - shortest, 0.0, maxPreDelaySeconds);
-    m_targetPreDelay = std::clamp(preDelaySeconds * m_sampleRate, 2.0, static_cast<double>(m_inputs[0].buffer.size() - 5));
+    m_targetPreDelay = std::clamp(preDelaySeconds * m_sampleRate, 2.0, static_cast<double>(m_inputUsableCapacity - 5));
 
     // A unit impulse into four lines stores 4 G^2, which comes out at 4 G^2 / L a sample. That is
     // to be the room's diffuse energy at the pre-delay, per band.
@@ -260,10 +277,9 @@ void RoomTail::process(double left, double right, double & outLeft, double & out
     std::array<double, 2> in { left, right };
     for (size_t i = 0; i < 2; i++) {
         auto && input = m_inputs[i];
-        const size_t size = input.buffer.size();
         input.buffer[input.writePos] = in[i];
         double delayed = input.read(m_currentPreDelay);
-        input.writePos = (input.writePos + 1) % size;
+        input.writePos = (input.writePos + 1) & input.mask;
         input.lowCut.process(delayed);
         delayed = input.lowCut.highPass();
         input.low.process(delayed);
@@ -281,10 +297,14 @@ void RoomTail::process(double left, double right, double & outLeft, double & out
         auto && line = m_lines[i];
         line.currentLength += m_smoothCoeff * (line.targetLength - line.currentLength);
         line.currentGain += m_smoothCoeff * (line.targetGain - line.currentGain);
-        const double drift = m_modDepthSamples * std::sin(line.lfoPhase);
-        line.lfoPhase += line.lfoInc;
-        if (line.lfoPhase >= 2.0 * std::numbers::pi) {
-            line.lfoPhase -= 2.0 * std::numbers::pi;
+        const double drift = m_modDepthSamples * line.lfoIm;
+        const double nextRe = line.lfoRe * line.lfoStepRe - line.lfoIm * line.lfoStepIm;
+        line.lfoIm = line.lfoRe * line.lfoStepIm + line.lfoIm * line.lfoStepRe;
+        line.lfoRe = nextRe;
+        if ((++line.lfoCounter & 4095u) == 0u) {
+            const double renorm = 0.5 * (3.0 - (line.lfoRe * line.lfoRe + line.lfoIm * line.lfoIm));
+            line.lfoRe *= renorm;
+            line.lfoIm *= renorm;
         }
         double out = line.read(line.currentLength + drift) * line.currentGain;
         line.low.process(out);
@@ -306,12 +326,12 @@ void RoomTail::process(double left, double right, double & outLeft, double & out
             }
         }
     }
-    const double norm = 1.0 / std::sqrt(static_cast<double>(LineCount));
+    constexpr double hadamardNorm = 0.5 / std::numbers::sqrt2;
     for (size_t i = 0; i < LineCount; i++) {
         auto && line = m_lines[i];
         // The left source into the even lines, the right into the odd ones
-        line.buffer[line.writePos] = mixed[i] * norm + in[i % 2] * inputSigns[i];
-        line.writePos = (line.writePos + 1) % line.buffer.size();
+        line.buffer[line.writePos] = mixed[i] * hadamardNorm + in[i & 1] * inputSigns[i];
+        line.writePos = (line.writePos + 1) & line.mask;
     }
 
     outLeft = 0.0;

@@ -83,7 +83,7 @@ private:
 
     void processBlock();
     void convolve(const KernelSet & set, size_t output, std::vector<double> & out);
-    double directPart(const KernelSet & set, size_t output) const;
+    void directPartPair(const KernelSet & set, double & out0, double & out1) const;
 
     size_t m_maxPartitions { 0 };
 
@@ -123,7 +123,6 @@ private:
 
     // Scratch
     std::vector<double> m_scratchRe;
-    std::vector<double> m_scratchIm;
     std::vector<double> m_mixRe;
     std::vector<double> m_mixIm;
     std::vector<double> m_frame;

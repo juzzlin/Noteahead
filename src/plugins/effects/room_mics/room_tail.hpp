@@ -21,6 +21,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace noteahead {
@@ -78,10 +79,16 @@ private:
     struct Line
     {
         std::vector<double> buffer;
+        size_t mask { 0 };
         double currentLength { 1.0 };
         double targetLength { 1.0 };
-        double lfoPhase { 0.0 };
-        double lfoInc { 0.0 };
+        double lfoRe { 1.0 };
+        double lfoIm { 0.0 };
+        double lfoInitRe { 1.0 };
+        double lfoInitIm { 0.0 };
+        double lfoStepRe { 1.0 };
+        double lfoStepIm { 0.0 };
+        uint32_t lfoCounter { 0 };
         size_t writePos { 0 };
         double currentGain { 1.0 };
         double targetGain { 1.0 };
@@ -96,6 +103,7 @@ private:
     struct Input
     {
         std::vector<double> buffer;
+        size_t mask { 0 };
         size_t writePos { 0 };
         OnePoleFilter low;
         OnePoleFilter high;
@@ -106,6 +114,8 @@ private:
     };
 
     double m_sampleRate { 0.0 };
+    size_t m_lineUsableCapacity { 0 };
+    size_t m_inputUsableCapacity { 0 };
     std::array<Line, LineCount> m_lines;
     std::array<Input, 2> m_inputs;
     double m_currentPreDelay { 1.0 };

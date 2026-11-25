@@ -45,6 +45,7 @@ private slots:
     void test_processBlock_liveAdjustments_shouldNotCrackle();
     void test_isSettled_shouldWaitForTheTail();
     void test_factoryPresets_shouldNameRealParametersAndPlay();
+    void test_tail_longRun_phasorStabilityAndResetReplay();
 };
 
 } // namespace noteahead

@@ -600,6 +600,35 @@ void RoomMicsTest::test_factoryPresets_shouldNameRealParametersAndPlay()
     }
 }
 
+void RoomMicsTest::test_tail_longRun_phasorStabilityAndResetReplay()
+{
+    auto effect = makeRoomMics();
+    effect->finishDesign();
+
+    std::vector<double> excitation(12288 * 2, 0.0);
+    for (size_t i = 0; i < 12288; i++) {
+        const double env = i < 2048 ? 0.4 : 0.0;
+        const double tone = env * std::sin(2.0 * std::numbers::pi * 220.0 * static_cast<double>(i) / 48000.0);
+        excitation[i * 2] = tone;
+        excitation[i * 2 + 1] = -tone * 0.7;
+    }
+
+    const auto first = render(*effect, excitation);
+    for (const double sample : first) {
+        QVERIFY(std::isfinite(sample));
+        QVERIFY(std::abs(sample) < 4.0);
+    }
+
+    effect->reset();
+    const auto second = render(*effect, excitation);
+    QCOMPARE(first.size(), second.size());
+    double maxDiff = 0.0;
+    for (size_t i = 0; i < first.size(); i++) {
+        maxDiff = std::max(maxDiff, std::abs(first[i] - second[i]));
+    }
+    QVERIFY2(maxDiff < 1.0e-12, qPrintable(QString::number(maxDiff)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::RoomMicsTest)
