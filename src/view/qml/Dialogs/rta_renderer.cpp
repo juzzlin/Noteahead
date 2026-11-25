@@ -180,15 +180,40 @@ void RtaRenderer::paint(QPainter * painter)
     }
 
     // Frequency grid lines
-    static const QVector<double> gridFreqs = { 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000 };
-    static const QVector<QString> gridLabels = { "20", "50", "100", "200", "500", "1k", "2k", "5k", "10k", "20k" };
-    painter->setPen(QPen(QColor("#2a2a2a"), 1));
-    for (int i = 0; i < gridFreqs.size(); i++) {
-        const qreal x = plotX + logFreqNorm(gridFreqs[i]) * plotW;
+    // The optional marks (30 and 60 Hz) are left out, line and label, where their label would run
+    // into a neighbour's, as on a narrow panel.
+    struct GridMark
+    {
+        double frequency;
+        const char * label;
+        bool optional;
+    };
+
+    static const GridMark gridMarks[] = {
+        { 20, "20", false }, { 30, "30", true }, { 50, "50", false }, { 60, "60", true }, { 100, "100", false }, { 200, "200", false }, { 500, "500", false }, { 1000, "1k", false }, { 2000, "2k", false }, { 5000, "5k", false }, { 10000, "10k", false }, { 20000, "20k", false }
+    };
+    const qreal minLabelGap = fm.horizontalAdvance(' ');
+    const auto labelSpan = [&](const GridMark & mark) {
+        const qreal x = plotX + logFreqNorm(mark.frequency) * plotW;
+        const qreal lw = fm.horizontalAdvance(QString::fromLatin1(mark.label));
+        return std::pair { x - lw * 0.5, x + lw * 0.5 };
+    };
+    const auto fits = [&](size_t i) {
+        const auto [left, right] = labelSpan(gridMarks[i]);
+        const bool clearOfPrevious = i == 0 || labelSpan(gridMarks[i - 1]).second + minLabelGap <= left;
+        const bool clearOfNext = i + 1 == std::size(gridMarks) || right + minLabelGap <= labelSpan(gridMarks[i + 1]).first;
+        return clearOfPrevious && clearOfNext;
+    };
+    for (size_t i = 0; i < std::size(gridMarks); i++) {
+        const GridMark & mark = gridMarks[i];
+        if (mark.optional && !fits(i)) {
+            continue;
+        }
+        const qreal x = plotX + logFreqNorm(mark.frequency) * plotW;
         painter->setPen(QPen(QColor("#2a2a2a"), 1));
         painter->drawLine(QPointF(x, plotY), QPointF(x, plotY + plotH));
         // Frequency label below
-        const QString & lbl = gridLabels[i];
+        const QString lbl = QString::fromLatin1(mark.label);
         const qreal lw = fm.horizontalAdvance(lbl);
         painter->setPen(QColor("#666666"));
         painter->drawText(QRectF(x - lw * 0.5, plotY + plotH + 3, lw + 2, fm.height()), lbl);
