@@ -36,6 +36,52 @@ AnimatedDialog {
         }
     }
 
+    // The title as AnimatedDialog draws it, with the rack's on/off checkbox in the corner, so that
+    // the effect can be compared with and without while its controls are in view
+    header: Item {
+        implicitHeight: Math.max(titleLabel.implicitHeight, enabledCheckBox.implicitHeight)
+        visible: root.title !== ""
+
+        Label {
+            id: titleLabel
+            anchors.left: parent.left
+            anchors.right: enabledCheckBox.left
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.title
+            textFormat: Text.StyledText
+            font.pixelSize: Theme.titlePixelSize
+            font.bold: true
+            color: Theme.headingText
+            elide: Text.ElideRight
+            leftPadding: 20
+            rightPadding: 20
+            topPadding: 14
+            bottomPadding: 10
+        }
+
+        EffectEnabledCheckBox {
+            id: enabledCheckBox
+            effectIndex: root.effectIndex
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: titleLabel.verticalCenter
+            width: 40
+            height: 40
+            Universal.theme: Universal.Dark
+            Universal.accent: themeService.accentColor
+        }
+
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            height: 1
+            color: Theme.separator
+        }
+    }
+
     // The handlers belong to the button box rather than to the dialog: only the Cancel button is
     // meant to revert, and Escape reaches Dialog.reject() without ever passing through the box.
     footer: DialogButtonBox {

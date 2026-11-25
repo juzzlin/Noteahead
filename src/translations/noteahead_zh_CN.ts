@@ -2047,10 +2047,6 @@
         <translation>插槽 %1：%2 %3</translation>
     </message>
     <message>
-        <source>Enable/disable the effect</source>
-        <translation>启用或禁用效果</translation>
-    </message>
-    <message>
         <source>Manage</source>
         <translation>管理</translation>
     </message>
@@ -3692,6 +3688,13 @@
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>EffectEnabledCheckBox</name>
+    <message>
+        <source>Enable/disable the effect</source>
+        <translation>启用或禁用效果</translation>
     </message>
 </context>
 <context>
@@ -7705,10 +7708,6 @@
     <message>
         <source>Slot %1: %2 %3</source>
         <translation>插槽 %1：%2 %3</translation>
-    </message>
-    <message>
-        <source>Enable/disable the effect</source>
-        <translation>启用或禁用效果</translation>
     </message>
     <message>
         <source>Chain</source>

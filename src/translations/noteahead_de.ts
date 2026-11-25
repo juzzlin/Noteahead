@@ -2048,10 +2048,6 @@
         <translation>Slot %1: %2 %3</translation>
     </message>
     <message>
-        <source>Enable/disable the effect</source>
-        <translation>Effekt aktivieren/deaktivieren</translation>
-    </message>
-    <message>
         <source>Manage</source>
         <translation>Verwalten</translation>
     </message>
@@ -3693,6 +3689,13 @@
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>EffectEnabledCheckBox</name>
+    <message>
+        <source>Enable/disable the effect</source>
+        <translation>Effekt aktivieren/deaktivieren</translation>
     </message>
 </context>
 <context>
@@ -7706,10 +7709,6 @@
     <message>
         <source>Slot %1: %2 %3</source>
         <translation>Slot %1: %2 %3</translation>
-    </message>
-    <message>
-        <source>Enable/disable the effect</source>
-        <translation>Effekt aktivieren/deaktivieren</translation>
     </message>
     <message>
         <source>Chain</source>

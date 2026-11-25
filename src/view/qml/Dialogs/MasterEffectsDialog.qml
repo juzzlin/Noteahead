@@ -238,18 +238,11 @@ AnimatedDialog {
                         visible: effectType === ""
                         opacity: (effectListView.hoveredIndex === index && root.activeFocus) ? 1.0 : 0.5
                     }
-                    CheckBox {
+                    EffectEnabledCheckBox {
+                        effectIndex: index
                         visible: effectType !== ""
                         Layout.preferredWidth: 40
                         Layout.preferredHeight: 40
-                        checked: {
-                            effectRackController.revision;
-                            return effectRackController.isEffectEnabled(index);
-                        }
-                        onToggled: effectRackController.setIsEffectEnabled(index, checked)
-                        ToolTip.visible: hovered
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.text: qsTr("Enable/disable the effect")
                     }
                     AppButton {
                         text: qsTr("Chain")

@@ -23,6 +23,8 @@ New features:
 
 * Device Rack: slots can be reordered with Move Up and Move Down; a device keeps its slot number, so nothing routed to it changes
 
+* Effects: every effect dialog has the rack's on/off checkbox in its title bar, for A/B
+
 Bug fixes:
 
 * Synth D: Tune and the OSC 2 and OSC 3 Frequency knobs set and show hundredths of a semitone, for a slow beat between the oscillators
