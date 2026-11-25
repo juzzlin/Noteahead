@@ -33,6 +33,13 @@ void forwardReal(const double * input, double * re, double * im, int N);
 //! Inverse of forward(), scaled by 1/N (in-place, N must be a power of 2).
 void inverse(double * re, double * im, int N);
 
+//! Real time-domain signal recovered from bins 0..N/2 of a conjugate-symmetric spectrum.
+//!
+//! Undoes forwardReal() via one N/2-point complex inverse transform. @p re and @p im must hold
+//! N/2+1 bins (modified in-place as scratch) and may not alias @p output, which receives N real
+//! samples scaled by 1/N.
+void inverseReal(double * re, double * im, double * output, int N);
+
 } // namespace noteahead::Fft
 
 #endif // FFT_HPP

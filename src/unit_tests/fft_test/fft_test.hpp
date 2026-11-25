@@ -28,6 +28,9 @@ private slots:
     void test_forwardReal_noise_shouldMatchTheComplexTransform();
     void test_forwardReal_sine_shouldPeakAtTheSineBin();
     void test_forwardReal_dcAndNyquist_shouldBeReal();
+    void test_inverseReal_noise_shouldMatchForwardRoundTrip();
+    void test_inverseReal_shouldMatchFullComplexInverse();
+    void test_forward_largeSize_shouldInvertCleanly();
 };
 
 } // namespace noteahead

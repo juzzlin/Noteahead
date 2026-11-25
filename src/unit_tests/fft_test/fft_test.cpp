@@ -114,6 +114,100 @@ void FftTest::test_forwardReal_dcAndNyquist_shouldBeReal()
     QVERIFY(std::abs(im[N / 2]) < 1.0e-12);
 }
 
+void FftTest::test_inverseReal_noise_shouldMatchForwardRoundTrip()
+{
+    std::mt19937 rng { 67890 };
+    std::uniform_real_distribution<double> dist { -1.0, 1.0 };
+
+    for (const int N : { 4, 16, 256, 4096, 16384 }) {
+        std::vector<double> input(N);
+        for (auto & sample : input) {
+            sample = dist(rng);
+        }
+
+        std::vector<double> re(N / 2 + 1, 0.0);
+        std::vector<double> im(N / 2 + 1, 0.0);
+        Fft::forwardReal(input.data(), re.data(), im.data(), N);
+
+        std::vector<double> reconstructed(N, 0.0);
+        Fft::inverseReal(re.data(), im.data(), reconstructed.data(), N);
+
+        for (int i = 0; i < N; i++) {
+            QVERIFY2(std::abs(reconstructed[i] - input[i]) < 1.0e-11,
+                     qPrintable(QString("N=%1 idx=%2 diff=%3").arg(N).arg(i).arg(reconstructed[i] - input[i])));
+        }
+    }
+}
+
+void FftTest::test_inverseReal_shouldMatchFullComplexInverse()
+{
+    std::mt19937 rng { 42424 };
+    std::uniform_real_distribution<double> dist { -10.0, 10.0 };
+
+    for (const int N : { 4, 64, 1024 }) {
+        const int half = N / 2;
+        std::vector<double> re(N, 0.0);
+        std::vector<double> im(N, 0.0);
+        re[0] = dist(rng);
+        im[0] = 0.0;
+        for (int k = 1; k < half; k++) {
+            re[k] = dist(rng);
+            im[k] = dist(rng);
+            re[N - k] = re[k];
+            im[N - k] = -im[k];
+        }
+        re[half] = dist(rng);
+        im[half] = 0.0;
+
+        auto reReal = std::vector<double>(re.begin(), re.begin() + half + 1);
+        auto imReal = std::vector<double>(im.begin(), im.begin() + half + 1);
+
+        Fft::inverse(re.data(), im.data(), N);
+        std::vector<double> outReal(N, 0.0);
+        Fft::inverseReal(reReal.data(), imReal.data(), outReal.data(), N);
+
+        for (int i = 0; i < N; i++) {
+            QVERIFY(std::abs(im[i]) < 1.0e-11);
+            QVERIFY2(std::abs(outReal[i] - re[i]) < 1.0e-11,
+                     qPrintable(QString("N=%1 idx=%2 diff=%3").arg(N).arg(i).arg(outReal[i] - re[i])));
+        }
+    }
+}
+
+void FftTest::test_forward_largeSize_shouldInvertCleanly()
+{
+    std::mt19937 rng { 99991 };
+    std::uniform_real_distribution<double> dist { -1.0, 1.0 };
+
+    for (const int N : { 16384, 32768 }) {
+        std::vector<double> reIn(N);
+        std::vector<double> imIn(N);
+        for (int i = 0; i < N; i++) {
+            reIn[i] = dist(rng);
+            imIn[i] = dist(rng);
+        }
+
+        auto re = reIn;
+        auto im = imIn;
+        Fft::forward(re.data(), im.data(), N);
+        Fft::inverse(re.data(), im.data(), N);
+
+        for (int i = 0; i < N; i++) {
+            QVERIFY(std::abs(re[i] - reIn[i]) < 1.0e-10);
+            QVERIFY(std::abs(im[i] - imIn[i]) < 1.0e-10);
+        }
+
+        std::vector<double> realOut(N, 0.0);
+        std::vector<double> realSpecRe(N / 2 + 1, 0.0);
+        std::vector<double> realSpecIm(N / 2 + 1, 0.0);
+        Fft::forwardReal(reIn.data(), realSpecRe.data(), realSpecIm.data(), N);
+        Fft::inverseReal(realSpecRe.data(), realSpecIm.data(), realOut.data(), N);
+        for (int i = 0; i < N; i++) {
+            QVERIFY(std::abs(realOut[i] - reIn[i]) < 1.0e-10);
+        }
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::FftTest)
