@@ -15,6 +15,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 
 // Turns the effect in @p effectIndex of the current rack on and off. The one control for it, in the
