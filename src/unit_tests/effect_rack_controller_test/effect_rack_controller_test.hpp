@@ -42,6 +42,7 @@ private slots:
     void test_availableEffects_shouldOfferTheReverb224();
     void test_availableEffects_shouldOfferTheRoomMics();
     void test_availableEffects_shouldOfferTheResonanceTamer();
+    void test_availableEffects_shouldOfferTheAnalogBus();
     void test_effectDisplayName_phaseScope_shouldBeTwoWords();
     void test_effectDisplayName_registeredEffect_shouldBeGalleryName();
     void test_setEffect_masterSendRack_shouldStartMixAtTheTop();

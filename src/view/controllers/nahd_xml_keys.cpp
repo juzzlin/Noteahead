@@ -24,6 +24,8 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_airFreq { Constants::NahdXml::xmlKeyAirFreq() }
   , m_airGain { Constants::NahdXml::xmlKeyAirGain() }
   , m_amount { Constants::NahdXml::xmlKeyAmount() }
+  , m_analog { Constants::NahdXml::xmlKeyAnalog() }
+  , m_aspect { Constants::NahdXml::xmlKeyAspect() }
   , m_attack { Constants::NahdXml::xmlKeyAttack() }
   , m_autoGain { Constants::NahdXml::xmlKeyAutoGain() }
   , m_bandCount { Constants::NahdXml::xmlKeyBandCount() }
@@ -39,6 +41,9 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_ceilingMaterial { Constants::NahdXml::xmlKeyCeilingMaterial() }
   , m_channelMode { Constants::NahdXml::xmlKeyChannelMode() }
   , m_color { Constants::NahdXml::xmlKeyColor() }
+  , m_colorDrive { Constants::NahdXml::xmlKeyColorDrive() }
+  , m_colorMix { Constants::NahdXml::xmlKeyColorMix() }
+  , m_colorMode { Constants::NahdXml::xmlKeyColorMode() }
   , m_converters { Constants::NahdXml::xmlKeyConverters() }
   , m_cutoff { Constants::NahdXml::xmlKeyCutoff() }
   , m_damping { Constants::NahdXml::xmlKeyDamping() }
@@ -54,11 +59,15 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_detune { Constants::NahdXml::xmlKeyDetune() }
   , m_diffusion { Constants::NahdXml::xmlKeyDiffusion() }
   , m_drive { Constants::NahdXml::xmlKeyDrive() }
+  , m_driveA { Constants::NahdXml::xmlKeyDriveA() }
   , m_driveDb { Constants::NahdXml::xmlKeyDriveDb() }
+  , m_driveN { Constants::NahdXml::xmlKeyDriveN() }
   , m_dynamics { Constants::NahdXml::xmlKeyDynamics() }
   , m_earlyLate { Constants::NahdXml::xmlKeyEarlyLate() }
   , m_enhance { Constants::NahdXml::xmlKeyEnhance() }
   , m_envMod { Constants::NahdXml::xmlKeyEnvMod() }
+  , m_eqEnabled { Constants::NahdXml::xmlKeyEqEnabled() }
+  , m_eqPre { Constants::NahdXml::xmlKeyEqPre() }
   , m_environment { Constants::NahdXml::xmlKeyEnvironment() }
   , m_feedback { Constants::NahdXml::xmlKeyFeedback() }
   , m_fftRate { Constants::NahdXml::xmlKeyFftRate() }
@@ -97,7 +106,9 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_lookahead { Constants::NahdXml::xmlKeyLookahead() }
   , m_lowAtten { Constants::NahdXml::xmlKeyLowAtten() }
   , m_lowBoost { Constants::NahdXml::xmlKeyLowBoost() }
+  , m_lowCutMode { Constants::NahdXml::xmlKeyLowCutMode() }
   , m_lowFreq { Constants::NahdXml::xmlKeyLowFreq() }
+  , m_lowGain { Constants::NahdXml::xmlKeyLowGain() }
   , m_lpfCutoff { Constants::NahdXml::xmlKeyLpfCutoff() }
   , m_makeup { Constants::NahdXml::xmlKeyMakeup() }
   , m_midDecay { Constants::NahdXml::xmlKeyMidDecay() }
@@ -125,6 +136,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_roomDepth { Constants::NahdXml::xmlKeyRoomDepth() }
   , m_roomHeight { Constants::NahdXml::xmlKeyRoomHeight() }
   , m_roomWidth { Constants::NahdXml::xmlKeyRoomWidth() }
+  , m_routing { Constants::NahdXml::xmlKeyRouting() }
   , m_sampleRate { Constants::NahdXml::xmlKeySampleRate() }
   , m_shape { Constants::NahdXml::xmlKeyShape() }
   , m_showGuides { Constants::NahdXml::xmlKeyShowGuides() }
@@ -151,6 +163,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_tone { Constants::NahdXml::xmlKeyTone() }
   , m_trebleDecay { Constants::NahdXml::xmlKeyTrebleDecay() }
   , m_tune { Constants::NahdXml::xmlKeyTune() }
+  , m_vintage { Constants::NahdXml::xmlKeyVintage() }
   , m_wallMaterial { Constants::NahdXml::xmlKeyWallMaterial() }
   , m_waveform { Constants::NahdXml::xmlKeyWaveform() }
   , m_width { Constants::NahdXml::xmlKeyWidth() }

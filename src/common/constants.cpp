@@ -499,6 +499,11 @@ QString resonanceTamer()
     return "resonancetamer";
 }
 
+QString analogBus()
+{
+    return "analogbus";
+}
+
 QString dimension()
 {
     return "dimension";
@@ -4209,6 +4214,71 @@ QString xmlKeyMicPattern(size_t micIndex)
 QString xmlKeyMicLevel(size_t micIndex)
 {
     return QString { "mic%1Level" }.arg(micIndex + 1);
+}
+
+QString xmlKeyAnalog()
+{
+    return "analog";
+}
+
+QString xmlKeyAspect()
+{
+    return "aspect";
+}
+
+QString xmlKeyColorDrive()
+{
+    return "colorDrive";
+}
+
+QString xmlKeyColorMix()
+{
+    return "colorMix";
+}
+
+QString xmlKeyColorMode()
+{
+    return "colorMode";
+}
+
+QString xmlKeyDriveA()
+{
+    return "driveA";
+}
+
+QString xmlKeyDriveN()
+{
+    return "driveN";
+}
+
+QString xmlKeyEqEnabled()
+{
+    return "eqEnabled";
+}
+
+QString xmlKeyEqPre()
+{
+    return "eqPre";
+}
+
+QString xmlKeyLowCutMode()
+{
+    return "lowCutMode";
+}
+
+QString xmlKeyLowGain()
+{
+    return "lowGain";
+}
+
+QString xmlKeyRouting()
+{
+    return "routing";
+}
+
+QString xmlKeyVintage()
+{
+    return "vintage";
 }
 
 } // namespace NahdXml

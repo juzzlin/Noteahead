@@ -30,6 +30,8 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString airFreq MEMBER m_airFreq CONSTANT)
     Q_PROPERTY(QString airGain MEMBER m_airGain CONSTANT)
     Q_PROPERTY(QString amount MEMBER m_amount CONSTANT)
+    Q_PROPERTY(QString analog MEMBER m_analog CONSTANT)
+    Q_PROPERTY(QString aspect MEMBER m_aspect CONSTANT)
     Q_PROPERTY(QString attack MEMBER m_attack CONSTANT)
     Q_PROPERTY(QString autoGain MEMBER m_autoGain CONSTANT)
     Q_PROPERTY(QString bandCount MEMBER m_bandCount CONSTANT)
@@ -45,6 +47,9 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString ceilingMaterial MEMBER m_ceilingMaterial CONSTANT)
     Q_PROPERTY(QString channelMode MEMBER m_channelMode CONSTANT)
     Q_PROPERTY(QString color MEMBER m_color CONSTANT)
+    Q_PROPERTY(QString colorDrive MEMBER m_colorDrive CONSTANT)
+    Q_PROPERTY(QString colorMix MEMBER m_colorMix CONSTANT)
+    Q_PROPERTY(QString colorMode MEMBER m_colorMode CONSTANT)
     Q_PROPERTY(QString converters MEMBER m_converters CONSTANT)
     Q_PROPERTY(QString cutoff MEMBER m_cutoff CONSTANT)
     Q_PROPERTY(QString damping MEMBER m_damping CONSTANT)
@@ -60,11 +65,15 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString detune MEMBER m_detune CONSTANT)
     Q_PROPERTY(QString diffusion MEMBER m_diffusion CONSTANT)
     Q_PROPERTY(QString drive MEMBER m_drive CONSTANT)
+    Q_PROPERTY(QString driveA MEMBER m_driveA CONSTANT)
     Q_PROPERTY(QString driveDb MEMBER m_driveDb CONSTANT)
+    Q_PROPERTY(QString driveN MEMBER m_driveN CONSTANT)
     Q_PROPERTY(QString dynamics MEMBER m_dynamics CONSTANT)
     Q_PROPERTY(QString earlyLate MEMBER m_earlyLate CONSTANT)
     Q_PROPERTY(QString enhance MEMBER m_enhance CONSTANT)
     Q_PROPERTY(QString envMod MEMBER m_envMod CONSTANT)
+    Q_PROPERTY(QString eqEnabled MEMBER m_eqEnabled CONSTANT)
+    Q_PROPERTY(QString eqPre MEMBER m_eqPre CONSTANT)
     Q_PROPERTY(QString environment MEMBER m_environment CONSTANT)
     Q_PROPERTY(QString feedback MEMBER m_feedback CONSTANT)
     Q_PROPERTY(QString fftRate MEMBER m_fftRate CONSTANT)
@@ -103,7 +112,9 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString lookahead MEMBER m_lookahead CONSTANT)
     Q_PROPERTY(QString lowAtten MEMBER m_lowAtten CONSTANT)
     Q_PROPERTY(QString lowBoost MEMBER m_lowBoost CONSTANT)
+    Q_PROPERTY(QString lowCutMode MEMBER m_lowCutMode CONSTANT)
     Q_PROPERTY(QString lowFreq MEMBER m_lowFreq CONSTANT)
+    Q_PROPERTY(QString lowGain MEMBER m_lowGain CONSTANT)
     Q_PROPERTY(QString lpfCutoff MEMBER m_lpfCutoff CONSTANT)
     Q_PROPERTY(QString makeup MEMBER m_makeup CONSTANT)
     Q_PROPERTY(QString midDecay MEMBER m_midDecay CONSTANT)
@@ -131,6 +142,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString roomDepth MEMBER m_roomDepth CONSTANT)
     Q_PROPERTY(QString roomHeight MEMBER m_roomHeight CONSTANT)
     Q_PROPERTY(QString roomWidth MEMBER m_roomWidth CONSTANT)
+    Q_PROPERTY(QString routing MEMBER m_routing CONSTANT)
     Q_PROPERTY(QString sampleRate MEMBER m_sampleRate CONSTANT)
     Q_PROPERTY(QString shape MEMBER m_shape CONSTANT)
     Q_PROPERTY(QString showGuides MEMBER m_showGuides CONSTANT)
@@ -157,6 +169,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString tone MEMBER m_tone CONSTANT)
     Q_PROPERTY(QString trebleDecay MEMBER m_trebleDecay CONSTANT)
     Q_PROPERTY(QString tune MEMBER m_tune CONSTANT)
+    Q_PROPERTY(QString vintage MEMBER m_vintage CONSTANT)
     Q_PROPERTY(QString wallMaterial MEMBER m_wallMaterial CONSTANT)
     Q_PROPERTY(QString waveform MEMBER m_waveform CONSTANT)
     Q_PROPERTY(QString width MEMBER m_width CONSTANT)
@@ -194,6 +207,8 @@ private:
     QString m_airFreq;
     QString m_airGain;
     QString m_amount;
+    QString m_analog;
+    QString m_aspect;
     QString m_attack;
     QString m_autoGain;
     QString m_bandCount;
@@ -209,6 +224,9 @@ private:
     QString m_ceilingMaterial;
     QString m_channelMode;
     QString m_color;
+    QString m_colorDrive;
+    QString m_colorMix;
+    QString m_colorMode;
     QString m_converters;
     QString m_cutoff;
     QString m_damping;
@@ -224,11 +242,15 @@ private:
     QString m_detune;
     QString m_diffusion;
     QString m_drive;
+    QString m_driveA;
     QString m_driveDb;
+    QString m_driveN;
     QString m_dynamics;
     QString m_earlyLate;
     QString m_enhance;
     QString m_envMod;
+    QString m_eqEnabled;
+    QString m_eqPre;
     QString m_environment;
     QString m_feedback;
     QString m_fftRate;
@@ -267,7 +289,9 @@ private:
     QString m_lookahead;
     QString m_lowAtten;
     QString m_lowBoost;
+    QString m_lowCutMode;
     QString m_lowFreq;
+    QString m_lowGain;
     QString m_lpfCutoff;
     QString m_makeup;
     QString m_midDecay;
@@ -295,6 +319,7 @@ private:
     QString m_roomDepth;
     QString m_roomHeight;
     QString m_roomWidth;
+    QString m_routing;
     QString m_sampleRate;
     QString m_shape;
     QString m_showGuides;
@@ -321,6 +346,7 @@ private:
     QString m_tone;
     QString m_trebleDecay;
     QString m_tune;
+    QString m_vintage;
     QString m_wallMaterial;
     QString m_waveform;
     QString m_width;

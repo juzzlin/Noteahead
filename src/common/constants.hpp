@@ -385,6 +385,7 @@ QString flanger();
 QString tremolo();
 QString roomMics();
 QString resonanceTamer();
+QString analogBus();
 } // namespace RackEffectType
 
 //! What a Performance Panel element shows. Saved in projects: never rename.
@@ -1187,6 +1188,20 @@ QString xmlKeyMicSpacing(size_t micIndex);
 QString xmlKeyMicAngle(size_t micIndex);
 QString xmlKeyMicPattern(size_t micIndex);
 QString xmlKeyMicLevel(size_t micIndex);
+
+QString xmlKeyAnalog();
+QString xmlKeyAspect();
+QString xmlKeyColorDrive();
+QString xmlKeyColorMix();
+QString xmlKeyColorMode();
+QString xmlKeyDriveA();
+QString xmlKeyDriveN();
+QString xmlKeyEqEnabled();
+QString xmlKeyEqPre();
+QString xmlKeyLowCutMode();
+QString xmlKeyLowGain();
+QString xmlKeyRouting();
+QString xmlKeyVintage();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

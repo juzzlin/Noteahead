@@ -24,6 +24,7 @@
 #include "../../plugins/devices/synth/synth_device.hpp"
 #include "../../plugins/effects/air_band_eq/air_band_eq.hpp"
 #include "../../plugins/effects/all_pass_filter/all_pass_filter.hpp"
+#include "../../plugins/effects/analog_bus/analog_bus.hpp"
 #include "../../plugins/effects/auto_filter/auto_filter.hpp"
 #include "../../plugins/effects/auto_panner/auto_panner.hpp"
 #include "../../plugins/effects/chorus/chorus.hpp"
@@ -36,8 +37,8 @@
 #include "../../plugins/effects/gain/gain.hpp"
 #include "../../plugins/effects/panner/panner.hpp"
 #include "../../plugins/effects/phaser/phaser.hpp"
-#include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/resonance_tamer/resonance_tamer.hpp"
+#include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224_dialog_model.hpp"
 #include "../../plugins/effects/room_mics/room_mics.hpp"
@@ -1366,6 +1367,23 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheResonanceTame
     QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::resonanceTamer());
     QCOMPARE(context.controller.effectDisplayName(type), QString { "Resonance Tamer" });
     QCOMPARE(context.controller.effectParametersSummary(0), QString { "(6.0 dB, selectivity=6.0 dB, 100-20.0k Hz)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheAnalogBus()
+{
+    auto context = createContext();
+    const auto type = QString::fromStdString(AnalogBus::typeIdString());
+    QStringList types;
+    for (auto && entry : context.controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::analogBus());
+    QCOMPARE(context.controller.effectDisplayName(type), QString { "Analog Bus" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(A->N, A=+9.0dB, N=+9.0dB, mix=100%)" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()

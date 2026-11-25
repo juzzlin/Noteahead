@@ -10246,6 +10246,30 @@
         <source>Focus</source>
         <translation>Painotus</translation>
     </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A-särö</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N-särö</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Color-särö</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Color-sekoitus</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Ilma</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Leveys</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -17941,6 +17965,257 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Panorointi</translation>
+    </message>
+</context>
+<context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>Stereokonsolin väyläprosessori, jossa yhdistyvät erilliset A- (amerikkalainen op-amp-isku) ja N-kyllästysasteet (brittiläinen muuntajan alarekisterin paino), valittava Color-moduulipaikka, kolmialueinen Baxandall + Air Tone -taajuuskorjain sekä elliptinen Aspect-stereolevennys.</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>Konsoli</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>Tiukka ylipäästö</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Pois</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz (Miksaus)</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz (Raita)</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>Subtaajuuksien suodin: 25 Hz Miksaus lisää hienovaraisen matalien korostuksen; 50 Hz Raita leikkaa tasaisella Butterworth-suotimella.</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>Reititys</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A (Erilliskytkentä)</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N (Muuntaja)</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>Erillisten A- ja N-konsoliasteiden kytkentäjärjestys.</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A-särö</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>Asteen A särö: amerikkalainen erillis-op-amp ja teräsmuuntaja iskevyyteen ja parittomiin yläsäveliin.</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N-särö</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>Asteen N särö: brittiläinen A-luokan piiri ja rautamuuntajan vuokylläisyys parillisiin yläsäveliin ja alarekisterin painoon.</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>Color-moduuli</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>Moduuli</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>Nauha</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>Vinyyli</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>Sarjakytketty väritysmoduuli konsoliasteiden jälkeen: VCA-väyläliima, analoginen masterinauha, vinyylilämpö tai 12-bittinen sampleri.</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Color-särö</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>Valitun Color-moduulin voimakkuus.</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Color-sekoitus</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>Color-moduulipaikan kuiva/märkä-sekoitus.</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>Tone EQ</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>EQ päällä</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>Kytkee kolmialueisen Baxandall + Air -taajuuskorjaimen käyttöön tai ohitukseen.</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>Ennen kyllästystä</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>Kytkee Tone EQ:n ennen konsoli- ja Color-asteita valittuna, tai niiden jälkeen muutoin.</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>Alakaista</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>Basso (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>Runko (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>Yläkaista</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>Keskialue (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>Läsnäolo (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>Kiilto (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Matalat</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>Pehmeä Baxandall-alahylly (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Korkeat</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>Pehmeä Baxandall-ylähylly (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Ilma</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>Silkkisen yläpään Air-hylly (+/-9 dB).</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>Luonne ja lähtö</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>Vintage</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>Pehmeä vintage-muuntajan yläpään vaimennus kireyden pyöristämiseen.</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>Hienovarainen deterministinen L/R-komponenttitoleranssi ja hidas ryömintä.</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Leveys</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>Elliptinen ylipäästetty Mid/Side-levennys; pitää subbasson koossa ja monosignaalin keskellä.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>Päälähdön tasonsäätö (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>Rinnakkainen kuiva/märkä-sekoitus viivekompensoidulla kuivalla signaalilla.</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Saturaatio</translation>
     </message>
 </context>
 </TS>

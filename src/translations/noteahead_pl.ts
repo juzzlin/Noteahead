@@ -10247,6 +10247,30 @@
         <source>Focus</source>
         <translation>Nacisk</translation>
     </message>
+    <message>
+        <source>A Drive</source>
+        <translation>Drive A</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>Drive N</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Drive koloru</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Miks koloru</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Powietrze</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Aspekt</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -17943,6 +17967,257 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Panorama</translation>
+    </message>
+</context>
+<context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>Stereofoniczny procesor szyny konsolety łączący dyskretne stopnie nasycenia A (amerykański op-amp) i N (brytyjski transformator), gniazdo modułu Color, trzypasmowy korektor Baxandall + Air oraz eliptyczne poszerzenie Aspect.</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>Konsoleta</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>Filtr HPF Tight</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Wył.</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz (Miks)</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz (Ścieżka)</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>Filtr subsoniczny: 25 Hz Miks dodaje delikatne podbicie konturu basu; 50 Hz Ścieżka tnie płasko filtrem Butterwortha.</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>Kierowanie</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A (Dyskretny)</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N (Transformator)</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>Kolejność dyskretnych stopni nasycenia konsolety A i N.</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>Drive A</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>Wysterowanie stopnia A: amerykański dyskretny wzmacniacz i transformator stalowy dla uderzenia i nieparzystych harmonicznych.</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>Drive N</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>Wysterowanie stopnia N: brytyjski układ klasy A i nasycenie rdzenia żelaznego dla parzystych harmonicznych i ciężaru basu.</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>Moduł Color</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>Moduł</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>Taśma</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>Winyl</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>Szeregowy moduł koloryzacji po stopniach konsolety: klej VCA, taśma analogowa, ciepło winylu lub brud 12-bitowego samplera.</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Drive koloru</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>Intensywność wybranego modułu Color.</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Miks koloru</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>Proporcja sygnału w gnieździe modułu Color.</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>Korektor Tone</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>EQ wł.</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>Włącza lub omija trzypasmowy korektor Baxandall + Air.</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>Przed nasyceniem</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>Kieruje korektor przed stopnie konsolety i Color po zaznaczeniu lub za nie po odznaczeniu.</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>Pasmo niskie</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>Bas (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>Ciało (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>Pasmo wysokie</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>Środek (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>Prezencja (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>Blask (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Niskie</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>Łagodny filtr półkowy niskich tonów Baxandalla (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Wysokie</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>Łagodny filtr półkowy wysokich tonów Baxandalla (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Powietrze</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>Jedwabisty filtr półkowy najwyższych tonów (+/-9 dB).</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>Charakter i Master</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>Vintage</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>Łagodne tłumienie wysokich częstotliwości jak w klasycznych transformatorach.</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analogowy</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>Subtelna deterministyczna tolerancja elementów L/P i powolny dryft.</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Aspekt</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>Eliptyczne górnoprzepustowe poszerzenie Mid/Side; utrzymuje bas w centrum i chroni sygnał mono.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Wyjście</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>Regulacja poziomu wyjściowego (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Miks</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>Równoległe mieszanie dry/wet z sygnałem suchym wyrównanym czasowo.</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Nasycenie</translation>
     </message>
 </context>
 </TS>

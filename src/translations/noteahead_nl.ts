@@ -10246,6 +10246,30 @@
         <source>Focus</source>
         <translation>Focus</translation>
     </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A-drive</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N-drive</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Color-drive</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Color-mix</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Air</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Aspect</translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -17941,6 +17965,257 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Panning</translation>
+    </message>
+</context>
+<context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus (Slot %1)</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>Stereo consolebus-processor met discrete A- (Amerikaanse op-amp punch) en N-verzadigingstrappen (Britse transformatordruk), een kiesbaar Color-slot, driebands Baxandall + Air Tone EQ en elliptische Aspect-verbreding.</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>Console</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>Tight-HPF</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Uit</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz (Mix)</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz (Spoor)</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>Subsonisch filter: 25 Hz Mix voegt een subtiele laag-contour toe; 50 Hz Spoor snijdt vlak af met Butterworth.</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>Routering</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A (Discreet)</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N (Transformator)</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>Volgorde van de discrete A- en N-verzadigingstrappen.</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A-drive</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>Drive naar trap A: discrete Amerikaanse op-amp en stalen transformator voor punch en oneven harmonischen.</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N-drive</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>Drive naar trap N: Brits Klasse-A-circuit en ijzerkern-flux voor even harmonischen en laaggewicht.</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>Color-module</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>Module</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>Tape</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>Vinyl</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>Seriële kleuringsmodule na de consoletrappen: VCA-buslijm, analoge mastertape, vinylwarmte of 12-bit sampler-korrel.</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Color-drive</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>Intensiteit van de geselecteerde Color-module.</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Color-mix</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>Dry/wet-balans in het Color-moduleslot.</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>Tone EQ</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>EQ aan</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>Schakelt de driebands Baxandall + Air Tone EQ in of uit.</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>Pre-verzadiging</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>Plaatst de Tone EQ vóór de console en Color indien aangevinkt, anders erna.</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>Laag-band</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>Bas (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>Body (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>Hoog-band</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>Midden (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>Presence (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>Glans (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Laag</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>Zachte Baxandall-laagshelf (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Hoog</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>Zachte Baxandall-hoogshelf (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Air</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>Zijdezachte Air-topshelf (+/-9 dB).</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>Karakter &amp; Master</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>Vintage</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>Zachte vintage transformator-afrol voor het afronden van tophoog.</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoog</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>Subtiele deterministische L/R-componenttolerantie en trage drift.</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Aspect</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>Elliptische hoogdoorlaat Mid/Side-verbreding; houdt sublaag gefocust en mono zuiver.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Uitgang</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>Master-uitgangsniveau (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>Parallelle dry/wet-mix met latentie-uitgelijnd droog signaal.</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Verzadiging</translation>
     </message>
 </context>
 </TS>

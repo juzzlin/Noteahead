@@ -82,6 +82,7 @@
 #include "../../plugins/effects/air_band_eq/air_band_eq.hpp"
 #include "../../plugins/effects/all_pass_filter/all_pass_filter.hpp"
 #include "../../plugins/effects/ambience/ambience.hpp"
+#include "../../plugins/effects/analog_bus/analog_bus.hpp"
 #include "../../plugins/effects/analog_fuzz/analog_fuzz.hpp"
 #include "../../plugins/effects/auto_ducker/auto_ducker.hpp"
 #include "../../plugins/effects/auto_filter/auto_filter.hpp"
@@ -112,8 +113,8 @@
 #include "../../plugins/effects/phaser/phaser.hpp"
 #include "../../plugins/effects/reference/reference.hpp"
 #include "../../plugins/effects/reference/reference_environments.hpp"
-#include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/resonance_tamer/resonance_tamer.hpp"
+#include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb_224/reverb_224.hpp"
 #include "../../plugins/effects/room_mics/room_mics.hpp"
 #include "../../plugins/effects/saturator/saturator.hpp"
@@ -3097,6 +3098,76 @@ void XmlSerializationTest::test_toXmlFromXml_resonanceTamerEffect_shouldLoadCorr
     QCOMPARE(valueOf(C::xmlKeyStereoMode()), 2.0f);
     QVERIFY(std::abs(valueOf(C::xmlKeyMix()) - 0.6f) < 0.001f);
     QCOMPARE(valueOf(C::xmlKeySolo()), 1.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_analogBusEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto analogBus = std::make_shared<AnalogBus>();
+    const auto setParam = [&analogBus](const QString & key, float value) {
+        if (auto p = analogBus->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    namespace C = Constants::NahdXml;
+    setParam(C::xmlKeyLowCutMode(), 2.0f);
+    setParam(C::xmlKeyRouting(), 4.0f);
+    setParam(C::xmlKeyDriveA(), 0.65f);
+    setParam(C::xmlKeyDriveN(), 0.45f);
+    setParam(C::xmlKeyColorMode(), 3.0f);
+    setParam(C::xmlKeyColorDrive(), 0.70f);
+    setParam(C::xmlKeyColorMix(), 0.80f);
+    setParam(C::xmlKeyEqEnabled(), 0.0f);
+    setParam(C::xmlKeyEqPre(), 1.0f);
+    setParam(C::xmlKeyLowGain(), 0.75f);
+    setParam(C::xmlKeyLowFreq(), 3.0f);
+    setParam(C::xmlKeyHighGain(), 0.30f);
+    setParam(C::xmlKeyHighFreq(), 1.0f);
+    setParam(C::xmlKeyAirGain(), 0.85f);
+    setParam(C::xmlKeyVintage(), 1.0f);
+    setParam(C::xmlKeyAnalog(), 1.0f);
+    setParam(C::xmlKeyAspect(), 0.55f);
+    setParam(C::xmlKeyGain(), 0.60f);
+    setParam(C::xmlKeyMix(), 0.72f);
+    deviceServiceOut.insertEffectRack().setEffect(0, analogBus);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<AnalogBus>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -100.0f;
+    };
+    QCOMPARE(valueOf(C::xmlKeyLowCutMode()), 2.0f);
+    QCOMPARE(valueOf(C::xmlKeyRouting()), 4.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyDriveA()) - 0.65f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyDriveN()) - 0.45f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyColorMode()), 3.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyColorDrive()) - 0.70f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyColorMix()) - 0.80f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyEqEnabled()), 0.0f);
+    QCOMPARE(valueOf(C::xmlKeyEqPre()), 1.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyLowGain()) - 0.75f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyLowFreq()), 3.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyHighGain()) - 0.30f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyHighFreq()), 1.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyAirGain()) - 0.85f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyVintage()), 1.0f);
+    QCOMPARE(valueOf(C::xmlKeyAnalog()), 1.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyAspect()) - 0.55f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyGain()) - 0.60f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyMix()) - 0.72f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_ambienceEffect_shouldLoadCorrectly()

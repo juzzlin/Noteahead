@@ -15,6 +15,7 @@
 
 #include "effect_oversampling_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../plugins/effects/analog_bus/analog_bus.hpp"
 #include "../../plugins/effects/analog_fuzz/analog_fuzz.hpp"
 #include "../../plugins/effects/bass_grinder/bass_grinder.hpp"
 #include "../../plugins/effects/clipper/clipper.hpp"
@@ -261,6 +262,15 @@ void EffectOversamplingTest::test_analogFuzz_partialMix_higherFactor_shouldKeepL
     analogFuzz.sync();
 
     verifyLevelKeptAcrossFactors(analogFuzz);
+}
+
+void EffectOversamplingTest::test_analogBus_partialMix_higherFactor_shouldKeepLevel()
+{
+    AnalogBus analogBus;
+    setParam(analogBus, Constants::NahdXml::xmlKeyMix(), 0.5f);
+    analogBus.sync();
+
+    verifyLevelKeptAcrossFactors(analogBus);
 }
 
 } // namespace noteahead

@@ -1,0 +1,14 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        analog_bus.cpp
+        analog_bus.hpp
+        analog_bus_presets.cpp
+        analog_bus_presets.hpp
+        analog_bus_registration.cpp
+    VIEW_SOURCES
+        analog_bus_dialog_model.cpp
+        analog_bus_dialog_model.hpp
+        analog_bus_view_registration.cpp
+    QML_FILES
+        AnalogBusDialog.qml
+)

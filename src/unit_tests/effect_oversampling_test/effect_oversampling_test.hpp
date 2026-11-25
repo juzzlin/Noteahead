@@ -35,6 +35,7 @@ private slots:
     void test_stereoExciter_solo_higherFactor_shouldPassOnlyHarmonics();
     void test_tubeStage_partialMix_higherFactor_shouldKeepLevel();
     void test_analogFuzz_partialMix_higherFactor_shouldKeepLevel();
+    void test_analogBus_partialMix_higherFactor_shouldKeepLevel();
 };
 
 } // namespace noteahead
