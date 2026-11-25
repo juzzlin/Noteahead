@@ -16,6 +16,7 @@
 #include "song_overview_builder_test.hpp"
 
 #include "../../application/position.hpp"
+#include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/song_overview_builder.hpp"
 #include "../../domain/tracker/note_data.hpp"
@@ -59,7 +60,7 @@ struct ControllerContext
 ControllerContext createControllerContext()
 {
     const auto editorService = std::make_shared<EditorService>();
-    auto controller = std::make_unique<SongOverviewController>(editorService, nullptr, nullptr);
+    auto controller = std::make_unique<SongOverviewController>(editorService, nullptr, nullptr, nullptr);
     return ControllerContext {
         editorService,
         editorService->song(),
@@ -223,6 +224,79 @@ void SongOverviewBuilderTest::test_build_emptySong_shouldHaveADefaultRange()
     QCOMPARE(overview.rows.size(), size_t { 1 });
     QVERIFY(patternOf(overview, 0).notes.empty());
     QVERIFY(overview.tracks.at(0).highestPitch > overview.tracks.at(0).lowestPitch);
+}
+
+void SongOverviewBuilderTest::test_build_automation_shouldBeACurveOfItsColumn()
+{
+    Song song;
+    AutomationService automationService { nullptr };
+    // Pitch bend -100 to 100 is 0 to 1 on the curve
+    automationService.addPitchBendAutomation(0, 1, 0, 2, 6, -100, 100, {}, true);
+
+    const auto overview = SongOverview::build(song, automationService);
+    const auto & curves = patternOf(overview, 0).curves;
+
+    QCOMPARE(curves.size(), size_t { 1 });
+    QCOMPARE(curves.at(0).track, size_t { 1 });
+    QCOMPARE(curves.at(0).column, size_t { 0 });
+    QCOMPARE(curves.at(0).values.size(), song.lineCount(0));
+    QVERIFY(!curves.at(0).values.at(1).has_value());
+    QCOMPARE(*curves.at(0).values.at(2), 0.0);
+    QCOMPARE(*curves.at(0).values.at(4), 0.5);
+    QCOMPARE(*curves.at(0).values.at(6), 1.0);
+    QVERIFY(!curves.at(0).values.at(7).has_value());
+}
+
+void SongOverviewBuilderTest::test_build_automation_disabled_shouldBeLeftOut()
+{
+    Song song;
+    AutomationService automationService { nullptr };
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, false);
+
+    const auto overview = SongOverview::build(song, automationService);
+
+    QVERIFY(patternOf(overview, 0).curves.empty());
+}
+
+void SongOverviewBuilderTest::test_build_automation_repeatedPattern_shouldBeBuiltOnce()
+{
+    Song song;
+    song.createPattern(1);
+    song.setLength(3);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 1);
+    song.setPatternAtSongPosition(2, 0);
+    AutomationService automationService { nullptr };
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, true);
+
+    const auto overview = SongOverview::build(song, automationService);
+
+    QCOMPARE(patternOf(overview, 0).curves.size(), size_t { 1 });
+    QVERIFY(patternOf(overview, 1).curves.empty());
+}
+
+void SongOverviewBuilderTest::test_build_automation_withoutAutomationService_shouldHaveNoCurves()
+{
+    Song song;
+    AutomationService automationService { nullptr };
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, true);
+
+    const auto overview = SongOverview::build(song);
+
+    QVERIFY(patternOf(overview, 0).curves.empty());
+}
+
+void SongOverviewBuilderTest::test_controller_automationAdded_shouldRebuild()
+{
+    const auto editorService = std::make_shared<EditorService>();
+    const auto automationService = std::make_shared<AutomationService>(nullptr);
+    SongOverviewController controller { editorService, nullptr, nullptr, automationService };
+    controller.setActive(true);
+    QVERIFY(controller.overview().patterns.at(0).curves.empty());
+
+    automationService->addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, true);
+
+    QTRY_COMPARE(controller.overview().patterns.at(0).curves.size(), size_t { 1 });
 }
 
 void SongOverviewBuilderTest::test_noteAt_overlappingNotes_shouldReturnTheTopOne()

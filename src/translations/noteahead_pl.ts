@@ -13326,6 +13326,14 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <translation>Odtwórz</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automatyzacje</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Rysuj automatyzacje na nutach ich ścieżek, jak krzywe w edytorze</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Wiersz</translation>
     </message>

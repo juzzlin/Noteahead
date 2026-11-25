@@ -47,6 +47,11 @@ constexpr qreal MinGridSpacingPixels { 6.0 };
 constexpr int BeatsPerBar { 4 };
 //! A click this close to a bar, in pixels, is on it.
 constexpr qreal HitSlopPixels { 3.0 };
+//! Keeps a curve's top and bottom off the lane's edges.
+constexpr qreal CurvePadding { 4.0 };
+constexpr qreal CurveThickness { 1.5 };
+//! Over the notes, but not hiding them.
+constexpr double CurveAlpha { 0.85 };
 
 const QColor CellFill { "#232323" };
 const QColor CornerFill { "#1e1e1e" };
@@ -122,6 +127,42 @@ void SongOverviewRenderer::setAccentColor(const QColor & color)
     if (m_accentColor != color) {
         m_accentColor = color;
         emit accentColorChanged();
+        update();
+    }
+}
+
+bool SongOverviewRenderer::automationsVisible() const
+{
+    return m_automationsVisible;
+}
+
+void SongOverviewRenderer::setAutomationsVisible(bool visible)
+{
+    if (m_automationsVisible != visible) {
+        m_automationsVisible = visible;
+        emit automationsVisibleChanged();
+        update();
+    }
+}
+
+QVariantList SongOverviewRenderer::automationCurveColors() const
+{
+    QVariantList colors;
+    for (auto && color : m_automationCurveColors) {
+        colors.append(color);
+    }
+    return colors;
+}
+
+void SongOverviewRenderer::setAutomationCurveColors(const QVariantList & colors)
+{
+    QList<QColor> list;
+    for (auto && color : colors) {
+        list.append(qvariant_cast<QColor>(color));
+    }
+    if (m_automationCurveColors != list) {
+        m_automationCurveColors = list;
+        emit automationCurveColorsChanged();
         update();
     }
 }
@@ -433,10 +474,57 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
                 }
             }
 
+            if (m_automationsVisible) {
+                if (const auto pattern = overview.patterns.find(row.pattern); pattern != overview.patterns.end()) {
+                    paintCurves(painter, pattern->second.curves, track.index, rowStart, top, firstLine, lastLine);
+                }
+            }
+
             if (row.skipped) {
                 painter->fillRect(QRectF { left, top, rowWidth, m_laneHeight }, SkippedShade);
             }
         }
+    }
+    painter->restore();
+}
+
+void SongOverviewRenderer::paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, double top, double firstLine, double lastLine) const
+{
+    if (m_automationCurveColors.isEmpty()) {
+        return;
+    }
+    const double bottom = top + m_laneHeight - CurvePadding;
+    const double span = std::max(m_laneHeight - 2.0 * CurvePadding, 1.0);
+    // Only the lines in view, and one past each end so that the line runs to the edge
+    const auto first = static_cast<size_t>(std::max(std::floor(firstLine - rowStart) - 1.0, 0.0));
+    const double last = std::ceil(lastLine - rowStart) + 1.0;
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    for (auto && curve : curves) {
+        if (curve.track != track) {
+            continue;
+        }
+        QColor color = m_automationCurveColors.at(static_cast<int>(curve.colorIndex % static_cast<size_t>(m_automationCurveColors.size())));
+        color.setAlphaF(static_cast<float>(m_controller->isColumnAudible(curve.track, curve.column) ? CurveAlpha : CurveAlpha * 0.3));
+        painter->setPen(QPen { color, CurveThickness, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin });
+        // A line it does not cover breaks it into runs
+        QPolygonF run;
+        const auto flush = [&] {
+            if (run.size() > 1) {
+                painter->drawPolyline(run);
+            }
+            run.clear();
+        };
+        const size_t end = std::min(curve.values.size(), static_cast<size_t>(std::max(last, 0.0)));
+        for (size_t line = first; line < end; line++) {
+            if (const auto value = curve.values.at(line); value.has_value()) {
+                run.append(QPointF { songLineX(rowStart + static_cast<double>(line)), bottom - std::clamp(*value, 0.0, 1.0) * span });
+            } else {
+                flush();
+            }
+        }
+        flush();
     }
     painter->restore();
 }

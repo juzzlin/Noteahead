@@ -17,6 +17,7 @@
 
 #include "../../application/note_converter.hpp"
 #include "../../application/position.hpp"
+#include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/player_service.hpp"
@@ -29,11 +30,12 @@
 
 namespace noteahead {
 
-SongOverviewController::SongOverviewController(EditorServiceS editorService, PlayerServiceS playerService, MixerServiceS mixerService, QObject * parent)
+SongOverviewController::SongOverviewController(EditorServiceS editorService, PlayerServiceS playerService, MixerServiceS mixerService, AutomationServiceS automationService, QObject * parent)
   : QObject { parent }
   , m_editorService { std::move(editorService) }
   , m_playerService { std::move(playerService) }
   , m_mixerService { std::move(mixerService) }
+  , m_automationService { std::move(automationService) }
 {
     if (m_editorService) {
         // Everything that changes what is drawn. Each only asks for a rebuild, which an inactive
@@ -60,6 +62,10 @@ SongOverviewController::SongOverviewController(EditorServiceS editorService, Pla
 
         connect(editor, &EditorService::songPositionChanged, this, &SongOverviewController::updatePlayheadFromEditor);
         connect(editor, &EditorService::positionChanged, this, &SongOverviewController::updatePlayheadFromEditor);
+    }
+    if (m_automationService) {
+        // An automation added, edited, enabled or deleted
+        connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this] { scheduleRefresh(); });
     }
     if (m_playerService) {
         connect(m_playerService.get(), &PlayerService::tickUpdated, this, &SongOverviewController::updatePlayheadFromTick);
@@ -229,7 +235,7 @@ void SongOverviewController::refresh()
     if (!m_active || !m_editorService || !m_editorService->song()) {
         return;
     }
-    m_overview = SongOverview::build(*m_editorService->song());
+    m_overview = m_automationService ? SongOverview::build(*m_editorService->song(), *m_automationService) : SongOverview::build(*m_editorService->song());
     emit overviewChanged();
     // The playhead's place on the timeline moves with the rows before it
     emit playheadChanged();

@@ -47,6 +47,9 @@ class SettingsService : public QObject
     Q_PROPERTY(bool performancePanelEnabled READ performancePanelEnabled WRITE setPerformancePanelEnabled NOTIFY performancePanelEnabledChanged)
     Q_PROPERTY(int performancePanelHeight READ performancePanelHeight WRITE setPerformancePanelHeight NOTIFY performancePanelHeightChanged)
     Q_PROPERTY(bool patternPeekEnabled READ patternPeekEnabled WRITE setPatternPeekEnabled NOTIFY patternPeekEnabledChanged)
+
+    //! Whether the Song Overview draws the automations over the notes. On by default.
+    Q_PROPERTY(bool songOverviewAutomationsVisible READ songOverviewAutomationsVisible WRITE setSongOverviewAutomationsVisible NOTIFY songOverviewAutomationsVisibleChanged)
     Q_PROPERTY(bool tipsEnabled READ tipsEnabled WRITE setTipsEnabled NOTIFY tipsEnabledChanged)
     Q_PROPERTY(bool checkForNewVersions READ checkForNewVersions WRITE setCheckForNewVersions NOTIFY checkForNewVersionsChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
@@ -140,6 +143,9 @@ public:
     virtual Q_INVOKABLE bool patternPeekEnabled() const;
     virtual Q_INVOKABLE void setPatternPeekEnabled(bool enabled);
 
+    bool songOverviewAutomationsVisible() const;
+    void setSongOverviewAutomationsVisible(bool visible);
+
     virtual Q_INVOKABLE bool tipsEnabled() const;
     virtual Q_INVOKABLE void setTipsEnabled(bool enabled);
 
@@ -214,6 +220,7 @@ signals:
     void performancePanelEnabledChanged();
     void performancePanelHeightChanged();
     void patternPeekEnabledChanged();
+    void songOverviewAutomationsVisibleChanged();
     void tipsEnabledChanged();
     void checkForNewVersionsChanged();
     void midiExportForceDrumChannel10Changed();
@@ -258,6 +265,7 @@ private:
     bool m_performancePanelEnabled;
     int m_performancePanelHeight;
     bool m_patternPeekEnabled;
+    bool m_songOverviewAutomationsVisible;
     bool m_tipsEnabled;
     bool m_checkForNewVersions;
 

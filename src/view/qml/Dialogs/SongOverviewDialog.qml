@@ -194,6 +194,17 @@ AnimatedDialog {
                     font.pixelSize: 12
                     Layout.fillWidth: true
                 }
+                CheckBox {
+                    text: qsTr("Automations")
+                    checked: settingsService.songOverviewAutomationsVisible
+                    onToggled: settingsService.songOverviewAutomationsVisible = checked
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Draw the automations over the notes of their tracks, as the editor's curves")
+                }
                 AppButton {
                     text: playerService.isPlaying ? qsTr("Stop") : qsTr("Play")
                     implicitWidth: Constants.defaultButtonWidth
@@ -232,6 +243,8 @@ AnimatedDialog {
                         scrollY: flickable.contentY
                         controller: songOverviewController
                         accentColor: themeService.accentColor
+                        automationsVisible: settingsService.songOverviewAutomationsVisible
+                        automationCurveColors: themeService.automationCurveColors
                         activeRow: songOverviewController.playheadRow
                         // Lanes grow to fill the view when there are few tracks
                         laneHeight: (flickable.height - stripHeight) / Math.max(songOverviewController.trackCount, 1) - laneSpacing

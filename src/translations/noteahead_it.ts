@@ -13324,6 +13324,14 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation>Riproduci</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automazioni</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Disegna le automazioni sopra le note delle loro tracce, come le curve dell&apos;editor</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Riga</translation>
     </message>

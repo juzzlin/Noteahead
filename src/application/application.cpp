@@ -203,7 +203,7 @@ Application::Application(int & argc, char ** argv)
   , m_mixerService { std::make_shared<MixerService>() }
   , m_sideChainService { std::make_shared<SideChainService>() }
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
-  , m_songOverviewController { std::make_shared<SongOverviewController>(m_editorService, m_playerService, m_mixerService) }
+  , m_songOverviewController { std::make_shared<SongOverviewController>(m_editorService, m_playerService, m_mixerService, m_automationService) }
   , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_xyPadRecordingService { std::make_shared<XyPadRecordingService>(m_deviceService, m_editorService, m_automationService) }
   , m_midiRecordingService { std::make_shared<MidiRecordingService>(m_editorService, m_automationService) }

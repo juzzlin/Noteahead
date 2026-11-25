@@ -118,6 +118,9 @@ void setWaveViewEnabled(bool enabled);
 bool patternPeekEnabled();
 void setPatternPeekEnabled(bool enabled);
 
+bool songOverviewAutomationsVisible();
+void setSongOverviewAutomationsVisible(bool visible);
+
 bool tipsEnabled();
 void setTipsEnabled(bool enabled);
 

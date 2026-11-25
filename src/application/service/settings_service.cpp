@@ -53,6 +53,7 @@ SettingsService::SettingsService()
   , m_performancePanelEnabled { Settings::performancePanelEnabled() }
   , m_performancePanelHeight { Settings::performancePanelHeight(Constants::defaultPerformancePanelHeight()) }
   , m_patternPeekEnabled { Settings::patternPeekEnabled() }
+  , m_songOverviewAutomationsVisible { Settings::songOverviewAutomationsVisible() }
   , m_tipsEnabled { Settings::tipsEnabled() }
   , m_checkForNewVersions { Settings::checkForNewVersions() }
   , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
@@ -381,6 +382,20 @@ void SettingsService::setPatternPeekEnabled(bool enabled)
         m_patternPeekEnabled = enabled;
         Settings::setPatternPeekEnabled(enabled);
         emit patternPeekEnabledChanged();
+    }
+}
+
+bool SettingsService::songOverviewAutomationsVisible() const
+{
+    return m_songOverviewAutomationsVisible;
+}
+
+void SettingsService::setSongOverviewAutomationsVisible(bool visible)
+{
+    if (m_songOverviewAutomationsVisible != visible) {
+        m_songOverviewAutomationsVisible = visible;
+        Settings::setSongOverviewAutomationsVisible(visible);
+        emit songOverviewAutomationsVisibleChanged();
     }
 }
 

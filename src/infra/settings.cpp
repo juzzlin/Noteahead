@@ -55,6 +55,7 @@ const auto metronomeEnabledKey = "metronomeEnabled";
 const auto metronomeClickDuringTakeKey = "metronomeClickDuringTake";
 const auto metronomePreCountBarsKey = "metronomePreCountBars";
 const auto patternPeekEnabledKey = "patternPeekEnabled";
+const auto songOverviewAutomationsVisibleKey = "songOverviewAutomationsVisible";
 const auto tipsEnabledKey = "tipsEnabled";
 
 const auto midiExportForceDrumChannel10Key = "midiExportForceDrumChannel10";
@@ -621,6 +622,23 @@ void setPatternPeekEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(patternPeekEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool songOverviewAutomationsVisible()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto visible = settings.value(songOverviewAutomationsVisibleKey, true).toBool();
+    settings.endGroup();
+    return visible;
+}
+
+void setSongOverviewAutomationsVisible(bool visible)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(songOverviewAutomationsVisibleKey, visible);
     settings.endGroup();
 }
 

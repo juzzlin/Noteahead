@@ -13324,6 +13324,14 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>Abspielen</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automationen</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Die Automationen über den Noten ihrer Spuren zeichnen, wie die Kurven im Editor</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Zeile</translation>
     </message>

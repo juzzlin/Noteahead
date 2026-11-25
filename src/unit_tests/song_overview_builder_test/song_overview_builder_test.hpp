@@ -35,6 +35,11 @@ private slots:
     void test_build_skippedPosition_shouldBeMarked();
     void test_build_pitchRange_shouldSpanTheTracksNotes();
     void test_build_emptySong_shouldHaveADefaultRange();
+    void test_build_automation_shouldBeACurveOfItsColumn();
+    void test_build_automation_disabled_shouldBeLeftOut();
+    void test_build_automation_repeatedPattern_shouldBeBuiltOnce();
+    void test_build_automation_withoutAutomationService_shouldHaveNoCurves();
+    void test_controller_automationAdded_shouldRebuild();
 
     void test_noteAt_overlappingNotes_shouldReturnTheTopOne();
     void test_noteAt_outsideTolerance_shouldReturnNothing();

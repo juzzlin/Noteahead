@@ -13324,6 +13324,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Afspelen</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automatiseringen</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Teken de automatiseringen over de noten van hun sporen, zoals de curves in de editor</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Regel</translation>
     </message>

@@ -16,7 +16,10 @@
 #ifndef SONG_OVERVIEW_RENDERER_HPP
 #define SONG_OVERVIEW_RENDERER_HPP
 
+#include "../../../application/service/song_overview_builder.hpp"
+
 #include <QColor>
+#include <QList>
 #include <QPointer>
 #include <QQuickPaintedItem>
 #include <QVariantMap>
@@ -40,6 +43,10 @@ class SongOverviewRenderer : public QQuickPaintedItem
 
     Q_PROPERTY(QObject * controller READ controller WRITE setController NOTIFY controllerChanged)
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
+    //! Whether the automations are drawn over the notes.
+    Q_PROPERTY(bool automationsVisible READ automationsVisible WRITE setAutomationsVisible NOTIFY automationsVisibleChanged)
+    //! The palette the editor draws its automation curves in, picked from by a curve's colorIndex.
+    Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors WRITE setAutomationCurveColors NOTIFY automationCurveColorsChanged)
     //! How far the view has scrolled: the content point at the item's top left.
     Q_PROPERTY(qreal scrollX READ scrollX WRITE setScrollX NOTIFY scrollChanged)
     Q_PROPERTY(qreal scrollY READ scrollY WRITE setScrollY NOTIFY scrollChanged)
@@ -74,6 +81,12 @@ public:
 
     QColor accentColor() const;
     void setAccentColor(const QColor & color);
+
+    bool automationsVisible() const;
+    void setAutomationsVisible(bool visible);
+
+    QVariantList automationCurveColors() const;
+    void setAutomationCurveColors(const QVariantList & colors);
 
     qreal scrollX() const;
     void setScrollX(qreal scrollX);
@@ -119,6 +132,8 @@ public:
 signals:
     void controllerChanged();
     void accentColorChanged();
+    void automationsVisibleChanged();
+    void automationCurveColorsChanged();
     void scrollChanged();
     void activeRowChanged();
     void layoutChanged();
@@ -139,9 +154,13 @@ private:
     void paintStrip(QPainter * painter) const;
     void paintTrackColumn(QPainter * painter) const;
     void paintLanes(QPainter * painter) const;
+    //! The curves of @p track in the row starting at @p rowStart, over the lane at @p top.
+    void paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, double top, double firstLine, double lastLine) const;
 
     QPointer<SongOverviewController> m_controller;
     QColor m_accentColor { "#ffaa00" };
+    bool m_automationsVisible { true };
+    QList<QColor> m_automationCurveColors;
     qreal m_scrollX { 0.0 };
     qreal m_scrollY { 0.0 };
     int m_activeRow { -1 };

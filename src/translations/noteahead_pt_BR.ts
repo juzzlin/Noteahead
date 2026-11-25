@@ -13324,6 +13324,14 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
         <translation>Tocar</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automações</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Desenhar as automações sobre as notas de suas trilhas, como as curvas do editor</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Linha</translation>
     </message>

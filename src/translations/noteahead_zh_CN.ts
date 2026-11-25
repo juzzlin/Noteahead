@@ -13322,6 +13322,14 @@ Audio files will appear next to the current project file.</source>
         <translation>播放</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>自动化</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>将自动化绘制在其音轨的音符之上，如同编辑器中的曲线</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>行</translation>
     </message>

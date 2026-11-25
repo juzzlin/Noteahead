@@ -25,6 +25,7 @@
 
 namespace noteahead {
 
+class AutomationService;
 class Song;
 
 //! The song as the Song Overview draws it: the play order laid end to end as a timeline, and every
@@ -45,6 +46,17 @@ struct SongOverview
         size_t column { 0 };
     };
 
+    //! An automation of a column, as the editor's Curve display draws it: one value per line of
+    //! its pattern, 0 to 1, and none on the lines it does not cover.
+    struct Curve
+    {
+        size_t track { 0 };
+        size_t column { 0 };
+        //! Its place among the automations of its column, which is what picks its color.
+        size_t colorIndex { 0 };
+        std::vector<std::optional<double>> values;
+    };
+
     struct Pattern
     {
         size_t lineCount { 0 };
@@ -52,6 +64,7 @@ struct SongOverview
         //! In drawing order: tracks left to right as the editor shows them, so that where bars
         //! overlap the last one is the one on top.
         std::vector<Note> notes;
+        std::vector<Curve> curves;
     };
 
     //! A song position: where its pattern starts on the song's timeline, in lines.
@@ -83,7 +96,10 @@ struct SongOverview
     size_t totalLines { 0 };
     size_t linesPerBeat { 4 };
 
+    //! Without automations.
     static SongOverview build(const Song & song);
+    //! With the enabled automations of @p automationService as curves.
+    static SongOverview build(const Song & song, const AutomationService & automationService);
 
     //! The note of @p track under @p line (in @p row's pattern) and @p pitch, within
     //! @p pitchTolerance semitones: the one drawn last where several are, which is the one seen.

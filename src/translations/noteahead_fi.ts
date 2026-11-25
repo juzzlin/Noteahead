@@ -13324,6 +13324,14 @@ Audio files will appear next to the current project file.</source>
         <translation>Toista</translation>
     </message>
     <message>
+        <source>Automations</source>
+        <translation>Automaatiot</translation>
+    </message>
+    <message>
+        <source>Draw the automations over the notes of their tracks, as the editor&apos;s curves</source>
+        <translation>Piirrä automaatiot raitojensa nuottien päälle, kuten editorin käyrät</translation>
+    </message>
+    <message>
         <source>Line</source>
         <translation>Rivi</translation>
     </message>

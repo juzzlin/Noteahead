@@ -20,6 +20,7 @@
 #include "../../domain/tracker/pattern.hpp"
 #include "../../domain/tracker/song.hpp"
 #include "../position.hpp"
+#include "automation_service.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -68,10 +69,21 @@ void addColumnNotes(const Song & song, size_t patternIndex, size_t trackIndex, s
     close(lineCount);
 }
 
-} // namespace
-
-SongOverview SongOverview::build(const Song & song)
+//! The automations of one column, sampled on every line of the pattern
+void addColumnCurves(const AutomationService & automationService, size_t patternIndex, size_t lineCount, size_t trackIndex, size_t columnIndex, std::vector<SongOverview::Curve> & curves)
 {
+    if (lineCount == 0) {
+        return;
+    }
+    for (auto && curve : automationService.automationCurves(patternIndex, trackIndex, columnIndex, 0, lineCount - 1)) {
+        curves.push_back({ .track = trackIndex, .column = columnIndex, .colorIndex = curve.indexInPattern, .values = std::move(curve.values) });
+    }
+}
+
+//! The automation service is optional: without one there are no curves
+SongOverview buildOverview(const Song & song, const AutomationService * automationService)
+{
+    using Pattern = SongOverview::Pattern;
     SongOverview overview;
     overview.linesPerBeat = std::max<size_t>(song.linesPerBeat(), 1);
 
@@ -96,6 +108,9 @@ SongOverview SongOverview::build(const Song & song)
         for (auto && track : overview.tracks) {
             for (const size_t columnIndex : songPattern->columnIndices(track.index)) {
                 addColumnNotes(song, patternIndex, track.index, columnIndex, pattern.notes);
+                if (automationService) {
+                    addColumnCurves(*automationService, patternIndex, lineCount, track.index, columnIndex, pattern.curves);
+                }
             }
         }
         overview.patterns.emplace(patternIndex, std::move(pattern));
@@ -125,6 +140,18 @@ SongOverview SongOverview::build(const Song & song)
         }
     }
     return overview;
+}
+
+} // namespace
+
+SongOverview SongOverview::build(const Song & song)
+{
+    return buildOverview(song, nullptr);
+}
+
+SongOverview SongOverview::build(const Song & song, const AutomationService & automationService)
+{
+    return buildOverview(song, &automationService);
 }
 
 std::optional<SongOverview::Note> SongOverview::noteAt(size_t row, size_t track, double line, double pitch, double pitchTolerance) const

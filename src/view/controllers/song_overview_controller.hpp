@@ -27,6 +27,7 @@
 
 namespace noteahead {
 
+class AutomationService;
 class EditorService;
 class MixerService;
 class PlayerService;
@@ -50,11 +51,12 @@ class SongOverviewController : public QObject
     Q_PROPERTY(double playheadSongLine READ playheadSongLine NOTIFY playheadChanged)
 
 public:
+    using AutomationServiceS = std::shared_ptr<AutomationService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
     using PlayerServiceS = std::shared_ptr<PlayerService>;
 
-    SongOverviewController(EditorServiceS editorService, PlayerServiceS playerService, MixerServiceS mixerService, QObject * parent = nullptr);
+    SongOverviewController(EditorServiceS editorService, PlayerServiceS playerService, MixerServiceS mixerService, AutomationServiceS automationService, QObject * parent = nullptr);
 
     bool active() const;
     void setActive(bool active);
@@ -109,6 +111,7 @@ private:
     EditorServiceS m_editorService;
     PlayerServiceS m_playerService;
     MixerServiceS m_mixerService;
+    AutomationServiceS m_automationService;
 
     SongOverview m_overview;
     bool m_active { false };
