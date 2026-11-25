@@ -18216,5 +18216,17 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Saturation</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Gain auto</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Retire le niveau ajouté par les étages console et couleur, mesuré avec un bruit rose à -20 dBFS, pour que Drive change le son et non le volume perçu.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

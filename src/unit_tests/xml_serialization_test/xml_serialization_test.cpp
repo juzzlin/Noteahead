@@ -3130,6 +3130,7 @@ void XmlSerializationTest::test_toXmlFromXml_analogBusEffect_shouldLoadCorrectly
     setParam(C::xmlKeyAnalog(), 1.0f);
     setParam(C::xmlKeyAspect(), 0.55f);
     setParam(C::xmlKeyGain(), 0.60f);
+    setParam(C::xmlKeyAutoGain(), 1.0f);
     setParam(C::xmlKeyMix(), 0.72f);
     deviceServiceOut.insertEffectRack().setEffect(0, analogBus);
 
@@ -3167,6 +3168,7 @@ void XmlSerializationTest::test_toXmlFromXml_analogBusEffect_shouldLoadCorrectly
     QCOMPARE(valueOf(C::xmlKeyAnalog()), 1.0f);
     QVERIFY(std::abs(valueOf(C::xmlKeyAspect()) - 0.55f) < 0.001f);
     QVERIFY(std::abs(valueOf(C::xmlKeyGain()) - 0.60f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyAutoGain()), 1.0f);
     QVERIFY(std::abs(valueOf(C::xmlKeyMix()) - 0.72f) < 0.001f);
 }
 

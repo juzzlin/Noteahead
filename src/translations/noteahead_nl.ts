@@ -18216,5 +18216,17 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Verzadiging</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Auto Gain</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Haalt het niveau weg dat de console- en kleurtrappen toevoegen, gemeten met roze ruis op -20 dBFS, zodat Drive de klank verandert en niet de luidheid.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

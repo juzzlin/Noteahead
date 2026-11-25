@@ -18216,5 +18216,17 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Saturazione</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Guadagno automatico</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Toglie il livello aggiunto dagli stadi console e colore, misurato con rumore rosa a -20 dBFS, così che Drive cambi il suono e non la loudness.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

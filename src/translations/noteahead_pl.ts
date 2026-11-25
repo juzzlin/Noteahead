@@ -18218,5 +18218,17 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Nasycenie</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Automatyczne wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Odejmuje poziom dodawany przez stopnie konsoli i koloru, zmierzony różowym szumem przy -20 dBFS, aby Drive zmieniał brzmienie, a nie głośność.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

@@ -18216,5 +18216,17 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Saturaatio</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Automaattinen vahvistus</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Poistaa tason, jonka konsoli- ja Color-asteet lisäävät, mitattuna vaaleanpunaisella kohinalla -20 dBFS:n tasolla, jotta Drive muuttaa soundia eikä äänekkyyttä.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

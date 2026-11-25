@@ -5,7 +5,7 @@ Release date:
 
 New features:
 
-* Analog Bus: stereo console saturation, coloration, Baxandall + Air Tone EQ and elliptical Aspect width processor with discrete A/N console stages, selectable A->N/N->A routing, Tight 25/50 Hz HPF, Color module slot (Bus 4000, Tape, Vinyl, Lo-Fi 12), Pre/Post EQ routing, Vintage and Analog switches, latency-matched oversampled Mix and factory presets
+* Analog Bus: stereo console saturation, coloration, Baxandall + Air Tone EQ and elliptical Aspect width processor with discrete A/N console stages, selectable A->N/N->A routing, Tight 25/50 Hz HPF, Color module slot (Bus 4000, Tape, Vinyl, Lo-Fi 12), Pre/Post EQ routing, Vintage and Analog switches, measured Auto Gain, latency-matched oversampled Mix and factory presets
 
 * Speech V2: formant speech synthesizer built on a Klatt-style hybrid cascade/parallel vocal tract with 48 kHz higher-pole correction, phase dispersion, nasal pole-zero antiresonance, LF glottal source with physiological voicing dynamics, continuous punctuation prosody with S-curve diphthongs, English pronunciation with allophones and pre-fortis clipping, 15 human and synthetic/creature voice types (including Robot, Cyborg, Whisper, Demon, 8-Bit and Mutant), MIDI Pitch Bend and place-of-articulation coarticulation, kept separate from Speech
 

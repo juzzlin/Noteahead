@@ -17,15 +17,19 @@
 #define ANALOG_BUS_HPP
 
 #include "../../../domain/dsp/analog_drift.hpp"
+#include "../../../domain/dsp/auto_gain.hpp"
 #include "../../../domain/dsp/dc_blocker.hpp"
+#include "../../../domain/dsp/noise_source.hpp"
 #include "../../../domain/dsp/one_pole_filter.hpp"
 #include "../../../domain/dsp/svf_filter.hpp"
 #include "../../../domain/effects/effect.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -44,6 +48,11 @@ namespace noteahead {
 //!
 //! Nonlinear console and color stages run oversampled when requested under MixLaw::Internal, using a
 //! latency-matched dry path so parallel Mix remains phase-coherent at 1x, 2x, and 4x factors.
+//!
+//! Auto Gain measures what the console and color stages do to the level, by playing pink noise at
+//! CalibrationLevelDb through a private copy of them whenever their settings change, and takes the
+//! difference back out of the wet signal. The Tone EQ, Tight HPF, Vintage, Aspect and Output are
+//! left to change the level as they are set to.
 class AnalogBus : public Effect
 {
 public:
@@ -97,11 +106,23 @@ public:
     static constexpr double MaxEqGainDb { 12.0 };
     static constexpr double MaxAirGainDb { 9.0 };
     static constexpr double MaxOutputDb { 12.0 };
+    //! The RMS level of the pink noise Auto Gain measures with, near what devices play at.
+    static constexpr double CalibrationLevelDb { -20.0 };
+    static constexpr double MaxAutoGainDb { 30.0 };
     static constexpr std::array<double, 4> LowFreqsHz { 30.0, 45.0, 65.0, 110.0 };
     static constexpr std::array<double, 4> HighFreqsHz { 2500.0, 4500.0, 8000.0, 14000.0 };
 
     AnalogBus();
     ~AnalogBus() override;
+
+private:
+    struct CalibrationTag
+    {
+    };
+
+public:
+    //! The private copy Auto Gain measures with: no copy of its own.
+    explicit AnalogBus(CalibrationTag);
 
     static std::string typeIdString();
     std::string type() const override;
@@ -116,6 +137,8 @@ public:
 
     //! How hard the nonlinear console/color stages are compressing, in dB (0 to negative).
     float saturationDb() const;
+    //! The gain Auto Gain is applying, in dB; 0 when it is off.
+    double autoGainDb() const;
 
     static double driveDb(float position);
     static float drivePosition(double db);
@@ -136,6 +159,11 @@ private:
     double processStageN(double sample, double driveLin, size_t channel, double & peakPre, double & peakPost);
     void processColorFrame(double & left, double & right, double stageSampleRate, double & peakPre, double & peakPost);
 
+    void startCalibration(double sampleRate);
+    //! Plays @p frames more of the noise through the calibrator. True once the measurement is done.
+    bool stepCalibration(size_t frames);
+    void finishCalibration(double sampleRate);
+
     LowCutMode m_lowCutMode { LowCutMode::Off };
     Routing m_routing { Routing::AToN };
     double m_driveA { 0.25 };
@@ -154,6 +182,7 @@ private:
     bool m_analog { false };
     double m_aspect { 0.0 };
     double m_outputDb { 0.0 };
+    bool m_autoGainEnabled { false };
 
     SvfFilter m_tightHpL;
     SvfFilter m_tightHpR;
@@ -196,6 +225,39 @@ private:
 
     struct Oversampling;
     std::unique_ptr<Oversampling> m_oversampling;
+
+    //! What the console and color stages were last measured at
+    struct SaturationSettings
+    {
+        Routing routing { Routing::Off };
+        double driveA { 0.0 };
+        double driveN { 0.0 };
+        ColorMode colorMode { ColorMode::Off };
+        double colorDrive { 0.0 };
+        double colorMix { 0.0 };
+        double sampleRate { 0.0 };
+
+        bool operator==(const SaturationSettings &) const = default;
+    };
+
+    SaturationSettings saturationSettings(double sampleRate) const;
+
+    std::unique_ptr<AnalogBus> m_calibrator;
+    std::array<NoiseSource, 2> m_calibrationNoise { NoiseSource { 1 }, NoiseSource { 2 } };
+    //! The noise without what the effect's own DC blockers would take out, which is not saturation
+    std::array<DcBlocker, 2> m_calibrationDcBlockers;
+    std::optional<SaturationSettings> m_measuredSettings;
+    SaturationSettings m_calibratingSettings;
+    bool m_calibrating { false };
+    size_t m_calibrationFrame { 0 };
+    double m_calibrationNoiseSampleRate { 0.0 };
+    size_t m_calibrationWarmUpFrames { 0 };
+    size_t m_calibrationFrames { 0 };
+    double m_calibrationInPower { 0.0 };
+    double m_calibrationOutPower { 0.0 };
+    double m_measuredGainDb { 0.0 };
+    AutoGain m_autoGain;
+    std::atomic<double> m_appliedAutoGainDb { 0.0 };
 };
 
 } // namespace noteahead

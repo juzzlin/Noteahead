@@ -18214,5 +18214,17 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Saturation</source>
         <translation>饱和度</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>自动增益</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>以 -20 dBFS 的粉红噪声测量控制台级和 Color 级增加的电平并将其抵消，让 Drive 改变的是音色而不是响度。</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
 </context>
 </TS>

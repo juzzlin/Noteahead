@@ -18216,5 +18216,17 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Saturação</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Ganho automático</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Retira o nível que os estágios de console e de cor adicionam, medido com ruído rosa a -20 dBFS, para que o Drive mude o som e não a loudness.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

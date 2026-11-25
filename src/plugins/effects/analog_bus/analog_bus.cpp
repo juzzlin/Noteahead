@@ -34,6 +34,12 @@ namespace {
 constexpr double StageReferenceLevel { 0.32 };
 constexpr double MeterReleaseMs { 100.0 };
 constexpr double SilentDbThreshold { 0.01 };
+//! Auto Gain lets the stages' filters settle on the noise for this long before it measures...
+constexpr double CalibrationWarmUpSeconds { 0.02 };
+//! ...and measures for this long, long enough for the bass to be heard through the N transformer.
+constexpr double CalibrationSeconds { 0.17 };
+//! NoiseSource plays every colour at the RMS of uniform white noise, 1/sqrt(3).
+constexpr double NoiseSourceRms { 0.57735026918962576 };
 
 std::string key(const QString & name)
 {
@@ -70,6 +76,12 @@ struct AnalogBus::Oversampling
 };
 
 AnalogBus::AnalogBus()
+  : AnalogBus { CalibrationTag {} }
+{
+    m_calibrator = std::make_unique<AnalogBus>(CalibrationTag {});
+}
+
+AnalogBus::AnalogBus(CalibrationTag)
   : m_oversampling { std::make_unique<Oversampling>() }
 {
     namespace C = Constants::NahdXml;
@@ -93,6 +105,7 @@ AnalogBus::AnalogBus()
     addParameter(Parameter { key(C::xmlKeyAnalog()), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { key(C::xmlKeyAspect()), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { key(C::xmlKeyGain()), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
+    addParameter(Parameter { key(C::xmlKeyAutoGain()), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addMixParameter(1.0f, MixLaw::Internal);
 
     setParameterDisplay(key(C::xmlKeyDriveA()), { .mapping = Display::Mapping::Linear, .unit = "dB", .min = 0.0, .max = MaxConsoleDriveDb, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "A Drive") });
@@ -230,8 +243,101 @@ void AnalogBus::syncParameters()
     m_analog = valueOf(C::xmlKeyAnalog()) > 0.5f;
     m_aspect = std::clamp(static_cast<double>(valueOf(C::xmlKeyAspect())), 0.0, 1.0);
     m_outputDb = outputGainDb(valueOf(C::xmlKeyGain()));
+    m_autoGainEnabled = m_calibrator && valueOf(C::xmlKeyAutoGain()) > 0.5f;
+
+    // Back to the last measurement if it still holds, or to unity until the next one is done
+    const double sampleRate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
+    const bool measured = m_measuredSettings == saturationSettings(sampleRate);
+    const double targetDb = m_autoGainEnabled && measured ? m_measuredGainDb : 0.0;
+    if (!m_autoGainEnabled) {
+        m_calibrating = false;
+    }
+    m_autoGain.setTargetDb(targetDb, sampleRate);
+    m_appliedAutoGainDb = targetDb;
 
     m_filtersDirty = true;
+}
+
+AnalogBus::SaturationSettings AnalogBus::saturationSettings(double sampleRate) const
+{
+    return { m_routing, m_driveA, m_driveN, m_colorMode, m_colorDrive, m_colorMix, sampleRate };
+}
+
+void AnalogBus::startCalibration(double sampleRate)
+{
+    m_calibratingSettings = saturationSettings(sampleRate);
+
+    // Only the console and color stages, as they are set here, with everything around them flat
+    auto && calibrator = *m_calibrator;
+    calibrator.m_shouldSyncParameters = false;
+    calibrator.m_lowCutMode = LowCutMode::Off;
+    calibrator.m_routing = m_routing;
+    calibrator.m_driveA = m_driveA;
+    calibrator.m_driveN = m_driveN;
+    calibrator.m_colorMode = m_colorMode;
+    calibrator.m_colorDrive = m_colorDrive;
+    calibrator.m_colorMix = m_colorMix;
+    calibrator.m_eqEnabled = false;
+    calibrator.m_eqPre = false;
+    calibrator.m_vintage = false;
+    calibrator.m_analog = false;
+    calibrator.m_aspect = 0.0;
+    calibrator.m_outputDb = 0.0;
+    calibrator.m_autoGainEnabled = false;
+    calibrator.setSampleRate(sampleRate);
+    calibrator.reset();
+    calibrator.m_filtersDirty = true;
+
+    // The same noise every time, so that the same settings always measure the same
+    for (auto && noise : m_calibrationNoise) {
+        if (m_calibrationNoiseSampleRate != sampleRate) {
+            noise.setSampleRate(sampleRate);
+            noise.setColour(1.0 / 3.0);
+        }
+        noise.reset();
+    }
+    for (auto && dcBlocker : m_calibrationDcBlockers) {
+        dcBlocker.setSampleRate(sampleRate);
+        dcBlocker.reset();
+    }
+    m_calibrationNoiseSampleRate = sampleRate;
+
+    m_calibrationWarmUpFrames = static_cast<size_t>(std::lround(CalibrationWarmUpSeconds * sampleRate));
+    m_calibrationFrames = static_cast<size_t>(std::lround(CalibrationSeconds * sampleRate));
+    m_calibrationFrame = 0;
+    m_calibrationInPower = 0.0;
+    m_calibrationOutPower = 0.0;
+    m_calibrating = true;
+}
+
+bool AnalogBus::stepCalibration(size_t frames)
+{
+    const double scale = std::pow(10.0, CalibrationLevelDb / 20.0) / NoiseSourceRms;
+    const size_t end = m_calibrationWarmUpFrames + m_calibrationFrames;
+    for (size_t i = 0; i < frames && m_calibrationFrame < end; i++, m_calibrationFrame++) {
+        const double inL = m_calibrationDcBlockers[0].process(m_calibrationNoise[0].nextSample() * scale);
+        const double inR = m_calibrationDcBlockers[1].process(m_calibrationNoise[1].nextSample() * scale);
+        double outL = inL;
+        double outR = inR;
+        m_calibrator->processSample(outL, outR);
+        if (m_calibrationFrame >= m_calibrationWarmUpFrames) {
+            m_calibrationInPower += inL * inL + inR * inR;
+            m_calibrationOutPower += outL * outL + outR * outR;
+        }
+    }
+    return m_calibrationFrame >= end;
+}
+
+void AnalogBus::finishCalibration(double sampleRate)
+{
+    const double gainDb = m_calibrationInPower > 0.0 && m_calibrationOutPower > 0.0 ? 10.0 * std::log10(m_calibrationInPower / m_calibrationOutPower) : 0.0;
+    m_measuredGainDb = std::clamp(gainDb, -MaxAutoGainDb, MaxAutoGainDb);
+    m_measuredSettings = m_calibratingSettings;
+    m_calibrating = false;
+    if (m_autoGainEnabled) {
+        m_autoGain.setTargetDb(m_measuredGainDb, sampleRate);
+        m_appliedAutoGainDb = m_measuredGainDb;
+    }
 }
 
 void AnalogBus::updateFilters(double baseSampleRate, double stageSampleRate)
@@ -554,6 +660,17 @@ void AnalogBus::processSample(double & left, double & right)
         updateFilters(baseSampleRate, stageSampleRate);
     }
 
+    // A frame of the measurement per frame played, so that a change costs no more than a second
+    // copy of the stages for a moment
+    if (m_autoGainEnabled) {
+        if (!m_calibrating && m_measuredSettings != saturationSettings(baseSampleRate)) {
+            startCalibration(baseSampleRate);
+        }
+        if (m_calibrating && stepCalibration(1)) {
+            finishCalibration(baseSampleRate);
+        }
+    }
+
     const double rawDryL = left;
     const double rawDryR = right;
     double alignedDryL = rawDryL;
@@ -619,8 +736,9 @@ void AnalogBus::processSample(double & left, double & right)
     // 4. DC blocking + analog trim
     m_dcBlockerL.setSampleRate(baseSampleRate);
     m_dcBlockerR.setSampleRate(baseSampleRate);
-    wetL = m_dcBlockerL.process(wetL) * trimGainL;
-    wetR = m_dcBlockerR.process(wetR) * trimGainR;
+    const double autoGain = m_autoGain.next();
+    wetL = m_dcBlockerL.process(wetL) * trimGainL * autoGain;
+    wetR = m_dcBlockerR.process(wetR) * trimGainR * autoGain;
 
     // 5. Post-stage Tone EQ, Vintage HF roll-off, Aspect elliptical M/S enhancement
     if (!m_eqPre) {
@@ -708,6 +826,22 @@ void AnalogBus::reset()
     m_loFiHoldSample = { 0.0, 0.0 };
     m_loFiPhase = 0.0;
     m_saturationDb = 0.0;
+
+    // A render starts at the right level: what is still to be measured is measured now
+    if (m_shouldSyncParameters) {
+        syncParameters();
+        m_shouldSyncParameters = false;
+    }
+    if (m_autoGainEnabled) {
+        const double sampleRate = m_sampleRate > 0.0 ? m_sampleRate : Constants::defaultSampleRate();
+        if (m_calibrating || m_measuredSettings != saturationSettings(sampleRate)) {
+            startCalibration(sampleRate);
+            while (!stepCalibration(m_calibrationFrames)) {
+            }
+            finishCalibration(sampleRate);
+        }
+    }
+    m_autoGain.reset();
 }
 
 void AnalogBus::sync()
@@ -723,6 +857,11 @@ const EffectPresetList & AnalogBus::factoryPresets() const
 float AnalogBus::saturationDb() const
 {
     return static_cast<float>(m_saturationDb);
+}
+
+double AnalogBus::autoGainDb() const
+{
+    return m_appliedAutoGainDb;
 }
 
 std::vector<std::string> AnalogBus::modulationPriority() const

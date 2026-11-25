@@ -273,7 +273,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Bass Grinder
   - Split-band bass preamp distortion: Split keeps the fundamental out of an asymmetric diode clipper so a kick or a bass stays weighty while the band above it is ground up, with Blend, Drive, a Color voicing and a three-band tone stack.
 - Analog Bus
-  - Stereo console bus processor with Tight 25/50 Hz HPF, selectable A (American discrete op-amp) and N (British iron transformer) console stages in A, N, A->N or N->A order, expandable Color module slot (Bus 4000, Tape, Vinyl, Lo-Fi 12) with parallel Color Mix, three-band Baxandall + Air Tone EQ (Pre or Post saturation), Vintage high-frequency roll-off, deterministic Analog L/R tolerance/drift and elliptical Aspect widening.
+  - Stereo console bus processor with Tight 25/50 Hz HPF, selectable A (American discrete op-amp) and N (British iron transformer) console stages in A, N, A->N or N->A order, expandable Color module slot (Bus 4000, Tape, Vinyl, Lo-Fi 12) with parallel Color Mix, three-band Baxandall + Air Tone EQ (Pre or Post saturation), Vintage high-frequency roll-off, deterministic Analog L/R tolerance/drift, elliptical Aspect widening and measured Auto Gain.
 - Analog Fuzz
   - A synth's drive knob rather than a pedal in front of one: the fuzz stage sits inside the filter it overdrives, so the resonance gives way under drive instead of screaming, and the harmonics come out filtered rather than laid on top. Drive, Fuzz, Bias, Cutoff, Resonance, Mix and Output.
 - Bit Crusher

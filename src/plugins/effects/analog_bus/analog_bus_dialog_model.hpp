@@ -28,6 +28,7 @@ public:
     explicit AnalogBusDialogModel(QObject * parent = nullptr);
 
     Q_INVOKABLE float saturationDb() const;
+    Q_INVOKABLE double autoGainDb() const;
 };
 
 } // namespace noteahead

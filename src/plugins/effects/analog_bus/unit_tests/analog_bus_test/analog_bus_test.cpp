@@ -16,10 +16,13 @@
 #include "analog_bus_test.hpp"
 
 #include "../../../../../common/constants.hpp"
+#include "../../../../../domain/dsp/dc_blocker.hpp"
+#include "../../../../../domain/dsp/noise_source.hpp"
 #include "../../analog_bus.hpp"
 
 #include <QTest>
 
+#include <array>
 #include <cmath>
 #include <numbers>
 #include <utility>
@@ -92,6 +95,34 @@ double rmsDifference(const std::vector<double> & a, const std::vector<double> & 
         sumSq += d * d;
     }
     return std::sqrt(sumSq / static_cast<double>(a.size()));
+}
+
+//! Output over input level of pink noise at @p levelDb RMS, after the effect has settled.
+double pinkNoiseGainDb(AnalogBus & bus, double levelDb = AnalogBus::CalibrationLevelDb)
+{
+    // Without the infrasonics, as in music
+    std::array<NoiseSource, 2> noise { NoiseSource { 7 }, NoiseSource { 8 } };
+    std::array<DcBlocker, 2> dcBlockers;
+    for (size_t i = 0; i < 2; i++) {
+        noise[i].setSampleRate(SampleRate);
+        noise[i].setColour(1.0 / 3.0);
+        dcBlockers[i].setSampleRate(SampleRate);
+    }
+    const double scale = std::pow(10.0, levelDb / 20.0) * std::sqrt(3.0);
+    double inPower = 0.0;
+    double outPower = 0.0;
+    for (int i = 0; i < 48000; i++) {
+        double l = dcBlockers[0].process(noise[0].nextSample() * scale);
+        double r = dcBlockers[1].process(noise[1].nextSample() * scale);
+        const double inL = l;
+        const double inR = r;
+        bus.process(l, r);
+        if (i >= 4800) {
+            inPower += inL * inL + inR * inR;
+            outPower += l * l + r * r;
+        }
+    }
+    return 10.0 * std::log10(outPower / inPower);
 }
 
 } // namespace
@@ -440,6 +471,120 @@ void AnalogBusTest::test_presets_loadAndRenderCleanly()
             QVERIFY(std::isfinite(l) && std::isfinite(r));
         }
     }
+}
+
+void AnalogBusTest::test_autoGain_drive_keepsPinkNoiseLevel()
+{
+    namespace C = Constants::NahdXml;
+
+    const auto render = [](AnalogBus::Routing routing, AnalogBus::ColorMode color, double driveDb, bool autoGain) {
+        AnalogBus bus;
+        bus.setSampleRate(SampleRate);
+        setParameter(bus, C::xmlKeyRouting(), static_cast<float>(routing));
+        setParameter(bus, C::xmlKeyColorMode(), static_cast<float>(color));
+        setParameter(bus, C::xmlKeyDriveA(), AnalogBus::drivePosition(driveDb));
+        setParameter(bus, C::xmlKeyDriveN(), AnalogBus::drivePosition(driveDb));
+        setParameter(bus, C::xmlKeyColorDrive(), static_cast<float>(driveDb / AnalogBus::MaxConsoleDriveDb));
+        setParameter(bus, C::xmlKeyAutoGain(), autoGain ? 1.0f : 0.0f);
+        bus.reset();
+        return pinkNoiseGainDb(bus);
+    };
+
+    // What the rest of the effect does to the level, with nothing saturating
+    const double bypassDb = render(AnalogBus::Routing::Off, AnalogBus::ColorMode::Off, 0.0, true);
+
+    // Without it the stages are much louder on material at the calibration level...
+    QVERIFY(render(AnalogBus::Routing::AToN, AnalogBus::ColorMode::Off, 18.0, false) - bypassDb > 5.0);
+
+    // ...and with it every routing and color stays where it was. Vinyl folds the side bass to mono,
+    // which pink noise has more or less of from one stretch to the next.
+    for (const auto routing : { AnalogBus::Routing::A, AnalogBus::Routing::N, AnalogBus::Routing::AToN, AnalogBus::Routing::NToA }) {
+        for (const auto color : { AnalogBus::ColorMode::Off, AnalogBus::ColorMode::Bus4000, AnalogBus::ColorMode::Tape, AnalogBus::ColorMode::Vinyl, AnalogBus::ColorMode::LoFi12 }) {
+            const double toleranceDb = color == AnalogBus::ColorMode::Vinyl ? 1.0 : 0.5;
+            for (const double driveDb : { 0.0, 9.0, 18.0, 27.0, 36.0 }) {
+                const double differenceDb = render(routing, color, driveDb, true) - bypassDb;
+                if (std::abs(differenceDb) >= toleranceDb) {
+                    qWarning() << "routing" << static_cast<int>(routing) << "color" << static_cast<int>(color) << "drive" << driveDb << "differs by" << differenceDb << "dB";
+                }
+                QVERIFY(std::abs(differenceDb) < toleranceDb);
+            }
+        }
+    }
+}
+
+void AnalogBusTest::test_autoGain_off_leavesOutputAsItWas()
+{
+    namespace C = Constants::NahdXml;
+
+    AnalogBus plain;
+    AnalogBus toggled;
+    for (auto * bus : { &plain, &toggled }) {
+        bus->setSampleRate(SampleRate);
+        setParameter(*bus, C::xmlKeyDriveA(), AnalogBus::drivePosition(24.0));
+        setParameter(*bus, C::xmlKeyColorMode(), static_cast<float>(AnalogBus::ColorMode::Tape));
+    }
+    setParameter(toggled, C::xmlKeyAutoGain(), 1.0f);
+
+    std::vector<double> plainOut;
+    std::vector<double> toggledOut;
+    for (int i = 0; i < 48000; i++) {
+        if (i == 24000) {
+            setParameter(toggled, C::xmlKeyAutoGain(), 0.0f);
+        }
+        const double input = 0.05 * std::sin(2.0 * std::numbers::pi * 220.0 * static_cast<double>(i) / SampleRate);
+        double l = input;
+        double r = input;
+        plain.process(l, r);
+        plainOut.push_back(l);
+        l = input;
+        r = input;
+        toggled.process(l, r);
+        toggledOut.push_back(l);
+    }
+    // While it was on, it was turning the drive back down...
+    const std::vector<double> plainOn(plainOut.begin() + 19200, plainOut.begin() + 24000);
+    const std::vector<double> toggledOn(toggledOut.begin() + 19200, toggledOut.begin() + 24000);
+    QVERIFY(rmsDifference(plainOn, toggledOn) > 1.0e-3);
+    QCOMPARE(toggled.autoGainDb(), 0.0);
+
+    // Once the gain has glided back, only the filters after it still remember the difference
+    const std::vector<double> plainTail(plainOut.end() - 4800, plainOut.end());
+    const std::vector<double> toggledTail(toggledOut.end() - 4800, toggledOut.end());
+    QVERIFY(rmsDifference(plainTail, toggledTail) < 1.0e-6);
+}
+
+void AnalogBusTest::test_autoGain_reset_measuresAtOnce()
+{
+    namespace C = Constants::NahdXml;
+
+    AnalogBus bus;
+    bus.setSampleRate(SampleRate);
+    setParameter(bus, C::xmlKeyRouting(), static_cast<float>(AnalogBus::Routing::AToN));
+    setParameter(bus, C::xmlKeyDriveA(), AnalogBus::drivePosition(18.0));
+    setParameter(bus, C::xmlKeyDriveN(), AnalogBus::drivePosition(18.0));
+    setParameter(bus, C::xmlKeyAutoGain(), 1.0f);
+    QCOMPARE(bus.autoGainDb(), 0.0);
+
+    // A render starts compensated from its first frame, and the same every time
+    bus.reset();
+    const double gainDb = bus.autoGainDb();
+    QVERIFY(gainDb < -5.0);
+
+    const auto runBlock = [&bus]() {
+        std::vector<double> out;
+        for (int i = 0; i < 1024; i++) {
+            double l = 0.1 * std::sin(2.0 * std::numbers::pi * 330.0 * static_cast<double>(i) / SampleRate);
+            double r = l;
+            bus.process(l, r);
+            out.push_back(l);
+        }
+        return out;
+    };
+    const auto first = runBlock();
+    bus.reset();
+    QCOMPARE(bus.autoGainDb(), gainDb);
+    const auto second = runBlock();
+    QVERIFY(rmsDifference(first, second) < 1.0e-12);
 }
 
 void AnalogBusTest::test_reset_restoresExactReplay()

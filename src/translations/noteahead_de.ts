@@ -18216,5 +18216,17 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <source>Saturation</source>
         <translation>Sättigung</translation>
     </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Auto-Gain</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Nimmt den Pegel wieder heraus, den die Konsolen- und Color-Stufen hinzufügen, gemessen mit rosa Rauschen bei -20 dBFS, damit Drive den Klang ändert und nicht die Lautheit.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 </TS>

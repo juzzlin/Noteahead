@@ -38,6 +38,11 @@ EffectDialog {
     }
 
     property real currentSaturationDb: 0.0
+    property real currentAutoGainDb: 0.0
+    readonly property bool autoGainEnabled: {
+        effectRackController.revision;
+        return effectRackController.parameterValue(root.effectIndex, NahdXml.autoGain) > 0.5;
+    }
 
     ScrollView {
         id: scrollView
@@ -431,6 +436,15 @@ EffectDialog {
                                     ToolTip.delay: Constants.toolTipDelay
                                     ToolTip.text: qsTr("Subtle deterministic L/R hardware tolerance and slow component drift.")
                                 }
+
+                                CheckBox {
+                                    text: qsTr("Auto Gain")
+                                    checked: root.autoGainEnabled
+                                    onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.autoGain, checked ? 1.0 : 0.0)
+                                    ToolTip.visible: hovered
+                                    ToolTip.delay: Constants.toolTipDelay
+                                    ToolTip.text: qsTr("Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.")
+                                }
                             }
 
                             RowLayout {
@@ -544,6 +558,14 @@ EffectDialog {
                         font.family: "Monospace"
                         Layout.alignment: Qt.AlignHCenter
                     }
+
+                    Label {
+                        visible: root.autoGainEnabled
+                        text: qsTr("Auto") + " " + (root.currentAutoGainDb > 0 ? "+" : "") + root.currentAutoGainDb.toFixed(1) + " dB"
+                        color: Theme.textSecondary
+                        font.family: "Monospace"
+                        Layout.alignment: Qt.AlignHCenter
+                    }
                 }
             }
         }
@@ -555,6 +577,7 @@ EffectDialog {
         repeat: true
         onTriggered: {
             root.currentSaturationDb = dialogModel.saturationDb();
+            root.currentAutoGainDb = dialogModel.autoGainDb();
         }
     }
 

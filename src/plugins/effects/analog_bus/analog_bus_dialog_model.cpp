@@ -35,4 +35,15 @@ float AnalogBusDialogModel::saturationDb() const
     return 0.0f;
 }
 
+double AnalogBusDialogModel::autoGainDb() const
+{
+    if (const auto effect = this->effect(); effect) {
+        if (const auto analogBus = std::dynamic_pointer_cast<AnalogBus>(effect); analogBus) {
+            return analogBus->autoGainDb();
+        }
+    }
+
+    return 0.0;
+}
+
 } // namespace noteahead
