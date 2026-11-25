@@ -26,7 +26,7 @@ EffectDialog {
     modal: true
     focus: true
     width: parent ? parent.width * Constants.defaultDialogScale : 880
-    height: parent ? parent.height * Constants.effectDialogScale : 640
+    height: parent ? parent.height * Constants.defaultDialogScale : 640
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
