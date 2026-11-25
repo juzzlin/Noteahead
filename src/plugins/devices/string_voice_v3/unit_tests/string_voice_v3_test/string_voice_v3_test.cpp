@@ -1006,6 +1006,49 @@ void StringVoiceV3Test::test_panSpread_shouldCreateStereoSeparation()
     QCOMPARE(peakR, 0.0);
 }
 
+void StringVoiceV3Test::test_reset_shouldReplayPolyChordWithVibratoAndAllRegistersDeterministically()
+{
+    StringVoiceV3Device dev { "Test StringVoice" };
+    dev.setSampleRate(44100);
+    dev.setStringsUpper(true);
+    dev.setStringsLower(true);
+    dev.setVoiceMale8(0.8f);
+    dev.setVoiceMale4(0.5f);
+    dev.setVoiceUpperMale8(0.7f);
+    dev.setVoiceFemale4(0.6f);
+    dev.setVibratoDepth(0.45f);
+    dev.setVibratoRate(0.5f);
+    dev.setVibratoDelay(0.1f);
+    dev.setPanSpread(0.75f);
+    dev.setStringsAttack(0.05f);
+    dev.setVoiceAttack(0.05f);
+
+    const auto renderChord = [&dev]() {
+        dev.reset();
+        for (const uint8_t note : { 48, 52, 60, 67 }) {
+            dev.processMidiNoteOn(note, 110);
+        }
+        std::vector<double> out(4096 * 2, 0.0);
+        auto ctx = makeContext(out, 4096, 44100);
+        dev.processAudio(ctx);
+        return out;
+    };
+
+    const auto first = renderChord();
+    QVERIFY(rmsLevel(first) > 0.01);
+    for (const double sample : first) {
+        QVERIFY(std::isfinite(sample));
+    }
+
+    const auto second = renderChord();
+    QCOMPARE(first.size(), second.size());
+    double maxDiff { 0.0 };
+    for (size_t i = 0; i < first.size(); i++) {
+        maxDiff = std::max(maxDiff, std::abs(first[i] - second[i]));
+    }
+    QVERIFY2(maxDiff < 1.0e-12, qPrintable(QString::number(maxDiff)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::StringVoiceV3Test)

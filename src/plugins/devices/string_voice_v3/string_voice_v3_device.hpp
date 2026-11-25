@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -167,9 +168,6 @@ private:
         //! drift together.
         std::array<double, StringUnisonCount> stringDriftPhase {};
         std::array<double, StringUnisonCount> stringDriftRateRatio {};
-        //! Sine at the note's own frequency, lifting the fundamental above a saw's. See
-        //! StringsFundamentalLift.
-        std::array<PolyBlepOscillator, StringUnisonCount> stringFundamental;
         PolyBlepOscillator voiceOsc8;
         PolyBlepOscillator voiceOsc4;
 
@@ -270,6 +268,15 @@ private:
     OnePoleFilter m_stringsHpfR;
     CascadedSvf m_stringsLpfL;
     CascadedSvf m_stringsLpfR;
+
+    double m_lastAudioSampleRate { -1.0 };
+    float m_lastStringsTone { -1.0f };
+    std::vector<double> m_stringsSumL;
+    std::vector<double> m_stringsSumR;
+    std::vector<double> m_maleSumL;
+    std::vector<double> m_maleSumR;
+    std::vector<double> m_femaleSumL;
+    std::vector<double> m_femaleSumR;
 };
 
 } // namespace noteahead

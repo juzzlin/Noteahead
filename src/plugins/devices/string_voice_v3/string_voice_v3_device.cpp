@@ -90,6 +90,37 @@ double toCutoffPosition(double hz)
     return std::clamp(std::log2(hz / 20.0) / std::log2(20000.0 / 20.0), 0.0, 1.0);
 }
 
+//! High-accuracy exp2(x) for small |x| <= 0.12 (error < 5e-14).
+double fastSmallExp2(double x)
+{
+    if (std::abs(x) > 0.15) {
+        return std::exp2(x);
+    }
+    const double u = x * std::numbers::ln2;
+    return 1.0 + u * (1.0 + u * (0.5 + u * ((1.0 / 6.0) + u * ((1.0 / 24.0) + u * ((1.0 / 120.0) + u * (1.0 / 720.0))))));
+}
+
+//! High-accuracy sin(2*pi*t) for t in [0, 1) (error < 7e-12).
+double fastSineCycles(double t)
+{
+    if (t > 0.25) {
+        if (t <= 0.75) {
+            t = 0.5 - t;
+        } else {
+            t -= 1.0;
+        }
+    }
+    const double x = (2.0 * std::numbers::pi) * t;
+    const double x2 = x * x;
+    return x * (1.0 + x2 * ((-1.0 / 6.0)
+                             + x2 * ((1.0 / 120.0)
+                                     + x2 * ((-1.0 / 5040.0)
+                                             + x2 * ((1.0 / 362880.0)
+                                                     + x2 * ((-1.0 / 39916800.0)
+                                                             + x2 * ((1.0 / 6227020800.0)
+                                                                     + x2 * (-1.0 / 1307674368000.0))))))));
+}
+
 //! Where a voice's PWM, vibrato and drift start. They run on through every note, so a reset has to put
 //! them back, or a render would start them wherever the session left them. Offset by voice, so that
 //! simultaneous notes neither pulse nor vibrate in lockstep.
@@ -112,7 +143,6 @@ void StringVoiceV3Device::Voice::reset()
         // at 0, 120 and 240 degrees, which sum to nothing, and the same goes for every harmonic that
         // is not a multiple of three. The detuning fans them out within a cycle or two anyway.
         stringOsc[i].sync(0.0);
-        stringFundamental[i].sync(0.0);
         stringDriftPhase[i] = static_cast<double>(u) / StringUnisonCount;
     }
     voiceOsc8.sync(0.0);
@@ -179,7 +209,6 @@ StringVoiceV3Device::StringVoiceV3Device(std::string name)
         for (int u { 0 }; u < StringUnisonCount; u++) {
             const auto ui { static_cast<size_t>(u) };
             v.stringOsc[ui].setWaveform(PolyBlepOscillator::Waveform::Saw);
-            v.stringFundamental[ui].setWaveform(PolyBlepOscillator::Waveform::Sine);
             // Rates that share no small common multiple, so the copies keep moving apart instead of
             // falling back into step with one another every few seconds.
             v.stringDriftPhase[ui] = static_cast<double>(u) / StringUnisonCount;
@@ -340,9 +369,7 @@ void StringVoiceV3Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity
 
     const double sampleRateVal { static_cast<double>(sampleRate()) };
     for (int u { 0 }; u < StringUnisonCount; u++) {
-        const auto ui { static_cast<size_t>(u) };
-        v.stringOsc[ui].setSampleRate(sampleRateVal);
-        v.stringFundamental[ui].setSampleRate(sampleRateVal);
+        v.stringOsc[static_cast<size_t>(u)].setSampleRate(sampleRateVal);
     }
     v.voiceOsc8.setSampleRate(sampleRateVal);
     v.voiceOsc4.setSampleRate(sampleRateVal);
@@ -457,8 +484,12 @@ void StringVoiceV3Device::processAudio(AudioContext & context)
     setSampleRate(context.sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    const double sRate { static_cast<double>(context.sampleRate) };
+    if (context.frameCount == 0) {
+        return;
+    }
 
+    const double sRate { static_cast<double>(context.sampleRate) };
+    const double invSampleRate { 1.0 / sRate };
     const double vibRateHz { m_vibratoRate * 9.9 + 0.1 };
 
     m_lpfL.setSampleRate(sRate);
@@ -470,22 +501,40 @@ void StringVoiceV3Device::processAudio(AudioContext & context)
     m_hpfL.setCutoff(static_cast<double>(m_hpfCutoff));
     m_hpfR.setCutoff(static_cast<double>(m_hpfCutoff));
 
-    // Tone sweeps the low pass either side of where it was measured, the middle of the travel
-    // landing on the measurement itself.
-    const double tone { static_cast<double>(m_stringsTone) };
-    const double toneHz { tone <= 0.5
-                            ? StringsToneMinHz * std::pow(StringsToneCentreHz / StringsToneMinHz, tone * 2.0)
-                            : StringsToneCentreHz * std::pow(StringsToneMaxHz / StringsToneCentreHz, (tone - 0.5) * 2.0) };
-    m_stringsHpfL.calculate(StringsHpfHz, sRate);
-    m_stringsHpfR.calculate(StringsHpfHz, sRate);
-    m_stringsLpfL.setSampleRate(sRate);
-    m_stringsLpfR.setSampleRate(sRate);
-    m_stringsLpfL.setCutoff(toCutoffPosition(toneHz));
-    m_stringsLpfR.setCutoff(toCutoffPosition(toneHz));
+    const bool rateChanged { sRate != m_lastAudioSampleRate };
+    if (rateChanged || m_stringsTone != m_lastStringsTone) {
+        if (rateChanged) {
+            m_stringsHpfL.calculate(StringsHpfHz, sRate);
+            m_stringsHpfR.calculate(StringsHpfHz, sRate);
+            m_stringsLpfL.setSampleRate(sRate);
+            m_stringsLpfR.setSampleRate(sRate);
+            m_formantFiltersL.setSampleRate(sRate);
+            m_formantFiltersR.setSampleRate(sRate);
+            m_ensemble.setSampleRate(sRate);
+            m_vocoder.setSampleRate(sRate);
+            for (auto & v : m_voices) {
+                for (int u { 0 }; u < StringUnisonCount; u++) {
+                    v.stringOsc[static_cast<size_t>(u)].setSampleRate(sRate);
+                }
+                v.voiceOsc8.setSampleRate(sRate);
+                v.voiceOsc4.setSampleRate(sRate);
+                v.stringEg.setSampleRate(sRate);
+                v.voiceEg.setSampleRate(sRate);
+            }
+        }
+        // Tone sweeps the low pass either side of where it was measured, the middle of the travel
+        // landing on the measurement itself.
+        const double tone { static_cast<double>(m_stringsTone) };
+        const double toneHz { tone <= 0.5
+                                ? StringsToneMinHz * std::pow(StringsToneCentreHz / StringsToneMinHz, tone * 2.0)
+                                : StringsToneCentreHz * std::pow(StringsToneMaxHz / StringsToneCentreHz, (tone - 0.5) * 2.0) };
+        const double cutoffPos { toCutoffPosition(toneHz) };
+        m_stringsLpfL.setCutoff(cutoffPos);
+        m_stringsLpfR.setCutoff(cutoffPos);
+        m_lastAudioSampleRate = sRate;
+        m_lastStringsTone = m_stringsTone;
+    }
 
-    m_formantFiltersL.setSampleRate(sRate);
-    m_formantFiltersR.setSampleRate(sRate);
-    m_ensemble.setSampleRate(sRate);
     m_panner.setPan(static_cast<double>(panInternal()));
 
     // Check Vocoder sidechain
@@ -493,7 +542,21 @@ void StringVoiceV3Device::processAudio(AudioContext & context)
     const bool hasSidechain { m_vocoderEnabled && scIdx && *scIdx < context.deviceOutputBuffers.size() };
     const auto sidechainBuffer { hasSidechain ? context.deviceOutputBuffers[*scIdx] : std::span<const double> {} };
 
-    m_vocoder.setSampleRate(sRate);
+    const size_t frames { context.frameCount };
+    if (m_stringsSumL.size() < frames) {
+        m_stringsSumL.resize(frames);
+        m_stringsSumR.resize(frames);
+        m_maleSumL.resize(frames);
+        m_maleSumR.resize(frames);
+        m_femaleSumL.resize(frames);
+        m_femaleSumR.resize(frames);
+    }
+    std::fill_n(m_stringsSumL.data(), frames, 0.0);
+    std::fill_n(m_stringsSumR.data(), frames, 0.0);
+    std::fill_n(m_maleSumL.data(), frames, 0.0);
+    std::fill_n(m_maleSumR.data(), frames, 0.0);
+    std::fill_n(m_femaleSumL.data(), frames, 0.0);
+    std::fill_n(m_femaleSumR.data(), frames, 0.0);
 
     // No headroom compensation by voice count, deliberately. Scaling every voice by 1/sqrt(n)
     // keeps the total steady but makes each note's level depend on how many others happen to be
@@ -507,147 +570,160 @@ void StringVoiceV3Device::processAudio(AudioContext & context)
     // as a detuned oscillator: a held sung note wanders by a few cents over a second or two.
     constexpr double DriftCents { 3.5 };
     constexpr double DriftRateHz { 0.45 };
+    constexpr double Inv1200 { 1.0 / 1200.0 };
+    constexpr std::array<double, StringUnisonCount> StrOffsetOctaves {
+        StringsDetuneCents * -1.0 / 1200.0,
+        0.0,
+        StringsDetuneCents * 1.0 / 1200.0
+    };
 
-    for (uint32_t i { 0 }; i < context.frameCount; ++i) {
+    const bool hasVibrato { m_vibratoDepth > 0.0f };
+    const double maxVibDepth { static_cast<double>(m_vibratoDepth) * 0.06 }; // scale depth to max ~1 semi-tone
+    const double delaySamples { static_cast<double>(m_vibratoDelay) * 3.0 * sRate };
+    const double deviceGain { linearGainInternal() * 0.25 };
+    const double stringsBalance { static_cast<double>(m_stringsBalance) };
+    const double voiceBalance { static_cast<double>(m_voiceBalance) };
+    const double pwmInc { pwmRateHz * invSampleRate };
 
-        double stringsSumL { 0.0 };
-        double stringsSumR { 0.0 };
-        double maleSumL { 0.0 };
-        double maleSumR { 0.0 };
-        double femaleSumL { 0.0 };
-        double femaleSumR { 0.0 };
+    double * __restrict strOutL { m_stringsSumL.data() };
+    double * __restrict strOutR { m_stringsSumR.data() };
+    double * __restrict maleOutBufL { m_maleSumL.data() };
+    double * __restrict maleOutBufR { m_maleSumR.data() };
+    double * __restrict femOutBufL { m_femaleSumL.data() };
+    double * __restrict femOutBufR { m_femaleSumR.data() };
 
-        for (auto & v : m_voices) {
-            if (!v.active) {
-                continue;
-            }
+    for (auto & v : m_voices) {
+        if (!v.active) {
+            continue;
+        }
 
-            v.stringEg.setSampleRate(sRate);
-            v.voiceEg.setSampleRate(sRate);
+        const bool upper { v.note >= SplitNote };
+        const bool stringsOn { upper ? m_stringsUpper : m_stringsLower };
+        const double maleLevel { static_cast<double>(upper ? m_voiceUpperMale8 : m_voiceMale8) };
+        const double voice4Level { static_cast<double>(upper ? m_voiceFemale4 : m_voiceMale4) };
 
+        const bool renderStrings { stringsOn && stringsBalance > 0.0 };
+        const bool renderVoice8 { voiceBalance > 0.0 && maleLevel > 0.0 };
+        const bool renderVoice4 { voiceBalance > 0.0 && voice4Level > 0.0 };
+        const bool renderAnyVoice { renderVoice8 || renderVoice4 };
+
+        // Sensitivity at 0 ignores how hard the key was struck, at 1 follows it the whole way.
+        const double velocityLevel { 1.0 - m_velocitySensitivity + m_velocitySensitivity * static_cast<double>(v.velocity) };
+        const double voiceGain { velocityLevel * deviceGain };
+        const double strScale { (StringsSectionGain / StringUnisonCount) * voiceGain * stringsBalance };
+        const double vocScale { voiceGain * voiceBalance };
+        const double panL { 1.0 - v.pan };
+        const double panR { v.pan };
+
+        const double baseNoteFreq { midiNoteToFreq(v.note) * v.detuneRatio };
+        const double vibInc { vibRateHz * v.vibratoRateRatio * invSampleRate };
+        const double driftInc { DriftRateHz * v.driftRateRatio * invSampleRate };
+        const std::array<double, StringUnisonCount> strDriftInc {
+            StringsDriftRateHz * v.stringDriftRateRatio[0] * invSampleRate,
+            StringsDriftRateHz * v.stringDriftRateRatio[1] * invSampleRate,
+            StringsDriftRateHz * v.stringDriftRateRatio[2] * invSampleRate
+        };
+
+        for (uint32_t i { 0 }; i < context.frameCount; ++i) {
             const double strEnv { v.stringEg.nextSample() };
             const double vocEnv { v.voiceEg.nextSample() };
 
             if (v.stringEg.isSilent() && v.voiceEg.isSilent()) {
                 v.active = false;
-                continue;
+                break;
             }
 
-            // Calculate vibrato offset
-            double currentVibratoDepth { m_vibratoDepth * 0.06 }; // scale depth to max ~1 semi-tone
-            const double delaySamples { m_vibratoDelay * 3.0 * sRate };
-            if (delaySamples > 0.0) {
-                const double age { static_cast<double>(v.triggerFrame) };
-                if (age < delaySamples) {
-                    currentVibratoDepth *= (age / delaySamples);
-                }
-            }
-
-            v.triggerFrame++;
-
-            v.vibratoPhase += vibRateHz * v.vibratoRateRatio / sRate;
+            v.vibratoPhase += vibInc;
             if (v.vibratoPhase >= 1.0) {
                 v.vibratoPhase -= 1.0;
             }
-            const double vibratoLfoVal { std::sin(2.0 * std::numbers::pi * v.vibratoPhase) };
 
-            v.driftPhase += DriftRateHz * v.driftRateRatio / sRate;
+            double pitchModRatio { 1.0 };
+            if (hasVibrato) {
+                double currentVibratoDepth { maxVibDepth };
+                if (delaySamples > 0.0) {
+                    const double age { static_cast<double>(v.triggerFrame) };
+                    if (age < delaySamples) {
+                        currentVibratoDepth *= (age / delaySamples);
+                    }
+                }
+                const double vibratoLfoVal { fastSineCycles(v.vibratoPhase) };
+                pitchModRatio = fastSmallExp2(vibratoLfoVal * currentVibratoDepth);
+            }
+            v.triggerFrame++;
+
+            v.driftPhase += driftInc;
             if (v.driftPhase >= 1.0) {
                 v.driftPhase -= 1.0;
             }
-            const double driftOctaves { std::sin(2.0 * std::numbers::pi * v.driftPhase) * DriftCents / 1200.0 };
 
-            v.pwmPhase += pwmRateHz / sRate;
+            v.pwmPhase += pwmInc;
             if (v.pwmPhase >= 1.0) {
                 v.pwmPhase -= 1.0;
             }
-            const double shapeVal { 0.05 + 0.05 * std::sin(2.0 * std::numbers::pi * v.pwmPhase) };
-            v.voiceOsc8.setShape(shapeVal);
-            v.voiceOsc4.setShape(shapeVal);
 
-            const double pitchModRatio { std::exp2(vibratoLfoVal * currentVibratoDepth) };
+            const double baseFreq { baseNoteFreq * pitchModRatio };
 
-            const double baseFreq { midiNoteToFreq(v.note) * pitchModRatio * v.detuneRatio };
-            // The drift is the voice section's alone: the strings' fixed detune is meant to read as
-            // analog imprecision, not as a singer holding a note.
-            const double voiceFreq { baseFreq * std::exp2(driftOctaves) };
+            if (renderStrings) {
+                double strSampleRaw { 0.0 };
+                for (size_t ui { 0 }; ui < StringUnisonCount; ui++) {
+                    v.stringDriftPhase[ui] += strDriftInc[ui];
+                    if (v.stringDriftPhase[ui] >= 1.0) {
+                        v.stringDriftPhase[ui] -= 1.0;
+                    }
+                    const double wander { fastSineCycles(v.stringDriftPhase[ui]) * StringsDriftCents };
+                    const double copyFreq { baseFreq * fastSmallExp2(StrOffsetOctaves[ui] + wander * Inv1200) };
 
-            // Setup oscillators
-            for (int u { 0 }; u < StringUnisonCount; u++) {
-                const auto ui { static_cast<size_t>(u) };
-                v.stringOsc[ui].setSampleRate(sRate);
-                v.stringFundamental[ui].setSampleRate(sRate);
-            }
-
-            v.voiceOsc8.setSampleRate(sRate);
-            v.voiceOsc8.setFrequency(voiceFreq);
-            v.voiceOsc4.setSampleRate(sRate);
-            v.voiceOsc4.setFrequency(voiceFreq * 2.0);
-
-            // Generate oscillator samples.
-            //
-            // The Strings sound as StringUnisonCount copies a few cents apart, each wandering at its
-            // own slow rate. Two things about that are deliberate. The copies are detuned rather than
-            // modulated together, so what is heard is components beating against one another and no
-            // single pitch swinging -- at this spread a C4 beats at about 1 Hz, which is where the
-            // instrument's own lowest modulation sits. And the wander is slow: anything up at a few
-            // Hz stops reading as shimmer and starts reading as vibrato.
-            //
-            // Every copy carries the fitted pair, saw plus the antiphase sine that lifts the
-            // fundamental, so detuning them leaves the section's measured tone curve where it was.
-            double strSampleRaw { 0.0 };
-            for (int u { 0 }; u < StringUnisonCount; u++) {
-                const auto ui { static_cast<size_t>(u) };
-
-                v.stringDriftPhase[ui] += StringsDriftRateHz * v.stringDriftRateRatio[ui] / sRate;
-                if (v.stringDriftPhase[ui] >= 1.0) {
-                    v.stringDriftPhase[ui] -= 1.0;
+                    v.stringOsc[ui].setFrequency(copyFreq);
+                    const double phase { v.stringOsc[ui].phase() };
+                    strSampleRaw += v.stringOsc[ui].nextSample() + fastSineCycles(phase) * StringsFundamentalLift;
                 }
-                const double wander { std::sin(2.0 * std::numbers::pi * v.stringDriftPhase[ui]) * StringsDriftCents };
-
-                // Centred on the note: the copies sit either side of it rather than all above it, so
-                // the section as a whole stays in tune.
-                const double offsetCents { StringsDetuneCents * (static_cast<double>(u) - (StringUnisonCount - 1) * 0.5) };
-                const double copyFreq { baseFreq * std::exp2((offsetCents + wander) / 1200.0) };
-
-                v.stringOsc[ui].setFrequency(copyFreq);
-                v.stringFundamental[ui].setFrequency(copyFreq);
-                strSampleRaw += v.stringOsc[ui].nextSample() + v.stringFundamental[ui].nextSample() * StringsFundamentalLift;
+                const double strSample { strSampleRaw * strEnv * strScale };
+                strOutL[i] += strSample * panL;
+                strOutR[i] += strSample * panR;
+            } else {
+                for (size_t ui { 0 }; ui < StringUnisonCount; ui++) {
+                    v.stringDriftPhase[ui] += strDriftInc[ui];
+                    if (v.stringDriftPhase[ui] >= 1.0) {
+                        v.stringDriftPhase[ui] -= 1.0;
+                    }
+                }
             }
-            strSampleRaw /= StringUnisonCount;
 
-            const double vocSample8 { v.voiceOsc8.nextSample() };
-            const double vocSample4 { v.voiceOsc4.nextSample() };
+            if (renderAnyVoice) {
+                const double driftOctaves { fastSineCycles(v.driftPhase) * (DriftCents * Inv1200) };
+                const double voiceFreq { baseFreq * fastSmallExp2(driftOctaves) };
+                const double shapeVal { 0.05 + 0.05 * fastSineCycles(v.pwmPhase) };
 
-            // Sensitivity at 0 ignores how hard the key was struck, at 1 follows it the whole way.
-            const double velocityLevel { 1.0 - m_velocitySensitivity + m_velocitySensitivity * static_cast<double>(v.velocity) };
-            const double voiceGain { velocityLevel * linearGainInternal() * 0.25 };
+                double vocSample8 { 0.0 };
+                if (renderVoice8) {
+                    v.voiceOsc8.setShape(shapeVal);
+                    v.voiceOsc8.setFrequency(voiceFreq);
+                    vocSample8 = v.voiceOsc8.nextSample();
+                }
 
-            // Which half of the split a note falls in decides both sections, as on the hardware.
-            const bool upper { v.note >= SplitNote };
+                double vocSample4 { 0.0 };
+                if (renderVoice4) {
+                    v.voiceOsc4.setShape(shapeVal);
+                    v.voiceOsc4.setFrequency(voiceFreq * 2.0);
+                    vocSample4 = v.voiceOsc4.nextSample();
+                }
 
-            // The Strings section has no footage of its own: the switch for this half only says
-            // whether it sounds at all, and Balance says how loud.
-            const bool stringsOn { upper ? m_stringsUpper : m_stringsLower };
-            const double strSample { stringsOn ? strSampleRaw * StringsSectionGain * strEnv * voiceGain * m_stringsBalance : 0.0 };
+                const double envGain { vocEnv * vocScale };
+                const double maleSample { (vocSample8 * maleLevel + (upper ? 0.0 : vocSample4 * voice4Level)) * envGain };
+                maleOutBufL[i] += maleSample * panL;
+                maleOutBufR[i] += maleSample * panR;
 
-            // The voice section does have registers, and the split picks which pair: the lower half
-            // carries Male 8' and 4', the upper half Male 8' and Female 4'. The female voice never
-            // sounds below the split.
-            const double maleLevel { upper ? m_voiceUpperMale8 : m_voiceMale8 };
-            const double maleSample { (vocSample8 * maleLevel + (upper ? 0.0 : vocSample4 * m_voiceMale4)) * vocEnv * voiceGain * m_voiceBalance };
-            const double femaleSample { (upper ? vocSample4 * m_voiceFemale4 : 0.0) * vocEnv * voiceGain * m_voiceBalance };
-
-            stringsSumL += strSample * (1.0 - v.pan);
-            stringsSumR += strSample * v.pan;
-
-            maleSumL += maleSample * (1.0 - v.pan);
-            maleSumR += maleSample * v.pan;
-
-            femaleSumL += femaleSample * (1.0 - v.pan);
-            femaleSumR += femaleSample * v.pan;
+                if (upper && renderVoice4) {
+                    const double femaleSample { vocSample4 * voice4Level * envGain };
+                    femOutBufL[i] += femaleSample * panL;
+                    femOutBufR[i] += femaleSample * panR;
+                }
+            }
         }
+    }
 
+    for (uint32_t i { 0 }; i < context.frameCount; ++i) {
         // Apply Formant filter bank to Voice section (male and female registers
         // are filtered independently so they don't bleed into each other's
         // formant coloration)
@@ -655,14 +731,14 @@ void StringVoiceV3Device::processAudio(AudioContext & context)
         double maleOutR { 0.0 };
         double femaleOutL { 0.0 };
         double femaleOutR { 0.0 };
-        m_formantFiltersL.process(maleSumL, femaleSumL, maleOutL, femaleOutL);
-        m_formantFiltersR.process(maleSumR, femaleSumR, maleOutR, femaleOutR);
+        m_formantFiltersL.process(m_maleSumL[i], m_femaleSumL[i], maleOutL, femaleOutL);
+        m_formantFiltersR.process(m_maleSumR[i], m_femaleSumR[i], maleOutR, femaleOutR);
         const double voiceFilteredSumL { maleOutL + femaleOutL };
         const double voiceFilteredSumR { maleOutR + femaleOutR };
 
         // The Strings section's tone network, which the voice section does not share.
-        m_stringsHpfL.process(stringsSumL);
-        m_stringsHpfR.process(stringsSumR);
+        m_stringsHpfL.process(m_stringsSumL[i]);
+        m_stringsHpfR.process(m_stringsSumR[i]);
         double stringsOutL { m_stringsLpfL.process(m_stringsHpfL.highPass()) };
         double stringsOutR { m_stringsLpfR.process(m_stringsHpfR.highPass()) };
 
@@ -756,6 +832,8 @@ void StringVoiceV3Device::resetDeviceAudio()
     m_stringsHpfR.reset();
     m_stringsLpfL.reset();
     m_stringsLpfR.reset();
+    m_lastAudioSampleRate = -1.0;
+    m_lastStringsTone = -1.0f;
 }
 
 void StringVoiceV3Device::serializeToXml(ProjectWriter & writer) const

@@ -50,6 +50,7 @@ private slots:
     void test_polyphony_shouldNotRescaleHeldNotes();
     void test_velocitySensitivity_shouldScaleBothSections();
     void test_panSpread_shouldCreateStereoSeparation();
+    void test_reset_shouldReplayPolyChordWithVibratoAndAllRegistersDeterministically();
 };
 
 } // namespace noteahead
