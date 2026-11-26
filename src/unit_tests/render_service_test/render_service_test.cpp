@@ -14,6 +14,7 @@
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/master_calibration.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
@@ -730,6 +731,221 @@ void RenderServiceTest::test_renderMaster_disabledLatency_shouldNotBeTakenOut()
     const auto render = renderThrough({ std::make_shared<ClickEffect>(), latency });
     QVERIFY(!render.empty());
     QCOMPARE(loudestFrame(render), size_t { ClickEffect::ClickFrame });
+}
+
+namespace {
+
+class ToneDevice : public Device
+{
+public:
+    std::string name() const override
+    {
+        return Constants::internalDevicePortPrefix().toStdString() + " 1";
+    }
+
+    std::string category() const override
+    {
+        return "Test";
+    }
+
+    std::string typeName() const override
+    {
+        return "Tone";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-00000000c001";
+    }
+
+    void processDeviceMidiNoteOn(uint8_t, uint8_t) override
+    {
+        m_active = true;
+    }
+
+    void processDeviceMidiNoteOff(uint8_t) override
+    {
+        m_active = false;
+    }
+
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiAllNotesOff() override
+    {
+        m_active = false;
+    }
+
+    void processAudio(AudioContext & ctx) override
+    {
+        for (uint32_t i = 0; i < ctx.frameCount; i++) {
+            const double s { 0.18 * std::sin(2.0 * std::numbers::pi * 110.0 * static_cast<double>(m_phase) / 48000.0) };
+            ctx.buffer[i * 2] += s;
+            ctx.buffer[i * 2 + 1] += s;
+            m_phase++;
+        }
+    }
+
+    bool hasActiveAudio() const override
+    {
+        return true;
+    }
+
+    void reset() override
+    {
+        m_phase = 0;
+        m_active = false;
+    }
+
+private:
+    size_t m_phase { 0 };
+    bool m_active { false };
+};
+
+class CalibrationProbeEffect : public Effect, public MasterCalibrationConsumer
+{
+public:
+    std::string type() const override
+    {
+        return "CalibrationProbe";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-00000000c002";
+    }
+
+    void processSample(double &, double &) override
+    {
+    }
+
+    void setCalibration(const MasterCalibration & calibration) override
+    {
+        m_calibration = calibration;
+        m_calibrationCount++;
+    }
+
+    void clearCalibration() override
+    {
+        m_calibration = {};
+    }
+
+    MasterCalibration calibration() const override
+    {
+        return m_calibration;
+    }
+
+    void setCalibrationBypass(bool bypass) override
+    {
+        m_bypass = bypass;
+    }
+
+    double targetLufs() const override
+    {
+        return -9.0;
+    }
+
+    double peakLimitDb() const override
+    {
+        return -1.2;
+    }
+
+    bool autoLoudnessEnabled() const override
+    {
+        return true;
+    }
+
+    MasterCalibration calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t) const override
+    {
+        MasterCalibration cal {};
+        if (!interleavedStereo.empty()) {
+            cal.valid = true;
+            cal.driveDb = 2.5;
+            cal.calibratedForTargetLufs = -9.0;
+        }
+        return cal;
+    }
+
+    int calibrationCount() const
+    {
+        return m_calibrationCount;
+    }
+
+    bool isBypassed() const
+    {
+        return m_bypass;
+    }
+
+private:
+    MasterCalibration m_calibration {};
+    int m_calibrationCount { 0 };
+    bool m_bypass { false };
+};
+
+} // namespace
+
+void RenderServiceTest::test_calibrateMasterEffects_shouldCalibrateWithoutEmittingRenderingFinished()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    deviceService->setDevice(0, std::make_shared<ToneDevice>());
+    auto probe = std::make_shared<CalibrationProbeEffect>();
+    deviceService->insertEffectRack().setEffect(0, probe);
+
+    auto editorService = std::make_shared<MockEditorService>();
+    auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+    song->setInstrument(0, std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1"));
+    editorService->setSong(song);
+    editorService->setTrackIndices({ 0 });
+    editorService->setInstrumentPort(0, Constants::internalDevicePortPrefix() + " 1");
+
+    RenderService renderService { audioEngine, deviceService, std::make_shared<MixerService>(), editorService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>() };
+    QSignalSpy finishSpy { &renderService, &RenderService::renderingFinished };
+    QSignalSpy calSpy { &renderService, &RenderService::calibrationFinished };
+
+    renderService.calibrateMasterEffects();
+    waitForRenders(calSpy, 1);
+
+    QCOMPARE(finishSpy.count(), 0);
+    QVERIFY(calSpy.at(0).at(0).toBool());
+    QCOMPARE(probe->calibrationCount(), 1);
+    QVERIFY(probe->calibration().valid);
+    QVERIFY(!probe->isBypassed());
+}
+
+void RenderServiceTest::test_renderMaster_vsIndividualTracks_shouldCalibrateOnlyOnMaster()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    deviceService->setDevice(0, std::make_shared<ToneDevice>());
+    auto probe = std::make_shared<CalibrationProbeEffect>();
+    deviceService->insertEffectRack().setEffect(0, probe);
+
+    auto editorService = std::make_shared<MockEditorService>();
+    auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+    song->setInstrument(0, std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1"));
+    editorService->setSong(song);
+    editorService->setTrackIndices({ 0 });
+    editorService->setInstrumentPort(0, Constants::internalDevicePortPrefix() + " 1");
+
+    RenderService renderService { audioEngine, deviceService, std::make_shared<MixerService>(), editorService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>() };
+    QTemporaryDir tempDir;
+    QSignalSpy renderSpy { &renderService, &RenderService::renderingFinished };
+
+    // Individual track export should NOT calibrate master effects
+    renderService.renderIndividualTracks(tempDir.path());
+    waitForRenders(renderSpy, 1);
+    QCOMPARE(probe->calibrationCount(), 0);
+
+    // Master mix render SHOULD calibrate master effects automatically
+    renderService.renderMaster(tempDir.filePath("master.wav"));
+    waitForRenders(renderSpy, 2);
+    QCOMPARE(probe->calibrationCount(), 1);
 }
 
 } // namespace noteahead

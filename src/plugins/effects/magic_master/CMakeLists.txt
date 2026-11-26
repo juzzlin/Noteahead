@@ -1,0 +1,16 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        magic_master.cpp
+        magic_master.hpp
+        magic_master_calibrator.cpp
+        magic_master_calibrator.hpp
+        magic_master_presets.cpp
+        magic_master_presets.hpp
+        magic_master_registration.cpp
+    VIEW_SOURCES
+        magic_master_dialog_model.cpp
+        magic_master_dialog_model.hpp
+        magic_master_view_registration.cpp
+    QML_FILES
+        MagicMasterDialog.qml
+)

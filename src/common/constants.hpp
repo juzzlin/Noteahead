@@ -401,6 +401,8 @@ QString tremolo();
 QString roomMics();
 QString resonanceTamer();
 QString analogBus();
+QString truePeakLimiter();
+QString magicMaster();
 } // namespace RackEffectType
 
 //! What a Performance Panel element shows. Saved in projects: never rename.
@@ -1217,6 +1219,14 @@ QString xmlKeyLowCutMode();
 QString xmlKeyLowGain();
 QString xmlKeyRouting();
 QString xmlKeyVintage();
+QString xmlKeyAutoRelease();
+QString xmlKeyTargetLufs();
+QString xmlKeyAutoLoudnessEnabled();
+QString xmlKeySubCleanEnabled();
+QString xmlKeyMultibandEnabled();
+QString xmlKeyStereoEnabled();
+QString xmlKeyClipperEnabled();
+QString xmlKeyLimiterEnabled();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

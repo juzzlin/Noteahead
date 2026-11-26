@@ -504,6 +504,16 @@ QString analogBus()
     return "analogbus";
 }
 
+QString truePeakLimiter()
+{
+    return "TruePeakLimiter";
+}
+
+QString magicMaster()
+{
+    return "MagicMaster";
+}
+
 QString dimension()
 {
     return "dimension";
@@ -4279,6 +4289,46 @@ QString xmlKeyRouting()
 QString xmlKeyVintage()
 {
     return "vintage";
+}
+
+QString xmlKeyAutoRelease()
+{
+    return "autoRelease";
+}
+
+QString xmlKeyTargetLufs()
+{
+    return "targetLufs";
+}
+
+QString xmlKeyAutoLoudnessEnabled()
+{
+    return "autoLoudnessEnabled";
+}
+
+QString xmlKeySubCleanEnabled()
+{
+    return "subCleanEnabled";
+}
+
+QString xmlKeyMultibandEnabled()
+{
+    return "multibandEnabled";
+}
+
+QString xmlKeyStereoEnabled()
+{
+    return "stereoEnabled";
+}
+
+QString xmlKeyClipperEnabled()
+{
+    return "clipperEnabled";
+}
+
+QString xmlKeyLimiterEnabled()
+{
+    return "limiterEnabled";
 }
 
 } // namespace NahdXml

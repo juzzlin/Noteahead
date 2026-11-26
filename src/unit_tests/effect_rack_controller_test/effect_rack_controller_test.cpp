@@ -35,6 +35,7 @@
 #include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric.hpp"
 #include "../../plugins/effects/eq_8_band_parametric/eq_8_band_parametric_presets.hpp"
 #include "../../plugins/effects/gain/gain.hpp"
+#include "../../plugins/effects/magic_master/magic_master.hpp"
 #include "../../plugins/effects/panner/panner.hpp"
 #include "../../plugins/effects/phaser/phaser.hpp"
 #include "../../plugins/effects/resonance_tamer/resonance_tamer.hpp"
@@ -45,6 +46,7 @@
 #include "../../plugins/effects/saturator/saturator.hpp"
 #include "../../plugins/effects/simple_eq/simple_eq.hpp"
 #include "../../plugins/effects/tremolo/tremolo.hpp"
+#include "../../plugins/effects/true_peak_limiter/true_peak_limiter.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
 #include "../../view/controllers/send_controller.hpp"
 #include "../../view/qml/Dialogs/eq_curve_renderer.hpp"
@@ -1384,6 +1386,43 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAnalogBus()
     QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::analogBus());
     QCOMPARE(context.controller.effectDisplayName(type), QString { "Analog Bus" });
     QCOMPARE(context.controller.effectParametersSummary(0), QString { "(A->N, A=+9.0dB, N=+9.0dB, mix=100%)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheTruePeakLimiter()
+{
+    auto context = createContext();
+    const auto type = QString::fromStdString(TruePeakLimiter::typeIdString());
+    QStringList types;
+    for (auto && entry : context.controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::truePeakLimiter());
+    QCOMPARE(context.controller.effectDisplayName(type), QString { "True Peak Limiter" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(ceil=-1.0 dBTP, boost=off)" });
+}
+
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheMagicMaster()
+{
+    auto context = createContext();
+    const auto type = QString::fromStdString(MagicMaster::typeIdString());
+    QStringList types;
+    for (auto && entry : context.controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(type), qPrintable(types.join(", ")));
+
+    context.controller.setIsInsertRack(true);
+    context.controller.setEffect(0, type);
+    QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::magicMaster());
+    QCOMPARE(context.controller.effectDisplayName(type), QString { "Magic Master" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(target=-9.0 LUFS, peak=-1.2 dBTP)" });
+
+    context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyClipperEnabled(), 0.0f);
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(target=-9.0 LUFS, peak=-1.2 dBTP) [5/6]" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()

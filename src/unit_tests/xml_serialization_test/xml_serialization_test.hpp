@@ -155,6 +155,8 @@ private slots:
     void test_toXmlFromXml_waveDesigner_shouldLoadCorrectly();
     void test_toXmlFromXml_reverbGate_shouldLoadCorrectly();
     void test_toXmlFromXml_limiterEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_truePeakLimiterEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_magicMasterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_autoDuckerEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_multibandCompressorEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorrectly();

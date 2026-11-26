@@ -66,6 +66,7 @@ struct RenderOptions
     //! no longer bit-identical from one run to the next. See RenderSettings::fastRender().
     bool fastRender = false;
     quint8 oversampleFactor = 2;
+    bool calibrateMaster = false;
 };
 
 class RenderWorker : public QObject
@@ -102,12 +103,26 @@ public slots:
                 quint32 sampleRate,
                 noteahead::RenderOptions options = {},
                 std::map<noteahead::AudioFileReader::TagType, std::string> tags = {});
+    void calibrateMasterOnly(const noteahead::RenderWorker::EventList & events,
+                             const noteahead::RenderWorker::Timing & timing,
+                             quint64 maxTick,
+                             quint32 sampleRate,
+                             quint8 oversampleFactor);
 
 signals:
     void progressChanged(double progress);
     void finished(bool success, QString message);
+    void calibrationFinished(bool success, QString message);
 
 private:
+    bool runMasterCalibrationPass(const EventList & events,
+                                  const Timing & timing,
+                                  quint64 maxTick,
+                                  quint32 sampleRate,
+                                  quint8 oversampleFactor,
+                                  double progressStart,
+                                  double progressEnd,
+                                  QString & statusMessage);
     void handleEvent(const Event & event);
 
     //! How long a note lasts, in beats, or nothing when the render does not say.

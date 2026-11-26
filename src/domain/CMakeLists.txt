@@ -89,6 +89,7 @@ set(HEADER_FILES
     dsp/synth_d_voice.hpp
     dsp/tracking_bell_bank.hpp
     dsp/transistor_ladder_filter.hpp
+    dsp/true_peak_limiter_core.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
     dsp/volume.hpp
@@ -98,6 +99,10 @@ set(HEADER_FILES
     effects/effect_factory.hpp
     effects/effect_presets.hpp
     effects/effect_rack.hpp
+    effects/loudness_meter_resettable.hpp
+    effects/master_calibration.hpp
+    effects/song_context.hpp
+    effects/song_context_consumer.hpp
     effects/spectrum_source.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
@@ -254,6 +259,7 @@ set(SOURCE_FILES
     dsp/synth_d_voice.cpp
     dsp/tracking_bell_bank.cpp
     dsp/transistor_ladder_filter.cpp
+    dsp/true_peak_limiter_core.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp
     dsp/volume.cpp

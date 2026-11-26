@@ -18,6 +18,8 @@ private slots:
     void test_renderMaster_parameterAutomation_shouldSweepTheDevice();
     void test_renderMaster_masterLatency_shouldBeTakenOut();
     void test_renderMaster_disabledLatency_shouldNotBeTakenOut();
+    void test_calibrateMasterEffects_shouldCalibrateWithoutEmittingRenderingFinished();
+    void test_renderMaster_vsIndividualTracks_shouldCalibrateOnlyOnMaster();
 };
 
 } // namespace noteahead

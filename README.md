@@ -262,6 +262,10 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Noise gate and downward expander in one. Ratio sets how steeply the level falls away below the Threshold, and Range floors it, so a drum can be tightened by twelve dB rather than silenced. Hold and a fixed six dB of hysteresis keep a level sitting near the threshold from rattling the gate open and shut.
 - Limiter
   - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls, a Boost switch for maximum loudness, and gain reduction metering.
+- True Peak Limiter
+  - 4x inter-sample true-peak lookahead brickwall limiter combining ITU-R BS.1770 polyphase FIR and Catmull-Rom detection with S-curve attack smoothing, Boost, BPM-synced Auto Release, and true-peak hold metering.
+- Magic Master
+  - EDM-focused six-stage automatic mastering processor (Sub & Phase, Auto EQ, Multiband Glue, Stereo & Air, 4x Soft Clipper, True-Peak Limiter) with hybrid LUFS targeting (live drop-gated tracking + offline Analyze Song calibration) and song-context awareness.
 - Clipper
   - Hard/soft clipper with adjustable threshold and output gain.
 - Saturator

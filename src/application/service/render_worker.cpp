@@ -16,6 +16,9 @@
 #include "render_worker.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/effects/effect.hpp"
+#include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/master_calibration.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/event.hpp"
@@ -94,6 +97,24 @@ void RenderWorker::render(const QString & fileName,
     m_audioEngine->setFastRender(options.fastRender);
 
     try {
+        bool hasCalibrationPass { false };
+        if (options.calibrateMaster) {
+            for (const auto & effect : m_deviceService->insertEffectRack().effects()) {
+                if (effect && effect->enabled() && std::dynamic_pointer_cast<MasterCalibrationConsumer>(effect)) {
+                    hasCalibrationPass = true;
+                    break;
+                }
+            }
+        }
+
+        double progressBase { 0.0 };
+        if (hasCalibrationPass) {
+            QString calibrationStatus;
+            runMasterCalibrationPass(events, timing, maxTick, sampleRate, options.oversampleFactor, 0.0, 0.35, calibrationStatus);
+            juzzlin::L(TAG).info() << "Pre-render master calibration: " << calibrationStatus.toStdString();
+            progressBase = 0.35;
+        }
+
         std::map<quint64, std::vector<EventS>> eventMap {};
         for (auto && event : events) {
             eventMap[event->tick()].push_back(event);
@@ -270,7 +291,8 @@ void RenderWorker::render(const QString & fileName,
 
             if (tick - lastReportedProgressTick >= 100) {
                 lastReportedProgressTick = tick;
-                emit progressChanged(static_cast<double>(tick) / static_cast<double>(maxTick));
+                const double frac { maxTick > 0 ? static_cast<double>(tick) / static_cast<double>(maxTick) : 1.0 };
+                emit progressChanged(progressBase + (1.0 - progressBase) * frac);
             }
 
             tick += tickSpan;
@@ -382,6 +404,232 @@ void RenderWorker::render(const QString & fileName,
         juzzlin::L(TAG).error() << "Render failed: " << e.what();
         emit finished(false, QString::fromStdString(e.what()));
     }
+}
+
+void RenderWorker::calibrateMasterOnly(const noteahead::RenderWorker::EventList & events,
+                                       const noteahead::RenderWorker::Timing & timing,
+                                       quint64 maxTick,
+                                       quint32 sampleRate,
+                                       quint8 oversampleFactor)
+{
+    if (m_isRendering) {
+        return;
+    }
+
+    m_isRendering = true;
+    m_audioEngine->setIsExclusive(true);
+    m_audioEngine->setFastRender(true);
+
+    struct CleanupGuard
+    {
+        RenderWorker * self { nullptr };
+
+        ~CleanupGuard()
+        {
+            if (self) {
+                self->m_audioEngine->reset();
+                self->m_deviceService->clearAutomation();
+                self->m_audioEngine->setFastRender(false);
+                self->m_audioEngine->setIsExclusive(false);
+                self->m_isRendering = false;
+            }
+        }
+    } guard { this };
+
+    QString statusMessage;
+    bool ok { false };
+    try {
+        ok = runMasterCalibrationPass(events, timing, maxTick, sampleRate, oversampleFactor, 0.0, 1.0, statusMessage);
+    } catch (const std::exception & e) {
+        juzzlin::L(TAG).error() << "Calibration failed: " << e.what();
+        statusMessage = QString::fromStdString(e.what());
+        ok = false;
+    }
+
+    emit calibrationFinished(ok, statusMessage);
+}
+
+bool RenderWorker::runMasterCalibrationPass(const EventList & events,
+                                            const Timing & timing,
+                                            quint64 maxTick,
+                                            quint32 sampleRate,
+                                            quint8 oversampleFactor,
+                                            double progressStart,
+                                            double progressEnd,
+                                            QString & statusMessage)
+{
+    std::vector<std::shared_ptr<MasterCalibrationConsumer>> consumers;
+    for (const auto & effect : m_deviceService->insertEffectRack().effects()) {
+        if (effect && effect->enabled()) {
+            if (const auto consumer { std::dynamic_pointer_cast<MasterCalibrationConsumer>(effect) }; consumer) {
+                consumers.push_back(consumer);
+            }
+        }
+    }
+
+    if (consumers.empty()) {
+        statusMessage = tr("Enable Magic Master on Master Effects to calibrate.");
+        return false;
+    }
+
+    struct BypassGuard
+    {
+        std::vector<std::shared_ptr<MasterCalibrationConsumer>> list;
+
+        void release()
+        {
+            for (const auto & consumer : list) {
+                if (consumer) {
+                    consumer->setCalibrationBypass(false);
+                }
+            }
+            list.clear();
+        }
+
+        ~BypassGuard()
+        {
+            release();
+        }
+    } bypassGuard { consumers };
+
+    for (const auto & consumer : consumers) {
+        consumer->setCalibrationBypass(true);
+    }
+
+    std::map<quint64, std::vector<EventS>> eventMap {};
+    for (const auto & event : events) {
+        eventMap[event->tick()].push_back(event);
+    }
+
+    m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
+    m_timing = timing;
+    m_deviceService->processMidiAllNotesOff();
+    m_deviceService->clearAutomation();
+    m_audioEngine->reset();
+
+    std::set<const Instrument *> applied;
+    for (const auto & event : events) {
+        if (const auto & instrument { event->instrument() }; instrument && applied.insert(instrument.get()).second) {
+            m_deviceService->applyInstrumentSettings(*instrument);
+        }
+    }
+
+    const double secondsPerTick { 60.0 / (static_cast<double>(timing.beatsPerMinute * timing.linesPerBeat * timing.ticksPerLine)) };
+    const double samplesPerTick { secondsPerTick * static_cast<double>(sampleRate) };
+    const size_t maxCaptureFloats { static_cast<size_t>(sampleRate) * 2 * 60 * 15 };
+
+    std::vector<float> captured;
+    const quint64 predictedFrames { static_cast<quint64>(std::llround(static_cast<double>(maxTick + 1) * samplesPerTick)) };
+    captured.reserve(std::min(maxCaptureFloats, static_cast<size_t>(predictedFrames) * 2));
+
+    double sampleCounter { 0.0 };
+    std::vector<double> audioBuffer {};
+    const quint64 masterLatencyFrames { m_deviceService->masterLatencyFrames(static_cast<double>(sampleRate)) };
+    quint64 latencyFramesToDrop { masterLatencyFrames };
+
+    const auto appendBuffer = [&](size_t totalSamples) {
+        const quint64 dropped { std::min<quint64>(latencyFramesToDrop, totalSamples / 2) };
+        latencyFramesToDrop -= dropped;
+        const size_t first { static_cast<size_t>(dropped) * 2 };
+        const size_t count { totalSamples - first };
+        const size_t remainingCap { captured.size() < maxCaptureFloats ? maxCaptureFloats - captured.size() : 0 };
+        const size_t toCopy { std::min(count, remainingCap) };
+        for (size_t i = 0; i < toCopy; i++) {
+            captured.push_back(static_cast<float>(audioBuffer[first + i]));
+        }
+    };
+
+    const quint64 maxTicksPerBlock { std::max<quint64>(1, static_cast<quint64>(targetRenderBlockFrames / samplesPerTick)) };
+    quint64 tick { 0 };
+    quint64 lastReportedProgressTick { 0 };
+    while (tick <= maxTick && captured.size() < maxCaptureFloats) {
+        if (const auto it { eventMap.find(tick) }; it != eventMap.end()) {
+            for (const auto & event : it->second) {
+                handleEvent(*event);
+            }
+        }
+
+        quint64 tickSpan { 1 };
+        while (tick + tickSpan <= maxTick && tickSpan < maxTicksPerBlock && !eventMap.contains(tick + tickSpan)) {
+            tickSpan++;
+        }
+
+        sampleCounter += samplesPerTick * static_cast<double>(tickSpan);
+        const quint32 framesToProcess { static_cast<quint32>(sampleCounter) };
+        if (framesToProcess > 0) {
+            const size_t totalSamples { static_cast<size_t>(framesToProcess) * 2 };
+            if (audioBuffer.size() < totalSamples) {
+                audioBuffer.resize(totalSamples);
+            }
+            std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+            AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
+            audioContext.oversampleFactor = oversampleFactor;
+            audioContext.offline = true;
+            m_audioEngine->process(audioContext);
+
+            appendBuffer(totalSamples);
+            sampleCounter -= static_cast<double>(framesToProcess);
+        }
+
+        if (tick - lastReportedProgressTick >= 100) {
+            lastReportedProgressTick = tick;
+            const double frac { maxTick > 0 ? static_cast<double>(tick) / static_cast<double>(maxTick) : 1.0 };
+            emit progressChanged(progressStart + (progressEnd - progressStart) * 0.85 * frac);
+        }
+
+        tick += tickSpan;
+    }
+
+    const quint32 finalFrames { static_cast<quint32>(std::round(sampleCounter)) };
+    if (finalFrames > 0 && captured.size() < maxCaptureFloats) {
+        const size_t totalSamples { static_cast<size_t>(finalFrames) * 2 };
+        if (audioBuffer.size() < totalSamples) {
+            audioBuffer.resize(totalSamples);
+        }
+        std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+        AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), finalFrames, sampleRate };
+        audioContext.oversampleFactor = oversampleFactor;
+        audioContext.offline = true;
+        m_audioEngine->process(audioContext);
+        appendBuffer(totalSamples);
+    }
+
+    quint64 latencyFramesOwed { masterLatencyFrames - latencyFramesToDrop };
+    latencyFramesToDrop = 0;
+    while (latencyFramesOwed > 0 && captured.size() < maxCaptureFloats) {
+        const quint32 frames { static_cast<quint32>(std::min(latencyFramesOwed, static_cast<quint64>(targetRenderBlockFrames))) };
+        const size_t totalSamples { static_cast<size_t>(frames) * 2 };
+        if (audioBuffer.size() < totalSamples) {
+            audioBuffer.resize(totalSamples);
+        }
+        std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+        AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), frames, sampleRate };
+        audioContext.oversampleFactor = oversampleFactor;
+        audioContext.offline = true;
+        m_audioEngine->process(audioContext);
+        appendBuffer(totalSamples);
+        latencyFramesOwed -= frames;
+    }
+
+    bypassGuard.release();
+
+    const MasterCalibration result { consumers.front()->calibrateFromStereo(captured, sampleRate) };
+    emit progressChanged(progressEnd);
+
+    if (result.valid) {
+        for (const auto & consumer : consumers) {
+            consumer->setCalibration(result);
+        }
+        statusMessage = QString { "Calibrated: drive %1%2 dB (input %3 -> %4 LUFS)" }
+                          .arg(result.driveDb >= 0.0 ? "+" : "")
+                          .arg(result.driveDb, 0, 'f', 1)
+                          .arg(result.measuredInputLufs, 0, 'f', 1)
+                          .arg(result.predictedOutputLufs, 0, 'f', 1);
+    } else {
+        statusMessage = tr("Calibration skipped: song audio is silent; kept live mode.");
+    }
+
+    return true;
 }
 
 std::optional<double> RenderWorker::noteBeatsOf(const Event & event) const

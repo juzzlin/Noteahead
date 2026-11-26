@@ -28,6 +28,8 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_aspect { Constants::NahdXml::xmlKeyAspect() }
   , m_attack { Constants::NahdXml::xmlKeyAttack() }
   , m_autoGain { Constants::NahdXml::xmlKeyAutoGain() }
+  , m_autoLoudnessEnabled { Constants::NahdXml::xmlKeyAutoLoudnessEnabled() }
+  , m_autoRelease { Constants::NahdXml::xmlKeyAutoRelease() }
   , m_bandCount { Constants::NahdXml::xmlKeyBandCount() }
   , m_bandwidth { Constants::NahdXml::xmlKeyBandwidth() }
   , m_bassDecay { Constants::NahdXml::xmlKeyBassDecay() }
@@ -40,6 +42,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_ceiling { Constants::NahdXml::xmlKeyCeiling() }
   , m_ceilingMaterial { Constants::NahdXml::xmlKeyCeilingMaterial() }
   , m_channelMode { Constants::NahdXml::xmlKeyChannelMode() }
+  , m_clipperEnabled { Constants::NahdXml::xmlKeyClipperEnabled() }
   , m_color { Constants::NahdXml::xmlKeyColor() }
   , m_colorDrive { Constants::NahdXml::xmlKeyColorDrive() }
   , m_colorMix { Constants::NahdXml::xmlKeyColorMix() }
@@ -101,6 +104,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_lfoMode { Constants::NahdXml::xmlKeyLfoMode() }
   , m_lfoRate { Constants::NahdXml::xmlKeyLfoRate() }
   , m_lfoWaveform { Constants::NahdXml::xmlKeyLfoWaveform() }
+  , m_limiterEnabled { Constants::NahdXml::xmlKeyLimiterEnabled() }
   , m_linearPhase { Constants::NahdXml::xmlKeyLinearPhase() }
   , m_listen { Constants::NahdXml::xmlKeyListen() }
   , m_lookahead { Constants::NahdXml::xmlKeyLookahead() }
@@ -120,6 +124,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_monoBass { Constants::NahdXml::xmlKeyMonoBass() }
   , m_monoBassFrequency { Constants::NahdXml::xmlKeyMonoBassFrequency() }
   , m_monoFreq { Constants::NahdXml::xmlKeyMonoFreq() }
+  , m_multibandEnabled { Constants::NahdXml::xmlKeyMultibandEnabled() }
   , m_peak { Constants::NahdXml::xmlKeyPeak() }
   , m_peakReduction { Constants::NahdXml::xmlKeyPeakReduction() }
   , m_pinkNoiseLevel { Constants::NahdXml::xmlKeyPinkNoiseLevel() }
@@ -155,9 +160,12 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_spread { Constants::NahdXml::xmlKeySpread() }
   , m_stages { Constants::NahdXml::xmlKeyStages() }
   , m_stereoMode { Constants::NahdXml::xmlKeyStereoMode() }
+  , m_stereoEnabled { Constants::NahdXml::xmlKeyStereoEnabled() }
   , m_stereoPhase { Constants::NahdXml::xmlKeyStereoPhase() }
+  , m_subCleanEnabled { Constants::NahdXml::xmlKeySubCleanEnabled() }
   , m_sustain { Constants::NahdXml::xmlKeySustain() }
   , m_sync { Constants::NahdXml::xmlKeySync() }
+  , m_targetLufs { Constants::NahdXml::xmlKeyTargetLufs() }
   , m_threshold { Constants::NahdXml::xmlKeyThreshold() }
   , m_timbre { Constants::NahdXml::xmlKeyTimbre() }
   , m_tone { Constants::NahdXml::xmlKeyTone() }

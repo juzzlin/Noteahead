@@ -24,6 +24,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/devices/device_factory.hpp"
 #include "../domain/effects/effect_factory.hpp"
+#include "../domain/effects/song_context_consumer.hpp"
 #include "../domain/midi/midi_note_data.hpp"
 #include "../domain/tracker/column_settings.hpp"
 #include "../infra/audio/audio_engine.hpp"
@@ -105,6 +106,7 @@
 #include "service/session_timer_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
+#include "service/song_context_analyzer.hpp"
 #include "service/theme_service.hpp"
 #include "service/tip_service.hpp"
 #include "service/update_service.hpp"
@@ -119,11 +121,11 @@
 #include <QQmlError>
 #include <QTimer>
 
-#include <iomanip>
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
-#include <string_view>
 #include <regex>
+#include <string_view>
 
 Q_DECLARE_METATYPE(noteahead::InstrumentRequest)
 Q_DECLARE_METATYPE(noteahead::Position)
@@ -472,7 +474,7 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         std::exit(EXIT_SUCCESS); }, false, "Write the user manual as a web page to the given file and exit.");
 
     // Already read by the constructor; registered so that Argengine accepts it and lists it in --help
-    ae.addOption({ Constants::smokeTestOption() }, [] {}, false, "Start the UI without audio or MIDI, quit after a few seconds and exit with an error if QML reported any warnings. For checking that a package starts.");
+    ae.addOption({ Constants::smokeTestOption() }, [] { }, false, "Start the UI without audio or MIDI, quit after a few seconds and exit with an error if QML reported any warnings. For checking that a package starts.");
 
     ae.addOption({ "--screenshots" }, [this](const std::string & value) { m_applicationService->setScreenshotDirectory(QString::fromStdString(value)); }, false, "Open the example, save the main view and every dialog as PNGs into the given directory, and quit. For reviewing UI changes.");
 
@@ -737,6 +739,9 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_performancePanelModel.get(), &PerformancePanelModel::clear);
     // Effects come and go through the effect rack, which the device service does not announce
     connect(m_effectRackController.get(), &EffectRackController::revisionChanged, m_performancePanelController.get(), &PerformancePanelController::refresh);
+    connect(m_effectRackController.get(), &EffectRackController::revisionChanged, this, [this]() {
+        syncMasterSongContext();
+    });
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_performancePanelModel.get(), &PerformancePanelModel::clear);
     connect(m_performancePanelModel.get(), &PerformancePanelModel::modified, this, [this]() {
         m_editorService->setIsModified(true);
@@ -749,10 +754,12 @@ void Application::connectEditorService()
 
     connect(m_editorService.get(), &EditorService::beatsPerMinuteChanged, this, [this]() {
         m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
+        syncMasterSongContext();
     });
     connect(m_editorService.get(), &EditorService::songChanged, this, [this]() {
         m_playerService->setSong(m_editorService->song());
         m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
+        syncMasterSongContext();
     });
 
     connect(m_editorService.get(), &EditorService::positionChanged, this, [this](const auto & newPosition, const auto &) {
@@ -926,6 +933,7 @@ void Application::connectPlayerService()
     // the tails. The next run starts from the set values, as a render does.
     connect(m_playerService.get(), &PlayerService::playbackStarting, this, [this]() {
         m_deviceService->clearAutomation();
+        syncMasterSongContext();
     });
 
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
@@ -1148,6 +1156,21 @@ void Application::stopAllNotes() const
 
     for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
         m_midiService->stopAllNotes(instrument);
+    }
+}
+
+void Application::syncMasterSongContext() const
+{
+    const auto song { m_editorService ? m_editorService->song() : nullptr };
+    if (!song || !m_deviceService) {
+        return;
+    }
+
+    const auto context { SongContextAnalyzer::analyze(*song, *m_deviceService, m_sideChainService.get()) };
+    for (const auto & location : m_deviceService->effectLocations()) {
+        if (const auto consumer { std::dynamic_pointer_cast<SongContextConsumer>(location.effect) }; consumer) {
+            consumer->setSongContext(context);
+        }
     }
 }
 

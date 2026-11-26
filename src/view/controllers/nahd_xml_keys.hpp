@@ -34,6 +34,8 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString aspect MEMBER m_aspect CONSTANT)
     Q_PROPERTY(QString attack MEMBER m_attack CONSTANT)
     Q_PROPERTY(QString autoGain MEMBER m_autoGain CONSTANT)
+    Q_PROPERTY(QString autoLoudnessEnabled MEMBER m_autoLoudnessEnabled CONSTANT)
+    Q_PROPERTY(QString autoRelease MEMBER m_autoRelease CONSTANT)
     Q_PROPERTY(QString bandCount MEMBER m_bandCount CONSTANT)
     Q_PROPERTY(QString bandwidth MEMBER m_bandwidth CONSTANT)
     Q_PROPERTY(QString bassDecay MEMBER m_bassDecay CONSTANT)
@@ -46,6 +48,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString ceiling MEMBER m_ceiling CONSTANT)
     Q_PROPERTY(QString ceilingMaterial MEMBER m_ceilingMaterial CONSTANT)
     Q_PROPERTY(QString channelMode MEMBER m_channelMode CONSTANT)
+    Q_PROPERTY(QString clipperEnabled MEMBER m_clipperEnabled CONSTANT)
     Q_PROPERTY(QString color MEMBER m_color CONSTANT)
     Q_PROPERTY(QString colorDrive MEMBER m_colorDrive CONSTANT)
     Q_PROPERTY(QString colorMix MEMBER m_colorMix CONSTANT)
@@ -107,6 +110,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString lfoMode MEMBER m_lfoMode CONSTANT)
     Q_PROPERTY(QString lfoRate MEMBER m_lfoRate CONSTANT)
     Q_PROPERTY(QString lfoWaveform MEMBER m_lfoWaveform CONSTANT)
+    Q_PROPERTY(QString limiterEnabled MEMBER m_limiterEnabled CONSTANT)
     Q_PROPERTY(QString linearPhase MEMBER m_linearPhase CONSTANT)
     Q_PROPERTY(QString listen MEMBER m_listen CONSTANT)
     Q_PROPERTY(QString lookahead MEMBER m_lookahead CONSTANT)
@@ -126,6 +130,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString monoBass MEMBER m_monoBass CONSTANT)
     Q_PROPERTY(QString monoBassFrequency MEMBER m_monoBassFrequency CONSTANT)
     Q_PROPERTY(QString monoFreq MEMBER m_monoFreq CONSTANT)
+    Q_PROPERTY(QString multibandEnabled MEMBER m_multibandEnabled CONSTANT)
     Q_PROPERTY(QString peak MEMBER m_peak CONSTANT)
     Q_PROPERTY(QString peakReduction MEMBER m_peakReduction CONSTANT)
     Q_PROPERTY(QString pinkNoiseLevel MEMBER m_pinkNoiseLevel CONSTANT)
@@ -161,9 +166,12 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString spread MEMBER m_spread CONSTANT)
     Q_PROPERTY(QString stages MEMBER m_stages CONSTANT)
     Q_PROPERTY(QString stereoMode MEMBER m_stereoMode CONSTANT)
+    Q_PROPERTY(QString stereoEnabled MEMBER m_stereoEnabled CONSTANT)
     Q_PROPERTY(QString stereoPhase MEMBER m_stereoPhase CONSTANT)
+    Q_PROPERTY(QString subCleanEnabled MEMBER m_subCleanEnabled CONSTANT)
     Q_PROPERTY(QString sustain MEMBER m_sustain CONSTANT)
     Q_PROPERTY(QString sync MEMBER m_sync CONSTANT)
+    Q_PROPERTY(QString targetLufs MEMBER m_targetLufs CONSTANT)
     Q_PROPERTY(QString threshold MEMBER m_threshold CONSTANT)
     Q_PROPERTY(QString timbre MEMBER m_timbre CONSTANT)
     Q_PROPERTY(QString tone MEMBER m_tone CONSTANT)
@@ -211,6 +219,8 @@ private:
     QString m_aspect;
     QString m_attack;
     QString m_autoGain;
+    QString m_autoLoudnessEnabled;
+    QString m_autoRelease;
     QString m_bandCount;
     QString m_bandwidth;
     QString m_bassDecay;
@@ -223,6 +233,7 @@ private:
     QString m_ceiling;
     QString m_ceilingMaterial;
     QString m_channelMode;
+    QString m_clipperEnabled;
     QString m_color;
     QString m_colorDrive;
     QString m_colorMix;
@@ -284,6 +295,7 @@ private:
     QString m_lfoMode;
     QString m_lfoRate;
     QString m_lfoWaveform;
+    QString m_limiterEnabled;
     QString m_linearPhase;
     QString m_listen;
     QString m_lookahead;
@@ -303,6 +315,7 @@ private:
     QString m_monoBass;
     QString m_monoBassFrequency;
     QString m_monoFreq;
+    QString m_multibandEnabled;
     QString m_peak;
     QString m_peakReduction;
     QString m_pinkNoiseLevel;
@@ -338,9 +351,12 @@ private:
     QString m_spread;
     QString m_stages;
     QString m_stereoMode;
+    QString m_stereoEnabled;
     QString m_stereoPhase;
+    QString m_subCleanEnabled;
     QString m_sustain;
     QString m_sync;
+    QString m_targetLufs;
     QString m_threshold;
     QString m_timbre;
     QString m_tone;

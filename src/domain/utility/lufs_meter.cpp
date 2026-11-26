@@ -60,6 +60,11 @@ void LufsMeter::requestReset()
     m_meter.requestReset();
 }
 
+void LufsMeter::requestResetMeters()
+{
+    requestReset();
+}
+
 void LufsMeter::sync()
 {
 }

@@ -17,6 +17,7 @@
 #define LUFS_METER_HPP
 
 #include "../effects/effect.hpp"
+#include "../effects/loudness_meter_resettable.hpp"
 #include "loudness_meter.hpp"
 
 namespace noteahead {
@@ -24,7 +25,7 @@ namespace noteahead {
 //! BS.1770-4 loudness metering as a rack effect: the measurement itself is LoudnessMeter, which a
 //! device's own output tap owns directly. This is the version the user patches into a slot, and it
 //! passes the signal through untouched.
-class LufsMeter : public Effect
+class LufsMeter : public Effect, public LoudnessMeterResettable
 {
 public:
     LufsMeter();
@@ -47,6 +48,7 @@ public:
     //! Clear the meter from another thread. The readings blank immediately; the accumulated state is
     //! dropped by the audio thread at the next sample, so no state is touched from under it.
     void requestReset();
+    void requestResetMeters() override;
 
 private:
     LoudnessMeter m_meter;

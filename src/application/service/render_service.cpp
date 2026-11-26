@@ -17,10 +17,16 @@
 
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/effects/effect.hpp"
+#include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/master_calibration.hpp"
+#include "../../domain/effects/song_context_consumer.hpp"
 #include "../../domain/tracker/song.hpp"
+#include "device_service.hpp"
 #include "editor_service.hpp"
 #include "mixer_service.hpp"
 #include "render_worker.hpp"
+#include "song_context_analyzer.hpp"
 
 #include <QDateTime>
 
@@ -52,6 +58,7 @@ RenderService::RenderService(AudioEngineS audioEngine,
 
     connect(m_worker.get(), &RenderWorker::progressChanged, this, &RenderService::onWorkerProgressChanged);
     connect(m_worker.get(), &RenderWorker::finished, this, &RenderService::onWorkerFinished);
+    connect(m_worker.get(), &RenderWorker::calibrationFinished, this, &RenderService::onWorkerCalibrationFinished);
 
     m_workerThread.start();
 }
@@ -216,8 +223,88 @@ void RenderService::onWorkerFinished(bool success, QString message)
     }
 }
 
+void RenderService::onWorkerCalibrationFinished(bool success, QString message)
+{
+    m_isCalibrating = false;
+    m_isRendering = false;
+    m_progress = 0.0;
+    emit progressChanged();
+    emit isRenderingChanged();
+    emit calibrationFinished(success, message);
+}
+
+void RenderService::calibrateMasterEffects()
+{
+    if (m_isRendering) {
+        return;
+    }
+
+    const auto song { m_editorService->song() };
+    if (!song) {
+        emit calibrationFinished(false, tr("No song loaded."));
+        return;
+    }
+
+    bool hasEnabledConsumer { false };
+    for (const auto & effect : m_deviceService->insertEffectRack().effects()) {
+        if (effect && effect->enabled() && std::dynamic_pointer_cast<MasterCalibrationConsumer>(effect)) {
+            hasEnabledConsumer = true;
+            break;
+        }
+    }
+    if (!hasEnabledConsumer) {
+        emit calibrationFinished(false, tr("Enable Magic Master on Master Effects to calibrate."));
+        return;
+    }
+
+    syncMasterSongContext();
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = m_editorService->beatsPerMinute();
+    timing.linesPerBeat = m_editorService->linesPerBeat();
+    timing.ticksPerLine = m_editorService->ticksPerLine();
+
+    const auto events { song->renderToEvents(m_automationService, m_sideChainService, 0) };
+    const auto maxTick { song->totalTicks() };
+    const auto & renderSettings { song->metadata().renderSettings() };
+    const auto sampleRate { renderSettings.sampleRate() };
+    const auto oversampleFactor { static_cast<quint8>(renderSettings.oversampleFactor()) };
+
+    m_isCalibrating = true;
+    m_progress = 0.0;
+    emit progressChanged();
+    m_isRendering = true;
+    emit isRenderingChanged();
+
+    const auto renderWorker { m_worker.get() };
+    const bool invoked { QMetaObject::invokeMethod(renderWorker, [renderWorker, events, timing, maxTick, sampleRate, oversampleFactor]() { renderWorker->calibrateMasterOnly(events, timing, maxTick, sampleRate, oversampleFactor); }, Qt::QueuedConnection) };
+    if (!invoked) {
+        onWorkerCalibrationFinished(false, tr("Internal error: Failed to start calibration worker."));
+    }
+}
+
+void RenderService::syncMasterSongContext() const
+{
+    const auto song { m_editorService->song() };
+    if (!song) {
+        return;
+    }
+    const auto ctx { SongContextAnalyzer::analyze(*song, *m_deviceService, m_sideChainService.get()) };
+    for (const auto & loc : m_deviceService->effectLocations()) {
+        if (const auto consumer { std::dynamic_pointer_cast<SongContextConsumer>(loc.effect) }; consumer) {
+            consumer->setSongContext(ctx);
+        }
+    }
+}
+
 void RenderService::onWorkerProgressChanged(double progress)
 {
+    if (m_isCalibrating) {
+        m_progress = progress;
+        emit progressChanged();
+        return;
+    }
+
     // The worker's signal is queued, so one can still land after the queue has been cleared on
     // finish. Dividing by the job count then would leave the bar on a non-finite value.
     if (m_queue.empty()) {
@@ -230,6 +317,7 @@ void RenderService::onWorkerProgressChanged(double progress)
 
 void RenderService::startNextRender()
 {
+    syncMasterSongContext();
     const auto & job = m_queue[m_currentJobIndex];
 
     juzzlin::L(TAG).info() << "Starting job " << m_currentJobIndex + 1 << "/" << m_queue.size() << ": " << job.fileName.toStdString();
@@ -259,8 +347,9 @@ void RenderService::startNextRender()
     // Render settings belong to the song, so exporting one song cannot inherit another's trim.
     const auto & renderSettings = song->metadata().renderSettings();
     const auto sampleRate = renderSettings.sampleRate();
-    const auto options = [&renderSettings]() {
+    const auto options = [&renderSettings, calibrateMaster = job.soloTracks.empty()]() {
         RenderOptions options;
+        options.calibrateMaster = calibrateMaster;
         options.bitDepth = static_cast<BitDepth>(renderSettings.bitDepth());
         options.format = static_cast<AudioFormat>(renderSettings.format());
         options.normalize = renderSettings.normalizeEnabled();

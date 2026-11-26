@@ -1,0 +1,14 @@
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        true_peak_limiter.cpp
+        true_peak_limiter.hpp
+        true_peak_limiter_presets.cpp
+        true_peak_limiter_presets.hpp
+        true_peak_limiter_registration.cpp
+    VIEW_SOURCES
+        true_peak_limiter_dialog_model.cpp
+        true_peak_limiter_dialog_model.hpp
+        true_peak_limiter_view_registration.cpp
+    QML_FILES
+        TruePeakLimiterDialog.qml
+)

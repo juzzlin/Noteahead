@@ -60,6 +60,7 @@ public:
 
     Q_INVOKABLE void renderMaster(const QString & fileName);
     Q_INVOKABLE void renderIndividualTracks(const QString & directory);
+    Q_INVOKABLE void calibrateMasterEffects();
     Q_INVOKABLE bool isRendering() const;
     Q_INVOKABLE double progress() const;
 
@@ -70,15 +71,18 @@ signals:
     void isRenderingChanged();
     void progressChanged();
     void renderingFinished(bool success, QString message);
+    void calibrationFinished(bool success, QString message);
 
 private slots:
     void onWorkerFinished(bool success, QString message);
+    void onWorkerCalibrationFinished(bool success, QString message);
     void onWorkerProgressChanged(double progress);
 
 private:
     //! Clears the state left by the previous export and starts the queued jobs.
     void beginRender();
     void startNextRender();
+    void syncMasterSongContext() const;
 
     QString renderFileName(const QString & baseName) const;
 
@@ -93,6 +97,7 @@ private:
     QThread m_workerThread;
 
     bool m_isRendering = false;
+    bool m_isCalibrating = false;
     double m_progress = 0.0;
 
     struct RenderJob

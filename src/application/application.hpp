@@ -153,6 +153,7 @@ private:
 
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
+    void syncMasterSongContext() const;
 
     void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
     void importFromMidi(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);

@@ -20,10 +20,10 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/modulation_source.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/loudness_meter_resettable.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
-#include "../../domain/utility/lufs_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
@@ -1251,8 +1251,8 @@ void DeviceService::resetLoudnessMeters()
 {
     const auto resetRack = [](const EffectRack & rack) {
         for (const auto & effect : rack.effects()) {
-            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
-                meter->requestReset();
+            if (const auto meter = std::dynamic_pointer_cast<LoudnessMeterResettable>(effect)) {
+                meter->requestResetMeters();
             }
         }
     };

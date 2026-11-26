@@ -107,6 +107,7 @@
 #include "../../plugins/effects/gain/gain.hpp"
 #include "../../plugins/effects/gate/gate.hpp"
 #include "../../plugins/effects/limiter/limiter.hpp"
+#include "../../plugins/effects/magic_master/magic_master.hpp"
 #include "../../plugins/effects/monitor/monitor.hpp"
 #include "../../plugins/effects/multiband_compressor/multiband_compressor.hpp"
 #include "../../plugins/effects/phase_scope/phase_scope.hpp"
@@ -123,6 +124,7 @@
 #include "../../plugins/effects/stereo_exciter/stereo_exciter.hpp"
 #include "../../plugins/effects/stereo_widener/stereo_widener.hpp"
 #include "../../plugins/effects/tremolo/tremolo.hpp"
+#include "../../plugins/effects/true_peak_limiter/true_peak_limiter.hpp"
 #include "../../plugins/effects/tube_stage/tube_stage.hpp"
 #include "../../plugins/effects/vintage_passive_eq/vintage_passive_eq.hpp"
 #include "../../plugins/effects/wave_designer/wave_designer.hpp"
@@ -4807,6 +4809,114 @@ void XmlSerializationTest::test_toXmlFromXml_limiterEffect_shouldLoadCorrectly()
     }
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
         QCOMPARE(p->get().value(), 1.0f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_truePeakLimiterEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto limiter = std::make_shared<TruePeakLimiter>();
+    if (auto p = limiter->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(0.5f);
+    }
+    if (auto p = limiter->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString()); p) {
+        p->get().setValue(0.75f);
+    }
+    if (auto p = limiter->parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = limiter->parameter(Constants::NahdXml::xmlKeyAutoRelease().toStdString()); p) {
+        p->get().setValue(0.0f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, limiter);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), TruePeakLimiter::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<TruePeakLimiter>(effect);
+    QVERIFY(restored);
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.5f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString()); p) {
+        QVERIFY(std::abs(p->get().value() - 0.75f) < 0.01f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
+        QCOMPARE(p->get().value(), 1.0f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyAutoRelease().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.0f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_magicMasterEffect_shouldLoadCorrectly()
+{
+    const std::string previousCLocale { std::setlocale(LC_ALL, nullptr) };
+    const QLocale previousQLocale;
+    const bool hasFinnishCLocale = std::setlocale(LC_ALL, "fi_FI.UTF-8") || std::setlocale(LC_ALL, "fi_FI.utf8");
+    Q_UNUSED(hasFinnishCLocale);
+    QLocale::setDefault(QLocale { QLocale::Finnish, QLocale::Finland });
+    const auto restore = qScopeGuard([&] {
+        std::setlocale(LC_ALL, previousCLocale.c_str());
+        QLocale::setDefault(previousQLocale);
+    });
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto mm = std::make_shared<MagicMaster>();
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyTargetLufs().toStdString()); p) {
+        p->get().setValue(MagicMaster::targetLufsPosition(-11.5));
+    }
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString()); p) {
+        p->get().setValue(MagicMaster::ceilingPosition(-1.5));
+    }
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyClipperEnabled().toStdString()); p) {
+        p->get().setValue(0.0f);
+    }
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyStereoEnabled().toStdString()); p) {
+        p->get().setValue(0.0f);
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, mm);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.insertEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), MagicMaster::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<MagicMaster>(effect);
+    QVERIFY(restored);
+    QVERIFY(std::abs(restored->targetLufs() - (-11.5)) < 0.05);
+    QVERIFY(std::abs(restored->peakLimitDb() - (-1.5)) < 0.05);
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyClipperEnabled().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.0f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyStereoEnabled().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.0f);
     }
 }
 
