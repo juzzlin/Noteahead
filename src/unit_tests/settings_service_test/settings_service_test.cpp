@@ -137,6 +137,35 @@ void SettingsServiceTest::test_getters_shouldBeServedFromMembers()
     QCOMPARE(settingsService.visibleLines(), 24);
 }
 
+void SettingsServiceTest::test_zoomEditor_inAndOut_shouldStepVisibleLinesWithinRange()
+{
+    SettingsService settingsService;
+    settingsService.setVisibleLines(32);
+    QSignalSpy spy { &settingsService, &SettingsService::visibleLinesChanged };
+
+    settingsService.zoomEditor(1);
+    QCOMPARE(settingsService.visibleLines(), 28);
+    settingsService.zoomEditor(-2);
+    QCOMPARE(settingsService.visibleLines(), 36);
+    QCOMPARE(spy.count(), 2);
+
+    settingsService.zoomEditor(100);
+    QCOMPARE(settingsService.visibleLines(), settingsService.minVisibleLines());
+    settingsService.zoomEditor(-100);
+    QCOMPARE(settingsService.visibleLines(), settingsService.maxVisibleLines());
+    QCOMPARE(settingsService.maxVisibleLines(), 64);
+}
+
+void SettingsServiceTest::test_resetEditorZoom_shouldRestoreDefault()
+{
+    SettingsService settingsService;
+    settingsService.setVisibleLines(48);
+
+    settingsService.resetEditorZoom();
+
+    QCOMPARE(settingsService.visibleLines(), 32);
+}
+
 void SettingsServiceTest::test_recordingVelocity_playedVelocity_shouldPickVelocity_data()
 {
     QTest::addColumn<bool>("playedStep");

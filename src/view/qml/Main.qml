@@ -849,6 +849,22 @@ ApplicationWindow {
         context: Qt.ApplicationShortcut
         onActivated: _toggleRackWindow(masterEffectsDialog, () => applicationService.requestMasterEffectsDialog())
     }
+    // The editor's zoom: Visible Lines, in steps. Ctrl+= is Ctrl++ without the Shift a US layout needs.
+    Shortcut {
+        sequences: ["Ctrl++", "Ctrl+="]
+        context: Qt.ApplicationShortcut
+        onActivated: settingsService.zoomEditor(1)
+    }
+    Shortcut {
+        sequence: "Ctrl+-"
+        context: Qt.ApplicationShortcut
+        onActivated: settingsService.zoomEditor(-1)
+    }
+    Shortcut {
+        sequence: "Ctrl+0"
+        context: Qt.ApplicationShortcut
+        onActivated: settingsService.resetEditorZoom()
+    }
     Shortcut {
         sequence: "Ctrl+Shift+O"
         context: Qt.ApplicationShortcut

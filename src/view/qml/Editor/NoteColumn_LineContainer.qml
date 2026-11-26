@@ -159,6 +159,15 @@ Item {
         cursorShape: _renderer && _renderer.automationCurveHovered ? Qt.PointingHandCursor : Qt.ArrowCursor
         onExited: _updateCurveHover()
         onWheel: event => {
+            // Ctrl+wheel zooms: fewer, taller lines up, more and smaller lines down. Also while
+            // playing, which is when the lines scrolling past are easiest to judge.
+            if (event.modifiers & Qt.ControlModifier) {
+                if (event.angleDelta.y !== 0) {
+                    settingsService.zoomEditor(event.angleDelta.y > 0 ? 1 : -1);
+                }
+                event.accepted = true;
+                return;
+            }
             if (!UiService.isPlaying()) {
                 if (event.angleDelta.y > 0) {
                     editorService.requestScroll(-1);

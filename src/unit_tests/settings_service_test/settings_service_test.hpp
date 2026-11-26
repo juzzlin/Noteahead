@@ -39,6 +39,8 @@ private slots:
     void test_tipsEnabled_shouldPersistAcrossInstances();
 
     void test_getters_shouldBeServedFromMembers();
+    void test_zoomEditor_inAndOut_shouldStepVisibleLinesWithinRange();
+    void test_resetEditorZoom_shouldRestoreDefault();
 
     void test_step_unset_shouldReturnDefault();
     void test_velocity_unset_shouldReturnDefault();

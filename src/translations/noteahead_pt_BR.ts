@@ -8003,6 +8003,18 @@
         <translation>Visão geral da música...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>Ampliar</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Reduzir</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>Redefinir zoom</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>Visão geral do áudio...</translation>
     </message>
@@ -12689,6 +12701,10 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
         <translation>Definir o número de linhas visíveis na visualização do editor</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>Ctrl+roda sobre o editor, Ctrl++ e Ctrl+- também mudam isso.</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>Tamanho da fonte do cabeçalho da faixa:</translation>
     </message>
@@ -13100,6 +13116,22 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
     <message>
         <source>Open or close the Song Overview</source>
         <translation>Abrir ou fechar a visão geral da música</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>Amplia ou reduz o editor</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>Redefine o zoom do editor</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

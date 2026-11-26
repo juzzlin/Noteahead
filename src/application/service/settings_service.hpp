@@ -31,6 +31,9 @@ class SettingsService : public QObject
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
     Q_PROPERTY(bool uiUpdatesDisabledDuringPlayback READ uiUpdatesDisabledDuringPlayback WRITE setUiUpdatesDisabledDuringPlayback NOTIFY uiUpdatesDisabledDuringPlaybackChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
+    //! The range the editor's zoom, and the setting, keep the visible lines in.
+    Q_PROPERTY(int minVisibleLines READ minVisibleLines CONSTANT)
+    Q_PROPERTY(int maxVisibleLines READ maxVisibleLines CONSTANT)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
     Q_PROPERTY(bool autoTrackCount READ autoTrackCount WRITE setAutoTrackCount NOTIFY autoTrackCountChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
@@ -94,6 +97,13 @@ public:
 
     virtual Q_INVOKABLE int visibleLines() const;
     virtual Q_INVOKABLE void setVisibleLines(int visibleLines);
+    int minVisibleLines() const;
+    int maxVisibleLines() const;
+    //! Zooms the editor in by @p steps, showing fewer and taller lines, or out for a negative
+    //! @p steps, within the visible lines' range.
+    Q_INVOKABLE void zoomEditor(int steps);
+    //! Back to the default number of visible lines.
+    Q_INVOKABLE void resetEditorZoom();
 
     virtual Q_INVOKABLE int trackHeaderFontSize() const;
     virtual Q_INVOKABLE void setTrackHeaderFontSize(int trackHeaderFontSize);

@@ -8003,6 +8003,18 @@
         <translation>Resumen de la canción...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>Acercar</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Alejar</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>Restablecer zoom</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>Resumen de audio...</translation>
     </message>
@@ -12689,6 +12701,10 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
         <translation>Establecer el número de líneas visibles en la vista del editor</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>Ctrl+rueda sobre el editor, Ctrl++ y Ctrl+- también lo cambian.</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>Tamaño de fuente del encabezado de pista:</translation>
     </message>
@@ -13100,6 +13116,22 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     <message>
         <source>Open or close the Song Overview</source>
         <translation>Abrir o cerrar el resumen de la canción</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>Acerca o aleja el editor</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>Restablece el zoom del editor</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

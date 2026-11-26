@@ -8003,6 +8003,18 @@
         <translation>Kappaleen yleiskatsaus...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>Lähennä</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Loitonna</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>Palauta zoomaus</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>Äänen yleiskatsaus...</translation>
     </message>
@@ -12689,6 +12701,10 @@ Audio files will appear next to the current project file.</source>
         <translation>Aseta editorinäkymässä näkyvien rivien määrä</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>Ctrl+rulla editorin päällä sekä Ctrl++ ja Ctrl+- muuttavat sitä myös.</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>Raitaotsikon fonttikoko:</translation>
     </message>
@@ -13100,6 +13116,22 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Open or close the Song Overview</source>
         <translation>Avaa tai sulje kappaleen yleiskatsaus</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>Lähennä tai loitonna editoria</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>Palauta editorin zoomaus</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

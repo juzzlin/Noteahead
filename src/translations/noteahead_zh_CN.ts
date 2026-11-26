@@ -8002,6 +8002,18 @@
         <translation>乐曲概览...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>放大</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>缩小</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>重置缩放</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>音频概览...</translation>
     </message>
@@ -12687,6 +12699,10 @@ Audio files will appear next to the current project file.</source>
         <translation>设置编辑器视图中的可见行数</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>在编辑器上按 Ctrl+滚轮，或按 Ctrl++ 和 Ctrl+-，也可更改此值。</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>轨道标题字号：</translation>
     </message>
@@ -13098,6 +13114,22 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Open or close the Song Overview</source>
         <translation>打开或关闭乐曲概览</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>放大或缩小编辑器</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>重置编辑器缩放</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

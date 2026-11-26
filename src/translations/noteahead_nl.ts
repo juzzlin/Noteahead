@@ -8003,6 +8003,18 @@
         <translation>Songoverzicht...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>Inzoomen</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Uitzoomen</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>Zoom herstellen</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>Audio-overzicht...</translation>
     </message>
@@ -12689,6 +12701,10 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Aantal zichtbare regels in de editorweergave instellen</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>Ctrl+wieltje boven de editor, Ctrl++ en Ctrl+- veranderen het ook.</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>Lettergrootte trackkop:</translation>
     </message>
@@ -13100,6 +13116,22 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Open or close the Song Overview</source>
         <translation>Songoverzicht openen of sluiten</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>Zoom de editor in of uit</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>Herstel de zoom van de editor</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

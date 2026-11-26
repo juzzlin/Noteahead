@@ -8003,6 +8003,18 @@
         <translation>Vue d&apos;ensemble du morceau...</translation>
     </message>
     <message>
+        <source>Zoom in</source>
+        <translation>Zoom avant</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Zoom arrière</translation>
+    </message>
+    <message>
+        <source>Reset zoom</source>
+        <translation>Réinitialiser le zoom</translation>
+    </message>
+    <message>
         <source>Audio Overview...</source>
         <translation>Vue d&apos;ensemble audio...</translation>
     </message>
@@ -12689,6 +12701,10 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation>Définir le nombre de lignes visibles dans l&apos;éditeur</translation>
     </message>
     <message>
+        <source>Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.</source>
+        <translation>Ctrl+molette sur l&apos;éditeur, Ctrl++ et Ctrl+- le changent aussi.</translation>
+    </message>
+    <message>
         <source>Track header font size:</source>
         <translation>Taille de police de l&apos;en-tête de piste :</translation>
     </message>
@@ -13100,6 +13116,22 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     <message>
         <source>Open or close the Song Overview</source>
         <translation>Ouvrir ou fermer la vue d&apos;ensemble du morceau</translation>
+    </message>
+    <message>
+        <source>Ctrl + + / Ctrl + -</source>
+        <translation>Ctrl + + / Ctrl + -</translation>
+    </message>
+    <message>
+        <source>Zoom the editor in or out</source>
+        <translation>Zoom avant ou arrière dans l&apos;éditeur</translation>
+    </message>
+    <message>
+        <source>Ctrl + 0</source>
+        <translation>Ctrl + 0</translation>
+    </message>
+    <message>
+        <source>Reset the editor&apos;s zoom</source>
+        <translation>Réinitialise le zoom de l&apos;éditeur</translation>
     </message>
     <message>
         <source>Ctrl + Shift + R</source>

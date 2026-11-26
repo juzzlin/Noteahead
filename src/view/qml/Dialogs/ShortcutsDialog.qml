@@ -73,6 +73,14 @@ AnimatedDialog {
             description: qsTr("Show or hide the performance panel")
         },
         {
+            key: qsTr("Ctrl + + / Ctrl + -"),
+            description: qsTr("Zoom the editor in or out")
+        },
+        {
+            key: qsTr("Ctrl + 0"),
+            description: qsTr("Reset the editor's zoom")
+        },
+        {
             key: qsTr("Ctrl + Shift + O"),
             description: qsTr("Open or close the Song Overview")
         },

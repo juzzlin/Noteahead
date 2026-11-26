@@ -39,6 +39,8 @@ New features:
 
 * Song Overview: Ctrl+Shift+O opens and closes it
 
+* Editor: zoom with Ctrl+wheel, Ctrl++ and Ctrl+-, out to 64 visible lines
+
 Bug fixes:
 
 * Synth D: Tune and the OSC 2 and OSC 3 Frequency knobs set and show hundredths of a semitone, for a slow beat between the oscillators

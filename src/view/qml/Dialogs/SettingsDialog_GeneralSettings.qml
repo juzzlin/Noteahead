@@ -48,8 +48,8 @@ SectionBox {
                 }
                 SpinBox {
                     id: visibleLinesSpinBox
-                    from: 16
-                    to: 32
+                    from: settingsService.minVisibleLines
+                    to: settingsService.maxVisibleLines
                     Layout.column: 1
                     Layout.columnSpan: 1
                     Layout.row: 0
@@ -62,7 +62,7 @@ SectionBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set number of visible lines in the editor view")
+                    ToolTip.text: qsTr("Set number of visible lines in the editor view") + " " + qsTr("Ctrl+wheel over the editor, Ctrl++ and Ctrl+- change it too.")
                 }
                 Label {
                     text: qsTr("Track header font size:")

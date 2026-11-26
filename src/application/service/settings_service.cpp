@@ -28,13 +28,23 @@ namespace noteahead {
 
 static const auto TAG = "SettingsService";
 
+namespace {
+
+constexpr int MinVisibleLines { 16 };
+constexpr int MaxVisibleLines { 64 };
+constexpr int DefaultVisibleLines { 32 };
+//! The lines one step of the editor's zoom adds or takes away.
+constexpr int VisibleLinesZoomStep { 4 };
+
+} // namespace
+
 SettingsService::SettingsService()
   : m_autoNoteOffOffset { Settings::autoNoteOffOffset(static_cast<int>(Constants::defaultAutoNoteOffOffset().count())) }
   , m_controllerPort { Settings::controllerPort("") }
   , m_uiUpdatesDisabledDuringPlayback { Settings::uiUpdatesDisabledDuringPlayback() }
   , m_step { Settings::step(1) }
   , m_velocity { Settings::velocity(100) }
-  , m_visibleLines { Settings::visibleLines(32) }
+  , m_visibleLines { Settings::visibleLines(DefaultVisibleLines) }
   , m_trackHeaderFontSize { Settings::trackHeaderFontSize(20) }
   , m_autoTrackCount { Settings::autoTrackCount() }
   , m_recordingEnabled { Settings::recordingEnabled() }
@@ -166,6 +176,26 @@ void SettingsService::setVisibleLines(int visibleLines)
         Settings::setVisibleLines(visibleLines);
         emit visibleLinesChanged();
     }
+}
+
+int SettingsService::minVisibleLines() const
+{
+    return MinVisibleLines;
+}
+
+int SettingsService::maxVisibleLines() const
+{
+    return MaxVisibleLines;
+}
+
+void SettingsService::zoomEditor(int steps)
+{
+    setVisibleLines(std::clamp(m_visibleLines - steps * VisibleLinesZoomStep, MinVisibleLines, MaxVisibleLines));
+}
+
+void SettingsService::resetEditorZoom()
+{
+    setVisibleLines(DefaultVisibleLines);
 }
 
 int SettingsService::trackHeaderFontSize() const

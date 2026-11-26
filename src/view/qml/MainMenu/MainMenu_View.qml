@@ -40,6 +40,24 @@ FittedMenu {
     }
     MenuSeparator {}
     ShortcutHintAction {
+        text: qsTr("Zoom in")
+        shortcutHint: "Ctrl++"
+        enabled: settingsService.visibleLines > settingsService.minVisibleLines
+        onTriggered: settingsService.zoomEditor(1)
+    }
+    ShortcutHintAction {
+        text: qsTr("Zoom out")
+        shortcutHint: "Ctrl+-"
+        enabled: settingsService.visibleLines < settingsService.maxVisibleLines
+        onTriggered: settingsService.zoomEditor(-1)
+    }
+    ShortcutHintAction {
+        text: qsTr("Reset zoom")
+        shortcutHint: "Ctrl+0"
+        onTriggered: settingsService.resetEditorZoom()
+    }
+    MenuSeparator {}
+    ShortcutHintAction {
         text: qsTr("Master effect rack...")
         shortcutHint: "Ctrl+B"
         onTriggered: applicationService.requestMasterEffectsDialog()
