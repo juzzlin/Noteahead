@@ -266,6 +266,269 @@
     </message>
 </context>
 <context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>Stereokonsolin väyläprosessori, jossa yhdistyvät erilliset A- (amerikkalainen op-amp-isku) ja N-kyllästysasteet (brittiläinen muuntajan alarekisterin paino), valittava Color-moduulipaikka, kolmialueinen Baxandall + Air Tone -taajuuskorjain sekä elliptinen Aspect-stereolevennys.</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>Konsoli</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>Tiukka ylipäästö</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Pois</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz (Miksaus)</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz (Raita)</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>Subtaajuuksien suodin: 25 Hz Miksaus lisää hienovaraisen matalien korostuksen; 50 Hz Raita leikkaa tasaisella Butterworth-suotimella.</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>Reititys</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A (Erilliskytkentä)</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N (Muuntaja)</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>Erillisten A- ja N-konsoliasteiden kytkentäjärjestys.</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A-särö</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>Asteen A särö: amerikkalainen erillis-op-amp ja teräsmuuntaja iskevyyteen ja parittomiin yläsäveliin.</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N-särö</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>Asteen N särö: brittiläinen A-luokan piiri ja rautamuuntajan vuokylläisyys parillisiin yläsäveliin ja alarekisterin painoon.</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>Color-moduuli</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>Moduuli</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>Nauha</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>Vinyyli</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>Sarjakytketty väritysmoduuli konsoliasteiden jälkeen: VCA-väyläliima, analoginen masterinauha, vinyylilämpö tai 12-bittinen sampleri.</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Color-särö</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>Valitun Color-moduulin voimakkuus.</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Color-sekoitus</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>Color-moduulipaikan kuiva/märkä-sekoitus.</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>Tone EQ</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>EQ päällä</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>Kytkee kolmialueisen Baxandall + Air -taajuuskorjaimen käyttöön tai ohitukseen.</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>Ennen kyllästystä</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>Kytkee Tone EQ:n ennen konsoli- ja Color-asteita valittuna, tai niiden jälkeen muutoin.</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>Alakaista</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>Basso (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>Runko (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>Yläkaista</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>Keskialue (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>Läsnäolo (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>Kiilto (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Matalat</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>Pehmeä Baxandall-alahylly (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Korkeat</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>Pehmeä Baxandall-ylähylly (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Ilma</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>Silkkisen yläpään Air-hylly (+/-9 dB).</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>Luonne ja lähtö</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>Vintage</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>Pehmeä vintage-muuntajan yläpään vaimennus kireyden pyöristämiseen.</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>Hienovarainen deterministinen L/R-komponenttitoleranssi ja hidas ryömintä.</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Leveys</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>Elliptinen ylipäästetty Mid/Side-levennys; pitää subbasson koossa ja monosignaalin keskellä.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>Päälähdön tasonsäätö (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>Rinnakkainen kuiva/märkä-sekoitus viivekompensoidulla kuivalla signaalilla.</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Saturaatio</translation>
+    </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Automaattinen vahvistus</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Poistaa tason, jonka konsoli- ja Color-asteet lisäävät, mitattuna vaaleanpunaisella kohinalla -20 dBFS:n tasolla, jotta Drive muuttaa soundia eikä äänekkyyttä.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+</context>
+<context>
     <name>AnalogFuzzDialog</name>
     <message>
         <source>Analog Fuzz (Slot %1)</source>
@@ -6620,6 +6883,109 @@
     </message>
 </context>
 <context>
+    <name>MagicMasterDialog</name>
+    <message>
+        <source>Magic Master (Slot %1)</source>
+        <translation>Magic Master (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Analyzing %1%</source>
+        <translation>Analysoidaan %1%</translation>
+    </message>
+    <message>
+        <source>Analyze Song</source>
+        <translation>Analysoi kappale</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
+        <translation>Skannaa koko kappale offline-tilassa EDM-EQ-tasapainon, monikaistakynnysten ja tarkan LUFS-tehon lukitsemiseksi.</translation>
+    </message>
+    <message>
+        <source>Reset Meters</source>
+        <translation>Nollaa mittarit</translation>
+    </message>
+    <message>
+        <source>Master Target &amp; Output</source>
+        <translation>Master-tavoite ja lähtö</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>LUFS-tavoite</translation>
+    </message>
+    <message>
+        <source>Auto LUFS</source>
+        <translation>Auto LUFS</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>Huippuraja</translation>
+    </message>
+    <message>
+        <source>Short-Term:</source>
+        <translation>Lyhytaikainen:</translation>
+    </message>
+    <message>
+        <source>Integrated:</source>
+        <translation>Integroitu:</translation>
+    </message>
+    <message>
+        <source>True Peak:</source>
+        <translation>True Peak:</translation>
+    </message>
+    <message>
+        <source>Auto Drive:</source>
+        <translation>Auto Drive:</translation>
+    </message>
+    <message>
+        <source>Calibrated</source>
+        <translation>Kalibroitu</translation>
+    </message>
+    <message>
+        <source>Live</source>
+        <translation>Live</translation>
+    </message>
+    <message>
+        <source>GR</source>
+        <translation>GR</translation>
+    </message>
+    <message>
+        <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
+        <translation>EDM-oletus (128 BPM) · Toista tai napsauta Analysoi kappale</translation>
+    </message>
+    <message>
+        <source>Sub &amp; Phase</source>
+        <translation>Sub ja vaihe</translation>
+    </message>
+    <message>
+        <source>24dB HPF</source>
+        <translation>24dB ylipäästö</translation>
+    </message>
+    <message>
+        <source>Mono Low</source>
+        <translation>Basso mono</translation>
+    </message>
+    <message>
+        <source>Auto EQ</source>
+        <translation>Auto EQ</translation>
+    </message>
+    <message>
+        <source>Multiband</source>
+        <translation>Monikaista</translation>
+    </message>
+    <message>
+        <source>Stereo &amp; Air</source>
+        <translation>Stereo ja ilma</translation>
+    </message>
+    <message>
+        <source>Soft Clipper</source>
+        <translation>Soft Clipper</translation>
+    </message>
+    <message>
+        <source>True-Peak</source>
+        <translation>True-Peak</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Noteahead files</source>
@@ -9667,11 +10033,11 @@
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avoimuus</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jitter</translation>
     </message>
     <message>
         <source>Intonation</source>
@@ -10268,6 +10634,22 @@
     <message>
         <source>Aspect</source>
         <translation>Leveys</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>LUFS-tavoite</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>Huippuraja</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Katto</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>Lookahead</translation>
     </message>
 </context>
 <context>
@@ -13481,7 +13863,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 rivi(ä), %2 tavua</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
@@ -13520,7 +13902,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Yksi nuotti puhuu seuraavan rivin. Piste, ! tai ? aloittaa uuden.</translation>
     </message>
     <message>
         <source>Sync</source>
@@ -13552,7 +13934,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jokainen rivi täyttää sen puhuvan nuotin.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -13564,7 +13946,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pidä nuottia yhdessä sarakkeessa ja soita melodiaa toisessa: toinen sarake muuttaa sävelkorkeutta aloittamatta seuraavaa riviä.</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
@@ -13595,31 +13977,31 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lapsi</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Syvä</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Henkäilevä</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jättiläinen</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vanhus</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avaruusolento</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hirviö</translation>
     </message>
     <message>
         <source>Formant Shift</source>
@@ -13659,19 +14041,19 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avoimuus</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kuinka kauan äänihuulet pysyvät auki. Alhaalla ääni on puristettu ja suriseva, ylhäällä pehmeä ja henkäyksinen. Puolivälissä on se mitä äänityyppi pyytää.</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jitter</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kuinka epävakaa ääni on jaksosta seuraavaan. Nollassa se on täysin jaksollinen, miltä kone kuulostaa.</translation>
     </message>
     <message>
         <source>Glottal Source</source>
@@ -16727,6 +17109,57 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>TruePeakLimiterDialog</name>
+    <message>
+        <source>True Peak Limiter (Slot %1)</source>
+        <translation>True Peak Limiter (Paikka %1)</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Kynnys</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Katto</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>Lookahead</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>Korostus</translation>
+    </message>
+    <message>
+        <source>Auto Release</source>
+        <translation>Auto Release</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with BPM-synced dual-stage recovery.</source>
+        <translation>4x True Peak -tunnistus käytössä BPM-tahdistetulla kaksivaiheisella palautumisella.</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with manual single-stage recovery.</source>
+        <translation>4x True Peak -tunnistus käytössä manuaalisella yksivaiheisella palautumisella.</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Vaimennus</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>True Peak</translation>
+    </message>
+    <message>
+        <source>Reset Peak</source>
+        <translation>Nollaa huippu</translation>
+    </message>
+</context>
+<context>
     <name>TubeStageDialog</name>
     <message>
         <source>Tube Stage Parameters (Slot %1)</source>
@@ -17692,6 +18125,32 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::RenderService</name>
+    <message>
+        <source>No song loaded.</source>
+        <translation>Kappaletta ei ole ladattu.</translation>
+    </message>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>Ota Magic Master käyttöön Master-efekteissä kalibroidaksesi.</translation>
+    </message>
+    <message>
+        <source>Internal error: Failed to start calibration worker.</source>
+        <translation>Sisäinen virhe: Kalibrointityöntekijän käynnistys epäonnistui.</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::RenderWorker</name>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>Ota Magic Master käyttöön Master-efekteissä kalibroidaksesi.</translation>
+    </message>
+    <message>
+        <source>Calibration skipped: song audio is silent; kept live mode.</source>
+        <translation>Kalibrointi ohitettu: kappaleen ääni on hiljainen; live-tila pidettiin.</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17984,269 +18443,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Panorointi</translation>
-    </message>
-</context>
-<context>
-    <name>AnalogBusDialog</name>
-    <message>
-        <source>Analog Bus (Slot %1)</source>
-        <translation>Analog Bus (Paikka %1)</translation>
-    </message>
-    <message>
-        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
-        <translation>Stereokonsolin väyläprosessori, jossa yhdistyvät erilliset A- (amerikkalainen op-amp-isku) ja N-kyllästysasteet (brittiläinen muuntajan alarekisterin paino), valittava Color-moduulipaikka, kolmialueinen Baxandall + Air Tone -taajuuskorjain sekä elliptinen Aspect-stereolevennys.</translation>
-    </message>
-    <message>
-        <source>Console</source>
-        <translation>Konsoli</translation>
-    </message>
-    <message>
-        <source>Tight HPF</source>
-        <translation>Tiukka ylipäästö</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation>Pois</translation>
-    </message>
-    <message>
-        <source>25 Hz (Mix)</source>
-        <translation>25 Hz (Miksaus)</translation>
-    </message>
-    <message>
-        <source>50 Hz (Track)</source>
-        <translation>50 Hz (Raita)</translation>
-    </message>
-    <message>
-        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
-        <translation>Subtaajuuksien suodin: 25 Hz Miksaus lisää hienovaraisen matalien korostuksen; 50 Hz Raita leikkaa tasaisella Butterworth-suotimella.</translation>
-    </message>
-    <message>
-        <source>Routing</source>
-        <translation>Reititys</translation>
-    </message>
-    <message>
-        <source>A (Discrete)</source>
-        <translation>A (Erilliskytkentä)</translation>
-    </message>
-    <message>
-        <source>N (Transformer)</source>
-        <translation>N (Muuntaja)</translation>
-    </message>
-    <message>
-        <source>A -&gt; N</source>
-        <translation>A -&gt; N</translation>
-    </message>
-    <message>
-        <source>N -&gt; A</source>
-        <translation>N -&gt; A</translation>
-    </message>
-    <message>
-        <source>Order of discrete A and N console saturation stages.</source>
-        <translation>Erillisten A- ja N-konsoliasteiden kytkentäjärjestys.</translation>
-    </message>
-    <message>
-        <source>A Drive</source>
-        <translation>A-särö</translation>
-    </message>
-    <message>
-        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
-        <translation>Asteen A särö: amerikkalainen erillis-op-amp ja teräsmuuntaja iskevyyteen ja parittomiin yläsäveliin.</translation>
-    </message>
-    <message>
-        <source>N Drive</source>
-        <translation>N-särö</translation>
-    </message>
-    <message>
-        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
-        <translation>Asteen N särö: brittiläinen A-luokan piiri ja rautamuuntajan vuokylläisyys parillisiin yläsäveliin ja alarekisterin painoon.</translation>
-    </message>
-    <message>
-        <source>Color Module</source>
-        <translation>Color-moduuli</translation>
-    </message>
-    <message>
-        <source>Module</source>
-        <translation>Moduuli</translation>
-    </message>
-    <message>
-        <source>Bus 4000</source>
-        <translation>Bus 4000</translation>
-    </message>
-    <message>
-        <source>Tape</source>
-        <translation>Nauha</translation>
-    </message>
-    <message>
-        <source>Vinyl</source>
-        <translation>Vinyyli</translation>
-    </message>
-    <message>
-        <source>Lo-Fi 12</source>
-        <translation>Lo-Fi 12</translation>
-    </message>
-    <message>
-        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
-        <translation>Sarjakytketty väritysmoduuli konsoliasteiden jälkeen: VCA-väyläliima, analoginen masterinauha, vinyylilämpö tai 12-bittinen sampleri.</translation>
-    </message>
-    <message>
-        <source>Color Drive</source>
-        <translation>Color-särö</translation>
-    </message>
-    <message>
-        <source>Intensity of the selected Color module.</source>
-        <translation>Valitun Color-moduulin voimakkuus.</translation>
-    </message>
-    <message>
-        <source>Color Mix</source>
-        <translation>Color-sekoitus</translation>
-    </message>
-    <message>
-        <source>Wet/dry blend inside the Color module slot.</source>
-        <translation>Color-moduulipaikan kuiva/märkä-sekoitus.</translation>
-    </message>
-    <message>
-        <source>Tone EQ</source>
-        <translation>Tone EQ</translation>
-    </message>
-    <message>
-        <source>EQ In</source>
-        <translation>EQ päällä</translation>
-    </message>
-    <message>
-        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
-        <translation>Kytkee kolmialueisen Baxandall + Air -taajuuskorjaimen käyttöön tai ohitukseen.</translation>
-    </message>
-    <message>
-        <source>Pre Saturation</source>
-        <translation>Ennen kyllästystä</translation>
-    </message>
-    <message>
-        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
-        <translation>Kytkee Tone EQ:n ennen konsoli- ja Color-asteita valittuna, tai niiden jälkeen muutoin.</translation>
-    </message>
-    <message>
-        <source>Low Band</source>
-        <translation>Alakaista</translation>
-    </message>
-    <message>
-        <source>Sub 1 (30 Hz)</source>
-        <translation>Sub 1 (30 Hz)</translation>
-    </message>
-    <message>
-        <source>Sub 2 (45 Hz)</source>
-        <translation>Sub 2 (45 Hz)</translation>
-    </message>
-    <message>
-        <source>Bass (65 Hz)</source>
-        <translation>Basso (65 Hz)</translation>
-    </message>
-    <message>
-        <source>Body (110 Hz)</source>
-        <translation>Runko (110 Hz)</translation>
-    </message>
-    <message>
-        <source>High Band</source>
-        <translation>Yläkaista</translation>
-    </message>
-    <message>
-        <source>Mids (2.5 kHz)</source>
-        <translation>Keskialue (2.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Presence (4.5 kHz)</source>
-        <translation>Läsnäolo (4.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Brite (8 kHz)</source>
-        <translation>Brite (8 kHz)</translation>
-    </message>
-    <message>
-        <source>Sheen (14 kHz)</source>
-        <translation>Kiilto (14 kHz)</translation>
-    </message>
-    <message>
-        <source>Low</source>
-        <translation>Matalat</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
-        <translation>Pehmeä Baxandall-alahylly (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>High</source>
-        <translation>Korkeat</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
-        <translation>Pehmeä Baxandall-ylähylly (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>Air</source>
-        <translation>Ilma</translation>
-    </message>
-    <message>
-        <source>Silky top-end air shelf (+/-9 dB).</source>
-        <translation>Silkkisen yläpään Air-hylly (+/-9 dB).</translation>
-    </message>
-    <message>
-        <source>Character &amp; Master</source>
-        <translation>Luonne ja lähtö</translation>
-    </message>
-    <message>
-        <source>Vintage</source>
-        <translation>Vintage</translation>
-    </message>
-    <message>
-        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
-        <translation>Pehmeä vintage-muuntajan yläpään vaimennus kireyden pyöristämiseen.</translation>
-    </message>
-    <message>
-        <source>Analog</source>
-        <translation>Analoginen</translation>
-    </message>
-    <message>
-        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
-        <translation>Hienovarainen deterministinen L/R-komponenttitoleranssi ja hidas ryömintä.</translation>
-    </message>
-    <message>
-        <source>Aspect</source>
-        <translation>Leveys</translation>
-    </message>
-    <message>
-        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
-        <translation>Elliptinen ylipäästetty Mid/Side-levennys; pitää subbasson koossa ja monosignaalin keskellä.</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation>Ulostulo</translation>
-    </message>
-    <message>
-        <source>Master output trim (+/-12 dB).</source>
-        <translation>Päälähdön tasonsäätö (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>Mix</source>
-        <translation>Mix</translation>
-    </message>
-    <message>
-        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
-        <translation>Rinnakkainen kuiva/märkä-sekoitus viivekompensoidulla kuivalla signaalilla.</translation>
-    </message>
-    <message>
-        <source>Saturation</source>
-        <translation>Saturaatio</translation>
-    </message>
-    <message>
-        <source>Auto Gain</source>
-        <translation>Automaattinen vahvistus</translation>
-    </message>
-    <message>
-        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
-        <translation>Poistaa tason, jonka konsoli- ja Color-asteet lisäävät, mitattuna vaaleanpunaisella kohinalla -20 dBFS:n tasolla, jotta Drive muuttaa soundia eikä äänekkyyttä.</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Auto</translation>
     </message>
 </context>
 </TS>

@@ -266,6 +266,269 @@
     </message>
 </context>
 <context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus (Ranura %1)</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>Procesador estéreo de bus de consola que combina etapas discretas de saturación A (pegada de op-amp americano) y N (peso de transformador británico), ranura Color seleccionable, ecualizador Baxandall + Air de tres bandas y ampliación elíptica Aspect.</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>Consola</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>HPF Tight</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Desactivado</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz (Mezcla)</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz (Pista)</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>Filtro subsónico: 25 Hz Mezcla añade un suave realce de contorno grave; 50 Hz Pista aplica un corte Butterworth plano.</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>Enrutamiento</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A (Discreto)</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N (Transformador)</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>Orden de las etapas discretas de saturación A y N.</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>Drive A</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>Excitación para la etapa A: op-amp discreto americano y transformador de acero para pegada y armónicos impares.</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>Drive N</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>Excitación para la etapa N: circuito británico Clase A y flujo de transformador de hierro para armónicos pares y peso en graves.</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>Módulo Color</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>Módulo</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>Cinta</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>Vinilo</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>Módulo de coloración en serie tras las etapas de consola: pegamento VCA, cinta analógica, calidez de vinilo o carácter sampler de 12 bits.</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>Drive de color</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>Intensidad del módulo Color seleccionado.</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>Mezcla de color</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>Mezcla húmedo/seco dentro de la ranura del módulo Color.</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>Tone EQ</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>EQ activo</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>Activa o omite el ecualizador Baxandall + Air de tres bandas.</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>Pre-saturación</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>Coloca el Tone EQ antes de las etapas de consola y Color cuando está marcado, o después cuando no.</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>Banda grave</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>Graves (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>Cuerpo (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>Banda aguda</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>Medios (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>Presencia (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>Brillo (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Graves</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>Estante grave Baxandall suave (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Agudos</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>Estante agudo Baxandall suave (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>Aire</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>Estante sedoso de aire superior (+/-9 dB).</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>Carácter y máster</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>Vintage</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>Atenuación suave de transformador clásico para suavizar los agudos extremos.</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analógico</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>Sutil tolerancia determinista de componentes L/R y deriva lenta.</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>Aspecto</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>Ampliación elíptica Mid/Side con paso alto; mantiene los subgraves centrados y el mono intacto.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>Ajuste de nivel de salida maestro (+/-12 dB).</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mezcla</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>Mezcla paralela dry/wet con señal directa compensada en latencia.</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Saturación</translation>
+    </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Ganancia automática</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>Retira el nivel que añaden las etapas de consola y de color, medido con ruido rosa a -20 dBFS, para que Drive cambie el sonido y no la sonoridad.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+</context>
+<context>
     <name>AnalogFuzzDialog</name>
     <message>
         <source>Analog Fuzz (Slot %1)</source>
@@ -6620,6 +6883,109 @@
     </message>
 </context>
 <context>
+    <name>MagicMasterDialog</name>
+    <message>
+        <source>Magic Master (Slot %1)</source>
+        <translation>Magic Master (Ranura %1)</translation>
+    </message>
+    <message>
+        <source>Analyzing %1%</source>
+        <translation>Analizando %1%</translation>
+    </message>
+    <message>
+        <source>Analyze Song</source>
+        <translation>Analizar canción</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
+        <translation>Analiza toda la canción sin conexión para fijar el balance de EQ EDM, los umbrales multibanda y el empuje LUFS exacto.</translation>
+    </message>
+    <message>
+        <source>Reset Meters</source>
+        <translation>Reiniciar medidores</translation>
+    </message>
+    <message>
+        <source>Master Target &amp; Output</source>
+        <translation>Objetivo máster y salida</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>Objetivo LUFS</translation>
+    </message>
+    <message>
+        <source>Auto LUFS</source>
+        <translation>Auto LUFS</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>Límite de pico</translation>
+    </message>
+    <message>
+        <source>Short-Term:</source>
+        <translation>Corto plazo:</translation>
+    </message>
+    <message>
+        <source>Integrated:</source>
+        <translation>Integrado:</translation>
+    </message>
+    <message>
+        <source>True Peak:</source>
+        <translation>True Peak:</translation>
+    </message>
+    <message>
+        <source>Auto Drive:</source>
+        <translation>Auto Drive:</translation>
+    </message>
+    <message>
+        <source>Calibrated</source>
+        <translation>Calibrado</translation>
+    </message>
+    <message>
+        <source>Live</source>
+        <translation>En vivo</translation>
+    </message>
+    <message>
+        <source>GR</source>
+        <translation>GR</translation>
+    </message>
+    <message>
+        <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
+        <translation>EDM predeterminado (128 BPM) · Reproduce o pulsa Analizar canción</translation>
+    </message>
+    <message>
+        <source>Sub &amp; Phase</source>
+        <translation>Sub y fase</translation>
+    </message>
+    <message>
+        <source>24dB HPF</source>
+        <translation>HPF 24dB</translation>
+    </message>
+    <message>
+        <source>Mono Low</source>
+        <translation>Graves mono</translation>
+    </message>
+    <message>
+        <source>Auto EQ</source>
+        <translation>Auto EQ</translation>
+    </message>
+    <message>
+        <source>Multiband</source>
+        <translation>Multibanda</translation>
+    </message>
+    <message>
+        <source>Stereo &amp; Air</source>
+        <translation>Estéreo y aire</translation>
+    </message>
+    <message>
+        <source>Soft Clipper</source>
+        <translation>Soft Clipper</translation>
+    </message>
+    <message>
+        <source>True-Peak</source>
+        <translation>True-Peak</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Noteahead files</source>
@@ -9667,11 +10033,11 @@
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apertura</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jitter</translation>
     </message>
     <message>
         <source>Intonation</source>
@@ -10268,6 +10634,22 @@
     <message>
         <source>Aspect</source>
         <translation>Aspecto</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>Objetivo LUFS</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>Límite de pico</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Techo</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>Anticipación</translation>
     </message>
 </context>
 <context>
@@ -13481,7 +13863,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 línea(s), %2 sílaba(s)</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
@@ -13520,7 +13902,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Una nota pronuncia la siguiente línea. Un punto, ! o ? comienza una nueva.</translation>
     </message>
     <message>
         <source>Sync</source>
@@ -13552,7 +13934,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cada línea llena la nota que la pronuncia.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -13564,7 +13946,7 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mantén una nota en una columna y toca la melodía en otra: la segunda columna cambia el tono sin iniciar la siguiente línea.</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
@@ -13595,31 +13977,31 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Infantil</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grave</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Susurrada</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gigante</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mayor</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alienígena</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Monstruo</translation>
     </message>
     <message>
         <source>Formant Shift</source>
@@ -13659,19 +14041,19 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apertura</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cuánto tiempo permanecen abiertas las cuerdas vocales. Hacia abajo suena tensa y zumbona, hacia arriba suave y con aire. A mitad está lo que pide el tipo de voz.</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jitter</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qué tan inestable es la voz de un ciclo al siguiente. En cero es perfectamente periódica, como suena una máquina.</translation>
     </message>
     <message>
         <source>Glottal Source</source>
@@ -16727,6 +17109,57 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>TruePeakLimiterDialog</name>
+    <message>
+        <source>True Peak Limiter (Slot %1)</source>
+        <translation>True Peak Limiter (Ranura %1)</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Umbral</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Techo</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Liberación</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>Anticipación</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>Realce</translation>
+    </message>
+    <message>
+        <source>Auto Release</source>
+        <translation>Auto Release</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with BPM-synced dual-stage recovery.</source>
+        <translation>Detección True Peak 4x activada con recuperación de doble etapa sincronizada al BPM.</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with manual single-stage recovery.</source>
+        <translation>Detección True Peak 4x activada con recuperación manual de una etapa.</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Reducción</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>True Peak</translation>
+    </message>
+    <message>
+        <source>Reset Peak</source>
+        <translation>Reiniciar pico</translation>
+    </message>
+</context>
+<context>
     <name>TubeStageDialog</name>
     <message>
         <source>Tube Stage Parameters (Slot %1)</source>
@@ -17692,6 +18125,32 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>noteahead::RenderService</name>
+    <message>
+        <source>No song loaded.</source>
+        <translation>No hay ninguna canción cargada.</translation>
+    </message>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>Activa Magic Master en los efectos máster para calibrar.</translation>
+    </message>
+    <message>
+        <source>Internal error: Failed to start calibration worker.</source>
+        <translation>Error interno: no se pudo iniciar el proceso de calibración.</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::RenderWorker</name>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>Activa Magic Master en los efectos máster para calibrar.</translation>
+    </message>
+    <message>
+        <source>Calibration skipped: song audio is silent; kept live mode.</source>
+        <translation>Calibración omitida: el audio de la canción está en silencio; se mantiene el modo en vivo.</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17984,269 +18443,6 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Paneo</translation>
-    </message>
-</context>
-<context>
-    <name>AnalogBusDialog</name>
-    <message>
-        <source>Analog Bus (Slot %1)</source>
-        <translation>Analog Bus (Ranura %1)</translation>
-    </message>
-    <message>
-        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
-        <translation>Procesador estéreo de bus de consola que combina etapas discretas de saturación A (pegada de op-amp americano) y N (peso de transformador británico), ranura Color seleccionable, ecualizador Baxandall + Air de tres bandas y ampliación elíptica Aspect.</translation>
-    </message>
-    <message>
-        <source>Console</source>
-        <translation>Consola</translation>
-    </message>
-    <message>
-        <source>Tight HPF</source>
-        <translation>HPF Tight</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation>Desactivado</translation>
-    </message>
-    <message>
-        <source>25 Hz (Mix)</source>
-        <translation>25 Hz (Mezcla)</translation>
-    </message>
-    <message>
-        <source>50 Hz (Track)</source>
-        <translation>50 Hz (Pista)</translation>
-    </message>
-    <message>
-        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
-        <translation>Filtro subsónico: 25 Hz Mezcla añade un suave realce de contorno grave; 50 Hz Pista aplica un corte Butterworth plano.</translation>
-    </message>
-    <message>
-        <source>Routing</source>
-        <translation>Enrutamiento</translation>
-    </message>
-    <message>
-        <source>A (Discrete)</source>
-        <translation>A (Discreto)</translation>
-    </message>
-    <message>
-        <source>N (Transformer)</source>
-        <translation>N (Transformador)</translation>
-    </message>
-    <message>
-        <source>A -&gt; N</source>
-        <translation>A -&gt; N</translation>
-    </message>
-    <message>
-        <source>N -&gt; A</source>
-        <translation>N -&gt; A</translation>
-    </message>
-    <message>
-        <source>Order of discrete A and N console saturation stages.</source>
-        <translation>Orden de las etapas discretas de saturación A y N.</translation>
-    </message>
-    <message>
-        <source>A Drive</source>
-        <translation>Drive A</translation>
-    </message>
-    <message>
-        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
-        <translation>Excitación para la etapa A: op-amp discreto americano y transformador de acero para pegada y armónicos impares.</translation>
-    </message>
-    <message>
-        <source>N Drive</source>
-        <translation>Drive N</translation>
-    </message>
-    <message>
-        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
-        <translation>Excitación para la etapa N: circuito británico Clase A y flujo de transformador de hierro para armónicos pares y peso en graves.</translation>
-    </message>
-    <message>
-        <source>Color Module</source>
-        <translation>Módulo Color</translation>
-    </message>
-    <message>
-        <source>Module</source>
-        <translation>Módulo</translation>
-    </message>
-    <message>
-        <source>Bus 4000</source>
-        <translation>Bus 4000</translation>
-    </message>
-    <message>
-        <source>Tape</source>
-        <translation>Cinta</translation>
-    </message>
-    <message>
-        <source>Vinyl</source>
-        <translation>Vinilo</translation>
-    </message>
-    <message>
-        <source>Lo-Fi 12</source>
-        <translation>Lo-Fi 12</translation>
-    </message>
-    <message>
-        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
-        <translation>Módulo de coloración en serie tras las etapas de consola: pegamento VCA, cinta analógica, calidez de vinilo o carácter sampler de 12 bits.</translation>
-    </message>
-    <message>
-        <source>Color Drive</source>
-        <translation>Drive de color</translation>
-    </message>
-    <message>
-        <source>Intensity of the selected Color module.</source>
-        <translation>Intensidad del módulo Color seleccionado.</translation>
-    </message>
-    <message>
-        <source>Color Mix</source>
-        <translation>Mezcla de color</translation>
-    </message>
-    <message>
-        <source>Wet/dry blend inside the Color module slot.</source>
-        <translation>Mezcla húmedo/seco dentro de la ranura del módulo Color.</translation>
-    </message>
-    <message>
-        <source>Tone EQ</source>
-        <translation>Tone EQ</translation>
-    </message>
-    <message>
-        <source>EQ In</source>
-        <translation>EQ activo</translation>
-    </message>
-    <message>
-        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
-        <translation>Activa o omite el ecualizador Baxandall + Air de tres bandas.</translation>
-    </message>
-    <message>
-        <source>Pre Saturation</source>
-        <translation>Pre-saturación</translation>
-    </message>
-    <message>
-        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
-        <translation>Coloca el Tone EQ antes de las etapas de consola y Color cuando está marcado, o después cuando no.</translation>
-    </message>
-    <message>
-        <source>Low Band</source>
-        <translation>Banda grave</translation>
-    </message>
-    <message>
-        <source>Sub 1 (30 Hz)</source>
-        <translation>Sub 1 (30 Hz)</translation>
-    </message>
-    <message>
-        <source>Sub 2 (45 Hz)</source>
-        <translation>Sub 2 (45 Hz)</translation>
-    </message>
-    <message>
-        <source>Bass (65 Hz)</source>
-        <translation>Graves (65 Hz)</translation>
-    </message>
-    <message>
-        <source>Body (110 Hz)</source>
-        <translation>Cuerpo (110 Hz)</translation>
-    </message>
-    <message>
-        <source>High Band</source>
-        <translation>Banda aguda</translation>
-    </message>
-    <message>
-        <source>Mids (2.5 kHz)</source>
-        <translation>Medios (2.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Presence (4.5 kHz)</source>
-        <translation>Presencia (4.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Brite (8 kHz)</source>
-        <translation>Brite (8 kHz)</translation>
-    </message>
-    <message>
-        <source>Sheen (14 kHz)</source>
-        <translation>Brillo (14 kHz)</translation>
-    </message>
-    <message>
-        <source>Low</source>
-        <translation>Graves</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
-        <translation>Estante grave Baxandall suave (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>High</source>
-        <translation>Agudos</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
-        <translation>Estante agudo Baxandall suave (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>Air</source>
-        <translation>Aire</translation>
-    </message>
-    <message>
-        <source>Silky top-end air shelf (+/-9 dB).</source>
-        <translation>Estante sedoso de aire superior (+/-9 dB).</translation>
-    </message>
-    <message>
-        <source>Character &amp; Master</source>
-        <translation>Carácter y máster</translation>
-    </message>
-    <message>
-        <source>Vintage</source>
-        <translation>Vintage</translation>
-    </message>
-    <message>
-        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
-        <translation>Atenuación suave de transformador clásico para suavizar los agudos extremos.</translation>
-    </message>
-    <message>
-        <source>Analog</source>
-        <translation>Analógico</translation>
-    </message>
-    <message>
-        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
-        <translation>Sutil tolerancia determinista de componentes L/R y deriva lenta.</translation>
-    </message>
-    <message>
-        <source>Aspect</source>
-        <translation>Aspecto</translation>
-    </message>
-    <message>
-        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
-        <translation>Ampliación elíptica Mid/Side con paso alto; mantiene los subgraves centrados y el mono intacto.</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation>Salida</translation>
-    </message>
-    <message>
-        <source>Master output trim (+/-12 dB).</source>
-        <translation>Ajuste de nivel de salida maestro (+/-12 dB).</translation>
-    </message>
-    <message>
-        <source>Mix</source>
-        <translation>Mezcla</translation>
-    </message>
-    <message>
-        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
-        <translation>Mezcla paralela dry/wet con señal directa compensada en latencia.</translation>
-    </message>
-    <message>
-        <source>Saturation</source>
-        <translation>Saturación</translation>
-    </message>
-    <message>
-        <source>Auto Gain</source>
-        <translation>Ganancia automática</translation>
-    </message>
-    <message>
-        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
-        <translation>Retira el nivel que añaden las etapas de consola y de color, medido con ruido rosa a -20 dBFS, para que Drive cambie el sonido y no la sonoridad.</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Auto</translation>
     </message>
 </context>
 </TS>

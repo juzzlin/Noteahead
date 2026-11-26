@@ -266,6 +266,269 @@
     </message>
 </context>
 <context>
+    <name>AnalogBusDialog</name>
+    <message>
+        <source>Analog Bus (Slot %1)</source>
+        <translation>Analog Bus（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
+        <translation>立体声调音台母线处理器，结合分立式 A（美式运放冲击力）和 N（英式变压器低频厚重感）饱和级、可选 Color 插槽、三段 Baxandall + Air 音色均衡及椭圆 Aspect 声场展宽。</translation>
+    </message>
+    <message>
+        <source>Console</source>
+        <translation>调音台</translation>
+    </message>
+    <message>
+        <source>Tight HPF</source>
+        <translation>紧致高通</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>25 Hz (Mix)</source>
+        <translation>25 Hz（混音）</translation>
+    </message>
+    <message>
+        <source>50 Hz (Track)</source>
+        <translation>50 Hz（分轨）</translation>
+    </message>
+    <message>
+        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
+        <translation>超低频紧致滤波器：25 Hz（混音）带有轻微低频轮廓隆起；50 Hz（分轨）为平坦巴特沃斯切除。</translation>
+    </message>
+    <message>
+        <source>Routing</source>
+        <translation>路由</translation>
+    </message>
+    <message>
+        <source>A (Discrete)</source>
+        <translation>A（分立运放）</translation>
+    </message>
+    <message>
+        <source>N (Transformer)</source>
+        <translation>N（变压器）</translation>
+    </message>
+    <message>
+        <source>A -&gt; N</source>
+        <translation>A -&gt; N</translation>
+    </message>
+    <message>
+        <source>N -&gt; A</source>
+        <translation>N -&gt; A</translation>
+    </message>
+    <message>
+        <source>Order of discrete A and N console saturation stages.</source>
+        <translation>分立式 A 与 N 调音台饱和级的串联顺序。</translation>
+    </message>
+    <message>
+        <source>A Drive</source>
+        <translation>A 激励</translation>
+    </message>
+    <message>
+        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
+        <translation>A 级激励：美式分立运放与钢芯变压器，带来冲击力与奇次谐波。</translation>
+    </message>
+    <message>
+        <source>N Drive</source>
+        <translation>N 激励</translation>
+    </message>
+    <message>
+        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
+        <translation>N 级激励：英式甲类分立电路与铁芯变压器磁通饱和，带来偶次谐波与低频厚度。</translation>
+    </message>
+    <message>
+        <source>Color Module</source>
+        <translation>染色模块</translation>
+    </message>
+    <message>
+        <source>Module</source>
+        <translation>模块</translation>
+    </message>
+    <message>
+        <source>Bus 4000</source>
+        <translation>Bus 4000</translation>
+    </message>
+    <message>
+        <source>Tape</source>
+        <translation>磁带</translation>
+    </message>
+    <message>
+        <source>Vinyl</source>
+        <translation>黑胶</translation>
+    </message>
+    <message>
+        <source>Lo-Fi 12</source>
+        <translation>Lo-Fi 12</translation>
+    </message>
+    <message>
+        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
+        <translation>调音台级后的串联染色模块：VCA 母线粘合、模拟母带、黑胶刻盘温暖感或 12 位采样器颗粒感。</translation>
+    </message>
+    <message>
+        <source>Color Drive</source>
+        <translation>染色激励</translation>
+    </message>
+    <message>
+        <source>Intensity of the selected Color module.</source>
+        <translation>所选染色模块的激励强度。</translation>
+    </message>
+    <message>
+        <source>Color Mix</source>
+        <translation>染色混合</translation>
+    </message>
+    <message>
+        <source>Wet/dry blend inside the Color module slot.</source>
+        <translation>染色模块插槽内的干湿比混合。</translation>
+    </message>
+    <message>
+        <source>Tone EQ</source>
+        <translation>音色均衡</translation>
+    </message>
+    <message>
+        <source>EQ In</source>
+        <translation>均衡启用</translation>
+    </message>
+    <message>
+        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
+        <translation>启用或旁通三段 Baxandall + Air 音色均衡。</translation>
+    </message>
+    <message>
+        <source>Pre Saturation</source>
+        <translation>饱和前均衡</translation>
+    </message>
+    <message>
+        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
+        <translation>勾选时将音色均衡置于调音台和染色级之前，取消勾选则置于其后。</translation>
+    </message>
+    <message>
+        <source>Low Band</source>
+        <translation>低频段</translation>
+    </message>
+    <message>
+        <source>Sub 1 (30 Hz)</source>
+        <translation>Sub 1 (30 Hz)</translation>
+    </message>
+    <message>
+        <source>Sub 2 (45 Hz)</source>
+        <translation>Sub 2 (45 Hz)</translation>
+    </message>
+    <message>
+        <source>Bass (65 Hz)</source>
+        <translation>低音 (65 Hz)</translation>
+    </message>
+    <message>
+        <source>Body (110 Hz)</source>
+        <translation>厚度 (110 Hz)</translation>
+    </message>
+    <message>
+        <source>High Band</source>
+        <translation>高频段</translation>
+    </message>
+    <message>
+        <source>Mids (2.5 kHz)</source>
+        <translation>中频 (2.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Presence (4.5 kHz)</source>
+        <translation>临场感 (4.5 kHz)</translation>
+    </message>
+    <message>
+        <source>Brite (8 kHz)</source>
+        <translation>Brite (8 kHz)</translation>
+    </message>
+    <message>
+        <source>Sheen (14 kHz)</source>
+        <translation>光泽 (14 kHz)</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低频</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
+        <translation>柔和的 Baxandall 低频搁架均衡 (+/-12 dB)。</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高频</translation>
+    </message>
+    <message>
+        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
+        <translation>柔和的 Baxandall 高频搁架均衡 (+/-12 dB)。</translation>
+    </message>
+    <message>
+        <source>Air</source>
+        <translation>空气感</translation>
+    </message>
+    <message>
+        <source>Silky top-end air shelf (+/-9 dB).</source>
+        <translation>丝滑高频空气感搁架均衡 (+/-9 dB)。</translation>
+    </message>
+    <message>
+        <source>Character &amp; Master</source>
+        <translation>特性与主控</translation>
+    </message>
+    <message>
+        <source>Vintage</source>
+        <translation>复古</translation>
+    </message>
+    <message>
+        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
+        <translation>柔和的复古变压器高频滚降，抚平尖锐高频刺耳感。</translation>
+    </message>
+    <message>
+        <source>Analog</source>
+        <translation>模拟漂移</translation>
+    </message>
+    <message>
+        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
+        <translation>细腻的确定性左右声道硬件元件公差与缓慢漂移。</translation>
+    </message>
+    <message>
+        <source>Aspect</source>
+        <translation>声场</translation>
+    </message>
+    <message>
+        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
+        <translation>带高通的椭圆中/侧声场展宽；保持超低频集中并确保单声道信号居中不变。</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <source>Master output trim (+/-12 dB).</source>
+        <translation>主输出增益微调 (+/-12 dB)。</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+    <message>
+        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
+        <translation>带延迟对齐干声的并联干湿比混合。</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>饱和度</translation>
+    </message>
+    <message>
+        <source>Auto Gain</source>
+        <translation>自动增益</translation>
+    </message>
+    <message>
+        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
+        <translation>以 -20 dBFS 的粉红噪声测量控制台级和 Color 级增加的电平并将其抵消，让 Drive 改变的是音色而不是响度。</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
+</context>
+<context>
     <name>AnalogFuzzDialog</name>
     <message>
         <source>Analog Fuzz (Slot %1)</source>
@@ -6619,6 +6882,109 @@
     </message>
 </context>
 <context>
+    <name>MagicMasterDialog</name>
+    <message>
+        <source>Magic Master (Slot %1)</source>
+        <translation>Magic Master（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Analyzing %1%</source>
+        <translation>正在分析 %1%</translation>
+    </message>
+    <message>
+        <source>Analyze Song</source>
+        <translation>分析乐曲</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
+        <translation>离线扫描整首乐曲，以锁定 EDM EQ 平衡、多段阈值与精确的 LUFS 驱动量。</translation>
+    </message>
+    <message>
+        <source>Reset Meters</source>
+        <translation>重置仪表</translation>
+    </message>
+    <message>
+        <source>Master Target &amp; Output</source>
+        <translation>母带目标与输出</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>LUFS 目标</translation>
+    </message>
+    <message>
+        <source>Auto LUFS</source>
+        <translation>自动 LUFS</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>峰值上限</translation>
+    </message>
+    <message>
+        <source>Short-Term:</source>
+        <translation>短期:</translation>
+    </message>
+    <message>
+        <source>Integrated:</source>
+        <translation>整体:</translation>
+    </message>
+    <message>
+        <source>True Peak:</source>
+        <translation>真峰值:</translation>
+    </message>
+    <message>
+        <source>Auto Drive:</source>
+        <translation>自动驱动:</translation>
+    </message>
+    <message>
+        <source>Calibrated</source>
+        <translation>已校准</translation>
+    </message>
+    <message>
+        <source>Live</source>
+        <translation>实时</translation>
+    </message>
+    <message>
+        <source>GR</source>
+        <translation>GR</translation>
+    </message>
+    <message>
+        <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
+        <translation>EDM 默认 (128 BPM) · 播放或点击分析乐曲</translation>
+    </message>
+    <message>
+        <source>Sub &amp; Phase</source>
+        <translation>超低频与相位</translation>
+    </message>
+    <message>
+        <source>24dB HPF</source>
+        <translation>24dB 高通</translation>
+    </message>
+    <message>
+        <source>Mono Low</source>
+        <translation>低频单声道</translation>
+    </message>
+    <message>
+        <source>Auto EQ</source>
+        <translation>自动 EQ</translation>
+    </message>
+    <message>
+        <source>Multiband</source>
+        <translation>多段压缩</translation>
+    </message>
+    <message>
+        <source>Stereo &amp; Air</source>
+        <translation>立体声与空气感</translation>
+    </message>
+    <message>
+        <source>Soft Clipper</source>
+        <translation>软削波</translation>
+    </message>
+    <message>
+        <source>True-Peak</source>
+        <translation>真峰值</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Noteahead files</source>
@@ -9666,11 +10032,11 @@
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">开合度</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">抖动</translation>
     </message>
     <message>
         <source>Intonation</source>
@@ -10267,6 +10633,22 @@
     <message>
         <source>Aspect</source>
         <translation>声场</translation>
+    </message>
+    <message>
+        <source>LUFS Target</source>
+        <translation>LUFS 目标</translation>
+    </message>
+    <message>
+        <source>Peak Limit</source>
+        <translation>峰值上限</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>上限</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>前瞻</translation>
     </message>
 </context>
 <context>
@@ -13479,7 +13861,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>%1 line(s), %2 syllable(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 行，%2 个音节</translation>
     </message>
     <message>
         <source>%1 syllable(s)</source>
@@ -13518,7 +13900,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">一个音符说出下一行。句点、! 或 ? 开始新的一行。</translation>
     </message>
     <message>
         <source>Sync</source>
@@ -13550,7 +13932,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Each line fills the note that speaks it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每一行填满说出它的音符。</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -13562,7 +13944,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">在一列按住音符并在另一列演奏旋律：第二列只改变音高，而不开始下一行。</translation>
     </message>
     <message>
         <source>Length (1/16 steps)</source>
@@ -13593,31 +13975,31 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Child</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">童声</translation>
     </message>
     <message>
         <source>Deep</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低沉</translation>
     </message>
     <message>
         <source>Breathy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">气声</translation>
     </message>
     <message>
         <source>Giant</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">巨人</translation>
     </message>
     <message>
         <source>Elder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">长者</translation>
     </message>
     <message>
         <source>Alien</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">外星人</translation>
     </message>
     <message>
         <source>Monster</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">怪兽</translation>
     </message>
     <message>
         <source>Formant Shift</source>
@@ -13657,19 +14039,19 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Openness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">开合度</translation>
     </message>
     <message>
         <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">声带保持张开的时间。调低紧绷刺耳，调高柔和带气声。中间为声音类型的默认设定。</translation>
     </message>
     <message>
         <source>Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">抖动</translation>
     </message>
     <message>
         <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">声音在相邻周期之间的不稳定性。为零时完全周期性，听起来像机器。</translation>
     </message>
     <message>
         <source>Glottal Source</source>
@@ -16725,6 +17107,57 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>TruePeakLimiterDialog</name>
+    <message>
+        <source>True Peak Limiter (Slot %1)</source>
+        <translation>True Peak Limiter（插槽 %1）</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>阈值</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>上限</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+    <message>
+        <source>Lookahead</source>
+        <translation>前瞻</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>提升</translation>
+    </message>
+    <message>
+        <source>Auto Release</source>
+        <translation>自动释音</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with BPM-synced dual-stage recovery.</source>
+        <translation>已启用 4 倍过采样真峰值检测及 BPM 同步双级恢复。</translation>
+    </message>
+    <message>
+        <source>4x true-peak detection enabled with manual single-stage recovery.</source>
+        <translation>已启用 4 倍过采样真峰值检测及手动单级恢复。</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>衰减量</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>真峰值</translation>
+    </message>
+    <message>
+        <source>Reset Peak</source>
+        <translation>重置峰值</translation>
+    </message>
+</context>
+<context>
     <name>TubeStageDialog</name>
     <message>
         <source>Tube Stage Parameters (Slot %1)</source>
@@ -17690,6 +18123,32 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>noteahead::RenderService</name>
+    <message>
+        <source>No song loaded.</source>
+        <translation>未加载乐曲。</translation>
+    </message>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>请先在主效果架中启用 Magic Master 再进行校准。</translation>
+    </message>
+    <message>
+        <source>Internal error: Failed to start calibration worker.</source>
+        <translation>内部错误：无法启动校准工作线程。</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::RenderWorker</name>
+    <message>
+        <source>Enable Magic Master on Master Effects to calibrate.</source>
+        <translation>请先在主效果架中启用 Magic Master 再进行校准。</translation>
+    </message>
+    <message>
+        <source>Calibration skipped: song audio is silent; kept live mode.</source>
+        <translation>已跳过校准：乐曲音频为静音；保持实时模式。</translation>
+    </message>
+</context>
+<context>
     <name>noteahead::StereoFieldRenderer</name>
     <message>
         <source>MONO</source>
@@ -17982,269 +18441,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Pan</source>
         <translation>声像</translation>
-    </message>
-</context>
-<context>
-    <name>AnalogBusDialog</name>
-    <message>
-        <source>Analog Bus (Slot %1)</source>
-        <translation>Analog Bus（插槽 %1）</translation>
-    </message>
-    <message>
-        <source>Stereo console bus processor combining discrete A (American op-amp punch) and N (British LF transformer weight) saturation stages, a selectable Color slot, three-band Baxandall + Air Tone EQ, and elliptical Aspect widening.</source>
-        <translation>立体声调音台母线处理器，结合分立式 A（美式运放冲击力）和 N（英式变压器低频厚重感）饱和级、可选 Color 插槽、三段 Baxandall + Air 音色均衡及椭圆 Aspect 声场展宽。</translation>
-    </message>
-    <message>
-        <source>Console</source>
-        <translation>调音台</translation>
-    </message>
-    <message>
-        <source>Tight HPF</source>
-        <translation>紧致高通</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation>关闭</translation>
-    </message>
-    <message>
-        <source>25 Hz (Mix)</source>
-        <translation>25 Hz（混音）</translation>
-    </message>
-    <message>
-        <source>50 Hz (Track)</source>
-        <translation>50 Hz（分轨）</translation>
-    </message>
-    <message>
-        <source>Subsonic tight filter: 25 Hz Mix adds a subtle low-end contour bump; 50 Hz Track is a flat Butterworth cut.</source>
-        <translation>超低频紧致滤波器：25 Hz（混音）带有轻微低频轮廓隆起；50 Hz（分轨）为平坦巴特沃斯切除。</translation>
-    </message>
-    <message>
-        <source>Routing</source>
-        <translation>路由</translation>
-    </message>
-    <message>
-        <source>A (Discrete)</source>
-        <translation>A（分立运放）</translation>
-    </message>
-    <message>
-        <source>N (Transformer)</source>
-        <translation>N（变压器）</translation>
-    </message>
-    <message>
-        <source>A -&gt; N</source>
-        <translation>A -&gt; N</translation>
-    </message>
-    <message>
-        <source>N -&gt; A</source>
-        <translation>N -&gt; A</translation>
-    </message>
-    <message>
-        <source>Order of discrete A and N console saturation stages.</source>
-        <translation>分立式 A 与 N 调音台饱和级的串联顺序。</translation>
-    </message>
-    <message>
-        <source>A Drive</source>
-        <translation>A 激励</translation>
-    </message>
-    <message>
-        <source>Drive into Stage A: discrete American op-amp and steel transformer for punch and odd harmonics.</source>
-        <translation>A 级激励：美式分立运放与钢芯变压器，带来冲击力与奇次谐波。</translation>
-    </message>
-    <message>
-        <source>N Drive</source>
-        <translation>N 激励</translation>
-    </message>
-    <message>
-        <source>Drive into Stage N: British Class-A discrete circuit and iron transformer flux for even harmonics and low-end weight.</source>
-        <translation>N 级激励：英式甲类分立电路与铁芯变压器磁通饱和，带来偶次谐波与低频厚度。</translation>
-    </message>
-    <message>
-        <source>Color Module</source>
-        <translation>染色模块</translation>
-    </message>
-    <message>
-        <source>Module</source>
-        <translation>模块</translation>
-    </message>
-    <message>
-        <source>Bus 4000</source>
-        <translation>Bus 4000</translation>
-    </message>
-    <message>
-        <source>Tape</source>
-        <translation>磁带</translation>
-    </message>
-    <message>
-        <source>Vinyl</source>
-        <translation>黑胶</translation>
-    </message>
-    <message>
-        <source>Lo-Fi 12</source>
-        <translation>Lo-Fi 12</translation>
-    </message>
-    <message>
-        <source>Series coloration module after the console stages: VCA bus glue, analog master tape, vinyl lathe warmth, or 12-bit sampler grit.</source>
-        <translation>调音台级后的串联染色模块：VCA 母线粘合、模拟母带、黑胶刻盘温暖感或 12 位采样器颗粒感。</translation>
-    </message>
-    <message>
-        <source>Color Drive</source>
-        <translation>染色激励</translation>
-    </message>
-    <message>
-        <source>Intensity of the selected Color module.</source>
-        <translation>所选染色模块的激励强度。</translation>
-    </message>
-    <message>
-        <source>Color Mix</source>
-        <translation>染色混合</translation>
-    </message>
-    <message>
-        <source>Wet/dry blend inside the Color module slot.</source>
-        <translation>染色模块插槽内的干湿比混合。</translation>
-    </message>
-    <message>
-        <source>Tone EQ</source>
-        <translation>音色均衡</translation>
-    </message>
-    <message>
-        <source>EQ In</source>
-        <translation>均衡启用</translation>
-    </message>
-    <message>
-        <source>Engage or bypass the three-band Baxandall + Air Tone EQ.</source>
-        <translation>启用或旁通三段 Baxandall + Air 音色均衡。</translation>
-    </message>
-    <message>
-        <source>Pre Saturation</source>
-        <translation>饱和前均衡</translation>
-    </message>
-    <message>
-        <source>Route Tone EQ before the console and Color stages when checked, or after them when unchecked.</source>
-        <translation>勾选时将音色均衡置于调音台和染色级之前，取消勾选则置于其后。</translation>
-    </message>
-    <message>
-        <source>Low Band</source>
-        <translation>低频段</translation>
-    </message>
-    <message>
-        <source>Sub 1 (30 Hz)</source>
-        <translation>Sub 1 (30 Hz)</translation>
-    </message>
-    <message>
-        <source>Sub 2 (45 Hz)</source>
-        <translation>Sub 2 (45 Hz)</translation>
-    </message>
-    <message>
-        <source>Bass (65 Hz)</source>
-        <translation>低音 (65 Hz)</translation>
-    </message>
-    <message>
-        <source>Body (110 Hz)</source>
-        <translation>厚度 (110 Hz)</translation>
-    </message>
-    <message>
-        <source>High Band</source>
-        <translation>高频段</translation>
-    </message>
-    <message>
-        <source>Mids (2.5 kHz)</source>
-        <translation>中频 (2.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Presence (4.5 kHz)</source>
-        <translation>临场感 (4.5 kHz)</translation>
-    </message>
-    <message>
-        <source>Brite (8 kHz)</source>
-        <translation>Brite (8 kHz)</translation>
-    </message>
-    <message>
-        <source>Sheen (14 kHz)</source>
-        <translation>光泽 (14 kHz)</translation>
-    </message>
-    <message>
-        <source>Low</source>
-        <translation>低频</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall low shelf (+/-12 dB).</source>
-        <translation>柔和的 Baxandall 低频搁架均衡 (+/-12 dB)。</translation>
-    </message>
-    <message>
-        <source>High</source>
-        <translation>高频</translation>
-    </message>
-    <message>
-        <source>Gentle Baxandall high shelf (+/-12 dB).</source>
-        <translation>柔和的 Baxandall 高频搁架均衡 (+/-12 dB)。</translation>
-    </message>
-    <message>
-        <source>Air</source>
-        <translation>空气感</translation>
-    </message>
-    <message>
-        <source>Silky top-end air shelf (+/-9 dB).</source>
-        <translation>丝滑高频空气感搁架均衡 (+/-9 dB)。</translation>
-    </message>
-    <message>
-        <source>Character &amp; Master</source>
-        <translation>特性与主控</translation>
-    </message>
-    <message>
-        <source>Vintage</source>
-        <translation>复古</translation>
-    </message>
-    <message>
-        <source>Gentle vintage transformer top-end roll-off to smooth ultrasonic bite.</source>
-        <translation>柔和的复古变压器高频滚降，抚平尖锐高频刺耳感。</translation>
-    </message>
-    <message>
-        <source>Analog</source>
-        <translation>模拟漂移</translation>
-    </message>
-    <message>
-        <source>Subtle deterministic L/R hardware tolerance and slow component drift.</source>
-        <translation>细腻的确定性左右声道硬件元件公差与缓慢漂移。</translation>
-    </message>
-    <message>
-        <source>Aspect</source>
-        <translation>声场</translation>
-    </message>
-    <message>
-        <source>Elliptical high-passed Mid/Side width enhancement; keeps sub-bass focused and mono signals centered.</source>
-        <translation>带高通的椭圆中/侧声场展宽；保持超低频集中并确保单声道信号居中不变。</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation>输出</translation>
-    </message>
-    <message>
-        <source>Master output trim (+/-12 dB).</source>
-        <translation>主输出增益微调 (+/-12 dB)。</translation>
-    </message>
-    <message>
-        <source>Mix</source>
-        <translation>混合</translation>
-    </message>
-    <message>
-        <source>Parallel dry/wet blend with latency-matched dry signal.</source>
-        <translation>带延迟对齐干声的并联干湿比混合。</translation>
-    </message>
-    <message>
-        <source>Saturation</source>
-        <translation>饱和度</translation>
-    </message>
-    <message>
-        <source>Auto Gain</source>
-        <translation>自动增益</translation>
-    </message>
-    <message>
-        <source>Takes back out the level the console and color stages add, measured with pink noise at -20 dBFS, so that Drive changes the sound and not the loudness.</source>
-        <translation>以 -20 dBFS 的粉红噪声测量控制台级和 Color 级增加的电平并将其抵消，让 Drive 改变的是音色而不是响度。</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>自动</translation>
     </message>
 </context>
 </TS>
