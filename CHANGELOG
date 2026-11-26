@@ -33,6 +33,8 @@ New features:
 
 * Song Overview: automations are drawn over the lanes, with a checkbox to hide them
 
+* Song Overview: Ctrl+Shift+O opens and closes it
+
 Bug fixes:
 
 * Synth D: Tune and the OSC 2 and OSC 3 Frequency knobs set and show hundredths of a semitone, for a slow beat between the oscillators

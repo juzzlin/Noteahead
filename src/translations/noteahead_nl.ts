@@ -13066,6 +13066,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Performancepaneel tonen of verbergen</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Songoverzicht openen of sluiten</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

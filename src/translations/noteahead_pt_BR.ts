@@ -13066,6 +13066,14 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
         <translation>Mostrar ou ocultar o painel de performance</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Abrir ou fechar a visão geral da música</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

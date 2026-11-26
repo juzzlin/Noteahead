@@ -13066,6 +13066,14 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
         <translation>Mostrar u ocultar el panel de interpretación</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Abrir o cerrar el resumen de la canción</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

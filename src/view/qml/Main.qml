@@ -849,6 +849,17 @@ ApplicationWindow {
         context: Qt.ApplicationShortcut
         onActivated: _toggleRackWindow(masterEffectsDialog, () => applicationService.requestMasterEffectsDialog())
     }
+    Shortcut {
+        sequence: "Ctrl+Shift+O"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            if (songOverviewDialog.visible) {
+                songOverviewDialog.accept();
+            } else {
+                UiService.requestSongOverviewDialog();
+            }
+        }
+    }
     //! Closes whichever of the three windows is open and opens @p target through @p open, the path the
     //! menus take, unless @p target was the one open. Closed as by Ok, so that the rack's
     //! device-assignment offer still follows it.

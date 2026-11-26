@@ -13064,6 +13064,14 @@ Audio files will appear next to the current project file.</source>
         <translation>显示或隐藏演奏面板</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>打开或关闭乐曲概览</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

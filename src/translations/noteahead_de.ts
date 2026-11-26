@@ -13066,6 +13066,14 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>Performance-Panel ein- oder ausblenden</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Song-Übersicht öffnen oder schließen</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

@@ -13066,6 +13066,14 @@ Audio files will appear next to the current project file.</source>
         <translation>Näytä tai piilota esityspaneeli</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Avaa tai sulje kappaleen yleiskatsaus</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>

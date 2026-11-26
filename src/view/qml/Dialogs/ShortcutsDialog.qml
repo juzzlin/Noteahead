@@ -73,6 +73,10 @@ AnimatedDialog {
             description: qsTr("Show or hide the performance panel")
         },
         {
+            key: qsTr("Ctrl + Shift + O"),
+            description: qsTr("Open or close the Song Overview")
+        },
+        {
             key: qsTr("Ctrl + Shift + R"),
             description: qsTr("Turn audio recording on or off")
         },

@@ -50,8 +50,9 @@ FittedMenu {
         onTriggered: UiService.requestMixerDialog()
     }
     MenuSeparator {}
-    Action {
+    ShortcutHintAction {
         text: qsTr("Song Overview...")
+        shortcutHint: "Ctrl+Shift+O"
         onTriggered: UiService.requestSongOverviewDialog()
     }
     Action {

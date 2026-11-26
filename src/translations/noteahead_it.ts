@@ -13066,6 +13066,14 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation>Mostra o nascondi il pannello performance</translation>
     </message>
     <message>
+        <source>Ctrl + Shift + O</source>
+        <translation>Ctrl + Shift + O</translation>
+    </message>
+    <message>
+        <source>Open or close the Song Overview</source>
+        <translation>Apri o chiudi la panoramica del brano</translation>
+    </message>
+    <message>
         <source>Ctrl + Shift + R</source>
         <translation>Ctrl + Shift + R</translation>
     </message>
