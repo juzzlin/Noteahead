@@ -222,3 +222,41 @@ with a pad per voice; Kick 808, Kick 909, Kick Synth and Snare Synth are single 
   RD-8's Tuning range and Pitch Depth and Pitch Decay fixed at Kick 808's defaults. Kick 808 adds
   those two knobs, Glide, Key Track and Tuning over ±2 octaves. With Key Track on, Kick 808 follows
   the note column: one octave up is twice every frequency on an analyzer.
+
+## Magic Master
+
+Six-stage automatic mastering chain built for the master insert bus, and how it fits the plugin
+architecture without breaking it.
+
+- **Capability interfaces keep the plugin boundary intact.** Nothing outside `src/plugins/effects/magic_master/`
+  names `MagicMaster`. Instead, it implements three narrow domain interfaces — `SongContextConsumer`,
+  `MasterCalibrationConsumer` and `LoudnessMeterResettable` — so `Application`, `RenderService`,
+  `RenderWorker` and `DeviceService` drive song-context updates, offline calibration and loudness
+  meter resets through base types alone.
+- **One limiter engine serves two effects.** The standalone True Peak Limiter and Magic Master's
+  Stage 6 both wrap `TruePeakLimiterCore` (4x ITU-R BS.1770 polyphase FIR + Catmull-Rom lookahead
+  detection, S-curve attack smoothing and BPM-synced auto release), keeping peak-limiting behaviour
+  identical between the two.
+- **Gain staging is explicit and exempt from presets.** An automatic loudness servo drifts between
+  breakdowns and drops, so Threshold and Ceiling are user-set while Short-Term/Integrated LUFS and
+  True Peak are display-only. `Effect::presetExemptValues()` is virtual so `MagicMaster` exempts
+  `threshold` and `ceiling` alongside side-chain routing: loading factory or user presets switches
+  EQ profiles and stage toggles without disturbing gain staging, while `.nahd` save and load still
+  persist every parameter normally.
+- **Song context is pushed at song boundaries, not per line.** `SongContextAnalyzer` summarizes
+  the song (lowest pitched bass note, arrangement density, BPM, synth types, side-chain ducking
+  and pan/width/stereo inserts) when the song, BPM or effect rack changes and before playback or
+  rendering. Stages fall back to live audio detection whenever no song context or calibration is
+  present.
+- **Offline calibration is session state, not project state.** Clicking Analyze Song — or starting
+  a Master Mix export in `RenderWorker` — runs an offline pre-pass with `setCalibrationBypass(true)`
+  to measure the 7-band relative spectrum (`measuredBandRelDb`, aligned 1:1 with `SpectrumAnalyzer`)
+  and multiband reference RMS into `MasterCalibration`. Keeping the measured spectrum lets switching
+  the EQ profile retarget the locked 7-band curve immediately without re-scanning. Calibration is
+  intentionally not saved in `.nahd` so an older mix's measurements cannot silently carry over into
+  a later render.
+- **Latency tracks only active stages.** Stage 5 (4x Soft Clipper) adds a 1-sample 4x alignment
+  delay so its oversampling chain lands on an exact integer frame count
+  (`ClipperOversampleLatencyFrames = 69`), and Stage 6 adds
+  `TruePeakLimiterCore::latencyFramesFor(sampleRate, 4.0)`. `latencyFrames()` sums only enabled
+  stages and reports `0` while calibration bypass is active so offline pre-passes stay aligned.
