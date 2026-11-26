@@ -110,6 +110,14 @@ private slots:
     void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();
     void test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData();
     void test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff();
+    void test_requestNoteMove_right_shouldMoveNoteAndItsNoteOff();
+    void test_requestNoteMove_up_shouldTranspose();
+    void test_requestNoteMove_ontoAnotherEvent_shouldFail();
+    void test_requestNoteMove_legato_shouldKeepPreviousNoteLength();
+    void test_requestNoteLength_shorter_shouldAddNoteOff();
+    void test_requestNoteLength_pastNextNote_shouldEndAtNextNote();
+    void test_requestNoteDelete_withNoteOff_shouldDeleteBoth();
+    void test_requestNoteDelete_legato_shouldKeepPreviousNoteLength();
     void test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff();
     void test_requestNoteOffAtPatternFirstLine_shouldAddNoteOff();
 

@@ -31,7 +31,11 @@ New features:
 
 * Theme: the bottom bar's note animation is drawn in the accent color, or in the old pitch gradient
 
-* Song Overview: automations are drawn over the lanes, with a checkbox to hide them
+* Song Overview: automations are drawn over the lanes, with a checkbox to hide them; click one to edit it
+
+* Song Overview: drag a note to move it, or its end to change its length; right-click to delete it
+
+* Song Overview: focus on tracks to show only them, at full height
 
 * Song Overview: Ctrl+Shift+O opens and closes it
 

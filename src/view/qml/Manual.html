@@ -595,15 +595,23 @@
 <p>The meter shows the gain being applied at any moment, growing upwards when the shaper lifts and downwards when it tames.</p>
 
 <h3>Song Overview</h3>
-<p>The whole song at a glance, from <strong>View &gt; Song Overview</strong>. Each track has a lane, and the song runs across them in play order, each lane's notes drawn as a piano roll in the track's colour. A strip along the top shows the play order, a block per position as wide as its pattern. A note lasts until the next note or note-off in its column, or to the end of its pattern. Muted tracks are dimmed and skipped positions shaded.</p>
+<p>The whole song at a glance, from <strong>View &gt; Song Overview</strong> or <strong>Ctrl + Shift + O</strong>. Each track has a lane, and the song runs across them in play order, each lane's notes drawn as a piano roll in the track's colour. A strip along the top shows the play order, a block per position as wide as its pattern. A note lasts until the next note or note-off in its column, or to the end of its pattern. Muted tracks are dimmed and skipped positions shaded.</p>
 <ul>
     <li><strong>Playhead:</strong> the active position is marked, and a line shows where the song is, moving while it plays and scrolling the view along. Each note it reaches lights up with a circle, bigger and brighter the higher its velocity; muted notes stay dark. <strong>Space</strong> or the <strong>Play</strong> button plays and stops from here.</li>
     <li><strong>Jumping:</strong> click a note to put the editor on it, empty space in a lane to go to that line on its track, or a block in the strip to go to the start of that position. Double-click to also close the overview.</li>
     <li><strong>Tracks:</strong> click a track's name to open its device if it is an internal one, or its <strong>Track Settings</strong> otherwise.</li>
-    <li><strong>Zoom:</strong> the song fits the width to begin with; <strong>Ctrl + wheel</strong> zooms in about the pointer.</li>
+    <li><strong>Zoom:</strong> the song fits the width to begin with; <strong>Ctrl + wheel</strong> zooms in about the pointer. Drag anywhere off the notes to move the view, or anywhere at all while the song plays.</li>
+    <li><strong>Focus:</strong> the button by a track's name focuses on that track: only the tracks in focus are shown, each tall enough to read its notes, and the wheel scrolls through them. <strong>Ctrl</strong>-click the buttons of several tracks to pick them, then click one more to focus on them all. Click a focused track's button to take it out of focus; with none left, every track is shown again.</li>
     <li><strong>Automations:</strong> each enabled automation is drawn over its track's lane as the editor's curve mode draws it, bottom to top for its range. The <strong>Automations</strong> checkbox hides them; it is on by default and remembered.</li>
+    <li><strong>Editing an automation:</strong> a curve under the pointer is drawn thicker and named in a tooltip; click it to open that automation. As in the editor, not during playback.</li>
 </ul>
-<p>It shows the song but does not edit it.</p>
+<p>Notes can be edited here too, while the song is stopped, each edit one undo step:</p>
+<ul>
+    <li><strong>Move:</strong> drag a note sideways to move it by lines, up or down to move it by semitones. It keeps its length unless the next note cuts it short, and a note it ended keeps its own.</li>
+    <li><strong>Length:</strong> drag a note's end to make it longer or shorter, with a note-off; it cannot reach past the next note.</li>
+    <li><strong>Delete:</strong> right-click a note and choose <strong>Delete</strong>; its note-off goes with it, and a note it ended keeps its length.</li>
+    <li>An edit changes the pattern, so every position that plays it changes; while dragging, the note is outlined at each of them.</li>
+</ul>
 <h3>Audio Overview</h3>
 <p>A map of the project's signal flow, from <strong>View &gt; Audio Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
 <p>The point of it is that the chain is drawn <em>as the engine runs it</em>, and that order is not fixed. A device's <strong>Fader Position</strong> decides whether the fader comes before or after its insert rack, so a map that drew one order for everything would misreport half the setting it exists to show. Two things worth knowing, both visible here and hard to see anywhere else:</p>

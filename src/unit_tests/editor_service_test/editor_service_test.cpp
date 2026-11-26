@@ -1585,6 +1585,150 @@ void EditorServiceTest::test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
+namespace {
+
+void putNoteOn(EditorService & editorService, quint64 line)
+{
+    QVERIFY(editorService.requestPosition(0, 0, 0, line, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+}
+
+void putNoteOff(EditorService & editorService, quint64 line)
+{
+    QVERIFY(editorService.requestPosition(0, 0, 0, line, 0));
+    QVERIFY(editorService.requestNoteOffAtCurrentPosition());
+}
+
+} // namespace
+
+void EditorServiceTest::test_requestNoteMove_right_shouldMoveNoteAndItsNoteOff()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOff(editorService, 4);
+
+    QVERIFY(editorService.requestNoteMove(0, 0, 0, 0, 2, 0));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 6), "OFF");
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 6), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteMove_up_shouldTranspose()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOff(editorService, 4);
+
+    QVERIFY(editorService.requestNoteMove(0, 0, 0, 0, 0, 2));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    QVERIFY(!editorService.requestNoteMove(0, 0, 0, 0, 0, 127));
+}
+
+void EditorServiceTest::test_requestNoteMove_ontoAnotherEvent_shouldFail()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOn(editorService, 4);
+
+    QVERIFY(!editorService.requestNoteMove(0, 0, 0, 0, 4, 0));
+    QVERIFY(!editorService.requestNoteMove(0, 0, 0, 0, -1, 0));
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "C-3");
+}
+
+void EditorServiceTest::test_requestNoteMove_legato_shouldKeepPreviousNoteLength()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOn(editorService, 4);
+    putNoteOn(editorService, 8);
+
+    // The note at 4 lasts to 8: moved to 6 it still lasts 4 lines, but the next note cuts it at 8
+    QVERIFY(editorService.requestNoteMove(0, 0, 0, 4, 2, 0));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 6), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 8), "C-3");
+
+    // Moved back before where it was, it keeps its length with a note-off of its own
+    QVERIFY(editorService.requestNoteMove(0, 0, 0, 6, -5, 0));
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 3), "OFF");
+}
+
+void EditorServiceTest::test_requestNoteLength_shorter_shouldAddNoteOff()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOn(editorService, 8);
+
+    QVERIFY(editorService.requestNoteLength(0, 0, 0, 0, 3));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 3), "OFF");
+    QVERIFY(!editorService.requestNoteLength(0, 0, 0, 0, 3));
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 3), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteLength_pastNextNote_shouldEndAtNextNote()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOff(editorService, 2);
+    putNoteOn(editorService, 8);
+
+    QVERIFY(editorService.requestNoteLength(0, 0, 0, 0, 20));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 8), "C-3");
+    for (quint64 line = 1; line < 8; line++) {
+        QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, line), editorService.noDataString());
+    }
+}
+
+void EditorServiceTest::test_requestNoteDelete_withNoteOff_shouldDeleteBoth()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOff(editorService, 4);
+
+    QVERIFY(editorService.requestNoteDelete(0, 0, 0, 0));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QVERIFY(!editorService.requestNoteDelete(0, 0, 0, 0));
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+}
+
+void EditorServiceTest::test_requestNoteDelete_legato_shouldKeepPreviousNoteLength()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    putNoteOn(editorService, 0);
+    putNoteOn(editorService, 4);
+    putNoteOn(editorService, 8);
+
+    QVERIFY(editorService.requestNoteDelete(0, 0, 0, 4));
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 8), "C-3");
+}
+
 void EditorServiceTest::test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

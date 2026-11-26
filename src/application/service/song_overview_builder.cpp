@@ -37,11 +37,17 @@ void addColumnNotes(const Song & song, size_t patternIndex, size_t trackIndex, s
     const double lineCount = static_cast<double>(lines.size());
 
     std::optional<SongOverview::Note> open;
-    const auto close = [&](double endLine) {
+    //! The note a note-off has ended, whose limit is the event after that
+    std::optional<size_t> endedByNoteOff;
+    const auto close = [&](double endLine, size_t eventLine, bool isNoteOff) {
         if (open) {
             open->lengthLines = std::max(endLine - open->startLine, 0.0);
+            open->limitLine = eventLine;
             if (open->lengthLines > 0.0) {
                 notes.push_back(*open);
+                if (isNoteOff) {
+                    endedByNoteOff = notes.size() - 1;
+                }
             }
             open.reset();
         }
@@ -54,7 +60,11 @@ void addColumnNotes(const Song & song, size_t patternIndex, size_t trackIndex, s
         }
         // The delay is in ticks, and moves the note into its line
         const double line = static_cast<double>(lineIndex) + std::min(static_cast<double>(noteData->delay()) / ticksPerLine, 1.0);
-        close(line);
+        if (endedByNoteOff) {
+            notes.at(*endedByNoteOff).limitLine = lineIndex;
+            endedByNoteOff.reset();
+        }
+        close(line, lineIndex, noteData->type() == NoteData::Type::NoteOff);
         if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
             open = SongOverview::Note {
                 .startLine = line,
@@ -66,7 +76,10 @@ void addColumnNotes(const Song & song, size_t patternIndex, size_t trackIndex, s
             };
         }
     }
-    close(lineCount);
+    if (endedByNoteOff) {
+        notes.at(*endedByNoteOff).limitLine = lines.size();
+    }
+    close(lineCount, lines.size(), false);
 }
 
 //! The automations of one column, sampled on every line of the pattern
@@ -76,7 +89,30 @@ void addColumnCurves(const AutomationService & automationService, size_t pattern
         return;
     }
     for (auto && curve : automationService.automationCurves(patternIndex, trackIndex, columnIndex, 0, lineCount - 1)) {
-        curves.push_back({ .track = trackIndex, .column = columnIndex, .colorIndex = curve.indexInPattern, .values = std::move(curve.values) });
+        std::string comment;
+        std::optional<uint8_t> controller;
+        std::string parameterKey;
+        const auto automation = automationService.automationById(curve.kind, curve.id);
+        for (auto && midiCc : automation.midiCc) {
+            comment = midiCc.comment().toStdString();
+            controller = midiCc.controller();
+        }
+        for (auto && pitchBend : automation.pitchBend) {
+            comment = pitchBend.comment().toStdString();
+        }
+        for (auto && parameter : automation.parameter) {
+            comment = parameter.comment().toStdString();
+            parameterKey = parameter.target().parameter;
+        }
+        curves.push_back({ .track = trackIndex,
+                           .column = columnIndex,
+                           .colorIndex = curve.indexInPattern,
+                           .kind = static_cast<int>(curve.kind),
+                           .automationId = curve.id,
+                           .comment = std::move(comment),
+                           .controller = controller,
+                           .parameter = std::move(parameterKey),
+                           .values = std::move(curve.values) });
     }
 }
 

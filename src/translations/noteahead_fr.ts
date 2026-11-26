@@ -13702,6 +13702,34 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation>Lire</translation>
     </message>
     <message>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Drag a note to move it, or its end to change its length.</source>
+        <translation>Faites glisser une note pour la déplacer, ou sa fin pour changer sa durée.</translation>
+    </message>
+    <message>
+        <source>The button by a track&apos;s name focuses on it.</source>
+        <translation>Le bouton à côté du nom d&apos;une piste la met en avant.</translation>
+    </message>
+    <message>
+        <source>Take this track out of focus</source>
+        <translation>Ne plus mettre cette piste en avant</translation>
+    </message>
+    <message>
+        <source>Focus on this track: only the tracks in focus are shown, at full height. Ctrl+click to pick several.</source>
+        <translation>Mettre cette piste en avant : seules les pistes en avant sont affichées, en pleine hauteur. Ctrl+clic pour en choisir plusieurs.</translation>
+    </message>
+    <message>
+        <source>Right-click a note to delete it.</source>
+        <translation>Faites un clic droit sur une note pour la supprimer.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
         <source>Automations</source>
         <translation>Automations</translation>
     </message>

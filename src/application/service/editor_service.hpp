@@ -23,6 +23,7 @@
 #include <QObject>
 
 #include "../command/undo_stack.hpp"
+#include <map>
 #include <optional>
 #include <set>
 #include <utility>
@@ -299,6 +300,19 @@ public:
     virtual Q_INVOKABLE void requestNoteOffAtTrackFirstLine();
     virtual Q_INVOKABLE void requestNoteOffAtPatternFirstLine();
 
+    //! Moves the note starting on @p line of the column by @p lineDelta lines and @p semitoneDelta
+    //! semitones, as one undo step. It keeps its length, and a note it ended keeps its own. False,
+    //! and nothing changed, when there is no note there, it would leave the pattern or the note
+    //! range, or its new line is taken.
+    virtual Q_INVOKABLE bool requestNoteMove(quint64 pattern, quint64 track, quint64 column, quint64 line, int lineDelta, int semitoneDelta);
+    //! Makes the note starting on @p line of the column end on @p endLine, as one undo step: a
+    //! note-off there, or none where the next event or the pattern's end would end it there anyway.
+    //! The end is kept after the note's line and before the next note. False if nothing changed.
+    virtual Q_INVOKABLE bool requestNoteLength(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 endLine);
+    //! Deletes the note starting on @p line of the column and its own note-off, as one undo step.
+    //! A note it ended keeps its length. False, and nothing changed, when there is no note there.
+    virtual Q_INVOKABLE bool requestNoteDelete(quint64 pattern, quint64 track, quint64 column, quint64 line);
+
     virtual Q_INVOKABLE void requestColumnCut();
     virtual Q_INVOKABLE void requestColumnCopy();
     virtual Q_INVOKABLE void requestColumnPaste();
@@ -541,6 +555,9 @@ private:
     quint64 currentColumn() const;
 
     void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
+
+    //! Writes @p newData, line by line, to the column of @p position as one undo step.
+    void pushColumnLineEdit(const Position & position, const std::map<size_t, NoteData> & newData);
 
     //! Pushes a note edit and the automations it adds and removes as one undo step.
     void pushNoteAndAutomationEdit(NoteChangeList changes, AutomationSet additions, AutomationSet deletions);

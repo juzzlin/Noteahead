@@ -152,6 +152,17 @@ bool SongOverviewController::isColumnAudible(size_t track, size_t column) const
     return !m_mixerService || m_mixerService->shouldColumnPlay(track, column);
 }
 
+QVariantList SongOverviewController::rowStartLinesOfPattern(int pattern) const
+{
+    QVariantList startLines;
+    for (auto && row : m_overview.rows) {
+        if (static_cast<int>(row.pattern) == pattern) {
+            startLines.append(static_cast<double>(row.startLine));
+        }
+    }
+    return startLines;
+}
+
 QVariantMap SongOverviewController::targetAt(int row, int lane, double line, double pitch, double pitchTolerance) const
 {
     if (row < 0 || static_cast<size_t>(row) >= m_overview.rows.size() || lane >= static_cast<int>(m_overview.tracks.size())) {
@@ -186,6 +197,10 @@ QVariantMap SongOverviewController::targetAt(int row, int lane, double line, dou
         target["isNote"] = true;
         target["trackName"] = QString::fromStdString(track.name);
         target["noteName"] = QString::fromStdString(NoteConverter::midiToString(note->pitch));
+        target["pitch"] = static_cast<int>(note->pitch);
+        target["noteStartLine"] = note->startLine;
+        target["noteLengthLines"] = note->lengthLines;
+        target["noteLimitLine"] = static_cast<double>(note->limitLine);
         return target;
     }
 

@@ -28,6 +28,7 @@ private slots:
     void test_build_note_shouldLastUntilTheNextNote();
     void test_build_note_shouldEndAtANoteOff();
     void test_build_note_shouldLastUntilThePatternEnd();
+    void test_build_note_limitLine_shouldBeTheEventAfterItsNoteOff();
     void test_build_note_withDelay_shouldStartInsideItsLine();
     void test_build_columnsAndTracks_shouldKeepTheirOwnNotes();
     void test_build_playOrder_shouldBuildARepeatedPatternOnce();
@@ -37,6 +38,7 @@ private slots:
     void test_build_emptySong_shouldHaveADefaultRange();
     void test_build_automation_shouldBeACurveOfItsColumn();
     void test_build_automation_disabled_shouldBeLeftOut();
+    void test_build_automation_shouldNameItsAutomation();
     void test_build_automation_repeatedPattern_shouldBeBuiltOnce();
     void test_build_automation_withoutAutomationService_shouldHaveNoCurves();
     void test_controller_automationAdded_shouldRebuild();

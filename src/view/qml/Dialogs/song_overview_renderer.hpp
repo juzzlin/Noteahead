@@ -24,6 +24,11 @@
 #include <QQuickPaintedItem>
 #include <QVariantMap>
 
+#include <optional>
+#include <set>
+#include <utility>
+#include <vector>
+
 namespace noteahead {
 
 class SongOverviewController;
@@ -56,6 +61,11 @@ class SongOverviewRenderer : public QQuickPaintedItem
 
     //! Set by the view: lanes grow to fill it when there are few tracks, within the limits below.
     Q_PROPERTY(qreal laneHeight READ laneHeight WRITE setLaneHeight NOTIFY layoutChanged)
+    //! The track indices in focus: only their lanes are shown, each tall enough to read its notes,
+    //! filling the view when they fit in it. Empty shows every lane.
+    Q_PROPERTY(QVariantList focusedTracks READ focusedTracks WRITE setFocusedTracks NOTIFY layoutChanged)
+    //! The track indices whose focus buttons are lit: the focused ones, and those picked to join them.
+    Q_PROPERTY(QVariantList markedTracks READ markedTracks WRITE setMarkedTracks NOTIFY markedTracksChanged)
     Q_PROPERTY(qreal minLaneHeight READ minLaneHeight CONSTANT)
     Q_PROPERTY(qreal maxLaneHeight READ maxLaneHeight CONSTANT)
     Q_PROPERTY(qreal laneSpacing READ laneSpacing CONSTANT)
@@ -102,6 +112,11 @@ public:
     qreal maxLaneHeight() const;
     qreal laneSpacing() const;
 
+    QVariantList focusedTracks() const;
+    void setFocusedTracks(const QVariantList & tracks);
+    QVariantList markedTracks() const;
+    void setMarkedTracks(const QVariantList & tracks);
+
     qreal pixelsPerLine() const;
     void setPixelsPerLine(qreal pixelsPerLine);
     qreal minPixelsPerLine() const;
@@ -113,7 +128,8 @@ public:
     qreal contentHeight() const;
     qreal totalLines() const;
 
-    //! The content x of @p songLine on the timeline, and the content y of @p lane's top.
+    //! The content x of @p songLine on the timeline, and the content y of @p lane's top: the lane
+    //! is the track's position in the overview, and a hidden one's top is its next shown one's.
     Q_INVOKABLE qreal songLineX(double songLine) const;
     Q_INVOKABLE qreal laneY(int lane) const;
     //! The content y of the middle of @p pitch's bar in @p lane.
@@ -121,8 +137,14 @@ public:
 
     //! What is under view point (@p x, @p y): SongOverviewController::targetAt()'s map, plus row
     //! and lane, and for a note its bar as barX, barY, barWidth and barHeight in content coordinates.
-    //! On a track's name: valid, isTrack and track.
-    Q_INVOKABLE QVariantMap hitTest(qreal x, qreal y) const;
+    //! On a track's name: valid, isTrack and track, and isFocusButton on its focus button. With @p includeCurves, a drawn automation curve
+    //! near the point comes first: valid, isCurve, curveKind, automationId, comment, controller (-1
+    //! for none), parameter, trackName, row and lane.
+    Q_INVOKABLE QVariantMap hitTest(qreal x, qreal y, bool includeCurves = false) const;
+
+    //! Draws the automation of @p kind and @p automationId thicker, wherever it is drawn; a negative
+    //! @p kind draws none so.
+    Q_INVOKABLE void setHoveredCurve(int kind, qint64 automationId);
 
     //! The colour of the track at @p trackPosition.
     Q_INVOKABLE QColor trackColor(int trackPosition) const;
@@ -137,34 +159,63 @@ signals:
     void scrollChanged();
     void activeRowChanged();
     void layoutChanged();
+    void markedTracksChanged();
     //! Apart from layoutChanged(), which setting the zoom emits: the zoom is bound to this.
     void totalLinesChanged();
+
+protected:
+    void geometryChange(const QRectF & newGeometry, const QRectF & oldGeometry) override;
 
 private:
     struct PitchScale
     {
         double top { 0.0 };
         double pixelsPerSemitone { 1.0 };
-        double highest { 0.0 };
+        int lowest { 0 };
+        int highest { 0 };
     };
 
-    //! Where pitches land in the lane at @p lane.
-    PitchScale pitchScale(size_t lane) const;
+    //! Where a shown lane is, in content coordinates.
+    struct LaneGeometry
+    {
+        double top { 0.0 };
+        double height { 0.0 };
+    };
+
+    //! A lane per track position: where it is, or none if it is hidden.
+    using LaneLayout = std::vector<std::optional<LaneGeometry>>;
+
+    LaneLayout laneLayout() const;
+    //! The shown lane at content y @p contentY, if any.
+    std::optional<size_t> laneAt(const LaneLayout & layout, double contentY) const;
+    bool isFocused(size_t lane) const;
+    //! The top of the band of a track's cell its focus button and name are in.
+    double headerTop(const LaneGeometry & geometry) const;
+    QRectF focusButtonRect(const LaneGeometry & geometry) const;
+
+    //! Where pitches land in the lane at @p lane, laid out as @p geometry.
+    PitchScale pitchScale(size_t lane, const LaneGeometry & geometry) const;
 
     void paintStrip(QPainter * painter) const;
     void paintTrackColumn(QPainter * painter) const;
+    void paintFocusButton(QPainter * painter, const QRectF & rect, bool marked) const;
     void paintLanes(QPainter * painter) const;
     //! The curves of @p track in the row starting at @p rowStart, over the lane at @p top.
-    void paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, double top, double firstLine, double lastLine) const;
+    void paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, const LaneGeometry & geometry, double firstLine, double lastLine) const;
+    //! The curve of the lane at @p lane in @p row nearest content point @p point, within reach.
+    const SongOverview::Curve * curveAt(size_t row, size_t lane, const LaneGeometry & geometry, QPointF point) const;
 
     QPointer<SongOverviewController> m_controller;
     QColor m_accentColor { "#ffaa00" };
     bool m_automationsVisible { true };
     QList<QColor> m_automationCurveColors;
+    std::optional<std::pair<int, uint64_t>> m_hoveredCurve;
     qreal m_scrollX { 0.0 };
     qreal m_scrollY { 0.0 };
     int m_activeRow { -1 };
     qreal m_laneHeight { 60.0 };
+    std::set<size_t> m_focusedTracks;
+    std::set<size_t> m_markedTracks;
     qreal m_pixelsPerLine { 4.0 };
 };
 

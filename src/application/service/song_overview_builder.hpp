@@ -40,6 +40,9 @@ struct SongOverview
         //! In lines from the pattern's start, the note's delay included.
         double startLine { 0.0 };
         double lengthLines { 0.0 };
+        //! The line its end can be dragged to at most: the next event after its own note-off, or
+        //! the pattern's end. As EditorService::requestNoteLength() keeps it.
+        size_t limitLine { 0 };
         uint8_t pitch { 0 };
         uint8_t velocity { 0 };
         size_t track { 0 };
@@ -54,6 +57,14 @@ struct SongOverview
         size_t column { 0 };
         //! Its place among the automations of its column, which is what picks its color.
         size_t colorIndex { 0 };
+        //! The automation drawn: its AutomationService::AutomationKind and its id within that kind.
+        int kind { 0 };
+        uint64_t automationId { 0 };
+        //! What names it: its comment, if it has one, and its MIDI controller for a CC or its
+        //! parameter's key for a parameter.
+        std::string comment;
+        std::optional<uint8_t> controller;
+        std::string parameter;
         std::vector<std::optional<double>> values;
     };
 

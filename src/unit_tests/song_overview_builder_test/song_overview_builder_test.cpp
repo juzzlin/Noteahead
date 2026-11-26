@@ -25,6 +25,8 @@
 
 #include <QTest>
 
+#include <algorithm>
+
 #include <memory>
 
 namespace noteahead {
@@ -108,6 +110,23 @@ void SongOverviewBuilderTest::test_build_note_shouldLastUntilThePatternEnd()
 
     QCOMPARE(notes.size(), size_t { 1 });
     QCOMPARE(notes.at(0).lengthLines, static_cast<double>(song.lineCount(0) - 10));
+}
+
+void SongOverviewBuilderTest::test_build_note_limitLine_shouldBeTheEventAfterItsNoteOff()
+{
+    Song song;
+    setNoteOn(song, 0, 0, 0, 0, 60);
+    setNoteOff(song, 0, 0, 0, 2);
+    setNoteOn(song, 0, 0, 0, 6, 62);
+    setNoteOn(song, 0, 0, 0, 9, 64);
+
+    const auto overview = SongOverview::build(song);
+    const auto & notes = patternOf(overview, 0).notes;
+
+    QCOMPARE(notes.size(), size_t { 3 });
+    QCOMPARE(notes.at(0).limitLine, size_t { 6 });
+    QCOMPARE(notes.at(1).limitLine, size_t { 9 });
+    QCOMPARE(notes.at(2).limitLine, song.lineCount(0));
 }
 
 void SongOverviewBuilderTest::test_build_note_withDelay_shouldStartInsideItsLine()
@@ -245,6 +264,29 @@ void SongOverviewBuilderTest::test_build_automation_shouldBeACurveOfItsColumn()
     QCOMPARE(*curves.at(0).values.at(4), 0.5);
     QCOMPARE(*curves.at(0).values.at(6), 1.0);
     QVERIFY(!curves.at(0).values.at(7).has_value());
+}
+
+void SongOverviewBuilderTest::test_build_automation_shouldNameItsAutomation()
+{
+    Song song;
+    AutomationService automationService { nullptr };
+    const auto pitchBendId = automationService.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, "Dive", true);
+    const auto midiCcId = automationService.addMidiCcAutomation(0, 1, 0, 74, 0, 8, 0, 127, {}, true, 0, 0);
+
+    const auto overview = SongOverview::build(song, automationService);
+    const auto & curves = patternOf(overview, 0).curves;
+
+    QCOMPARE(curves.size(), size_t { 2 });
+    const auto pitchBend = std::ranges::find_if(curves, [](auto && curve) { return curve.track == 0; });
+    const auto midiCc = std::ranges::find_if(curves, [](auto && curve) { return curve.track == 1; });
+    QCOMPARE(pitchBend->kind, static_cast<int>(AutomationService::AutomationKind::PitchBend));
+    QCOMPARE(pitchBend->automationId, static_cast<uint64_t>(pitchBendId));
+    QCOMPARE(pitchBend->comment, std::string { "Dive" });
+    QVERIFY(!pitchBend->controller.has_value());
+    QCOMPARE(midiCc->kind, static_cast<int>(AutomationService::AutomationKind::MidiCc));
+    QCOMPARE(midiCc->automationId, static_cast<uint64_t>(midiCcId));
+    QVERIFY(midiCc->comment.empty());
+    QCOMPARE(midiCc->controller, std::optional<uint8_t> { 74 });
 }
 
 void SongOverviewBuilderTest::test_build_automation_disabled_shouldBeLeftOut()

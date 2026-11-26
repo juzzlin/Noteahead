@@ -13700,6 +13700,34 @@ Audio files will appear next to the current project file.</source>
         <translation>播放</translation>
     </message>
     <message>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Drag a note to move it, or its end to change its length.</source>
+        <translation>拖动音符可移动它，拖动其末端可更改其长度。</translation>
+    </message>
+    <message>
+        <source>The button by a track&apos;s name focuses on it.</source>
+        <translation>轨道名称旁的按钮可聚焦该轨道。</translation>
+    </message>
+    <message>
+        <source>Take this track out of focus</source>
+        <translation>取消聚焦此轨道</translation>
+    </message>
+    <message>
+        <source>Focus on this track: only the tracks in focus are shown, at full height. Ctrl+click to pick several.</source>
+        <translation>聚焦此轨道：只显示已聚焦的轨道，并占满高度。Ctrl+单击可选择多个。</translation>
+    </message>
+    <message>
+        <source>Right-click a note to delete it.</source>
+        <translation>右键单击音符可将其删除。</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
         <source>Automations</source>
         <translation>自动化</translation>
     </message>

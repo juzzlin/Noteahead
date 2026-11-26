@@ -77,10 +77,16 @@ public:
     //! Whether the mixer lets the column be heard, so that what is muted can be drawn dimmed.
     bool isColumnAudible(size_t track, size_t column) const;
 
+    //! Where each position that plays @p pattern starts on the song's timeline, in lines: where an
+    //! edit of the pattern shows.
+    Q_INVOKABLE QVariantList rowStartLinesOfPattern(int pattern) const;
+
     //! Where a click at @p line and @p pitch in @p row and lane @p lane takes the editor: the note
     //! there if there is one, otherwise that line on the lane's track. A lane of -1 (the play order
     //! strip) keeps the cursor's track. Keys: valid, position, pattern, track, column, line, isNote,
-    //! and for a note trackName and noteName.
+    //! and for a note trackName, noteName, pitch,
+    //! noteStartLine, noteLengthLines and
+    //! noteLimitLine.
     Q_INVOKABLE QVariantMap targetAt(int row, int lane, double line, double pitch, double pitchTolerance) const;
 
     //! The audible notes of @p row that start in [@p fromLine, @p toLine), as maps of lane, pitch,

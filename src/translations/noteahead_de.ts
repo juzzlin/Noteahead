@@ -13702,6 +13702,34 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>Abspielen</translation>
     </message>
     <message>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Drag a note to move it, or its end to change its length.</source>
+        <translation>Ziehe eine Note, um sie zu verschieben, oder ihr Ende, um ihre Länge zu ändern.</translation>
+    </message>
+    <message>
+        <source>The button by a track&apos;s name focuses on it.</source>
+        <translation>Die Schaltfläche neben dem Namen einer Spur fokussiert sie.</translation>
+    </message>
+    <message>
+        <source>Take this track out of focus</source>
+        <translation>Diese Spur aus dem Fokus nehmen</translation>
+    </message>
+    <message>
+        <source>Focus on this track: only the tracks in focus are shown, at full height. Ctrl+click to pick several.</source>
+        <translation>Auf diese Spur fokussieren: Nur die fokussierten Spuren werden angezeigt, in voller Höhe. Strg+Klick wählt mehrere.</translation>
+    </message>
+    <message>
+        <source>Right-click a note to delete it.</source>
+        <translation>Rechtsklicke auf eine Note, um sie zu löschen.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
         <source>Automations</source>
         <translation>Automationen</translation>
     </message>

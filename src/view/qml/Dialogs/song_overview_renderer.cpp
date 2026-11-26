@@ -30,6 +30,16 @@ namespace {
 
 constexpr qreal MinLaneHeight { 40.0 };
 constexpr qreal MaxLaneHeight { 160.0 };
+//! A focused lane is at least this tall per semitone of its range, and scrolls if that is taller
+//! than the view.
+constexpr qreal FocusPixelsPerSemitone { 10.0 };
+//! Semitones a focused lane's range reaches past its notes, so that none is at the very edge.
+constexpr int FocusPitchMargin { 2 };
+constexpr qreal FocusButtonSize { 16.0 };
+//! Where a track's name starts, right of its focus button.
+constexpr qreal TrackNameLeft { 32.0 };
+//! The band of a track's cell its focus button and name are in.
+constexpr qreal TrackHeaderHeight { 28.0 };
 constexpr qreal LaneSpacing { 2.0 };
 constexpr qreal MinPixelsPerLine { 0.5 };
 constexpr qreal MaxPixelsPerLine { 32.0 };
@@ -52,6 +62,9 @@ constexpr qreal CurvePadding { 4.0 };
 constexpr qreal CurveThickness { 1.5 };
 //! Over the notes, but not hiding them.
 constexpr double CurveAlpha { 0.85 };
+constexpr qreal HoveredCurveThickness { 3.0 };
+//! How near a curve the pointer has to be to hit it, as in the editor.
+constexpr qreal CurveReachPixels { 6.0 };
 
 const QColor CellFill { "#232323" };
 const QColor CornerFill { "#1e1e1e" };
@@ -65,6 +78,15 @@ const QColor TextColor { "#dddddd" };
 const QColor SubtleText { "#8a8a8a" };
 const QColor FaintText { "#5a5a5a" };
 const QColor SkippedShade { 0, 0, 0, 150 };
+
+double distanceToSegment(const QPointF & point, const QPointF & a, const QPointF & b)
+{
+    const QPointF ab = b - a;
+    const double lengthSquared = QPointF::dotProduct(ab, ab);
+    const double t = lengthSquared > 0.0 ? std::clamp(QPointF::dotProduct(point - a, ab) / lengthSquared, 0.0, 1.0) : 0.0;
+    const QPointF nearest = a + t * ab;
+    return std::hypot(point.x() - nearest.x(), point.y() - nearest.y());
+}
 
 bool isBlackKey(int pitch)
 {
@@ -239,6 +261,127 @@ qreal SongOverviewRenderer::laneSpacing() const
     return LaneSpacing;
 }
 
+namespace {
+
+std::set<size_t> trackSet(const QVariantList & tracks)
+{
+    std::set<size_t> set;
+    for (auto && track : tracks) {
+        set.insert(static_cast<size_t>(track.toULongLong()));
+    }
+    return set;
+}
+
+QVariantList trackList(const std::set<size_t> & tracks)
+{
+    QVariantList list;
+    for (auto && track : tracks) {
+        list.append(static_cast<quint64>(track));
+    }
+    return list;
+}
+
+} // namespace
+
+QVariantList SongOverviewRenderer::focusedTracks() const
+{
+    return trackList(m_focusedTracks);
+}
+
+void SongOverviewRenderer::setFocusedTracks(const QVariantList & tracks)
+{
+    if (auto set = trackSet(tracks); m_focusedTracks != set) {
+        m_focusedTracks = std::move(set);
+        emit layoutChanged();
+        update();
+    }
+}
+
+QVariantList SongOverviewRenderer::markedTracks() const
+{
+    return trackList(m_markedTracks);
+}
+
+void SongOverviewRenderer::setMarkedTracks(const QVariantList & tracks)
+{
+    if (auto set = trackSet(tracks); m_markedTracks != set) {
+        m_markedTracks = std::move(set);
+        emit markedTracksChanged();
+        update();
+    }
+}
+
+void SongOverviewRenderer::geometryChange(const QRectF & newGeometry, const QRectF & oldGeometry)
+{
+    QQuickPaintedItem::geometryChange(newGeometry, oldGeometry);
+    // Focused lanes fill the view's height
+    if (!m_focusedTracks.empty() && newGeometry.height() != oldGeometry.height()) {
+        emit layoutChanged();
+    }
+}
+
+bool SongOverviewRenderer::isFocused(size_t lane) const
+{
+    return m_controller && lane < m_controller->overview().tracks.size() && m_focusedTracks.contains(m_controller->overview().tracks.at(lane).index);
+}
+
+SongOverviewRenderer::LaneLayout SongOverviewRenderer::laneLayout() const
+{
+    if (!m_controller) {
+        return {};
+    }
+    const auto & tracks = m_controller->overview().tracks;
+    LaneLayout layout(tracks.size());
+    std::vector<size_t> focused;
+    for (size_t lane = 0; lane < tracks.size(); lane++) {
+        if (isFocused(lane)) {
+            focused.push_back(lane);
+        }
+    }
+    // Every lane, the same height, unless a track in focus is still there to show
+    if (focused.empty()) {
+        for (size_t lane = 0; lane < tracks.size(); lane++) {
+            layout.at(lane) = LaneGeometry { .top = StripHeight + static_cast<double>(lane) * (m_laneHeight + LaneSpacing), .height = m_laneHeight };
+        }
+        return layout;
+    }
+    const double fitHeight = (height() - StripHeight) / static_cast<double>(focused.size()) - LaneSpacing;
+    double top = StripHeight;
+    for (auto && lane : focused) {
+        const auto & track = tracks.at(lane);
+        const int semitones = std::min(track.highestPitch + FocusPitchMargin, 127) - std::max(track.lowestPitch - FocusPitchMargin, 0) + 1;
+        const double readableHeight = static_cast<double>(semitones) * FocusPixelsPerSemitone + 2.0 * NotePadding;
+        const double laneHeight = std::floor(std::max({ fitHeight, readableHeight, MinLaneHeight }));
+        layout.at(lane) = LaneGeometry { .top = top, .height = laneHeight };
+        top += laneHeight + LaneSpacing;
+    }
+    return layout;
+}
+
+std::optional<size_t> SongOverviewRenderer::laneAt(const LaneLayout & layout, double contentY) const
+{
+    for (size_t lane = 0; lane < layout.size(); lane++) {
+        if (const auto & geometry = layout.at(lane); geometry && contentY >= geometry->top && contentY <= geometry->top + geometry->height) {
+            return lane;
+        }
+    }
+    return {};
+}
+
+double SongOverviewRenderer::headerTop(const LaneGeometry & geometry) const
+{
+    if (geometry.height <= 2.0 * TrackHeaderHeight) {
+        return geometry.top + (geometry.height - TrackHeaderHeight) / 2.0;
+    }
+    // A tall lane keeps its name in sight while it scrolls past
+    return std::clamp(m_scrollY + StripHeight, geometry.top, geometry.top + geometry.height - TrackHeaderHeight);
+}
+
+QRectF SongOverviewRenderer::focusButtonRect(const LaneGeometry & geometry) const
+{
+    return { 10.0, headerTop(geometry) + (TrackHeaderHeight - FocusButtonSize) / 2.0, FocusButtonSize, FocusButtonSize };
+}
+
 qreal SongOverviewRenderer::pixelsPerLine() const
 {
     return m_pixelsPerLine;
@@ -281,8 +424,13 @@ qreal SongOverviewRenderer::contentWidth() const
 
 qreal SongOverviewRenderer::contentHeight() const
 {
-    const auto lanes = m_controller ? m_controller->overview().tracks.size() : 0;
-    return StripHeight + (lanes ? static_cast<qreal>(lanes) * (m_laneHeight + LaneSpacing) : 0.0);
+    qreal bottom = StripHeight;
+    for (auto && geometry : laneLayout()) {
+        if (geometry) {
+            bottom = std::max(bottom, geometry->top + geometry->height + LaneSpacing);
+        }
+    }
+    return bottom;
 }
 
 qreal SongOverviewRenderer::totalLines() const
@@ -297,26 +445,37 @@ qreal SongOverviewRenderer::songLineX(double songLine) const
 
 qreal SongOverviewRenderer::laneY(int lane) const
 {
-    return StripHeight + static_cast<qreal>(lane) * (m_laneHeight + LaneSpacing);
+    const auto layout = laneLayout();
+    for (size_t next = static_cast<size_t>(std::max(lane, 0)); next < layout.size(); next++) {
+        if (layout.at(next)) {
+            return layout.at(next)->top;
+        }
+    }
+    return contentHeight();
 }
 
 qreal SongOverviewRenderer::pitchY(int lane, int pitch) const
 {
-    if (!m_controller || lane < 0 || static_cast<size_t>(lane) >= m_controller->overview().tracks.size()) {
-        return laneY(std::max(lane, 0)) + m_laneHeight / 2.0;
+    const auto layout = laneLayout();
+    if (lane < 0 || static_cast<size_t>(lane) >= layout.size() || !layout.at(static_cast<size_t>(lane))) {
+        return laneY(std::max(lane, 0));
     }
-    const auto scale = pitchScale(static_cast<size_t>(lane));
+    const auto scale = pitchScale(static_cast<size_t>(lane), *layout.at(static_cast<size_t>(lane)));
     return scale.top + (scale.highest - pitch + 0.5) * scale.pixelsPerSemitone;
 }
 
-SongOverviewRenderer::PitchScale SongOverviewRenderer::pitchScale(size_t lane) const
+SongOverviewRenderer::PitchScale SongOverviewRenderer::pitchScale(size_t lane, const LaneGeometry & geometry) const
 {
     const auto & track = m_controller->overview().tracks.at(lane);
-    const double semitones = static_cast<double>(track.highestPitch - track.lowestPitch) + 1.0;
+    const int margin = isFocused(lane) ? FocusPitchMargin : 0;
+    const int lowest = std::max(track.lowestPitch - margin, 0);
+    const int highest = std::min(track.highestPitch + margin, 127);
+    const double semitones = static_cast<double>(highest - lowest) + 1.0;
     return {
-        .top = laneY(static_cast<int>(lane)) + NotePadding,
-        .pixelsPerSemitone = (m_laneHeight - 2.0 * NotePadding) / semitones,
-        .highest = static_cast<double>(track.highestPitch)
+        .top = geometry.top + NotePadding,
+        .pixelsPerSemitone = (geometry.height - 2.0 * NotePadding) / semitones,
+        .lowest = lowest,
+        .highest = highest
     };
 }
 
@@ -327,22 +486,84 @@ QColor SongOverviewRenderer::trackColor(int trackPosition) const
     return QColor::fromHsvF(static_cast<float>(hue), 0.55f, 0.95f);
 }
 
-QVariantMap SongOverviewRenderer::hitTest(qreal x, qreal y) const
+void SongOverviewRenderer::setHoveredCurve(int kind, qint64 automationId)
+{
+    std::optional<std::pair<int, uint64_t>> curve;
+    if (kind >= 0 && automationId >= 0) {
+        curve = std::pair { kind, static_cast<uint64_t>(automationId) };
+    }
+    if (m_hoveredCurve != curve) {
+        m_hoveredCurve = curve;
+        update();
+    }
+}
+
+const SongOverview::Curve * SongOverviewRenderer::curveAt(size_t row, size_t lane, const LaneGeometry & geometry, QPointF point) const
+{
+    const auto & overview = m_controller->overview();
+    const auto & overviewRow = overview.rows.at(row);
+    const auto pattern = overview.patterns.find(overviewRow.pattern);
+    if (pattern == overview.patterns.end()) {
+        return nullptr;
+    }
+    const auto track = overview.tracks.at(lane).index;
+    const double rowStart = static_cast<double>(overviewRow.startLine);
+    const double bottom = geometry.top + geometry.height - CurvePadding;
+    const double span = std::max(geometry.height - 2.0 * CurvePadding, 1.0);
+    // The segments that can be within reach: those of the lines about the point
+    const double line = (point.x() - TrackColumnWidth) / m_pixelsPerLine - rowStart;
+    const double reachLines = CurveReachPixels / m_pixelsPerLine;
+    const auto first = static_cast<size_t>(std::max(std::floor(line - reachLines) - 1.0, 0.0));
+    const auto last = static_cast<size_t>(std::max(std::ceil(line + reachLines) + 1.0, 0.0));
+
+    const SongOverview::Curve * nearest = nullptr;
+    double nearestDistance = CurveReachPixels;
+    const auto pointAt = [&](size_t index, double value) {
+        return QPointF { songLineX(rowStart + static_cast<double>(index)), bottom - std::clamp(value, 0.0, 1.0) * span };
+    };
+    // The last one drawn is the one on top
+    for (auto && curve : pattern->second.curves) {
+        if (curve.track != track) {
+            continue;
+        }
+        const size_t end = std::min(curve.values.size(), last + 1);
+        for (size_t index = first; index + 1 < end; index++) {
+            const auto & a = curve.values.at(index);
+            const auto & b = curve.values.at(index + 1);
+            if (a.has_value() && b.has_value()) {
+                if (const double distance = distanceToSegment(point, pointAt(index, *a), pointAt(index + 1, *b)); distance <= nearestDistance) {
+                    nearest = &curve;
+                    nearestDistance = distance;
+                }
+            }
+        }
+    }
+    return nearest;
+}
+
+QVariantMap SongOverviewRenderer::hitTest(qreal x, qreal y, bool includeCurves) const
 {
     const QVariantMap invalid { { "valid", false } };
     if (!m_controller) {
         return invalid;
     }
     const auto & overview = m_controller->overview();
+    const auto layout = laneLayout();
 
     // On a track's name
     if (x < TrackColumnWidth) {
         const double contentY = y + m_scrollY;
-        const int lane = static_cast<int>((contentY - StripHeight) / (m_laneHeight + LaneSpacing));
-        if (y < StripHeight || lane < 0 || static_cast<size_t>(lane) >= overview.tracks.size() || contentY - laneY(lane) > m_laneHeight) {
+        const auto lane = laneAt(layout, contentY);
+        if (y < StripHeight || !lane) {
             return invalid;
         }
-        return { { "valid", true }, { "isTrack", true }, { "lane", lane }, { "track", static_cast<quint64>(overview.tracks.at(static_cast<size_t>(lane)).index) } };
+        return {
+            { "valid", true },
+            { "isTrack", true },
+            { "isFocusButton", focusButtonRect(*layout.at(*lane)).adjusted(-2.0, -2.0, 2.0, 2.0).contains(QPointF { x, contentY }) },
+            { "lane", static_cast<int>(*lane) },
+            { "track", static_cast<quint64>(overview.tracks.at(*lane).index) }
+        };
     }
     const double songLine = (x + m_scrollX - TrackColumnWidth) / m_pixelsPerLine;
     const auto row = overview.rowAt(songLine);
@@ -360,11 +581,29 @@ QVariantMap SongOverviewRenderer::hitTest(qreal x, qreal y) const
     }
 
     const double contentY = y + m_scrollY;
-    const int lane = static_cast<int>((contentY - StripHeight) / (m_laneHeight + LaneSpacing));
-    if (lane < 0 || static_cast<size_t>(lane) >= overview.tracks.size() || contentY - laneY(lane) > m_laneHeight) {
+    const auto shownLane = laneAt(layout, contentY);
+    if (!shownLane) {
         return invalid;
     }
-    const auto scale = pitchScale(static_cast<size_t>(lane));
+    const int lane = static_cast<int>(*shownLane);
+    const auto & geometry = *layout.at(*shownLane);
+    if (includeCurves && m_automationsVisible) {
+        if (const auto curve = curveAt(*row, *shownLane, geometry, QPointF { x + m_scrollX, contentY }); curve) {
+            return {
+                { "valid", true },
+                { "isCurve", true },
+                { "curveKind", curve->kind },
+                { "automationId", static_cast<quint64>(curve->automationId) },
+                { "comment", QString::fromStdString(curve->comment) },
+                { "controller", curve->controller.has_value() ? static_cast<int>(*curve->controller) : -1 },
+                { "parameter", QString::fromStdString(curve->parameter) },
+                { "trackName", QString::fromStdString(overview.tracks.at(static_cast<size_t>(lane)).name) },
+                { "row", static_cast<int>(*row) },
+                { "lane", lane }
+            };
+        }
+    }
+    const auto scale = pitchScale(*shownLane, geometry);
     const double pitch = scale.highest - (contentY - scale.top) / scale.pixelsPerSemitone + 0.5;
     const double tolerance = std::max(0.5, HitSlopPixels / scale.pixelsPerSemitone);
     auto target = m_controller->targetAt(static_cast<int>(*row), lane, line, pitch, tolerance);
@@ -392,9 +631,7 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
 
     const double firstLine = m_scrollX / m_pixelsPerLine;
     const double lastLine = (m_scrollX + width() - TrackColumnWidth) / m_pixelsPerLine;
-    const double stride = m_laneHeight + LaneSpacing;
-    const int firstLane = std::max(static_cast<int>(m_scrollY / stride), 0);
-    const int lastLane = std::min(static_cast<int>((m_scrollY + height() - StripHeight) / stride), static_cast<int>(overview.tracks.size()) - 1);
+    const auto layout = laneLayout();
     const double rightEdge = songLineX(lastLine) + 1.0;
 
     // Grid steps that are far enough apart to read
@@ -402,14 +639,22 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
     const bool drawBeats = beatPixels >= MinGridSpacingPixels;
     const bool drawBars = beatPixels * BeatsPerBar >= MinGridSpacingPixels;
 
-    for (int lane = firstLane; lane <= lastLane; lane++) {
-        const auto & track = overview.tracks.at(static_cast<size_t>(lane));
-        const double top = laneY(lane);
-        const auto scale = pitchScale(static_cast<size_t>(lane));
+    for (size_t lane = 0; lane < layout.size(); lane++) {
+        if (!layout.at(lane)) {
+            continue;
+        }
+        const auto & geometry = *layout.at(lane);
+        if (geometry.top + geometry.height < m_scrollY + StripHeight || geometry.top > m_scrollY + height()) {
+            continue;
+        }
+        const auto & track = overview.tracks.at(lane);
+        const double top = geometry.top;
+        const double laneHeight = geometry.height;
+        const auto scale = pitchScale(lane, geometry);
         const double barHeight = std::max(scale.pixelsPerSemitone, MinBarHeight);
-        const QColor trackColour = trackColor(lane);
+        const QColor trackColour = trackColor(static_cast<int>(lane));
 
-        painter->fillRect(QRectF { TrackColumnWidth, top, rightEdge - TrackColumnWidth, m_laneHeight }, PastEndFill);
+        painter->fillRect(QRectF { TrackColumnWidth, top, rightEdge - TrackColumnWidth, laneHeight }, PastEndFill);
 
         for (auto && row : overview.rows) {
             const double rowStart = static_cast<double>(row.startLine);
@@ -422,10 +667,10 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
             }
             const double left = songLineX(rowStart);
             const double rowWidth = static_cast<double>(row.lineCount) * m_pixelsPerLine;
-            painter->fillRect(QRectF { left, top, rowWidth, m_laneHeight }, RollFill);
+            painter->fillRect(QRectF { left, top, rowWidth, laneHeight }, RollFill);
 
             if (scale.pixelsPerSemitone >= MinKeyShadingPixels) {
-                for (int pitch = track.lowestPitch; pitch <= track.highestPitch; pitch++) {
+                for (int pitch = scale.lowest; pitch <= scale.highest; pitch++) {
                     if (isBlackKey(pitch)) {
                         painter->fillRect(QRectF { left, scale.top + (scale.highest - pitch) * scale.pixelsPerSemitone, rowWidth, scale.pixelsPerSemitone }, BlackKeyFill);
                     }
@@ -440,13 +685,13 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
                     }
                     painter->setPen(QPen { isBar ? BarLine : BeatLine, 1.0 });
                     const double x = std::round(songLineX(rowStart + static_cast<double>(line))) + 0.5;
-                    painter->drawLine(QPointF { x, top }, QPointF { x, top + m_laneHeight });
+                    painter->drawLine(QPointF { x, top }, QPointF { x, top + laneHeight });
                 }
             }
             // Where the position starts
             painter->setPen(QPen { PositionLine, 1.0 });
             const double x = std::round(left) + 0.5;
-            painter->drawLine(QPointF { x, top }, QPointF { x, top + m_laneHeight });
+            painter->drawLine(QPointF { x, top }, QPointF { x, top + laneHeight });
 
             if (const auto pattern = overview.patterns.find(row.pattern); pattern != overview.patterns.end()) {
                 for (auto && note : pattern->second.notes) {
@@ -476,25 +721,25 @@ void SongOverviewRenderer::paintLanes(QPainter * painter) const
 
             if (m_automationsVisible) {
                 if (const auto pattern = overview.patterns.find(row.pattern); pattern != overview.patterns.end()) {
-                    paintCurves(painter, pattern->second.curves, track.index, rowStart, top, firstLine, lastLine);
+                    paintCurves(painter, pattern->second.curves, track.index, rowStart, geometry, firstLine, lastLine);
                 }
             }
 
             if (row.skipped) {
-                painter->fillRect(QRectF { left, top, rowWidth, m_laneHeight }, SkippedShade);
+                painter->fillRect(QRectF { left, top, rowWidth, laneHeight }, SkippedShade);
             }
         }
     }
     painter->restore();
 }
 
-void SongOverviewRenderer::paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, double top, double firstLine, double lastLine) const
+void SongOverviewRenderer::paintCurves(QPainter * painter, const std::vector<SongOverview::Curve> & curves, size_t track, double rowStart, const LaneGeometry & geometry, double firstLine, double lastLine) const
 {
     if (m_automationCurveColors.isEmpty()) {
         return;
     }
-    const double bottom = top + m_laneHeight - CurvePadding;
-    const double span = std::max(m_laneHeight - 2.0 * CurvePadding, 1.0);
+    const double bottom = geometry.top + geometry.height - CurvePadding;
+    const double span = std::max(geometry.height - 2.0 * CurvePadding, 1.0);
     // Only the lines in view, and one past each end so that the line runs to the edge
     const auto first = static_cast<size_t>(std::max(std::floor(firstLine - rowStart) - 1.0, 0.0));
     const double last = std::ceil(lastLine - rowStart) + 1.0;
@@ -506,8 +751,10 @@ void SongOverviewRenderer::paintCurves(QPainter * painter, const std::vector<Son
             continue;
         }
         QColor color = m_automationCurveColors.at(static_cast<int>(curve.colorIndex % static_cast<size_t>(m_automationCurveColors.size())));
-        color.setAlphaF(static_cast<float>(m_controller->isColumnAudible(curve.track, curve.column) ? CurveAlpha : CurveAlpha * 0.3));
-        painter->setPen(QPen { color, CurveThickness, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin });
+        const bool hovered = m_hoveredCurve == std::pair { curve.kind, curve.automationId };
+        const double alpha = m_controller->isColumnAudible(curve.track, curve.column) ? CurveAlpha : CurveAlpha * 0.3;
+        color.setAlphaF(static_cast<float>(hovered ? 1.0 : alpha));
+        painter->setPen(QPen { color, hovered ? HoveredCurveThickness : CurveThickness, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin });
         // A line it does not cover breaks it into runs
         QPolygonF run;
         const auto flush = [&] {
@@ -609,25 +856,32 @@ void SongOverviewRenderer::paintTrackColumn(QPainter * painter) const
     QFont smallFont = font;
     smallFont.setPixelSize(9);
 
-    for (size_t lane = 0; lane < overview.tracks.size(); lane++) {
-        const auto & track = overview.tracks.at(lane);
-        const double top = laneY(static_cast<int>(lane));
-        if (top + m_laneHeight < m_scrollY + StripHeight || top > m_scrollY + height()) {
+    const auto layout = laneLayout();
+    for (size_t lane = 0; lane < layout.size(); lane++) {
+        if (!layout.at(lane)) {
             continue;
         }
-        painter->fillRect(QRectF { 0.0, top, TrackColumnWidth - LaneSpacing, m_laneHeight }, CellFill);
-        painter->fillRect(QRectF { 0.0, top, 4.0, m_laneHeight }, trackColor(static_cast<int>(lane)));
+        const auto & geometry = *layout.at(lane);
+        const auto & track = overview.tracks.at(lane);
+        const double top = geometry.top;
+        if (top + geometry.height < m_scrollY + StripHeight || top > m_scrollY + height()) {
+            continue;
+        }
+        painter->fillRect(QRectF { 0.0, top, TrackColumnWidth - LaneSpacing, geometry.height }, CellFill);
+        painter->fillRect(QRectF { 0.0, top, 4.0, geometry.height }, trackColor(static_cast<int>(lane)));
+        paintFocusButton(painter, focusButtonRect(geometry), m_markedTracks.contains(track.index));
         painter->setFont(font);
         painter->setPen(TextColor);
-        painter->drawText(QRectF { 12.0, top, TrackColumnWidth - 52.0, m_laneHeight }, Qt::AlignLeft | Qt::AlignVCenter,
-                          metrics.elidedText(QString::fromStdString(track.name), Qt::ElideRight, TrackColumnWidth - 52.0));
+        const double nameWidth = TrackColumnWidth - TrackNameLeft - 40.0;
+        painter->drawText(QRectF { TrackNameLeft, headerTop(geometry), nameWidth, TrackHeaderHeight }, Qt::AlignLeft | Qt::AlignVCenter,
+                          metrics.elidedText(QString::fromStdString(track.name), Qt::ElideRight, nameWidth));
 
         // A C on each octave of the lane's range, where there is room to read one, as on a keyboard
-        const auto scale = pitchScale(lane);
+        const auto scale = pitchScale(lane, geometry);
         if (scale.pixelsPerSemitone * 12.0 >= 11.0) {
             painter->setFont(smallFont);
             painter->setPen(FaintText);
-            for (int pitch = track.lowestPitch; pitch <= track.highestPitch; pitch++) {
+            for (int pitch = scale.lowest; pitch <= scale.highest; pitch++) {
                 if (pitch % 12 == 0) {
                     const double y = scale.top + (scale.highest - pitch) * scale.pixelsPerSemitone;
                     painter->drawText(QRectF { TrackColumnWidth - 40.0, y + scale.pixelsPerSemitone / 2.0 - 5.0, 34.0, 10.0 }, Qt::AlignRight | Qt::AlignVCenter,
@@ -636,6 +890,26 @@ void SongOverviewRenderer::paintTrackColumn(QPainter * painter) const
             }
         }
     }
+    painter->restore();
+}
+
+void SongOverviewRenderer::paintFocusButton(QPainter * painter, const QRectF & rect, bool marked) const
+{
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    QColor fill = m_accentColor;
+    fill.setAlphaF(marked ? 0.85f : 0.0f);
+    painter->setBrush(fill);
+    painter->setPen(QPen { marked ? m_accentColor : SubtleText, 1.0 });
+    painter->drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 3.0, 3.0);
+    // A vertical double arrow: the lane opened out to its full height
+    painter->setPen(QPen { marked ? QColor { Qt::black } : SubtleText, 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin });
+    const double x = rect.center().x();
+    const double top = rect.top() + 3.5;
+    const double bottom = rect.bottom() - 3.5;
+    painter->drawLine(QPointF { x, top }, QPointF { x, bottom });
+    painter->drawPolyline(QPolygonF { { QPointF { x - 3.0, top + 3.0 }, QPointF { x, top }, QPointF { x + 3.0, top + 3.0 } } });
+    painter->drawPolyline(QPolygonF { { QPointF { x - 3.0, bottom - 3.0 }, QPointF { x, bottom }, QPointF { x + 3.0, bottom - 3.0 } } });
     painter->restore();
 }
 

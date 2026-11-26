@@ -13702,6 +13702,34 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Afspelen</translation>
     </message>
     <message>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Drag a note to move it, or its end to change its length.</source>
+        <translation>Sleep een noot om hem te verplaatsen, of zijn einde om zijn lengte te wijzigen.</translation>
+    </message>
+    <message>
+        <source>The button by a track&apos;s name focuses on it.</source>
+        <translation>De knop naast de naam van een spoor zet de focus erop.</translation>
+    </message>
+    <message>
+        <source>Take this track out of focus</source>
+        <translation>Haal de focus van dit spoor</translation>
+    </message>
+    <message>
+        <source>Focus on this track: only the tracks in focus are shown, at full height. Ctrl+click to pick several.</source>
+        <translation>Zet de focus op dit spoor: alleen de sporen met focus worden getoond, op volle hoogte. Ctrl+klik om er meerdere te kiezen.</translation>
+    </message>
+    <message>
+        <source>Right-click a note to delete it.</source>
+        <translation>Klik met rechts op een noot om hem te verwijderen.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
         <source>Automations</source>
         <translation>Automatiseringen</translation>
     </message>

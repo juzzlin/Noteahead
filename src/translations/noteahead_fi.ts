@@ -13702,6 +13702,34 @@ Audio files will appear next to the current project file.</source>
         <translation>Toista</translation>
     </message>
     <message>
+        <source>Pitch Bend</source>
+        <translation>Pitch Bend</translation>
+    </message>
+    <message>
+        <source>Drag a note to move it, or its end to change its length.</source>
+        <translation>Vedä nuottia siirtääksesi sitä tai sen loppua muuttaaksesi sen pituutta.</translation>
+    </message>
+    <message>
+        <source>The button by a track&apos;s name focuses on it.</source>
+        <translation>Raidan nimen vieressä oleva painike kohdistaa siihen.</translation>
+    </message>
+    <message>
+        <source>Take this track out of focus</source>
+        <translation>Poista raita kohdistuksesta</translation>
+    </message>
+    <message>
+        <source>Focus on this track: only the tracks in focus are shown, at full height. Ctrl+click to pick several.</source>
+        <translation>Kohdista tähän raitaan: vain kohdistetut raidat näytetään, täydellä korkeudella. Ctrl+napsautus valitsee useita.</translation>
+    </message>
+    <message>
+        <source>Right-click a note to delete it.</source>
+        <translation>Poista nuotti napsauttamalla sitä hiiren oikealla.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
         <source>Automations</source>
         <translation>Automaatiot</translation>
     </message>

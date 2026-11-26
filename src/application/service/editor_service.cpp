@@ -1862,6 +1862,223 @@ void EditorService::removeDuplicateNoteOffs()
     }
 }
 
+namespace {
+
+//! A note-on and what ends it in its column.
+struct NoteSpan
+{
+    NoteData note;
+    //! The note-off that ends it, if one does.
+    std::optional<NoteData> noteOff;
+    //! The line it ends on: its note-off's, the next note's, or the pattern's line count.
+    size_t end { 0 };
+    //! How far it could reach: the next event after its own note-off, or the line count.
+    size_t limit { 0 };
+    //! Whether it is what ends the note before it, with nothing between them.
+    bool endsPrevious { false };
+};
+
+Position columnLine(const Position & position, size_t line)
+{
+    Position at { position };
+    at.line = line;
+    at.lineColumn = 0;
+    return at;
+}
+
+std::optional<NoteSpan> noteSpanAt(const Song & song, const Position & position)
+{
+    if (!song.hasPattern(position.pattern) || !song.hasTrack(position.track) || position.column >= song.columnCount(position.pattern, position.track)) {
+        return {};
+    }
+    const size_t lineCount = song.lineCount(position.pattern);
+    if (position.line >= lineCount) {
+        return {};
+    }
+    const auto noteData = song.noteDataAtPosition(position);
+    if (!noteData || noteData->type() != NoteData::Type::NoteOn || !noteData->note().has_value()) {
+        return {};
+    }
+    const auto eventAt = [&](size_t line) {
+        const auto data = song.noteDataAtPosition(columnLine(position, line));
+        return data && data->type() != NoteData::Type::None ? data : nullptr;
+    };
+    NoteSpan span { .note = *noteData, .noteOff = {}, .end = lineCount, .limit = lineCount, .endsPrevious = false };
+    for (size_t line = position.line + 1; line < lineCount; line++) {
+        if (const auto event = eventAt(line); event) {
+            span.end = line;
+            span.limit = line;
+            if (event->type() == NoteData::Type::NoteOff) {
+                span.noteOff = *event;
+                span.limit = lineCount;
+                for (size_t next = line + 1; next < lineCount; next++) {
+                    if (eventAt(next)) {
+                        span.limit = next;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    for (size_t line = position.line; line-- > 0;) {
+        if (const auto event = eventAt(line); event) {
+            span.endsPrevious = event->type() == NoteData::Type::NoteOn;
+            break;
+        }
+    }
+    return span;
+}
+
+} // namespace
+
+void EditorService::pushColumnLineEdit(const Position & position, const std::map<size_t, NoteData> & newData)
+{
+    NoteEditCommand::ChangeList changes;
+    for (auto && [line, noteData] : newData) {
+        const auto at = columnLine(position, line);
+        const auto oldNoteData = m_song->noteDataAtPosition(at);
+        changes.emplace_back(at, oldNoteData ? *oldNoteData : NoteData { position.track, position.column }, noteData);
+    }
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & p) {
+        emit noteDataAtPositionChanged(p);
+        setIsModified(true); }, [this](const Position & p) { requestPosition(p); }));
+}
+
+bool EditorService::requestNoteMove(quint64 pattern, quint64 track, quint64 column, quint64 line, int lineDelta, int semitoneDelta)
+{
+    Position position;
+    position.pattern = pattern;
+    position.track = track;
+    position.column = column;
+    position.line = line;
+    const auto span = noteSpanAt(*m_song, position);
+    if (!span || (lineDelta == 0 && semitoneDelta == 0)) {
+        return false;
+    }
+    const int pitch = static_cast<int>(*span->note.note()) + semitoneDelta;
+    const auto lineCount = static_cast<int64_t>(m_song->lineCount(pattern));
+    const int64_t newLine = static_cast<int64_t>(line) + lineDelta;
+    if (pitch < 0 || pitch > 127 || newLine < 0 || newLine >= lineCount) {
+        return false;
+    }
+
+    // What the column holds once the note has moved, where that differs from now
+    std::map<size_t, NoteData> newData;
+    const NoteData empty { track, column };
+    const auto isEventAfterEdit = [&](size_t at) {
+        if (const auto edited = newData.find(at); edited != newData.end()) {
+            return edited->second.type() != NoteData::Type::None;
+        }
+        const auto data = m_song->noteDataAtPosition(columnLine(position, at));
+        return data && data->type() != NoteData::Type::None;
+    };
+
+    newData[line] = empty;
+    if (span->noteOff) {
+        newData[span->end] = empty;
+    }
+    // The note this one ended would otherwise run on to wherever this one went
+    if (span->endsPrevious && newLine > static_cast<int64_t>(line)) {
+        NoteData noteOff { track, column };
+        noteOff.setAsNoteOff();
+        newData[line] = noteOff;
+    }
+    if (isEventAfterEdit(static_cast<size_t>(newLine))) {
+        return false;
+    }
+    NoteData moved { span->note };
+    moved.transpose(semitoneDelta);
+    newData[static_cast<size_t>(newLine)] = moved;
+
+    // The same length, unless what follows its new line ends it sooner
+    auto naturalEnd = lineCount;
+    for (auto at = newLine + 1; at < lineCount; at++) {
+        if (isEventAfterEdit(static_cast<size_t>(at))) {
+            naturalEnd = at;
+            break;
+        }
+    }
+    if (const int64_t newEnd = static_cast<int64_t>(span->end) + lineDelta; newEnd < naturalEnd) {
+        NoteData noteOff { track, column };
+        if (span->noteOff) {
+            noteOff = *span->noteOff;
+            noteOff.transpose(semitoneDelta);
+        } else {
+            noteOff.setAsNoteOff();
+        }
+        newData[static_cast<size_t>(newEnd)] = noteOff;
+    }
+
+    juzzlin::L(TAG).info() << "Moving note at " << position.toString() << " by " << lineDelta << " lines and " << semitoneDelta << " semitones";
+    pushColumnLineEdit(position, newData);
+    return true;
+}
+
+bool EditorService::requestNoteLength(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 endLine)
+{
+    Position position;
+    position.pattern = pattern;
+    position.track = track;
+    position.column = column;
+    position.line = line;
+    const auto span = noteSpanAt(*m_song, position);
+    if (!span) {
+        return false;
+    }
+    const auto end = std::clamp<size_t>(endLine, line + 1, span->limit);
+    if (end == span->end) {
+        return false;
+    }
+
+    std::map<size_t, NoteData> newData;
+    if (span->noteOff) {
+        newData[span->end] = NoteData { track, column };
+    }
+    if (end < span->limit) {
+        NoteData noteOff { track, column };
+        if (span->noteOff) {
+            noteOff = *span->noteOff;
+        } else {
+            noteOff.setAsNoteOff();
+        }
+        newData[end] = noteOff;
+    }
+
+    juzzlin::L(TAG).info() << "Setting the length of note at " << position.toString() << " to end on line " << end;
+    pushColumnLineEdit(position, newData);
+    return true;
+}
+
+bool EditorService::requestNoteDelete(quint64 pattern, quint64 track, quint64 column, quint64 line)
+{
+    Position position;
+    position.pattern = pattern;
+    position.track = track;
+    position.column = column;
+    position.line = line;
+    const auto span = noteSpanAt(*m_song, position);
+    if (!span) {
+        return false;
+    }
+
+    std::map<size_t, NoteData> newData;
+    newData[line] = NoteData { track, column };
+    if (span->noteOff) {
+        newData[span->end] = NoteData { track, column };
+    }
+    // The note this one ended would otherwise run on to the next event
+    if (span->endsPrevious) {
+        NoteData noteOff { track, column };
+        noteOff.setAsNoteOff();
+        newData[line] = noteOff;
+    }
+
+    juzzlin::L(TAG).info() << "Deleting note at " << position.toString();
+    pushColumnLineEdit(position, newData);
+    return true;
+}
+
 bool EditorService::requestNoteOffAtCurrentPosition()
 {
     if (m_state.cursorPosition.lineColumn) {
