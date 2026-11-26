@@ -1220,8 +1220,6 @@ QString xmlKeyLowGain();
 QString xmlKeyRouting();
 QString xmlKeyVintage();
 QString xmlKeyAutoRelease();
-QString xmlKeyTargetLufs();
-QString xmlKeyAutoLoudnessEnabled();
 QString xmlKeySubCleanEnabled();
 QString xmlKeyMultibandEnabled();
 QString xmlKeyStereoEnabled();

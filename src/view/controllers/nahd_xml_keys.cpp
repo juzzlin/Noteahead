@@ -28,7 +28,6 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_aspect { Constants::NahdXml::xmlKeyAspect() }
   , m_attack { Constants::NahdXml::xmlKeyAttack() }
   , m_autoGain { Constants::NahdXml::xmlKeyAutoGain() }
-  , m_autoLoudnessEnabled { Constants::NahdXml::xmlKeyAutoLoudnessEnabled() }
   , m_autoRelease { Constants::NahdXml::xmlKeyAutoRelease() }
   , m_bandCount { Constants::NahdXml::xmlKeyBandCount() }
   , m_bandwidth { Constants::NahdXml::xmlKeyBandwidth() }
@@ -165,7 +164,6 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_subCleanEnabled { Constants::NahdXml::xmlKeySubCleanEnabled() }
   , m_sustain { Constants::NahdXml::xmlKeySustain() }
   , m_sync { Constants::NahdXml::xmlKeySync() }
-  , m_targetLufs { Constants::NahdXml::xmlKeyTargetLufs() }
   , m_threshold { Constants::NahdXml::xmlKeyThreshold() }
   , m_timbre { Constants::NahdXml::xmlKeyTimbre() }
   , m_tone { Constants::NahdXml::xmlKeyTone() }

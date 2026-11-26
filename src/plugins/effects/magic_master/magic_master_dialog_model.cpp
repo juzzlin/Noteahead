@@ -56,10 +56,10 @@ float MagicMasterDialogModel::truePeakHoldDb() const
     return -70.0f;
 }
 
-float MagicMasterDialogModel::appliedDriveDb() const
+float MagicMasterDialogModel::limiterBoostDb() const
 {
     if (const auto mm { std::dynamic_pointer_cast<MagicMaster>(effect()) }; mm) {
-        return mm->appliedDriveDb();
+        return mm->limiterBoostDb();
     }
     return 0.0f;
 }
@@ -94,6 +94,14 @@ float MagicMasterDialogModel::monoBassHz() const
         return mm->monoBassHz();
     }
     return 125.0f;
+}
+
+float MagicMasterDialogModel::autoEqBandDb(int band) const
+{
+    if (const auto mm { std::dynamic_pointer_cast<MagicMaster>(effect()) }; mm) {
+        return mm->autoEqBandDb(band);
+    }
+    return 0.0f;
 }
 
 float MagicMasterDialogModel::autoEqMaxMoveDb() const

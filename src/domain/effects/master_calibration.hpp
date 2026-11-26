@@ -27,10 +27,7 @@ struct MasterCalibration
     bool valid { false };
     std::array<double, 5> autoEqBandDb { 0.0, 0.0, 0.0, 0.0, 0.0 };
     std::array<double, 3> multibandRefRmsDb { -18.0, -18.0, -20.0 };
-    double driveDb { 0.0 };
-    double calibratedForTargetLufs { -9.0 };
     double measuredInputLufs { -70.0 };
-    double predictedOutputLufs { -70.0 };
 };
 
 class MasterCalibrationConsumer
@@ -42,9 +39,8 @@ public:
     virtual void clearCalibration() = 0;
     virtual MasterCalibration calibration() const = 0;
     virtual void setCalibrationBypass(bool bypass) = 0;
-    virtual double targetLufs() const = 0;
-    virtual double peakLimitDb() const = 0;
-    virtual bool autoLoudnessEnabled() const = 0;
+    virtual double thresholdDb() const = 0;
+    virtual double ceilingDb() const = 0;
     virtual MasterCalibration calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t sampleRate) const = 0;
 };
 

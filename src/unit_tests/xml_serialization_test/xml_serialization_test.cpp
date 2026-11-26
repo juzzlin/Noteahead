@@ -4879,8 +4879,8 @@ void XmlSerializationTest::test_toXmlFromXml_magicMasterEffect_shouldLoadCorrect
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
     auto mm = std::make_shared<MagicMaster>();
-    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyTargetLufs().toStdString()); p) {
-        p->get().setValue(MagicMaster::targetLufsPosition(-11.5));
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(MagicMaster::thresholdPosition(-11.5));
     }
     if (auto p = mm->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString()); p) {
         p->get().setValue(MagicMaster::ceilingPosition(-1.5));
@@ -4910,8 +4910,8 @@ void XmlSerializationTest::test_toXmlFromXml_magicMasterEffect_shouldLoadCorrect
     QCOMPARE(effect->typeId(), MagicMaster::typeIdString());
     const auto restored = std::dynamic_pointer_cast<MagicMaster>(effect);
     QVERIFY(restored);
-    QVERIFY(std::abs(restored->targetLufs() - (-11.5)) < 0.05);
-    QVERIFY(std::abs(restored->peakLimitDb() - (-1.5)) < 0.05);
+    QVERIFY(std::abs(restored->thresholdDb() - (-11.5)) < 0.05);
+    QVERIFY(std::abs(restored->ceilingDb() - (-1.5)) < 0.05);
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyClipperEnabled().toStdString()); p) {
         QCOMPARE(p->get().value(), 0.0f);
     }

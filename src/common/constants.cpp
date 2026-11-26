@@ -4296,16 +4296,6 @@ QString xmlKeyAutoRelease()
     return "autoRelease";
 }
 
-QString xmlKeyTargetLufs()
-{
-    return "targetLufs";
-}
-
-QString xmlKeyAutoLoudnessEnabled()
-{
-    return "autoLoudnessEnabled";
-}
-
 QString xmlKeySubCleanEnabled()
 {
     return "subCleanEnabled";

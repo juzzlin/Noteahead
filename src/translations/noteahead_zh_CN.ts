@@ -6888,6 +6888,22 @@
         <translation>Magic Master（插槽 %1）</translation>
     </message>
     <message>
+        <source>Master Limiter &amp; Output</source>
+        <translation>母带限制器与输出</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>阈值</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>上限</translation>
+    </message>
+    <message>
+        <source>Boost:</source>
+        <translation>提升:</translation>
+    </message>
+    <message>
         <source>Analyzing %1%</source>
         <translation>正在分析 %1%</translation>
     </message>
@@ -6896,28 +6912,8 @@
         <translation>分析乐曲</translation>
     </message>
     <message>
-        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
-        <translation>离线扫描整首乐曲，以锁定 EDM EQ 平衡、多段阈值与精确的 LUFS 驱动量。</translation>
-    </message>
-    <message>
         <source>Reset Meters</source>
         <translation>重置仪表</translation>
-    </message>
-    <message>
-        <source>Master Target &amp; Output</source>
-        <translation>母带目标与输出</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>LUFS 目标</translation>
-    </message>
-    <message>
-        <source>Auto LUFS</source>
-        <translation>自动 LUFS</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>峰值上限</translation>
     </message>
     <message>
         <source>Short-Term:</source>
@@ -6930,10 +6926,6 @@
     <message>
         <source>True Peak:</source>
         <translation>真峰值:</translation>
-    </message>
-    <message>
-        <source>Auto Drive:</source>
-        <translation>自动驱动:</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -6950,6 +6942,10 @@
     <message>
         <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
         <translation>EDM 默认 (128 BPM) · 播放或点击分析乐曲</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.</source>
+        <translation>离线扫描整首乐曲，以锁定 EDM 自动 EQ 平衡与多段阈值。</translation>
     </message>
     <message>
         <source>Sub &amp; Phase</source>
@@ -10633,14 +10629,6 @@
     <message>
         <source>Aspect</source>
         <translation>声场</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>LUFS 目标</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>峰值上限</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -18150,6 +18138,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Enable Magic Master on Master Effects to calibrate.</source>
         <translation>请先在主效果架中启用 Magic Master 再进行校准。</translation>
+    </message>
+    <message>
+        <source>Calibrated EQ &amp; Multiband (max EQ %1%2 dB)</source>
+        <translation>已校准 EQ 与多段（最大 EQ %1%2 dB）</translation>
     </message>
     <message>
         <source>Calibration skipped: song audio is silent; kept live mode.</source>

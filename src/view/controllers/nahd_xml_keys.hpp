@@ -34,7 +34,6 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString aspect MEMBER m_aspect CONSTANT)
     Q_PROPERTY(QString attack MEMBER m_attack CONSTANT)
     Q_PROPERTY(QString autoGain MEMBER m_autoGain CONSTANT)
-    Q_PROPERTY(QString autoLoudnessEnabled MEMBER m_autoLoudnessEnabled CONSTANT)
     Q_PROPERTY(QString autoRelease MEMBER m_autoRelease CONSTANT)
     Q_PROPERTY(QString bandCount MEMBER m_bandCount CONSTANT)
     Q_PROPERTY(QString bandwidth MEMBER m_bandwidth CONSTANT)
@@ -171,7 +170,6 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString subCleanEnabled MEMBER m_subCleanEnabled CONSTANT)
     Q_PROPERTY(QString sustain MEMBER m_sustain CONSTANT)
     Q_PROPERTY(QString sync MEMBER m_sync CONSTANT)
-    Q_PROPERTY(QString targetLufs MEMBER m_targetLufs CONSTANT)
     Q_PROPERTY(QString threshold MEMBER m_threshold CONSTANT)
     Q_PROPERTY(QString timbre MEMBER m_timbre CONSTANT)
     Q_PROPERTY(QString tone MEMBER m_tone CONSTANT)
@@ -219,7 +217,6 @@ private:
     QString m_aspect;
     QString m_attack;
     QString m_autoGain;
-    QString m_autoLoudnessEnabled;
     QString m_autoRelease;
     QString m_bandCount;
     QString m_bandwidth;
@@ -356,7 +353,6 @@ private:
     QString m_subCleanEnabled;
     QString m_sustain;
     QString m_sync;
-    QString m_targetLufs;
     QString m_threshold;
     QString m_timbre;
     QString m_tone;

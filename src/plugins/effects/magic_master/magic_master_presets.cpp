@@ -26,9 +26,8 @@ namespace {
 
 struct PresetValues
 {
-    double targetLufs;
+    double thresholdDb;
     double ceilingDb;
-    bool autoLoudness;
     bool subClean;
     bool eq;
     bool multiband;
@@ -43,9 +42,8 @@ EffectPreset preset(std::string name, const PresetValues & values)
     return EffectPreset {
         std::move(name),
         {
-          { C::xmlKeyTargetLufs().toStdString(), MagicMaster::targetLufsPosition(values.targetLufs) },
+          { C::xmlKeyThreshold().toStdString(), MagicMaster::thresholdPosition(values.thresholdDb) },
           { C::xmlKeyCeiling().toStdString(), MagicMaster::ceilingPosition(values.ceilingDb) },
-          { C::xmlKeyAutoLoudnessEnabled().toStdString(), values.autoLoudness ? 1.0f : 0.0f },
           { C::xmlKeySubCleanEnabled().toStdString(), values.subClean ? 1.0f : 0.0f },
           { C::xmlKeyEqEnabled().toStdString(), values.eq ? 1.0f : 0.0f },
           { C::xmlKeyMultibandEnabled().toStdString(), values.multiband ? 1.0f : 0.0f },
@@ -62,11 +60,11 @@ const EffectPresetList & MagicMasterPresets::presets()
 {
     static const EffectPresetList presets {
         { "Init", {} },
-        preset("Club Warm", { -10.5, -1.2, true, true, true, true, true, true, true }),
-        preset("EDM Standard", { -9.0, -1.2, true, true, true, true, true, true, true }),
-        preset("Festival Loud", { -7.0, -1.0, true, true, true, true, true, true, true }),
-        preset("Streaming", { -14.0, -1.2, true, true, true, true, true, true, true }),
-        preset("Transparent", { -12.0, -1.2, true, true, true, true, true, false, true }),
+        preset("Club Warm", { -5.5, -1.2, true, true, true, true, true, true }),
+        preset("EDM Standard", { -7.5, -1.2, true, true, true, true, true, true }),
+        preset("Festival Loud", { -10.0, -1.0, true, true, true, true, true, true }),
+        preset("Streaming", { -3.0, -1.2, true, true, true, true, true, true }),
+        preset("Transparent", { -2.0, -1.2, true, true, true, true, false, true }),
     };
     return presets;
 }

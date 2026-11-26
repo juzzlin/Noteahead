@@ -1419,10 +1419,10 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheMagicMaster()
     context.controller.setEffect(0, type);
     QCOMPARE(context.controller.effectType(0), Constants::RackEffectType::magicMaster());
     QCOMPARE(context.controller.effectDisplayName(type), QString { "Magic Master" });
-    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(target=-9.0 LUFS, peak=-1.2 dBTP)" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(thresh=-6.0 dB, ceil=-1.2 dBTP)" });
 
     context.controller.setParameterValue(0, Constants::NahdXml::xmlKeyClipperEnabled(), 0.0f);
-    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(target=-9.0 LUFS, peak=-1.2 dBTP) [5/6]" });
+    QCOMPARE(context.controller.effectParametersSummary(0), QString { "(thresh=-6.0 dB, ceil=-1.2 dBTP) [5/6]" });
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheReverb224()

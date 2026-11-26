@@ -620,11 +620,15 @@ bool RenderWorker::runMasterCalibrationPass(const EventList & events,
         for (const auto & consumer : consumers) {
             consumer->setCalibration(result);
         }
-        statusMessage = QString { "Calibrated: drive %1%2 dB (input %3 -> %4 LUFS)" }
-                          .arg(result.driveDb >= 0.0 ? "+" : "")
-                          .arg(result.driveDb, 0, 'f', 1)
-                          .arg(result.measuredInputLufs, 0, 'f', 1)
-                          .arg(result.predictedOutputLufs, 0, 'f', 1);
+        double maxEq { 0.0 };
+        for (const double eqDb : result.autoEqBandDb) {
+            if (std::abs(eqDb) > std::abs(maxEq)) {
+                maxEq = eqDb;
+            }
+        }
+        statusMessage = tr("Calibrated EQ & Multiband (max EQ %1%2 dB)")
+                          .arg(maxEq >= 0.0 ? "+" : "")
+                          .arg(maxEq, 0, 'f', 1);
     } else {
         statusMessage = tr("Calibration skipped: song audio is silent; kept live mode.");
     }

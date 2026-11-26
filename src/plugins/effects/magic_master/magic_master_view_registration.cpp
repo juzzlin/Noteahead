@@ -36,9 +36,9 @@ void registerMagicMasterEffectView()
       .dialogFile = "MagicMasterDialog.qml",
       .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
           namespace C = Constants::NahdXml;
-          const auto target { effect->parameter(C::xmlKeyTargetLufs().toStdString()) };
+          const auto threshold { effect->parameter(C::xmlKeyThreshold().toStdString()) };
           const auto ceiling { effect->parameter(C::xmlKeyCeiling().toStdString()) };
-          if (!target || !ceiling) {
+          if (!threshold || !ceiling) {
               return {};
           }
           const std::array<QString, 6> stageKeys {
@@ -55,8 +55,8 @@ void registerMagicMasterEffectView()
                   activeStages++;
               }
           }
-          const auto base { QString { "(target=%1 LUFS, peak=%2 dBTP)" }
-                              .arg(static_cast<double>(target->get().xmlValue()) / 100.0, 0, 'f', 1)
+          const auto base { QString { "(thresh=%1 dB, ceil=%2 dBTP)" }
+                              .arg(static_cast<double>(threshold->get().xmlValue()) / 100.0, 0, 'f', 1)
                               .arg(static_cast<double>(ceiling->get().xmlValue()) / 100.0, 0, 'f', 1) };
           if (activeStages < 6) {
               return QString { "%1 [%2/6]" }.arg(base).arg(activeStages);

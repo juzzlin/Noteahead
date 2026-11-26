@@ -40,12 +40,13 @@ EffectDialog {
     property real currentShortTermLufs: -70.0
     property real currentIntegratedLufs: -70.0
     property real currentTruePeakHoldDb: -70.0
-    property real currentDriveDb: 0.0
+    property real currentBoostDb: 4.8
     property bool currentCalibrated: false
     property string currentSummary: ""
 
     property real currentSubHpfHz: 28.0
     property real currentMonoBassHz: 125.0
+    property list<real> currentEqBands: [0.0, 0.0, 0.0, 0.0, 0.0]
     property real currentAutoEqMoveDb: 0.0
     property real currentResCutDb: 0.0
     property real currentMbLowGrDb: 0.0
@@ -57,7 +58,7 @@ EffectDialog {
     property real currentLimGrDb: 0.0
     property string calibrationStatusMessage: ""
 
-    readonly property real peakLimitDb: {
+    readonly property real ceilingDb: {
         effectRackController.revision;
         return -6.0 + effectRackController.parameterValue(root.effectIndex, NahdXml.ceiling) * 6.0;
     }
@@ -91,12 +92,19 @@ EffectDialog {
         root.currentShortTermLufs = mmModel.shortTermLufs();
         root.currentIntegratedLufs = mmModel.integratedLufs();
         root.currentTruePeakHoldDb = mmModel.truePeakHoldDb();
-        root.currentDriveDb = mmModel.appliedDriveDb();
+        root.currentBoostDb = mmModel.limiterBoostDb();
         root.currentCalibrated = mmModel.isCalibrated();
         root.currentSummary = mmModel.songContextSummary();
 
         root.currentSubHpfHz = mmModel.subHpfHz();
         root.currentMonoBassHz = mmModel.monoBassHz();
+        root.currentEqBands = [
+            mmModel.autoEqBandDb(0),
+            mmModel.autoEqBandDb(1),
+            mmModel.autoEqBandDb(2),
+            mmModel.autoEqBandDb(3),
+            mmModel.autoEqBandDb(4)
+        ];
         root.currentAutoEqMoveDb = mmModel.autoEqMaxMoveDb();
         root.currentResCutDb = mmModel.resonanceCutDb();
         root.currentMbLowGrDb = mmModel.multibandReductionDb(0);
@@ -129,7 +137,7 @@ EffectDialog {
 
             // 2. Hero Controls & Master Readout
             SectionBox {
-                title: qsTr("Master Target & Output")
+                title: qsTr("Master Limiter & Output")
                 Layout.fillWidth: true
                 bottomPadding: 4
 
@@ -137,44 +145,27 @@ EffectDialog {
                     anchors.fill: parent
                     spacing: 12
 
-                    ColumnLayout {
-                        spacing: 2
+                    Knob {
+                        label: qsTr("Threshold")
+                        mapping: "value"
+                        suffix: "dB"
+                        from: -24
+                        to: 0
+                        stepSize: 0.1
+                        isInteger: false
                         Layout.fillWidth: true
                         Layout.minimumWidth: 125
                         Layout.maximumWidth: 340
                         Layout.alignment: Qt.AlignVCenter
-
-                        Knob {
-                            label: qsTr("LUFS Target")
-                            mapping: "value"
-                            suffix: "LUFS"
-                            from: -18
-                            to: -5
-                            stepSize: 0.1
-                            isInteger: false
-                            Layout.fillWidth: true
-                            value: {
-                                effectRackController.revision;
-                                return -18 + effectRackController.parameterValue(root.effectIndex, NahdXml.targetLufs) * 13;
-                            }
-                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.targetLufs, (v + 18) / 13)
+                        value: {
+                            effectRackController.revision;
+                            return -24 + effectRackController.parameterValue(root.effectIndex, NahdXml.threshold) * 24;
                         }
-
-                        CheckBox {
-                            text: qsTr("Auto LUFS")
-                            topPadding: 0
-                            bottomPadding: 0
-                            checked: {
-                                effectRackController.revision;
-                                return effectRackController.parameterValue(root.effectIndex, NahdXml.autoLoudnessEnabled) > 0.5;
-                            }
-                            onToggled: effectRackController.setParameterValue(root.effectIndex, NahdXml.autoLoudnessEnabled, checked ? 1 : 0)
-                            Layout.alignment: Qt.AlignHCenter
-                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.threshold, (v + 24) / 24)
                     }
 
                     Knob {
-                        label: qsTr("Peak Limit")
+                        label: qsTr("Ceiling")
                         mapping: "value"
                         suffix: "dBTP"
                         from: -6
@@ -237,21 +228,21 @@ EffectDialog {
                         }
                         Label {
                             text: root.currentTruePeakHoldDb <= -69.5 ? "--- dBTP" : (root.currentTruePeakHoldDb >= 0 ? "+" : "") + root.currentTruePeakHoldDb.toFixed(1) + " dBTP"
-                            color: root.currentTruePeakHoldDb > root.peakLimitDb + 0.1 ? Theme.danger : Theme.textBright
+                            color: root.currentTruePeakHoldDb > root.ceilingDb + 0.1 ? Theme.danger : Theme.textBright
                             font.family: "Monospace"
                             font.pixelSize: 11
                             font.bold: true
                         }
 
                         Label {
-                            text: qsTr("Auto Drive:")
+                            text: qsTr("Boost:")
                             color: Theme.textSecondary
                             font.pixelSize: 11
                         }
                         RowLayout {
                             spacing: 6
                             Label {
-                                text: (root.currentDriveDb >= 0 ? "+" : "") + root.currentDriveDb.toFixed(1) + " dB"
+                                text: (root.currentBoostDb >= 0 ? "+" : "") + root.currentBoostDb.toFixed(1) + " dB"
                                 font.family: "Monospace"
                                 font.pixelSize: 11
                                 color: themeService.accentColor
@@ -348,7 +339,7 @@ EffectDialog {
                     }
                     ToolTip.visible: hovered
                     ToolTip.delay: Constants.toolTipDelay
-                    ToolTip.text: qsTr("Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.")
+                    ToolTip.text: qsTr("Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.")
                 }
 
                 AppButton {
@@ -481,13 +472,42 @@ EffectDialog {
                             color: Theme.surfaceSunken
                             border.color: Theme.borderSubtle
                             radius: 2
+
                             Rectangle {
-                                anchors.top: parent.top
-                                anchors.topMargin: 3
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: 14
-                                height: Math.min(parent.height - 6, (Math.abs(root.currentResCutDb) / 6.0) * (parent.height - 6))
-                                color: themeService.accentColor
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.leftMargin: 4
+                                anchors.rightMargin: 4
+                                height: 1
+                                color: Theme.borderSubtle
+                            }
+
+                            Row {
+                                anchors.centerIn: parent
+                                width: parent.width - 12
+                                height: parent.height - 8
+                                spacing: 4
+                                Repeater {
+                                    model: 5
+                                    delegate: Item {
+                                        required property int index
+                                        readonly property real gainDb: root.currentEqBands[index]
+                                        readonly property real barHeight: Math.min((parent.height / 2) - 1, (Math.abs(gainDb) / 4.0) * ((parent.height / 2) - 1))
+                                        width: (parent.width - 16) / 5
+                                        height: parent.height
+
+                                        Rectangle {
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            width: parent.width
+                                            height: Math.max(barHeight > 0.05 ? 2 : 0, barHeight)
+                                            y: gainDb >= 0 ? (parent.height / 2 - height) : (parent.height / 2)
+                                            radius: 1
+                                            color: gainDb >= 0 ? themeService.accentColor : Theme.textBright
+                                            opacity: root.eqEnabled ? 0.9 : 0.3
+                                        }
+                                    }
+                                }
                             }
                         }
                         Label {
@@ -787,7 +807,7 @@ EffectDialog {
                             }
                         }
                         Label {
-                            text: "Ceil " + root.peakLimitDb.toFixed(1)
+                            text: "Ceil " + root.ceilingDb.toFixed(1)
                             font.family: "Monospace"
                             font.pixelSize: 10
                             horizontalAlignment: Text.AlignHCenter

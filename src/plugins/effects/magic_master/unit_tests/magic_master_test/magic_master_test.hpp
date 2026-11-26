@@ -28,11 +28,11 @@ private slots:
     void test_allOff_shouldPassAudioThroughUntouched();
     void test_latencyFrames_shouldMatchImpulseResponseForAllCombos();
     void test_subCleanStage_shouldFilterSubsonicAndMonoLowEnd();
+    void test_autoEqStage_shouldVisiblyShapeTiltedMixAndBypassCleanly();
     void test_multibandStage_shouldPassQuietSignalAndCompressHotSignal();
-    void test_edmHotSignal_liveAutoLufsAndTruePeakCompliance();
-    void test_silenceGating_shouldFreezeDriveDuringSilence();
+    void test_boostingLimiter_shouldHoldFixedBoostAndRespectTruePeakCeiling();
     void test_songContext_shouldAdaptSubHpfAndMonoBassAndBpm();
-    void test_calibration_shouldConvergeWithinQuarterLuAndRespectCeiling();
+    void test_calibration_shouldLockEqAndMultibandAndRespectCeiling();
     void test_reset_shouldBeDeterministicWhilePreservingContextAndCalibration();
 };
 

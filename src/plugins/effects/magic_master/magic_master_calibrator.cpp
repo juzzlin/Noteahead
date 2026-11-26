@@ -15,7 +15,6 @@
 
 #include "magic_master_calibrator.hpp"
 
-#include "../../../domain/dsp/audio_context.hpp"
 #include "../../../domain/dsp/linkwitz_riley_crossover.hpp"
 #include "../../../domain/utility/loudness_analyzer.hpp"
 #include "../../../domain/utility/spectrum_analyzer.hpp"
@@ -24,15 +23,10 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <vector>
 
 namespace noteahead {
 
 namespace {
-
-constexpr double MinDriveDb { -12.0 };
-constexpr double MaxDriveDb { 24.0 };
-constexpr size_t BlockFrames { 1024 };
 
 std::array<double, 5> computeAutoEqFromSpectrum(const SpectrumAnalyzer::Result & spec, const SongContext & ctx)
 {
@@ -50,13 +44,13 @@ std::array<double, 5> computeAutoEqFromSpectrum(const SpectrumAnalyzer::Result &
     };
     const std::array<double, 5> targetContour {
         ctx.hasSubOr808 ? 2.0 : 2.5,
-        ctx.arrangementDensity >= 0.65 ? -1.0 : -0.5,
+        ctx.arrangementDensity >= 0.65 ? -2.0 : -1.5,
         0.0,
-        -0.5,
-        -1.5,
+        ctx.hasBrightOrFmSynths ? 0.0 : 0.5,
+        ctx.hasBrightOrFmSynths ? -1.0 : -0.5,
     };
 
-    const double maxMove { ctx.arrangementDensity <= 0.3 ? 1.8 : 3.0 };
+    const double maxMove { ctx.arrangementDensity <= 0.3 ? 3.0 : 4.0 };
     for (size_t b = 0; b < 5; b++) {
         if (b == 2) {
             eqDb[b] = 0.0;
@@ -64,9 +58,9 @@ std::array<double, 5> computeAutoEqFromSpectrum(const SpectrumAnalyzer::Result &
         }
         const double rel { measured[b] - measured[2] };
         const double err { targetContour[b] - rel };
-        if (std::abs(err) > 1.0) {
-            const double excess { std::abs(err) - 1.0 };
-            eqDb[b] = std::clamp((err >= 0.0 ? excess : -excess) * 0.65, -maxMove, maxMove);
+        if (std::abs(err) > 0.5) {
+            const double excess { std::abs(err) - 0.5 };
+            eqDb[b] = std::clamp((err >= 0.0 ? excess : -excess) * 0.75, -maxMove, maxMove);
         }
     }
     return eqDb;
@@ -169,111 +163,7 @@ MasterCalibration MagicMasterCalibrator::calibrate(const MagicMaster & source, s
     const SongContext ctx { source.songContext() };
     result.autoEqBandDb = computeAutoEqFromSpectrum(specResult, ctx);
     result.multibandRefRmsDb = computeMultibandRefRmsDb(interleavedStereo, sr, ctx);
-    result.calibratedForTargetLufs = source.targetLufs();
-
-    const double targetLufs { source.targetLufs() };
-    if (!source.autoLoudnessEnabled()) {
-        result.valid = true;
-        result.driveDb = 0.0;
-        result.predictedOutputLufs = result.measuredInputLufs;
-        return result;
-    }
-
-    const auto evaluateDrive = [&](double trialDriveDb, double & outLufs) {
-        MasterCalibration trialCal { result };
-        trialCal.valid = true;
-        trialCal.driveDb = trialDriveDb;
-        trialCal.calibratedForTargetLufs = targetLufs;
-
-        const auto clone { source.cloneConfiguredForCalibration(trialCal) };
-        clone->setSampleRate(sr);
-        clone->reset();
-
-        const size_t latency { clone->latencyFrames(sr) };
-        std::vector<double> doubleBlock(BlockFrames * 2, 0.0);
-        std::vector<float> outFloatBlock(BlockFrames * 2, 0.0f);
-        LoudnessAnalyzer outAnalyzer { sr };
-
-        size_t latencyToDrop { latency };
-        const auto flushOut = [&](size_t frameCount) {
-            const size_t drop { std::min(latencyToDrop, frameCount) };
-            latencyToDrop -= drop;
-            const size_t emitFrames { frameCount - drop };
-            if (emitFrames > 0) {
-                for (size_t i = 0; i < emitFrames * 2; i++) {
-                    outFloatBlock[i] = static_cast<float>(doubleBlock[drop * 2 + i]);
-                }
-                outAnalyzer.process(outFloatBlock.data(), emitFrames * 2);
-            }
-        };
-
-        size_t pos { 0 };
-        while (pos < totalFrames) {
-            const size_t chunk { std::min(BlockFrames, totalFrames - pos) };
-            for (size_t i = 0; i < chunk * 2; i++) {
-                doubleBlock[i] = static_cast<double>(interleavedStereo[pos * 2 + i]);
-            }
-            AudioContext audioCtx { std::span<double> { doubleBlock.data(), chunk * 2 }, static_cast<uint32_t>(chunk), sampleRate };
-            audioCtx.offline = true;
-            audioCtx.oversampleFactor = 4;
-            clone->process(audioCtx);
-            flushOut(chunk);
-            pos += chunk;
-        }
-
-        size_t tailOwed { latency - latencyToDrop };
-        latencyToDrop = 0;
-        while (tailOwed > 0) {
-            const size_t chunk { std::min(BlockFrames, tailOwed) };
-            std::fill(doubleBlock.begin(), doubleBlock.begin() + chunk * 2, 0.0);
-            AudioContext audioCtx { std::span<double> { doubleBlock.data(), chunk * 2 }, static_cast<uint32_t>(chunk), sampleRate };
-            audioCtx.offline = true;
-            audioCtx.oversampleFactor = 4;
-            clone->process(audioCtx);
-            flushOut(chunk);
-            tailOwed -= chunk;
-        }
-
-        outLufs = static_cast<double>(outAnalyzer.calculate().integratedLoudness);
-    };
-
-    double bestDrive { std::clamp(targetLufs - result.measuredInputLufs, MinDriveDb, MaxDriveDb) };
-    double bestOutLufs { -70.0 };
-    evaluateDrive(bestDrive, bestOutLufs);
-
-    double lo { MinDriveDb };
-    double hi { MaxDriveDb };
-    if (bestOutLufs < targetLufs) {
-        lo = bestDrive;
-    } else {
-        hi = bestDrive;
-    }
-
-    for (int iter = 0; iter < 6; iter++) {
-        if (std::abs(bestOutLufs - targetLufs) <= 0.15) {
-            break;
-        }
-        const double err { targetLufs - bestOutLufs };
-        double nextDrive { 0.5 * (lo + hi) };
-        if (iter == 0) {
-            nextDrive = std::clamp(bestDrive + err, lo, hi);
-        }
-        double trialLufs { -70.0 };
-        evaluateDrive(nextDrive, trialLufs);
-        if (std::abs(trialLufs - targetLufs) < std::abs(bestOutLufs - targetLufs)) {
-            bestOutLufs = trialLufs;
-            bestDrive = nextDrive;
-        }
-        if (trialLufs < targetLufs) {
-            lo = std::max(lo, nextDrive);
-        } else {
-            hi = std::min(hi, nextDrive);
-        }
-    }
-
     result.valid = true;
-    result.driveDb = std::clamp(bestDrive, MinDriveDb, MaxDriveDb);
-    result.predictedOutputLufs = bestOutLufs;
     return result;
 }
 

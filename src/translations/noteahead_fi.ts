@@ -6889,6 +6889,22 @@
         <translation>Magic Master (Paikka %1)</translation>
     </message>
     <message>
+        <source>Master Limiter &amp; Output</source>
+        <translation>Master-rajoitin ja lähtö</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Kynnys</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Katto</translation>
+    </message>
+    <message>
+        <source>Boost:</source>
+        <translation>Korostus:</translation>
+    </message>
+    <message>
         <source>Analyzing %1%</source>
         <translation>Analysoidaan %1%</translation>
     </message>
@@ -6897,28 +6913,8 @@
         <translation>Analysoi kappale</translation>
     </message>
     <message>
-        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
-        <translation>Skannaa koko kappale offline-tilassa EDM-EQ-tasapainon, monikaistakynnysten ja tarkan LUFS-tehon lukitsemiseksi.</translation>
-    </message>
-    <message>
         <source>Reset Meters</source>
         <translation>Nollaa mittarit</translation>
-    </message>
-    <message>
-        <source>Master Target &amp; Output</source>
-        <translation>Master-tavoite ja lähtö</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>LUFS-tavoite</translation>
-    </message>
-    <message>
-        <source>Auto LUFS</source>
-        <translation>Auto LUFS</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>Huippuraja</translation>
     </message>
     <message>
         <source>Short-Term:</source>
@@ -6931,10 +6927,6 @@
     <message>
         <source>True Peak:</source>
         <translation>True Peak:</translation>
-    </message>
-    <message>
-        <source>Auto Drive:</source>
-        <translation>Auto Drive:</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -6951,6 +6943,10 @@
     <message>
         <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
         <translation>EDM-oletus (128 BPM) · Toista tai napsauta Analysoi kappale</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.</source>
+        <translation>Skannaa koko kappale offline-tilassa EDM Auto EQ -tasapainon ja monikaistakynnysten lukitsemiseksi.</translation>
     </message>
     <message>
         <source>Sub &amp; Phase</source>
@@ -10634,14 +10630,6 @@
     <message>
         <source>Aspect</source>
         <translation>Leveys</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>LUFS-tavoite</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>Huippuraja</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -18152,6 +18140,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Enable Magic Master on Master Effects to calibrate.</source>
         <translation>Ota Magic Master käyttöön Master-efekteissä kalibroidaksesi.</translation>
+    </message>
+    <message>
+        <source>Calibrated EQ &amp; Multiband (max EQ %1%2 dB)</source>
+        <translation>EQ ja monikaista kalibroitu (maks. EQ %1%2 dB)</translation>
     </message>
     <message>
         <source>Calibration skipped: song audio is silent; kept live mode.</source>

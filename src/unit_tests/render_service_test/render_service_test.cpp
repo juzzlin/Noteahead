@@ -841,19 +841,14 @@ public:
         m_bypass = bypass;
     }
 
-    double targetLufs() const override
+    double thresholdDb() const override
     {
-        return -9.0;
+        return -6.0;
     }
 
-    double peakLimitDb() const override
+    double ceilingDb() const override
     {
         return -1.2;
-    }
-
-    bool autoLoudnessEnabled() const override
-    {
-        return true;
     }
 
     MasterCalibration calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t) const override
@@ -861,8 +856,7 @@ public:
         MasterCalibration cal {};
         if (!interleavedStereo.empty()) {
             cal.valid = true;
-            cal.driveDb = 2.5;
-            cal.calibratedForTargetLufs = -9.0;
+            cal.autoEqBandDb = { 1.0, -1.5, 0.0, 0.5, -0.5 };
         }
         return cal;
     }

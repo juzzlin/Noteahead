@@ -6889,6 +6889,22 @@
         <translation>Magic Master (Emplacement %1)</translation>
     </message>
     <message>
+        <source>Master Limiter &amp; Output</source>
+        <translation>Limiteur master et sortie</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Seuil</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Plafond</translation>
+    </message>
+    <message>
+        <source>Boost:</source>
+        <translation>Boost :</translation>
+    </message>
+    <message>
         <source>Analyzing %1%</source>
         <translation>Analyse %1%</translation>
     </message>
@@ -6897,28 +6913,8 @@
         <translation>Analyser le morceau</translation>
     </message>
     <message>
-        <source>Scan the full song off-line to lock in EDM EQ balance, multiband thresholds, and exact LUFS drive.</source>
-        <translation>Analyse tout le morceau hors ligne pour verrouiller l’équilibre EQ EDM, les seuils multibande et le drive LUFS exact.</translation>
-    </message>
-    <message>
         <source>Reset Meters</source>
         <translation>Réinitialiser les mètres</translation>
-    </message>
-    <message>
-        <source>Master Target &amp; Output</source>
-        <translation>Cible master et sortie</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>Cible LUFS</translation>
-    </message>
-    <message>
-        <source>Auto LUFS</source>
-        <translation>LUFS auto</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>Limite crête</translation>
     </message>
     <message>
         <source>Short-Term:</source>
@@ -6931,10 +6927,6 @@
     <message>
         <source>True Peak:</source>
         <translation>True Peak :</translation>
-    </message>
-    <message>
-        <source>Auto Drive:</source>
-        <translation>Drive auto :</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -6951,6 +6943,10 @@
     <message>
         <source>EDM Default (128 BPM) · Play or click Analyze Song</source>
         <translation>EDM par défaut (128 BPM) · Lire ou cliquer sur Analyser le morceau</translation>
+    </message>
+    <message>
+        <source>Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.</source>
+        <translation>Analyse tout le morceau hors ligne pour verrouiller l’équilibre Auto EQ EDM et les seuils multibande.</translation>
     </message>
     <message>
         <source>Sub &amp; Phase</source>
@@ -10634,14 +10630,6 @@
     <message>
         <source>Aspect</source>
         <translation>Aspect</translation>
-    </message>
-    <message>
-        <source>LUFS Target</source>
-        <translation>Cible LUFS</translation>
-    </message>
-    <message>
-        <source>Peak Limit</source>
-        <translation>Limite crête</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -18152,6 +18140,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Enable Magic Master on Master Effects to calibrate.</source>
         <translation>Activez Magic Master dans les effets master pour calibrer.</translation>
+    </message>
+    <message>
+        <source>Calibrated EQ &amp; Multiband (max EQ %1%2 dB)</source>
+        <translation>EQ et multibande calibrés (EQ max %1%2 dB)</translation>
     </message>
     <message>
         <source>Calibration skipped: song audio is silent; kept live mode.</source>

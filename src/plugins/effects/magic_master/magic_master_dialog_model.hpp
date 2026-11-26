@@ -33,12 +33,13 @@ public:
     Q_INVOKABLE float integratedLufs() const;
     Q_INVOKABLE float truePeakDb() const;
     Q_INVOKABLE float truePeakHoldDb() const;
-    Q_INVOKABLE float appliedDriveDb() const;
+    Q_INVOKABLE float limiterBoostDb() const;
     Q_INVOKABLE bool isCalibrated() const;
     Q_INVOKABLE QString songContextSummary() const;
 
     Q_INVOKABLE float subHpfHz() const;
     Q_INVOKABLE float monoBassHz() const;
+    Q_INVOKABLE float autoEqBandDb(int band) const;
     Q_INVOKABLE float autoEqMaxMoveDb() const;
     Q_INVOKABLE float resonanceCutDb() const;
     Q_INVOKABLE float multibandReductionDb(int band) const;

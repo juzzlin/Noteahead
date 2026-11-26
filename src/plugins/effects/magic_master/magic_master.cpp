@@ -38,14 +38,14 @@ constexpr double ButterworthQ2 { 1.30656296 };
 constexpr size_t InitialQuietFrames { std::numeric_limits<size_t>::max() / 4 };
 constexpr double SilenceFloor { 1.0e-9 };
 
-constexpr double MinTargetLufs { -18.0 };
-constexpr double MaxTargetLufs { -5.0 };
+constexpr double MinThresholdDb { -24.0 };
+constexpr double MaxThresholdDb { 0.0 };
 constexpr double MinCeilingDb { -6.0 };
 constexpr double MaxCeilingDb { 0.0 };
 
 constexpr std::array<double, 5> EqCenterHz { 65.0, 260.0, 900.0, 3200.0, 11000.0 };
 constexpr std::array<double, 5> EqQ { 0.707, 1.0, 0.9, 1.1, 0.707 };
-constexpr std::array<double, 5> EqDetectorQ { 1.4, 1.4, 1.2, 1.4, 1.2 };
+constexpr std::array<double, 5> EqDetectorQ { 1.2, 1.2, 1.2, 1.2, 1.2 };
 
 } // namespace
 
@@ -72,9 +72,8 @@ MagicMaster::MagicMaster()
 {
     namespace C = Constants::NahdXml;
 
-    addParameter(Parameter { C::xmlKeyTargetLufs().toStdString(), 9.0f / 13.0f, -1800, -500, -900, 100 });
+    addParameter(Parameter { C::xmlKeyThreshold().toStdString(), 0.75f, -2400, 0, -600, 100 });
     addParameter(Parameter { C::xmlKeyCeiling().toStdString(), 0.8f, -600, 0, -120, 100 });
-    addParameter(Parameter { C::xmlKeyAutoLoudnessEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeySubCleanEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeyEqEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeyMultibandEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
@@ -83,9 +82,12 @@ MagicMaster::MagicMaster()
     addParameter(Parameter { C::xmlKeyLimiterEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
 
     using Display = ParameterDisplay;
-    setParameterDisplay(C::xmlKeyTargetLufs().toStdString(), { .mapping = Display::Mapping::Value, .unit = "LUFS", .min = MinTargetLufs, .max = MaxTargetLufs, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LUFS Target") });
-    setParameterDisplay(C::xmlKeyCeiling().toStdString(), { .mapping = Display::Mapping::Value, .unit = "dBTP", .min = MinCeilingDb, .max = MaxCeilingDb, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Peak Limit") });
+    setParameterDisplay(C::xmlKeyThreshold().toStdString(), { .mapping = Display::Mapping::Value, .unit = "dB", .min = MinThresholdDb, .max = MaxThresholdDb, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Threshold") });
+    setParameterDisplay(C::xmlKeyCeiling().toStdString(), { .mapping = Display::Mapping::Value, .unit = "dBTP", .min = MinCeilingDb, .max = MaxCeilingDb, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Ceiling") });
 
+    for (auto & meter : m_meterAutoEqBandDb) {
+        meter.store(0.0f, std::memory_order_relaxed);
+    }
     for (auto & meter : m_meterMbReductionDb) {
         meter.store(0.0f, std::memory_order_relaxed);
     }
@@ -93,7 +95,7 @@ MagicMaster::MagicMaster()
     syncParameters();
     m_limiter.setLookaheadMs(4.0);
     m_limiter.setAutoRelease(true);
-    m_limiter.setBoost(false);
+    m_limiter.setBoost(true);
 
     updateStageConfigurations(true);
     m_quietFrames = InitialQuietFrames;
@@ -120,7 +122,7 @@ std::vector<std::string> MagicMaster::modulationPriority() const
 {
     namespace C = Constants::NahdXml;
     return {
-        C::xmlKeyTargetLufs().toStdString(),
+        C::xmlKeyThreshold().toStdString(),
         C::xmlKeyCeiling().toStdString(),
     };
 }
@@ -150,7 +152,6 @@ void MagicMaster::setSampleRate(double sampleRate)
     m_stHighSplitR.setSampleRate(sampleRate);
     m_stLowAllPassR.setSampleRate(sampleRate);
     m_limiter.setSampleRate(sampleRate);
-    m_inputLoudness.setSampleRate(static_cast<uint32_t>(std::max(1.0, sampleRate)));
     m_outputLoudness.setSampleRate(static_cast<uint32_t>(std::max(1.0, sampleRate)));
     m_outputTruePeak.setSampleRate(sampleRate);
     m_peakDetector.configure(sampleRate);
@@ -162,7 +163,8 @@ void MagicMaster::setSampleRate(double sampleRate)
 void MagicMaster::setBpm(float bpm)
 {
     Effect::setBpm(bpm);
-    m_limiter.setBpm(static_cast<double>(bpm));
+    const double activeBpm { m_activeSongContext.hasSongData ? std::clamp(m_activeSongContext.bpm, 40.0, 300.0) : static_cast<double>(bpm) };
+    m_limiter.setBpm(activeBpm);
 }
 
 size_t MagicMaster::latencyFrames(double sampleRate) const
@@ -242,44 +244,19 @@ void MagicMaster::setCalibrationBypass(bool bypass)
     m_calibrationBypass.store(bypass, std::memory_order_relaxed);
 }
 
-double MagicMaster::targetLufs() const
+double MagicMaster::thresholdDb() const
 {
-    return m_targetLufs;
+    return m_thresholdDb;
 }
 
-double MagicMaster::peakLimitDb() const
+double MagicMaster::ceilingDb() const
 {
-    return m_peakLimitDb;
-}
-
-bool MagicMaster::autoLoudnessEnabled() const
-{
-    return m_autoLoudnessEnabled;
+    return m_ceilingDb;
 }
 
 MasterCalibration MagicMaster::calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t sampleRate) const
 {
     return MagicMasterCalibrator::calibrate(*this, interleavedStereo, sampleRate);
-}
-
-std::shared_ptr<MagicMaster> MagicMaster::cloneConfiguredForCalibration(const MasterCalibration & seedCalibration) const
-{
-    auto clone { std::make_shared<MagicMaster>() };
-    clone->setSampleRate(sampleRate());
-    clone->setBpm(bpm());
-    clone->setSongContext(songContext());
-
-    for (const auto & name : parameterNames()) {
-        if (const auto srcParam { parameter(name) }; srcParam) {
-            if (const auto dstParam { clone->parameter(name) }; dstParam) {
-                dstParam->get().setValue(srcParam->get().value());
-            }
-        }
-    }
-    clone->sync();
-    clone->setCalibration(seedCalibration);
-    clone->pullPendingSnapshots();
-    return clone;
 }
 
 void MagicMaster::pullPendingSnapshots()
@@ -314,15 +291,13 @@ void MagicMaster::syncParameters()
 {
     namespace C = Constants::NahdXml;
 
-    const double prevTargetLufs { m_targetLufs };
-    if (const auto p { parameter(C::xmlKeyTargetLufs().toStdString()) }; p) {
-        m_targetLufs = MinTargetLufs + static_cast<double>(p->get().value()) * (MaxTargetLufs - MinTargetLufs);
+    const double prevThresholdDb { m_thresholdDb };
+    const double prevCeilingDb { m_ceilingDb };
+    if (const auto p { parameter(C::xmlKeyThreshold().toStdString()) }; p) {
+        m_thresholdDb = MinThresholdDb + static_cast<double>(p->get().value()) * (MaxThresholdDb - MinThresholdDb);
     }
     if (const auto p { parameter(C::xmlKeyCeiling().toStdString()) }; p) {
-        m_peakLimitDb = MinCeilingDb + static_cast<double>(p->get().value()) * (MaxCeilingDb - MinCeilingDb);
-    }
-    if (const auto p { parameter(C::xmlKeyAutoLoudnessEnabled().toStdString()) }; p) {
-        m_autoLoudnessEnabled = p->get().value() > 0.5f;
+        m_ceilingDb = MinCeilingDb + static_cast<double>(p->get().value()) * (MaxCeilingDb - MinCeilingDb);
     }
     if (const auto p { parameter(C::xmlKeySubCleanEnabled().toStdString()) }; p) {
         m_subCleanEnabled = p->get().value() > 0.5f;
@@ -343,15 +318,16 @@ void MagicMaster::syncParameters()
         m_limiterEnabled = p->get().value() > 0.5f;
     }
 
-    if (std::abs(m_targetLufs - prevTargetLufs) > 1.0e-9) {
+    if (std::abs(m_thresholdDb - prevThresholdDb) > 1.0e-9 || std::abs(m_ceilingDb - prevCeilingDb) > 1.0e-9) {
         updateMultibandThresholds();
     }
 
-    m_limiter.setThresholdDb(m_peakLimitDb);
-    m_limiter.setCeilingDb(m_peakLimitDb);
+    m_limiter.setThresholdDb(m_thresholdDb);
+    m_limiter.setCeilingDb(m_ceilingDb);
     m_limiter.setLookaheadMs(4.0);
     m_limiter.setAutoRelease(true);
-    m_limiter.setBoost(false);
+    m_limiter.setBoost(true);
+    m_meterLimiterBoostDb.store(m_limiterEnabled ? static_cast<float>(std::max(0.0, m_ceilingDb - m_thresholdDb)) : 0.0f, std::memory_order_relaxed);
 }
 
 void MagicMaster::updateAutoEqCoefficients()
@@ -385,7 +361,8 @@ void MagicMaster::updateAutoEqCoefficients()
 
 void MagicMaster::updateMultibandThresholds()
 {
-    const double aggressiveness { std::clamp((m_targetLufs + 18.0) / 13.0, 0.0, 1.0) };
+    const double boostDb { std::max(0.0, m_ceilingDb - m_thresholdDb) };
+    const double aggressiveness { std::clamp(boostDb / 12.0, 0.0, 1.0) };
     const double pushDb { 1.5 + 3.0 * aggressiveness };
     const double makeupDb { std::clamp(0.5 * (pushDb * 0.45), 0.0, 1.5) };
     const double makeupLin { static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(makeupDb))) };
@@ -393,7 +370,7 @@ void MagicMaster::updateMultibandThresholds()
         const double refRmsDb { m_activeCalibration.valid
                                   ? m_activeCalibration.multibandRefRmsDb[b]
                                   : (m_mbBandPower[b] > 1.0e-9 ? 10.0 * std::log10(m_mbBandPower[b]) : -24.0) };
-        const double thresholdDb { std::clamp(refRmsDb - pushDb, -42.0, -6.0) };
+        const double thresholdDb { std::clamp(refRmsDb - pushDb, -28.0, -6.0) };
         m_mbThresholdsDb[b] = thresholdDb;
         m_mbComps[b].setThresholdDb(thresholdDb);
         m_mbMakeupsLin[b] = makeupLin;
@@ -430,17 +407,28 @@ void MagicMaster::updateStageConfigurations(bool force)
         m_stHighSplitR.setSampleRate(sr);
         m_stLowAllPassR.setSampleRate(sr);
 
+        constexpr size_t NormBins { 256 };
+        const double fMin { 20.0 };
+        const double fMax { std::max(fMin * 2.0, 0.48 * sr) };
+        const double logMin { std::log(fMin) };
+        const double logSpan { std::log(fMax) - logMin };
         for (size_t b = 0; b < EqBandCount; b++) {
             m_eqBands[b].detector.calculateBandPass(EqCenterHz[b], sr, EqDetectorQ[b]);
+            double pinkIntegral { 0.0 };
+            for (size_t k = 0; k < NormBins; k++) {
+                const double f { std::exp(logMin + logSpan * (static_cast<double>(k) / static_cast<double>(NormBins - 1))) };
+                const double mag { m_eqBands[b].detector.magnitudeAt(f, sr) };
+                pinkIntegral += mag * mag;
+            }
+            m_eqDetectorPinkNorm[b] = std::max(1.0e-12, pinkIntegral / static_cast<double>(NormBins));
         }
-        m_eqDetectorCoeff = std::exp(-1.0 / (2.5 * sr));
-        m_eqSmoothCoeff = std::exp(-1.0 / (0.4 * sr / 64.0));
+        m_eqDetectorCoeff = std::exp(-1.0 / (1.2 * sr));
+        m_eqSmoothCoeff = std::exp(-1.0 / (0.25 * sr / 64.0));
+        m_eqFastCoeff = std::exp(-1.0 / (0.020 * sr));
         m_mbRmsCoeff = std::exp(-1.0 / (1.5 * sr));
         m_corrCoeff = std::exp(-1.0 / (0.15 * sr));
         m_widthSmoothCoeff = std::exp(-1.0 / (0.04 * sr));
         m_sheenEnvCoeff = std::exp(-1.0 / (0.025 * sr));
-        m_driveSmoothCoeff = std::exp(-1.0 / (0.020 * sr));
-        m_inputFastCoeff = std::exp(-1.0 / (0.010 * sr));
         m_clipMeterReleaseCoeff = std::exp(-1.0 / (0.100 * sr));
 
         m_sheenPreHpfL.calculateHighCut(4500.0, sr, 0.707);
@@ -460,7 +448,6 @@ void MagicMaster::updateStageConfigurations(bool force)
             comp.setSampleRate(sr);
         }
         m_limiter.setSampleRate(sr);
-        m_inputLoudness.setSampleRate(static_cast<uint32_t>(std::max(1.0, sr)));
         m_outputLoudness.setSampleRate(static_cast<uint32_t>(std::max(1.0, sr)));
         m_outputTruePeak.setSampleRate(sr);
 
@@ -504,11 +491,11 @@ void MagicMaster::updateStageConfigurations(bool force)
 
     if (srChanged || m_activeSongContext.hasBrightOrFmSynths != m_configuredBright) {
         SpectralPeakDetector::Settings peakSettings {};
-        peakSettings.lowHz = 350.0;
-        peakSettings.highHz = 10000.0;
-        peakSettings.focus = 0.35;
-        peakSettings.selectivityDb = m_activeSongContext.hasBrightOrFmSynths ? 7.0 : 8.5;
-        peakSettings.depthDb = m_activeSongContext.hasBrightOrFmSynths ? 3.2 : 2.5;
+        peakSettings.lowHz = 200.0;
+        peakSettings.highHz = 12000.0;
+        peakSettings.focus = 0.2;
+        peakSettings.selectivityDb = m_activeSongContext.hasBrightOrFmSynths ? 5.5 : 6.5;
+        peakSettings.depthDb = m_activeSongContext.hasBrightOrFmSynths ? 4.0 : 3.2;
         m_peakDetector.setSettings(peakSettings);
         m_configuredBright = m_activeSongContext.hasBrightOrFmSynths;
     }
@@ -570,41 +557,48 @@ void MagicMaster::processSubCleanStage(double & left, double & right)
 void MagicMaster::processAutoEqStage(double & left, double & right)
 {
     const double mono { 0.5 * (left + right) };
-    if (!m_activeCalibration.valid && std::abs(mono) > 0.01) {
+    m_eqFastPower = m_eqFastCoeff * m_eqFastPower + (1.0 - m_eqFastCoeff) * (mono * mono);
+    if (!m_activeCalibration.valid) {
+        const bool activeSignal { m_eqFastPower > 1.0e-5 };
         for (size_t b = 0; b < EqBandCount; b++) {
             const double d { m_eqBands[b].detector.process(mono) };
-            m_eqEnvPower[b] = m_eqDetectorCoeff * m_eqEnvPower[b] + (1.0 - m_eqDetectorCoeff) * (d * d);
-        }
-        m_eqUpdateCounter++;
-        if (m_eqUpdateCounter >= 64) {
-            m_eqUpdateCounter = 0;
-            const std::array<double, EqBandCount> contour {
-                m_activeSongContext.hasSubOr808 ? 2.0 : 2.5,
-                m_activeSongContext.arrangementDensity >= 0.65 ? -1.0 : -0.5,
-                0.0,
-                -0.5,
-                -1.5
-            };
-            const double refPower { std::max(1.0e-12, m_eqEnvPower[2]) };
-            const double maxMove { m_activeSongContext.arrangementDensity <= 0.3 ? 1.8 : 2.5 };
-
-            for (size_t b = 0; b < EqBandCount; b++) {
-                if (b == 2) {
-                    m_eqGainDb[b] = 0.0;
-                    continue;
-                }
-                const double relDb { 10.0 * std::log10(std::max(1.0e-12, m_eqEnvPower[b]) / refPower) };
-                const double err { contour[b] - relDb };
-                double targetMove { 0.0 };
-                if (std::abs(err) > 1.0) {
-                    const double excess { std::abs(err) - 1.0 };
-                    targetMove = std::clamp((err >= 0.0 ? excess : -excess) * 0.5, -maxMove, maxMove);
-                }
-                m_eqGainDb[b] = m_eqSmoothCoeff * m_eqGainDb[b] + (1.0 - m_eqSmoothCoeff) * targetMove;
+            if (activeSignal) {
+                m_eqEnvPower[b] = m_eqDetectorCoeff * m_eqEnvPower[b] + (1.0 - m_eqDetectorCoeff) * (d * d);
             }
-            updateAutoEqCoefficients();
         }
-    } else if (m_activeCalibration.valid) {
+        if (activeSignal) {
+            m_eqUpdateCounter++;
+            if (m_eqUpdateCounter >= 64) {
+                m_eqUpdateCounter = 0;
+                const std::array<double, EqBandCount> contour {
+                    m_activeSongContext.hasSubOr808 ? 1.5 : 2.0,
+                    m_activeSongContext.arrangementDensity >= 0.65 ? -0.5 : 0.0,
+                    0.0,
+                    0.5,
+                    -1.0
+                };
+                const double refPower { std::max(1.0e-12, m_eqEnvPower[2] / m_eqDetectorPinkNorm[2]) };
+                const double maxMove { m_activeSongContext.arrangementDensity <= 0.3 ? 3.0 : 4.0 };
+
+                for (size_t b = 0; b < EqBandCount; b++) {
+                    if (b == 2) {
+                        m_eqGainDb[b] = 0.0;
+                        continue;
+                    }
+                    const double normPower { std::max(1.0e-12, m_eqEnvPower[b] / m_eqDetectorPinkNorm[b]) };
+                    const double relDb { 10.0 * std::log10(normPower / refPower) };
+                    const double err { contour[b] - relDb };
+                    double targetMove { 0.0 };
+                    if (std::abs(err) > 0.5) {
+                        const double excess { std::abs(err) - 0.5 };
+                        targetMove = std::clamp((err >= 0.0 ? excess : -excess) * 0.65, -maxMove, maxMove);
+                    }
+                    m_eqGainDb[b] = m_eqSmoothCoeff * m_eqGainDb[b] + (1.0 - m_eqSmoothCoeff) * targetMove;
+                }
+                updateAutoEqCoefficients();
+            }
+        }
+    } else {
         m_eqGainDb = m_activeCalibration.autoEqBandDb;
     }
 
@@ -799,8 +793,11 @@ void MagicMaster::updateClipperMeter(double peakPre, double peakPost)
 
 void MagicMaster::processClipperStage(double & left, double & right)
 {
-    const double ceilingLin { std::max(1.0e-5, static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_peakLimitDb)))) };
-    const double kneeDb { m_targetLufs >= -8.0 ? 3.5 : 2.5 };
+    const double clipCeilingDb { m_limiterEnabled
+                                   ? std::min(0.0, std::min(m_thresholdDb, m_ceilingDb) + 2.0)
+                                   : m_ceilingDb };
+    const double ceilingLin { std::max(1.0e-5, static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(clipCeilingDb)))) };
+    const double kneeDb { m_limiterEnabled ? 3.0 : 2.5 };
     const double kneeLin { ceilingLin * static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(-kneeDb))) };
 
     std::array<float, 4> highL {};
@@ -830,65 +827,6 @@ void MagicMaster::processClipperStage(double & left, double & right)
     right = static_cast<double>(m_clipDownR.process(alignedR.data(), 4));
 }
 
-void MagicMaster::updateLiveDrive(double effectiveSr)
-{
-    m_liveSampleCount++;
-    if (!m_autoLoudnessEnabled) {
-        m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb;
-        return;
-    }
-
-    if (m_activeCalibration.valid) {
-        const double targetDrive { std::clamp(m_activeCalibration.driveDb + (m_targetLufs - m_activeCalibration.calibratedForTargetLufs), -12.0, 24.0) };
-        m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb + (1.0 - m_driveSmoothCoeff) * targetDrive;
-        return;
-    }
-
-    const double warmupFrames { 0.4 * effectiveSr };
-    if (static_cast<double>(m_liveSampleCount) < warmupFrames) {
-        return;
-    }
-
-    const double momentary { static_cast<double>(m_outputLoudness.momentaryLufs()) };
-    const double shortTerm { static_cast<double>(m_outputLoudness.shortTermLufs()) };
-    const double stBlend { std::clamp((static_cast<double>(m_liveSampleCount) - 2.5 * effectiveSr) / effectiveSr, 0.0, 1.0) };
-    const double measured { momentary * (1.0 - stBlend) + shortTerm * stBlend };
-    const double inputMomentary { static_cast<double>(m_inputLoudness.momentaryLufs()) };
-
-    if (momentary <= -65.0 || inputMomentary <= -32.0 || m_inputFastPower < 1.0e-4) {
-        // Silence or very quiet tail: freeze live drive
-        m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb + (1.0 - m_driveSmoothCoeff) * m_liveDriveDb;
-        return;
-    }
-
-    const double contrastFactor { 1.0 - 0.6 * std::clamp(m_activeSongContext.arrangementContrast, 0.0, 1.0) };
-    const double watermarkDecayPerSample { (0.05 * contrastFactor) / effectiveSr };
-    m_loudWatermarkLufs = std::max(inputMomentary, m_loudWatermarkLufs - watermarkDecayPerSample);
-
-    if (inputMomentary >= m_loudWatermarkLufs - 6.0) {
-        const double err { m_targetLufs - measured };
-        const float limGr { m_limiterEnabled ? m_limiter.reductionDb() : 0.0f };
-        // Anti-windup: don't push more positive drive into heavy brickwall limiting
-        if (!(err > 0.0 && limGr < -6.0f)) {
-            if (std::abs(err) > 0.2) {
-                const double absErr { std::abs(err) };
-                double rateDbPerSec { 0.4 };
-                if (absErr > 3.0) {
-                    rateDbPerSec = 4.0;
-                } else if (absErr > 2.0) {
-                    rateDbPerSec = 3.0;
-                } else if (absErr > 0.5) {
-                    rateDbPerSec = 0.4 + (absErr - 0.5) * (2.6 / 1.5);
-                }
-                const double step { (rateDbPerSec / effectiveSr) * (err >= 0.0 ? 1.0 : -1.0) };
-                m_liveDriveDb = std::clamp(m_liveDriveDb + step, -12.0, 24.0);
-            }
-        }
-    }
-
-    m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb + (1.0 - m_driveSmoothCoeff) * m_liveDriveDb;
-}
-
 void MagicMaster::processSingleFrame(double & left, double & right)
 {
     if (std::max(std::abs(left), std::abs(right)) < SilenceFloor) {
@@ -915,26 +853,6 @@ void MagicMaster::processSingleFrame(double & left, double & right)
         processStereoAirStage(left, right);
     }
 
-    m_inputLoudness.processSample(left, right);
-    const double preDrivePower { 0.5 * (left * left + right * right) };
-    m_inputFastPower = m_inputFastCoeff * m_inputFastPower + (1.0 - m_inputFastCoeff) * preDrivePower;
-
-    const double sr { sampleRate() > 0.0 ? sampleRate() : 48000.0 };
-    if (m_autoLoudnessEnabled) {
-        if (m_activeCalibration.valid) {
-            const double targetDrive { std::clamp(m_activeCalibration.driveDb + (m_targetLufs - m_activeCalibration.calibratedForTargetLufs), -12.0, 24.0) };
-            m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb + (1.0 - m_driveSmoothCoeff) * targetDrive;
-        }
-        const double driveLin { static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_appliedDriveDb))) };
-        left *= driveLin;
-        right *= driveLin;
-    } else if (std::abs(m_appliedDriveDb) > 1.0e-4) {
-        m_appliedDriveDb = m_driveSmoothCoeff * m_appliedDriveDb;
-        const double driveLin { static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_appliedDriveDb))) };
-        left *= driveLin;
-        right *= driveLin;
-    }
-
     if (m_clipperEnabled) {
         processClipperStage(left, right);
     } else {
@@ -947,10 +865,6 @@ void MagicMaster::processSingleFrame(double & left, double & right)
 
     m_outputLoudness.processSample(left, right);
     m_outputTruePeak.processSample(left, right);
-
-    if (!m_activeCalibration.valid) {
-        updateLiveDrive(sr);
-    }
 }
 
 void MagicMaster::publishTelemetry()
@@ -959,23 +873,25 @@ void MagicMaster::publishTelemetry()
     m_meterIntegratedLufs.store(m_outputLoudness.integratedLufs(), std::memory_order_relaxed);
     m_meterTruePeakDb.store(std::max(m_outputTruePeak.truePeakL(), m_outputTruePeak.truePeakR()), std::memory_order_relaxed);
     m_meterTruePeakHoldDb.store(std::max(m_outputTruePeak.truePeakHoldL(), m_outputTruePeak.truePeakHoldR()), std::memory_order_relaxed);
-    m_meterAppliedDriveDb.store(static_cast<float>(m_appliedDriveDb), std::memory_order_relaxed);
+    m_meterLimiterBoostDb.store(m_limiterEnabled ? static_cast<float>(std::max(0.0, m_ceilingDb - m_thresholdDb)) : 0.0f, std::memory_order_relaxed);
     m_meterIsCalibrated.store(m_activeCalibration.valid, std::memory_order_relaxed);
 
     double maxEqMove { 0.0 };
-    if (m_eqEnabled) {
-        for (const double db : m_eqGainDb) {
-            if (std::abs(db) > std::abs(maxEqMove)) {
-                maxEqMove = db;
-            }
+    for (size_t b = 0; b < EqBandCount; b++) {
+        const float bandDb { m_eqEnabled ? static_cast<float>(m_eqGainDb[b]) : 0.0f };
+        m_meterAutoEqBandDb[b].store(bandDb, std::memory_order_relaxed);
+        if (m_eqEnabled && std::abs(m_eqGainDb[b]) > std::abs(maxEqMove)) {
+            maxEqMove = m_eqGainDb[b];
         }
     }
     m_meterAutoEqMaxMoveDb.store(static_cast<float>(maxEqMove), std::memory_order_relaxed);
 
     double maxCut { 0.0 };
     if (m_eqEnabled) {
-        for (const auto & peak : m_peakDetector.peaks()) {
-            maxCut = std::min(maxCut, -peak.reductionDb);
+        std::array<TrackingBellBank::Bell, TrackingBellBank::MaxBells> bells {};
+        const size_t activeCount { m_resonanceBank.activeBells(bells) };
+        for (size_t i = 0; i < activeCount; i++) {
+            maxCut = std::min(maxCut, bells[i].gainDb);
         }
     }
     m_meterResonanceCutDb.store(static_cast<float>(maxCut), std::memory_order_relaxed);
@@ -1053,6 +969,7 @@ void MagicMaster::reset()
         band.detector.reset();
     }
     std::fill(m_eqEnvPower.begin(), m_eqEnvPower.end(), 0.0);
+    m_eqFastPower = 0.0;
     if (!m_activeCalibration.valid) {
         std::fill(m_eqGainDb.begin(), m_eqGainDb.end(), 0.0);
     } else {
@@ -1095,12 +1012,6 @@ void MagicMaster::reset()
     m_sheenDownR.reset();
     m_sheenHfEnv = 0.0;
 
-    m_liveDriveDb = 0.0;
-    m_appliedDriveDb = 0.0;
-    m_loudWatermarkLufs = -70.0;
-    m_inputFastPower = 0.0;
-    m_liveSampleCount = 0;
-
     m_clipUpL.reset();
     m_clipUpR.reset();
     m_clipDownL.reset();
@@ -1110,7 +1021,6 @@ void MagicMaster::reset()
     m_clipReductionDb = 0.0;
 
     m_limiter.reset();
-    m_inputLoudness.reset();
     m_outputLoudness.reset();
     m_outputTruePeak.reset();
     m_quietFrames = InitialQuietFrames;
@@ -1123,8 +1033,11 @@ void MagicMaster::reset()
     m_meterIntegratedLufs.store(LoudnessMeter::MinimumLufs, std::memory_order_relaxed);
     m_meterTruePeakDb.store(-70.0f, std::memory_order_relaxed);
     m_meterTruePeakHoldDb.store(-70.0f, std::memory_order_relaxed);
-    m_meterAppliedDriveDb.store(0.0f, std::memory_order_relaxed);
+    m_meterLimiterBoostDb.store(m_limiterEnabled ? static_cast<float>(std::max(0.0, m_ceilingDb - m_thresholdDb)) : 0.0f, std::memory_order_relaxed);
     m_meterAutoEqMaxMoveDb.store(0.0f, std::memory_order_relaxed);
+    for (auto & meter : m_meterAutoEqBandDb) {
+        meter.store(0.0f, std::memory_order_relaxed);
+    }
     m_meterResonanceCutDb.store(0.0f, std::memory_order_relaxed);
     for (auto & meter : m_meterMbReductionDb) {
         meter.store(0.0f, std::memory_order_relaxed);
@@ -1162,9 +1075,9 @@ float MagicMaster::truePeakHoldDb() const
     return m_meterTruePeakHoldDb.load(std::memory_order_relaxed);
 }
 
-float MagicMaster::appliedDriveDb() const
+float MagicMaster::limiterBoostDb() const
 {
-    return m_meterAppliedDriveDb.load(std::memory_order_relaxed);
+    return m_meterLimiterBoostDb.load(std::memory_order_relaxed);
 }
 
 bool MagicMaster::isCalibrated() const
@@ -1191,6 +1104,14 @@ float MagicMaster::monoBassHz() const
 float MagicMaster::autoEqMaxMoveDb() const
 {
     return m_meterAutoEqMaxMoveDb.load(std::memory_order_relaxed);
+}
+
+float MagicMaster::autoEqBandDb(int band) const
+{
+    if (band < 0 || static_cast<size_t>(band) >= EqBandCount) {
+        return 0.0f;
+    }
+    return m_meterAutoEqBandDb[static_cast<size_t>(band)].load(std::memory_order_relaxed);
 }
 
 float MagicMaster::resonanceCutDb() const
@@ -1226,9 +1147,9 @@ float MagicMaster::limiterReductionDb() const
     return m_meterLimiterReductionDb.load(std::memory_order_relaxed);
 }
 
-float MagicMaster::targetLufsPosition(double lufs)
+float MagicMaster::thresholdPosition(double db)
 {
-    return static_cast<float>(std::clamp((lufs - MinTargetLufs) / (MaxTargetLufs - MinTargetLufs), 0.0, 1.0));
+    return static_cast<float>(std::clamp((db - MinThresholdDb) / (MaxThresholdDb - MinThresholdDb), 0.0, 1.0));
 }
 
 float MagicMaster::ceilingPosition(double db)

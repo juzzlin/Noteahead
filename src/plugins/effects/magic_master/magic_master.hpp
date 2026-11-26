@@ -36,7 +36,6 @@
 #include <array>
 #include <atomic>
 #include <cstddef>
-#include <memory>
 #include <mutex>
 #include <span>
 #include <string>
@@ -82,24 +81,22 @@ public:
     void clearCalibration() override;
     MasterCalibration calibration() const override;
     void setCalibrationBypass(bool bypass) override;
-    double targetLufs() const override;
-    double peakLimitDb() const override;
-    bool autoLoudnessEnabled() const override;
+    double thresholdDb() const override;
+    double ceilingDb() const override;
     MasterCalibration calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t sampleRate) const override;
-
-    std::shared_ptr<MagicMaster> cloneConfiguredForCalibration(const MasterCalibration & seedCalibration) const;
 
     // Telemetry getters for UI & tests
     float shortTermLufs() const;
     float integratedLufs() const;
     float truePeakDb() const;
     float truePeakHoldDb() const;
-    float appliedDriveDb() const;
+    float limiterBoostDb() const;
     bool isCalibrated() const;
     std::string songContextSummary() const;
 
     float subHpfHz() const;
     float monoBassHz() const;
+    float autoEqBandDb(int band) const;
     float autoEqMaxMoveDb() const;
     float resonanceCutDb() const;
     float multibandReductionDb(int band) const;
@@ -108,7 +105,7 @@ public:
     float clipperReductionDb() const;
     float limiterReductionDb() const;
 
-    static float targetLufsPosition(double lufs);
+    static float thresholdPosition(double db);
     static float ceilingPosition(double db);
 
 private:
@@ -146,13 +143,11 @@ private:
     void processClipperStage(double & left, double & right);
     double softClip4xSample(double x, double ceilingLin, double kneeLin) const;
     void updateClipperMeter(double peakPre, double peakPost);
-    void updateLiveDrive(double effectiveSr);
     void publishTelemetry();
 
     // Parameters mirrored locally
-    double m_targetLufs { -9.0 };
-    double m_peakLimitDb { -1.2 };
-    bool m_autoLoudnessEnabled { true };
+    double m_thresholdDb { -6.0 };
+    double m_ceilingDb { -1.2 };
     bool m_subCleanEnabled { true };
     bool m_eqEnabled { true };
     bool m_multibandEnabled { true };
@@ -198,8 +193,11 @@ private:
     std::array<EqBandFilters, EqBandCount> m_eqBands {};
     std::array<double, EqBandCount> m_eqGainDb {};
     std::array<double, EqBandCount> m_eqEnvPower {};
+    std::array<double, EqBandCount> m_eqDetectorPinkNorm { 1.0, 1.0, 1.0, 1.0, 1.0 };
     double m_eqDetectorCoeff { 0.0 };
     double m_eqSmoothCoeff { 0.0 };
+    double m_eqFastPower { 0.0 };
+    double m_eqFastCoeff { 0.0 };
     size_t m_eqUpdateCounter { 0 };
     AutoGain m_eqAutoGain;
     SpectralPeakDetector m_peakDetector;
@@ -244,15 +242,6 @@ private:
     double m_sheenHfEnv { 0.0 };
     double m_sheenEnvCoeff { 0.0 };
 
-    // Stage 5: Auto LUFS Drive
-    double m_liveDriveDb { 0.0 };
-    double m_appliedDriveDb { 0.0 };
-    double m_loudWatermarkLufs { -70.0 };
-    double m_driveSmoothCoeff { 0.0 };
-    double m_inputFastPower { 0.0 };
-    double m_inputFastCoeff { 0.0 };
-    size_t m_liveSampleCount { 0 };
-
     // Stage 6: Fixed 4x Soft Clipper (with 1-sample 4x alignment -> 69 base frames latency)
     Upsampler m_clipUpL;
     Upsampler m_clipUpR;
@@ -266,8 +255,7 @@ private:
     // Stage 7: True-Peak Limiter Core
     TruePeakLimiterCore m_limiter;
 
-    // Input/output metering & settle tracking
-    LoudnessMeter m_inputLoudness;
+    // Output metering & settle tracking
     LoudnessMeter m_outputLoudness;
     DbTpMeter m_outputTruePeak;
     size_t m_quietFrames { 0 };
@@ -277,12 +265,13 @@ private:
     std::atomic<float> m_meterIntegratedLufs { -70.0f };
     std::atomic<float> m_meterTruePeakDb { -70.0f };
     std::atomic<float> m_meterTruePeakHoldDb { -70.0f };
-    std::atomic<float> m_meterAppliedDriveDb { 0.0f };
+    std::atomic<float> m_meterLimiterBoostDb { 4.8f };
     std::atomic<bool> m_meterIsCalibrated { false };
 
     std::atomic<float> m_meterSubHpfHz { 28.0f };
     std::atomic<float> m_meterMonoBassHz { 125.0f };
     std::atomic<float> m_meterAutoEqMaxMoveDb { 0.0f };
+    std::array<std::atomic<float>, EqBandCount> m_meterAutoEqBandDb {};
     std::atomic<float> m_meterResonanceCutDb { 0.0f };
     std::array<std::atomic<float>, MbBandCount> m_meterMbReductionDb {};
     std::atomic<float> m_meterStereoCorr { 1.0f };
