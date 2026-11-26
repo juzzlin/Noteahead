@@ -70,6 +70,7 @@ NahdXmlKeys::NahdXmlKeys(QObject * parent)
   , m_envMod { Constants::NahdXml::xmlKeyEnvMod() }
   , m_eqEnabled { Constants::NahdXml::xmlKeyEqEnabled() }
   , m_eqPre { Constants::NahdXml::xmlKeyEqPre() }
+  , m_eqProfile { Constants::NahdXml::xmlKeyEqProfile() }
   , m_environment { Constants::NahdXml::xmlKeyEnvironment() }
   , m_feedback { Constants::NahdXml::xmlKeyFeedback() }
   , m_fftRate { Constants::NahdXml::xmlKeyFftRate() }

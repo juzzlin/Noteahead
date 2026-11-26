@@ -33,6 +33,7 @@ private slots:
     void test_boostingLimiter_shouldHoldFixedBoostAndRespectTruePeakCeiling();
     void test_songContext_shouldAdaptSubHpfAndMonoBassAndBpm();
     void test_calibration_shouldLockEqAndMultibandAndRespectCeiling();
+    void test_factoryPresets_shouldPreserveThresholdAndCeilingAndBeValid();
     void test_reset_shouldBeDeterministicWhilePreservingContextAndCalibration();
 };
 

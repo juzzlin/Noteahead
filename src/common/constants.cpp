@@ -4271,6 +4271,11 @@ QString xmlKeyEqPre()
     return "eqPre";
 }
 
+QString xmlKeyEqProfile()
+{
+    return "eqProfile";
+}
+
 QString xmlKeyLowCutMode()
 {
     return "lowCutMode";

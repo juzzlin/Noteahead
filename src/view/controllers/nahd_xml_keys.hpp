@@ -76,6 +76,7 @@ class NahdXmlKeys : public QObject
     Q_PROPERTY(QString envMod MEMBER m_envMod CONSTANT)
     Q_PROPERTY(QString eqEnabled MEMBER m_eqEnabled CONSTANT)
     Q_PROPERTY(QString eqPre MEMBER m_eqPre CONSTANT)
+    Q_PROPERTY(QString eqProfile MEMBER m_eqProfile CONSTANT)
     Q_PROPERTY(QString environment MEMBER m_environment CONSTANT)
     Q_PROPERTY(QString feedback MEMBER m_feedback CONSTANT)
     Q_PROPERTY(QString fftRate MEMBER m_fftRate CONSTANT)
@@ -259,6 +260,7 @@ private:
     QString m_envMod;
     QString m_eqEnabled;
     QString m_eqPre;
+    QString m_eqProfile;
     QString m_environment;
     QString m_feedback;
     QString m_fftRate;

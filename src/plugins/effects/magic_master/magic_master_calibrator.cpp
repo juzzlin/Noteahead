@@ -28,44 +28,6 @@ namespace noteahead {
 
 namespace {
 
-std::array<double, 5> computeAutoEqFromSpectrum(const SpectrumAnalyzer::Result & spec, const SongContext & ctx)
-{
-    std::array<double, 5> eqDb {};
-    if (!spec.isValid) {
-        return eqDb;
-    }
-
-    const std::array<double, 5> measured {
-        0.5 * (static_cast<double>(spec.subDb) + static_cast<double>(spec.bassDb)),
-        static_cast<double>(spec.lowMidDb),
-        static_cast<double>(spec.midDb),
-        static_cast<double>(spec.upperMidDb),
-        0.5 * (static_cast<double>(spec.highDb) + static_cast<double>(spec.airDb)),
-    };
-    const std::array<double, 5> targetContour {
-        ctx.hasSubOr808 ? 2.0 : 2.5,
-        ctx.arrangementDensity >= 0.65 ? -2.0 : -1.5,
-        0.0,
-        ctx.hasBrightOrFmSynths ? 0.0 : 0.5,
-        ctx.hasBrightOrFmSynths ? -1.0 : -0.5,
-    };
-
-    const double maxMove { ctx.arrangementDensity <= 0.3 ? 3.0 : 4.0 };
-    for (size_t b = 0; b < 5; b++) {
-        if (b == 2) {
-            eqDb[b] = 0.0;
-            continue;
-        }
-        const double rel { measured[b] - measured[2] };
-        const double err { targetContour[b] - rel };
-        if (std::abs(err) > 0.5) {
-            const double excess { std::abs(err) - 0.5 };
-            eqDb[b] = std::clamp((err >= 0.0 ? excess : -excess) * 0.75, -maxMove, maxMove);
-        }
-    }
-    return eqDb;
-}
-
 std::array<double, 3> computeMultibandRefRmsDb(std::span<const float> interleavedStereo, double sr, const SongContext & ctx)
 {
     const double bpm { ctx.hasSongData ? std::clamp(ctx.bpm, 40.0, 300.0) : 128.0 };
@@ -161,7 +123,19 @@ MasterCalibration MagicMasterCalibrator::calibrate(const MagicMaster & source, s
     const auto specResult { spectrum.calculate() };
 
     const SongContext ctx { source.songContext() };
-    result.autoEqBandDb = computeAutoEqFromSpectrum(specResult, ctx);
+    if (specResult.isValid) {
+        result.hasMeasuredSpectrum = true;
+        result.measuredBandRelDb = {
+            static_cast<double>(specResult.subDb),
+            static_cast<double>(specResult.bassDb),
+            static_cast<double>(specResult.lowMidDb),
+            static_cast<double>(specResult.midDb),
+            static_cast<double>(specResult.upperMidDb),
+            static_cast<double>(specResult.highDb),
+            static_cast<double>(specResult.airDb),
+        };
+        result.autoEqBandDb = MagicMaster::computeAutoEqGains(result.measuredBandRelDb, source.eqProfile(), ctx, 0.75);
+    }
     result.multibandRefRmsDb = computeMultibandRefRmsDb(interleavedStereo, sr, ctx);
     result.valid = true;
     return result;

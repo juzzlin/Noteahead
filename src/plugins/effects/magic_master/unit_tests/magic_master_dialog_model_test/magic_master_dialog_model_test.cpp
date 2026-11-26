@@ -62,7 +62,7 @@ void MagicMasterDialogModelTest::test_telemetryAndCalibrationClear_shouldReflect
 
     MasterCalibration cal {};
     cal.valid = true;
-    cal.autoEqBandDb = { 1.5, -2.0, 0.0, 0.5, -1.0 };
+    cal.autoEqBandDb = { 1.0, 1.5, -2.0, 0.0, 0.5, -1.0, 0.5 };
     cal.measuredInputLufs = -14.0;
     mm->setCalibration(cal);
 
@@ -81,7 +81,7 @@ void MagicMasterDialogModelTest::test_telemetryAndCalibrationClear_shouldReflect
     QCOMPARE(model.songContextSummary(), QString { "136 BPM Test Summary" });
     QVERIFY(model.truePeakHoldDb() > -10.0f);
     QVERIFY(std::abs(model.limiterBoostDb() - 4.8f) < 0.05f);
-    QVERIFY(std::abs(model.autoEqBandDb(1) - (-2.0f)) < 0.05f);
+    QVERIFY(std::abs(model.autoEqBandDb(2) - (-2.0f)) < 0.05f);
     QVERIFY(std::abs(model.autoEqMaxMoveDb()) >= 1.95f);
 
     if (const auto eqParam { mm->parameter(Constants::NahdXml::xmlKeyEqEnabled().toStdString()) }; eqParam) {
@@ -89,7 +89,7 @@ void MagicMasterDialogModelTest::test_telemetryAndCalibrationClear_shouldReflect
     }
     mm->sync();
     mm->process(audioCtx);
-    QCOMPARE(model.autoEqBandDb(1), 0.0f);
+    QCOMPARE(model.autoEqBandDb(2), 0.0f);
     QCOMPARE(model.autoEqMaxMoveDb(), 0.0f);
 
     model.clearCalibration();

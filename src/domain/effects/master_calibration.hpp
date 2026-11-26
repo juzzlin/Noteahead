@@ -24,8 +24,12 @@ namespace noteahead {
 
 struct MasterCalibration
 {
+    static constexpr size_t AutoEqBandCount { 7 };
+
     bool valid { false };
-    std::array<double, 5> autoEqBandDb { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    bool hasMeasuredSpectrum { false };
+    std::array<double, AutoEqBandCount> measuredBandRelDb { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    std::array<double, AutoEqBandCount> autoEqBandDb { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     std::array<double, 3> multibandRefRmsDb { -18.0, -18.0, -20.0 };
     double measuredInputLufs { -70.0 };
 };

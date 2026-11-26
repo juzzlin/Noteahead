@@ -43,9 +43,9 @@ constexpr double MaxThresholdDb { 0.0 };
 constexpr double MinCeilingDb { -6.0 };
 constexpr double MaxCeilingDb { 0.0 };
 
-constexpr std::array<double, 5> EqCenterHz { 65.0, 260.0, 900.0, 3200.0, 11000.0 };
-constexpr std::array<double, 5> EqQ { 0.707, 1.0, 0.9, 1.1, 0.707 };
-constexpr std::array<double, 5> EqDetectorQ { 1.2, 1.2, 1.2, 1.2, 1.2 };
+constexpr std::array<double, 7> EqCenterHz { 40.0, 85.0, 200.0, 500.0, 1400.0, 4800.0, 13000.0 };
+constexpr std::array<double, 7> EqQ { 0.707, 1.1, 1.0, 1.0, 1.0, 1.0, 0.707 };
+constexpr std::array<double, 7> EqDetectorQ { 1.2, 1.3, 1.3, 1.3, 1.3, 1.3, 1.2 };
 
 } // namespace
 
@@ -74,6 +74,7 @@ MagicMaster::MagicMaster()
 
     addParameter(Parameter { C::xmlKeyThreshold().toStdString(), 0.75f, -2400, 0, -600, 100 });
     addParameter(Parameter { C::xmlKeyCeiling().toStdString(), 0.8f, -600, 0, -120, 100 });
+    addParameter(Parameter { C::xmlKeyEqProfile().toStdString(), 0.0f, 0, static_cast<int>(EqProfile::FlatPink), 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeySubCleanEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeyEqEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeyMultibandEnabled().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
@@ -130,6 +131,18 @@ std::vector<std::string> MagicMaster::modulationPriority() const
 const EffectPresetList & MagicMaster::factoryPresets() const
 {
     return MagicMasterPresets::presets();
+}
+
+Effect::PresetExemptValues MagicMaster::presetExemptValues() const
+{
+    namespace C = Constants::NahdXml;
+    auto values { Effect::presetExemptValues() };
+    for (const auto & key : { C::xmlKeyThreshold().toStdString(), C::xmlKeyCeiling().toStdString() }) {
+        if (const auto p { parameter(key) }; p) {
+            values.emplace_back(key, p->get().value());
+        }
+    }
+    return values;
 }
 
 void MagicMaster::setSampleRate(double sampleRate)
@@ -254,6 +267,11 @@ double MagicMaster::ceilingDb() const
     return m_ceilingDb;
 }
 
+MagicMaster::EqProfile MagicMaster::eqProfile() const
+{
+    return m_eqProfile;
+}
+
 MasterCalibration MagicMaster::calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t sampleRate) const
 {
     return MagicMasterCalibrator::calibrate(*this, interleavedStereo, sampleRate);
@@ -269,6 +287,11 @@ void MagicMaster::pullPendingSnapshots()
             if (m_activeSongContext.hasSongData && m_activeSongContext.bpm > 0.0) {
                 setBpm(static_cast<float>(m_activeSongContext.bpm));
             }
+            if (m_activeCalibration.valid && m_activeCalibration.hasMeasuredSpectrum) {
+                m_activeCalibration.autoEqBandDb = computeAutoEqGains(m_activeCalibration.measuredBandRelDb, m_eqProfile, m_activeSongContext, 0.75);
+                m_eqGainDb = m_activeCalibration.autoEqBandDb;
+                updateAutoEqCoefficients();
+            }
         }
     }
 
@@ -279,6 +302,9 @@ void MagicMaster::pullPendingSnapshots()
             m_calibrationDirty.store(false, std::memory_order_relaxed);
             m_meterIsCalibrated.store(m_activeCalibration.valid, std::memory_order_relaxed);
             if (m_activeCalibration.valid) {
+                if (m_activeCalibration.hasMeasuredSpectrum) {
+                    m_activeCalibration.autoEqBandDb = computeAutoEqGains(m_activeCalibration.measuredBandRelDb, m_eqProfile, m_activeSongContext, 0.75);
+                }
                 m_eqGainDb = m_activeCalibration.autoEqBandDb;
                 updateAutoEqCoefficients();
             }
@@ -293,11 +319,16 @@ void MagicMaster::syncParameters()
 
     const double prevThresholdDb { m_thresholdDb };
     const double prevCeilingDb { m_ceilingDb };
+    const EqProfile prevEqProfile { m_eqProfile };
     if (const auto p { parameter(C::xmlKeyThreshold().toStdString()) }; p) {
         m_thresholdDb = MinThresholdDb + static_cast<double>(p->get().value()) * (MaxThresholdDb - MinThresholdDb);
     }
     if (const auto p { parameter(C::xmlKeyCeiling().toStdString()) }; p) {
         m_ceilingDb = MinCeilingDb + static_cast<double>(p->get().value()) * (MaxCeilingDb - MinCeilingDb);
+    }
+    if (const auto p { parameter(C::xmlKeyEqProfile().toStdString()) }; p) {
+        const int idx { std::clamp(static_cast<int>(std::lround(p->get().value())), 0, static_cast<int>(EqProfileCount) - 1) };
+        m_eqProfile = static_cast<EqProfile>(idx);
     }
     if (const auto p { parameter(C::xmlKeySubCleanEnabled().toStdString()) }; p) {
         m_subCleanEnabled = p->get().value() > 0.5f;
@@ -322,6 +353,21 @@ void MagicMaster::syncParameters()
         updateMultibandThresholds();
     }
 
+    if (m_eqProfile != prevEqProfile && m_activeCalibration.valid && m_activeCalibration.hasMeasuredSpectrum) {
+        m_activeCalibration.autoEqBandDb = computeAutoEqGains(m_activeCalibration.measuredBandRelDb, m_eqProfile, m_activeSongContext, 0.75);
+        m_eqGainDb = m_activeCalibration.autoEqBandDb;
+        updateAutoEqCoefficients();
+        double maxEqMove { 0.0 };
+        for (size_t b = 0; b < EqBandCount; b++) {
+            const float bandDb { m_eqEnabled ? static_cast<float>(m_eqGainDb[b]) : 0.0f };
+            m_meterAutoEqBandDb[b].store(bandDb, std::memory_order_relaxed);
+            if (m_eqEnabled && std::abs(m_eqGainDb[b]) > std::abs(maxEqMove)) {
+                maxEqMove = m_eqGainDb[b];
+            }
+        }
+        m_meterAutoEqMaxMoveDb.store(static_cast<float>(maxEqMove), std::memory_order_relaxed);
+    }
+
     m_limiter.setThresholdDb(m_thresholdDb);
     m_limiter.setCeilingDb(m_ceilingDb);
     m_limiter.setLookaheadMs(4.0);
@@ -330,20 +376,66 @@ void MagicMaster::syncParameters()
     m_meterLimiterBoostDb.store(m_limiterEnabled ? static_cast<float>(std::max(0.0, m_ceilingDb - m_thresholdDb)) : 0.0f, std::memory_order_relaxed);
 }
 
+std::array<double, MagicMaster::EqBandCount> MagicMaster::eqProfileContour(EqProfile profile, const SongContext & context)
+{
+    // Band centers: 40 Hz, 85 Hz, 200 Hz, 500 Hz, 1.4 kHz, 4.8 kHz, 13 kHz
+    static constexpr std::array<std::array<double, EqBandCount>, EqProfileCount> BaseContours { {
+      { 2.5, 1.5, -1.0, -0.5, 0.0, 0.5, -0.5 }, // Edm
+      { 4.0, 2.5, -1.5, -1.0, 0.0, 0.0, -1.0 }, // ClubBass
+      { 3.5, 2.0, -2.0, -1.0, 0.5, 1.5, 0.5 }, // Festival
+      { 2.0, 2.0, 0.5, 0.0, -0.5, -1.0, -2.0 }, // HouseWarm
+      { 2.5, 1.5, -1.5, 0.5, 1.0, 0.5, -1.5 }, // TechnoPunch
+      { 2.0, 1.0, -1.5, -0.5, 0.5, 1.5, 1.5 }, // TranceAir
+      { 2.0, 2.0, 0.5, -0.5, 0.0, 0.5, -1.0 }, // Synthwave
+      { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, // FlatPink
+    } };
+    const size_t idx { std::min(static_cast<size_t>(profile), EqProfileCount - 1) };
+    auto contour { BaseContours[idx] };
+    if (profile != EqProfile::FlatPink) {
+        if (context.hasSubOr808) {
+            contour[0] -= 0.5;
+        }
+        if (context.arrangementDensity >= 0.65) {
+            contour[2] -= 0.5;
+        }
+        if (context.hasBrightOrFmSynths) {
+            contour[5] -= 0.5;
+        }
+    }
+    return contour;
+}
+
+std::array<double, MagicMaster::EqBandCount> MagicMaster::computeAutoEqGains(
+  const std::array<double, EqBandCount> & measuredRelDb,
+  EqProfile profile,
+  const SongContext & context,
+  double slope)
+{
+    std::array<double, EqBandCount> eqDb {};
+    const auto contour { eqProfileContour(profile, context) };
+    const double maxMove { context.arrangementDensity <= 0.3 ? 3.0 : 4.0 };
+    for (size_t b = 0; b < EqBandCount; b++) {
+        const double err { contour[b] - measuredRelDb[b] };
+        if (std::abs(err) > 0.5) {
+            const double excess { std::abs(err) - 0.5 };
+            eqDb[b] = std::clamp((err >= 0.0 ? excess : -excess) * slope, -maxMove, maxMove);
+        }
+    }
+    return eqDb;
+}
+
 void MagicMaster::updateAutoEqCoefficients()
 {
     const double sr { sampleRate() > 0.0 ? sampleRate() : 48000.0 };
 
     m_eqBands[0].filterL.calculateLowShelf(EqCenterHz[0], sr, EqQ[0], m_eqGainDb[0]);
     m_eqBands[0].filterR.calculateLowShelf(EqCenterHz[0], sr, EqQ[0], m_eqGainDb[0]);
-    m_eqBands[1].filterL.calculateBell(EqCenterHz[1], sr, EqQ[1], m_eqGainDb[1]);
-    m_eqBands[1].filterR.calculateBell(EqCenterHz[1], sr, EqQ[1], m_eqGainDb[1]);
-    m_eqBands[2].filterL.calculateBell(EqCenterHz[2], sr, EqQ[2], m_eqGainDb[2]);
-    m_eqBands[2].filterR.calculateBell(EqCenterHz[2], sr, EqQ[2], m_eqGainDb[2]);
-    m_eqBands[3].filterL.calculateBell(EqCenterHz[3], sr, EqQ[3], m_eqGainDb[3]);
-    m_eqBands[3].filterR.calculateBell(EqCenterHz[3], sr, EqQ[3], m_eqGainDb[3]);
-    m_eqBands[4].filterL.calculateHighShelf(EqCenterHz[4], sr, EqQ[4], m_eqGainDb[4]);
-    m_eqBands[4].filterR.calculateHighShelf(EqCenterHz[4], sr, EqQ[4], m_eqGainDb[4]);
+    for (size_t b = 1; b < EqBandCount - 1; b++) {
+        m_eqBands[b].filterL.calculateBell(EqCenterHz[b], sr, EqQ[b], m_eqGainDb[b]);
+        m_eqBands[b].filterR.calculateBell(EqCenterHz[b], sr, EqQ[b], m_eqGainDb[b]);
+    }
+    m_eqBands[EqBandCount - 1].filterL.calculateHighShelf(EqCenterHz[EqBandCount - 1], sr, EqQ[EqBandCount - 1], m_eqGainDb[EqBandCount - 1]);
+    m_eqBands[EqBandCount - 1].filterR.calculateHighShelf(EqCenterHz[EqBandCount - 1], sr, EqQ[EqBandCount - 1], m_eqGainDb[EqBandCount - 1]);
 
     const auto gridFreqs { AutoGain::gridFrequencies(sr) };
     AutoGain::Grid magnitudesDb {};
@@ -570,30 +662,19 @@ void MagicMaster::processAutoEqStage(double & left, double & right)
             m_eqUpdateCounter++;
             if (m_eqUpdateCounter >= 64) {
                 m_eqUpdateCounter = 0;
-                const std::array<double, EqBandCount> contour {
-                    m_activeSongContext.hasSubOr808 ? 1.5 : 2.0,
-                    m_activeSongContext.arrangementDensity >= 0.65 ? -0.5 : 0.0,
-                    0.0,
-                    0.5,
-                    -1.0
-                };
-                const double refPower { std::max(1.0e-12, m_eqEnvPower[2] / m_eqDetectorPinkNorm[2]) };
-                const double maxMove { m_activeSongContext.arrangementDensity <= 0.3 ? 3.0 : 4.0 };
-
+                std::array<double, EqBandCount> bandDb {};
                 for (size_t b = 0; b < EqBandCount; b++) {
-                    if (b == 2) {
-                        m_eqGainDb[b] = 0.0;
-                        continue;
-                    }
                     const double normPower { std::max(1.0e-12, m_eqEnvPower[b] / m_eqDetectorPinkNorm[b]) };
-                    const double relDb { 10.0 * std::log10(normPower / refPower) };
-                    const double err { contour[b] - relDb };
-                    double targetMove { 0.0 };
-                    if (std::abs(err) > 0.5) {
-                        const double excess { std::abs(err) - 0.5 };
-                        targetMove = std::clamp((err >= 0.0 ? excess : -excess) * 0.65, -maxMove, maxMove);
-                    }
-                    m_eqGainDb[b] = m_eqSmoothCoeff * m_eqGainDb[b] + (1.0 - m_eqSmoothCoeff) * targetMove;
+                    bandDb[b] = 10.0 * std::log10(normPower);
+                }
+                const double midRefDb { 0.25 * (bandDb[2] + bandDb[3] + bandDb[4] + bandDb[5]) };
+                std::array<double, EqBandCount> measuredRelDb {};
+                for (size_t b = 0; b < EqBandCount; b++) {
+                    measuredRelDb[b] = bandDb[b] - midRefDb;
+                }
+                const auto targetGains { computeAutoEqGains(measuredRelDb, m_eqProfile, m_activeSongContext, 0.65) };
+                for (size_t b = 0; b < EqBandCount; b++) {
+                    m_eqGainDb[b] = m_eqSmoothCoeff * m_eqGainDb[b] + (1.0 - m_eqSmoothCoeff) * targetGains[b];
                 }
                 updateAutoEqCoefficients();
             }

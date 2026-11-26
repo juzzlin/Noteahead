@@ -25,6 +25,7 @@
 #include "../../plugins/effects/compressor/compressor_presets.hpp"
 #include "../../plugins/effects/delay/delay.hpp"
 #include "../../plugins/effects/delay/delay_presets.hpp"
+#include "../../plugins/effects/magic_master/magic_master.hpp"
 #include "../../plugins/effects/reverb/reverb.hpp"
 #include "../../plugins/effects/reverb/reverb_presets.hpp"
 
@@ -318,6 +319,54 @@ void EffectPresetsTest::test_applyPresetParametersFromXml_shouldKeepTheSideChain
 
     // The slot the preset was saved against is meaningless here: this project's wiring stands.
     QCOMPARE(ducker.sidechainSourceDeviceIndex().value(), size_t { 5 });
+}
+
+void EffectPresetsTest::test_magicMaster_applyPreset_shouldKeepThresholdAndCeiling()
+{
+    MagicMaster saved;
+    if (const auto p = saved.parameter(C::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(MagicMaster::thresholdPosition(-3.0));
+    }
+    if (const auto p = saved.parameter(C::xmlKeyCeiling().toStdString()); p) {
+        p->get().setValue(MagicMaster::ceilingPosition(-2.0));
+    }
+    if (const auto p = saved.parameter(C::xmlKeyEqProfile().toStdString()); p) {
+        p->get().setValue(static_cast<float>(MagicMaster::EqProfile::Festival));
+    }
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    NahdXmlWriter writer { buffer };
+    writer.writeStartDocument();
+    writer.writeStartElement(C::xmlKeyParameters());
+    saved.serializeParametersToXml(writer);
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    buffer.close();
+
+    MagicMaster mm;
+    if (const auto p = mm.parameter(C::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(MagicMaster::thresholdPosition(-12.5));
+    }
+    if (const auto p = mm.parameter(C::xmlKeyCeiling().toStdString()); p) {
+        p->get().setValue(MagicMaster::ceilingPosition(-0.5));
+    }
+    mm.sync();
+
+    QVERIFY(mm.applyFactoryPreset(1));
+    QVERIFY(std::abs(mm.thresholdDb() - (-12.5)) < 0.05);
+    QVERIFY(std::abs(mm.ceilingDb() - (-0.5)) < 0.05);
+
+    buffer.open(QIODevice::ReadOnly);
+    NahdXmlReader reader { buffer };
+    while (reader.readNextStartElement() && reader.name() != C::xmlKeyParameters()) {
+    }
+    mm.applyPresetParametersFromXml(reader);
+    buffer.close();
+
+    QVERIFY(std::abs(mm.thresholdDb() - (-12.5)) < 0.05);
+    QVERIFY(std::abs(mm.ceilingDb() - (-0.5)) < 0.05);
+    QCOMPARE(mm.eqProfile(), MagicMaster::EqProfile::Festival);
 }
 
 } // namespace noteahead

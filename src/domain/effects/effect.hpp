@@ -137,7 +137,7 @@ public:
     //! would quietly unplug a ducker -- every parameter goes back to its default first, and the
     //! default source is none at all.
     using PresetExemptValues = std::vector<std::pair<std::string, float>>;
-    PresetExemptValues presetExemptValues() const;
+    virtual PresetExemptValues presetExemptValues() const;
     void restorePresetExemptValues(const PresetExemptValues & values);
 
     //! Applies a stored preset, with @p reader sitting on the preset's <Parameters> element.

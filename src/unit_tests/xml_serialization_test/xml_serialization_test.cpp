@@ -4885,6 +4885,9 @@ void XmlSerializationTest::test_toXmlFromXml_magicMasterEffect_shouldLoadCorrect
     if (auto p = mm->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString()); p) {
         p->get().setValue(MagicMaster::ceilingPosition(-1.5));
     }
+    if (auto p = mm->parameter(Constants::NahdXml::xmlKeyEqProfile().toStdString()); p) {
+        p->get().setValue(static_cast<float>(MagicMaster::EqProfile::TranceAir));
+    }
     if (auto p = mm->parameter(Constants::NahdXml::xmlKeyClipperEnabled().toStdString()); p) {
         p->get().setValue(0.0f);
     }
@@ -4912,6 +4915,7 @@ void XmlSerializationTest::test_toXmlFromXml_magicMasterEffect_shouldLoadCorrect
     QVERIFY(restored);
     QVERIFY(std::abs(restored->thresholdDb() - (-11.5)) < 0.05);
     QVERIFY(std::abs(restored->ceilingDb() - (-1.5)) < 0.05);
+    QCOMPARE(restored->eqProfile(), MagicMaster::EqProfile::TranceAir);
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyClipperEnabled().toStdString()); p) {
         QCOMPARE(p->get().value(), 0.0f);
     }

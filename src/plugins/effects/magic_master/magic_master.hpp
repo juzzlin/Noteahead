@@ -50,6 +50,20 @@ class MagicMaster : public Effect,
                     public MasterCalibrationConsumer
 {
 public:
+    enum class EqProfile
+    {
+        Edm = 0,
+        ClubBass,
+        Festival,
+        HouseWarm,
+        TechnoPunch,
+        TranceAir,
+        Synthwave,
+        FlatPink
+    };
+    static constexpr size_t EqBandCount { 7 };
+    static constexpr size_t EqProfileCount { 8 };
+
     //! 4x Upsampler(119+43) + 1-sample 4x alignment delay + Decimator(43+119) == 276 4x-samples == 69 base frames.
     static constexpr size_t ClipperOversampleLatencyFrames { 69 };
 
@@ -61,6 +75,7 @@ public:
     std::string typeId() const override;
     std::vector<std::string> modulationPriority() const override;
     const EffectPresetList & factoryPresets() const override;
+    PresetExemptValues presetExemptValues() const override;
 
     void setSampleRate(double sampleRate) override;
     void setBpm(float bpm) override;
@@ -83,6 +98,7 @@ public:
     void setCalibrationBypass(bool bypass) override;
     double thresholdDb() const override;
     double ceilingDb() const override;
+    EqProfile eqProfile() const;
     MasterCalibration calibrateFromStereo(std::span<const float> interleavedStereo, uint32_t sampleRate) const override;
 
     // Telemetry getters for UI & tests
@@ -107,9 +123,10 @@ public:
 
     static float thresholdPosition(double db);
     static float ceilingPosition(double db);
+    static std::array<double, EqBandCount> eqProfileContour(EqProfile profile, const SongContext & context);
+    static std::array<double, EqBandCount> computeAutoEqGains(const std::array<double, EqBandCount> & measuredRelDb, EqProfile profile, const SongContext & context, double slope);
 
 private:
-    static constexpr size_t EqBandCount { 5 };
     static constexpr size_t MbBandCount { 3 };
 
     struct EqBandFilters
@@ -148,6 +165,7 @@ private:
     // Parameters mirrored locally
     double m_thresholdDb { -6.0 };
     double m_ceilingDb { -1.2 };
+    EqProfile m_eqProfile { EqProfile::Edm };
     bool m_subCleanEnabled { true };
     bool m_eqEnabled { true };
     bool m_multibandEnabled { true };
@@ -193,7 +211,7 @@ private:
     std::array<EqBandFilters, EqBandCount> m_eqBands {};
     std::array<double, EqBandCount> m_eqGainDb {};
     std::array<double, EqBandCount> m_eqEnvPower {};
-    std::array<double, EqBandCount> m_eqDetectorPinkNorm { 1.0, 1.0, 1.0, 1.0, 1.0 };
+    std::array<double, EqBandCount> m_eqDetectorPinkNorm { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
     double m_eqDetectorCoeff { 0.0 };
     double m_eqSmoothCoeff { 0.0 };
     double m_eqFastPower { 0.0 };

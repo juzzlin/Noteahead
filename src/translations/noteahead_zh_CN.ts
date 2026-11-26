@@ -6944,6 +6944,46 @@
         <translation>EDM 默认 (128 BPM) · 播放或点击分析乐曲</translation>
     </message>
     <message>
+        <source>EQ:</source>
+        <translation>EQ:</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
+        <source>Club Bass</source>
+        <translation>Club Bass</translation>
+    </message>
+    <message>
+        <source>Festival</source>
+        <translation>Festival</translation>
+    </message>
+    <message>
+        <source>House Warm</source>
+        <translation>House Warm</translation>
+    </message>
+    <message>
+        <source>Techno Punch</source>
+        <translation>Techno Punch</translation>
+    </message>
+    <message>
+        <source>Trance Air</source>
+        <translation>Trance Air</translation>
+    </message>
+    <message>
+        <source>Synthwave</source>
+        <translation>Synthwave</translation>
+    </message>
+    <message>
+        <source>Flat (Pink)</source>
+        <translation>Flat (Pink)</translation>
+    </message>
+    <message>
+        <source>Target tonal profile for the 7-band Auto EQ.</source>
+        <translation>7 段自动 EQ 的目标音色曲线。</translation>
+    </message>
+    <message>
         <source>Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.</source>
         <translation>离线扫描整首乐曲，以锁定 EDM 自动 EQ 平衡与多段阈值。</translation>
     </message>

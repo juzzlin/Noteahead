@@ -46,7 +46,7 @@ EffectDialog {
 
     property real currentSubHpfHz: 28.0
     property real currentMonoBassHz: 125.0
-    property list<real> currentEqBands: [0.0, 0.0, 0.0, 0.0, 0.0]
+    property list<real> currentEqBands: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     property real currentAutoEqMoveDb: 0.0
     property real currentResCutDb: 0.0
     property real currentMbLowGrDb: 0.0
@@ -103,7 +103,9 @@ EffectDialog {
             mmModel.autoEqBandDb(1),
             mmModel.autoEqBandDb(2),
             mmModel.autoEqBandDb(3),
-            mmModel.autoEqBandDb(4)
+            mmModel.autoEqBandDb(4),
+            mmModel.autoEqBandDb(5),
+            mmModel.autoEqBandDb(6)
         ];
         root.currentAutoEqMoveDb = mmModel.autoEqMaxMoveDb();
         root.currentResCutDb = mmModel.resonanceCutDb();
@@ -329,6 +331,39 @@ EffectDialog {
                     }
                 }
 
+                Label {
+                    text: qsTr("EQ:")
+                    color: Theme.textSecondary
+                    font.pixelSize: 11
+                    opacity: root.eqEnabled ? 1.0 : 0.55
+                }
+
+                ComboBox {
+                    implicitWidth: 126
+                    opacity: root.eqEnabled ? 1.0 : 0.55
+                    model: [
+                        qsTr("EDM"),
+                        qsTr("Club Bass"),
+                        qsTr("Festival"),
+                        qsTr("House Warm"),
+                        qsTr("Techno Punch"),
+                        qsTr("Trance Air"),
+                        qsTr("Synthwave"),
+                        qsTr("Flat (Pink)")
+                    ]
+                    currentIndex: {
+                        effectRackController.revision;
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, NahdXml.eqProfile));
+                    }
+                    onActivated: index => {
+                        effectRackController.setParameterValue(root.effectIndex, NahdXml.eqProfile, index);
+                        root.refreshTelemetry();
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.text: qsTr("Target tonal profile for the 7-band Auto EQ.")
+                }
+
                 AppButton {
                     text: renderService.isRendering ? qsTr("Analyzing %1%").arg(Math.round(renderService.progress * 100)) : qsTr("Analyze Song")
                     implicitWidth: Math.max(Constants.defaultButtonWidth, implicitContentWidth + 16)
@@ -485,16 +520,16 @@ EffectDialog {
 
                             Row {
                                 anchors.centerIn: parent
-                                width: parent.width - 12
+                                width: parent.width - 10
                                 height: parent.height - 8
-                                spacing: 4
+                                spacing: 3
                                 Repeater {
-                                    model: 5
+                                    model: 7
                                     delegate: Item {
                                         required property int index
                                         readonly property real gainDb: root.currentEqBands[index]
                                         readonly property real barHeight: Math.min((parent.height / 2) - 1, (Math.abs(gainDb) / 4.0) * ((parent.height / 2) - 1))
-                                        width: (parent.width - 16) / 5
+                                        width: Math.max(4, (parent.width - 18) / 7)
                                         height: parent.height
 
                                         Rectangle {

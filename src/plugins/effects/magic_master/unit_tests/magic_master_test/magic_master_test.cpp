@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <numbers>
+#include <set>
 #include <span>
 #include <vector>
 
@@ -185,17 +186,19 @@ void MagicMasterTest::test_autoEqStage_shouldVisiblyShapeTiltedMixAndBypassClean
     disableAllStages(mm);
     setParam(mm, C::xmlKeyEqEnabled(), 1.0f);
 
-    // Construct a tilted, relatively quiet (~-20 dBFS) mix heavy at 260 Hz (mud) & 11 kHz (air), light at 65 Hz (sub)
+    // Construct a tilted, relatively quiet (~-20 dBFS) 7-band test mix heavy at 200 Hz (low-mid) & 13 kHz (air), light at 40 Hz (sub)
     const size_t totalFrames { static_cast<size_t>(Rate * 2.5) };
     std::vector<double> tilted(totalFrames * 2, 0.0);
     for (size_t i = 0; i < totalFrames; i++) {
         const double t { static_cast<double>(i) / Rate };
         const double s {
-            0.015 * std::sin(2.0 * std::numbers::pi * 65.0 * t)
-            + 0.14 * std::sin(2.0 * std::numbers::pi * 260.0 * t)
-            + 0.035 * std::sin(2.0 * std::numbers::pi * 900.0 * t)
-            + 0.025 * std::sin(2.0 * std::numbers::pi * 3200.0 * t)
-            + 0.08 * std::sin(2.0 * std::numbers::pi * 11000.0 * t)
+            0.015 * std::sin(2.0 * std::numbers::pi * 40.0 * t)
+            + 0.030 * std::sin(2.0 * std::numbers::pi * 85.0 * t)
+            + 0.140 * std::sin(2.0 * std::numbers::pi * 200.0 * t)
+            + 0.035 * std::sin(2.0 * std::numbers::pi * 500.0 * t)
+            + 0.030 * std::sin(2.0 * std::numbers::pi * 1400.0 * t)
+            + 0.025 * std::sin(2.0 * std::numbers::pi * 4800.0 * t)
+            + 0.090 * std::sin(2.0 * std::numbers::pi * 13000.0 * t)
         };
         tilted[i * 2] = s;
         tilted[i * 2 + 1] = s;
@@ -208,11 +211,49 @@ void MagicMasterTest::test_autoEqStage_shouldVisiblyShapeTiltedMixAndBypassClean
         mm.process(ctx);
     }
 
-    // Detectors should measure tilted spectrum accurately and react without stalling at zero-crossings
+    // Detectors should measure tilted 7-band spectrum accurately and react without stalling at zero-crossings
     QVERIFY2(std::abs(mm.autoEqMaxMoveDb()) > 1.0f, qPrintable(QString { "autoEqMaxMoveDb=%1" }.arg(mm.autoEqMaxMoveDb())));
-    QVERIFY2(mm.autoEqBandDb(1) < -1.0f, qPrintable(QString { "band1(260Hz)=%1" }.arg(mm.autoEqBandDb(1))));
-    QVERIFY2(mm.autoEqBandDb(4) < -1.0f, qPrintable(QString { "band4(11kHz)=%1" }.arg(mm.autoEqBandDb(4))));
-    QVERIFY2(mm.autoEqBandDb(0) > 1.0f, qPrintable(QString { "band0(65Hz)=%1" }.arg(mm.autoEqBandDb(0))));
+    QVERIFY2(mm.autoEqBandDb(0) > 1.0f, qPrintable(QString { "band0(40Hz)=%1" }.arg(mm.autoEqBandDb(0))));
+    QVERIFY2(mm.autoEqBandDb(2) < -1.0f, qPrintable(QString { "band2(200Hz)=%1" }.arg(mm.autoEqBandDb(2))));
+    QVERIFY2(mm.autoEqBandDb(6) < -1.0f, qPrintable(QString { "band6(13kHz)=%1" }.arg(mm.autoEqBandDb(6))));
+
+    // Switching EQ profile visibly alters target contour moves on an unclamped mix
+    std::vector<double> balanced(totalFrames * 2, 0.0);
+    for (size_t i = 0; i < totalFrames; i++) {
+        const double t { static_cast<double>(i) / Rate };
+        const double s {
+            0.080 * std::sin(2.0 * std::numbers::pi * 40.0 * t)
+            + 0.055 * std::sin(2.0 * std::numbers::pi * 85.0 * t)
+            + 0.050 * std::sin(2.0 * std::numbers::pi * 200.0 * t)
+            + 0.050 * std::sin(2.0 * std::numbers::pi * 500.0 * t)
+            + 0.050 * std::sin(2.0 * std::numbers::pi * 1400.0 * t)
+            + 0.050 * std::sin(2.0 * std::numbers::pi * 4800.0 * t)
+            + 0.055 * std::sin(2.0 * std::numbers::pi * 13000.0 * t)
+        };
+        balanced[i * 2] = s;
+        balanced[i * 2 + 1] = s;
+    }
+
+    mm.reset();
+    setParam(mm, C::xmlKeyEqProfile(), static_cast<float>(MagicMaster::EqProfile::FlatPink));
+    auto flatRun { balanced };
+    for (size_t pos = 0; pos < totalFrames; pos += 512) {
+        const uint32_t n { static_cast<uint32_t>(std::min<size_t>(512, totalFrames - pos)) };
+        AudioContext ctx { .buffer = std::span<double> { flatRun.data() + pos * 2, static_cast<size_t>(n) * 2 }, .frameCount = n, .sampleRate = static_cast<uint32_t>(Rate) };
+        mm.process(ctx);
+    }
+    const float flatSub { mm.autoEqBandDb(0) };
+
+    mm.reset();
+    setParam(mm, C::xmlKeyEqProfile(), static_cast<float>(MagicMaster::EqProfile::ClubBass));
+    auto clubRun { balanced };
+    for (size_t pos = 0; pos < totalFrames; pos += 512) {
+        const uint32_t n { static_cast<uint32_t>(std::min<size_t>(512, totalFrames - pos)) };
+        AudioContext ctx { .buffer = std::span<double> { clubRun.data() + pos * 2, static_cast<size_t>(n) * 2 }, .frameCount = n, .sampleRate = static_cast<uint32_t>(Rate) };
+        mm.process(ctx);
+    }
+    const float clubSub { mm.autoEqBandDb(0) };
+    QVERIFY2(clubSub > flatSub + 1.0f, qPrintable(QString { "clubSub=%1 flatSub=%2" }.arg(clubSub).arg(flatSub)));
 
     // Audible difference in processed tail relative to input
     double diffRms { 0.0 };
@@ -223,7 +264,7 @@ void MagicMasterTest::test_autoEqStage_shouldVisiblyShapeTiltedMixAndBypassClean
     diffRms = std::sqrt(diffRms / static_cast<double>(totalFrames / 2));
     QVERIFY2(diffRms > 0.01, qPrintable(QString { "eq diffRms=%1" }.arg(diffRms)));
 
-    // Disabling Stage 2 clears EQ band telemetry and bypasses audio untouched
+    // Disabling Stage 2 clears all 7 EQ band readouts and bypasses audio untouched
     setParam(mm, C::xmlKeyEqEnabled(), 0.0f);
     std::vector<double> bypassed(512 * 2, 0.0);
     std::copy_n(tilted.begin(), bypassed.size(), bypassed.begin());
@@ -231,8 +272,8 @@ void MagicMasterTest::test_autoEqStage_shouldVisiblyShapeTiltedMixAndBypassClean
     mm.process(bypassCtx);
 
     QCOMPARE(mm.autoEqMaxMoveDb(), 0.0f);
-    for (int b = 0; b < 5; b++) {
-        QCOMPARE(mm.autoEqBandDb(b), 0.0f);
+    for (size_t b = 0; b < MagicMaster::EqBandCount; b++) {
+        QCOMPARE(mm.autoEqBandDb(static_cast<int>(b)), 0.0f);
     }
     for (size_t i = 0; i < bypassed.size(); i++) {
         QVERIFY(std::abs(bypassed[i] - tilted[i]) < 1.0e-12);
@@ -378,13 +419,14 @@ void MagicMasterTest::test_calibration_shouldLockEqAndMultibandAndRespectCeiling
 
     const auto cal { mm.calibrateFromStereo(floatInput, static_cast<uint32_t>(Rate)) };
     QVERIFY(cal.valid);
+    QVERIFY(cal.hasMeasuredSpectrum);
     QVERIFY(cal.measuredInputLufs > -40.0);
 
     mm.setCalibration(cal);
     mm.reset();
     QVERIFY(mm.isCalibrated());
 
-    // Process buffer through calibrated MagicMaster and verify locked Auto EQ + true-peak ceiling
+    // Process buffer through calibrated MagicMaster and verify locked 7-band Auto EQ + true-peak ceiling
     auto processed { doubleSignal };
     const size_t latency { mm.latencyFrames(Rate) };
     for (size_t pos = 0; pos < totalFrames; pos += 512) {
@@ -398,9 +440,17 @@ void MagicMasterTest::test_calibration_shouldLockEqAndMultibandAndRespectCeiling
     tailCtx.offline = true;
     mm.process(tailCtx);
 
-    for (size_t b = 0; b < 5; b++) {
+    for (size_t b = 0; b < MagicMaster::EqBandCount; b++) {
         QVERIFY2(std::abs(mm.autoEqBandDb(static_cast<int>(b)) - static_cast<float>(cal.autoEqBandDb[b])) < 0.01f,
                  qPrintable(QString { "band %1 got=%2 cal=%3" }.arg(b).arg(mm.autoEqBandDb(static_cast<int>(b))).arg(cal.autoEqBandDb[b])));
+    }
+
+    // Switching EQ profile while calibrated should immediately retarget all 7 bands from stored spectrum without re-scanning
+    setParam(mm, C::xmlKeyEqProfile(), static_cast<float>(MagicMaster::EqProfile::TranceAir));
+    const auto expectedTrance { MagicMaster::computeAutoEqGains(cal.measuredBandRelDb, MagicMaster::EqProfile::TranceAir, mm.songContext(), 0.75) };
+    for (size_t b = 0; b < MagicMaster::EqBandCount; b++) {
+        QVERIFY2(std::abs(mm.autoEqBandDb(static_cast<int>(b)) - static_cast<float>(expectedTrance[b])) < 0.01f,
+                 qPrintable(QString { "trance band %1 got=%2 exp=%3" }.arg(b).arg(mm.autoEqBandDb(static_cast<int>(b))).arg(expectedTrance[b])));
     }
 
     std::vector<float> outFloats;
@@ -419,6 +469,57 @@ void MagicMasterTest::test_calibration_shouldLockEqAndMultibandAndRespectCeiling
     QVERIFY2(outStats.truePeak <= -1.2f + 0.05f, qPrintable(QString { "outTruePeak=%1" }.arg(outStats.truePeak)));
 }
 
+void MagicMasterTest::test_factoryPresets_shouldPreserveThresholdAndCeilingAndBeValid()
+{
+    MagicMaster mm;
+    mm.setSampleRate(Rate);
+
+    const auto & presets { mm.factoryPresets() };
+    QCOMPARE(presets.size(), size_t { 15 });
+    QCOMPARE(presets.front().name, std::string { "Init" });
+
+    std::set<std::string> seen;
+    for (size_t i = 0; i < presets.size(); i++) {
+        QVERIFY2(seen.insert(presets[i].name).second, qPrintable(QString::fromStdString(presets[i].name)));
+        if (i > 1) {
+            QVERIFY2(presets[i - 1].name < presets[i].name,
+                     qPrintable(QString { "%1 >= %2" }.arg(QString::fromStdString(presets[i - 1].name), QString::fromStdString(presets[i].name))));
+        }
+        for (const auto & [key, val] : presets[i].parameters) {
+            QVERIFY2(mm.parameter(key).has_value(), qPrintable(QString::fromStdString(key)));
+            QVERIFY(std::isfinite(val));
+        }
+    }
+
+    // Set project-specific gain staging, then apply every preset and ensure Threshold & Ceiling remain intact
+    setParam(mm, C::xmlKeyThreshold(), MagicMaster::thresholdPosition(-11.5));
+    setParam(mm, C::xmlKeyCeiling(), MagicMaster::ceilingPosition(-0.8));
+
+    const size_t frames { 4096 };
+    for (size_t i = 0; i < presets.size(); i++) {
+        QVERIFY(mm.applyFactoryPreset(i));
+        QVERIFY2(std::abs(mm.thresholdDb() - (-11.5)) < 0.05, qPrintable(QString { "preset=%1 thresh=%2" }.arg(i).arg(mm.thresholdDb())));
+        QVERIFY2(std::abs(mm.ceilingDb() - (-0.8)) < 0.05, qPrintable(QString { "preset=%1 ceil=%2" }.arg(i).arg(mm.ceilingDb())));
+
+        mm.reset();
+        auto audio { makeEdmSignal(frames, 0.25) };
+        AudioContext ctx { .buffer = audio, .frameCount = static_cast<uint32_t>(frames), .sampleRate = static_cast<uint32_t>(Rate) };
+        mm.process(ctx);
+
+        const auto limParam { mm.parameter(C::xmlKeyLimiterEnabled().toStdString()) };
+        const bool limOn { !limParam || limParam->get().value() > 0.5f };
+        double maxSample { 0.0 };
+        for (const double s : audio) {
+            QVERIFY(std::isfinite(s));
+            maxSample = std::max(maxSample, std::abs(s));
+        }
+        if (limOn) {
+            const double ceilLin { std::pow(10.0, (-0.8 + 0.1) / 20.0) };
+            QVERIFY2(maxSample <= ceilLin, qPrintable(QString { "preset=%1 peak=%2 ceil=%3" }.arg(i).arg(maxSample).arg(ceilLin)));
+        }
+    }
+}
+
 void MagicMasterTest::test_reset_shouldBeDeterministicWhilePreservingContextAndCalibration()
 {
     MagicMaster mm;
@@ -434,7 +535,7 @@ void MagicMasterTest::test_reset_shouldBeDeterministicWhilePreservingContextAndC
 
     MasterCalibration cal {};
     cal.valid = true;
-    cal.autoEqBandDb = { 1.2, -1.8, 0.0, 0.6, -1.0 };
+    cal.autoEqBandDb = { 1.2, 0.8, -1.8, 0.0, 0.6, -1.0, 0.4 };
     cal.measuredInputLufs = -14.5;
     mm.setCalibration(cal);
     mm.sync();
@@ -451,7 +552,7 @@ void MagicMasterTest::test_reset_shouldBeDeterministicWhilePreservingContextAndC
     QCOMPARE(QString::fromStdString(mm.songContext().summaryText), QString { "142 BPM EDM" });
     QVERIFY(mm.calibration().valid);
     QCOMPARE(mm.calibration().measuredInputLufs, -14.5);
-    QCOMPARE(mm.calibration().autoEqBandDb[1], -1.8);
+    QCOMPARE(mm.calibration().autoEqBandDb[2], -1.8);
 
     AudioContext c2 { .buffer = run2, .frameCount = static_cast<uint32_t>(frames), .sampleRate = static_cast<uint32_t>(Rate) };
     mm.process(c2);

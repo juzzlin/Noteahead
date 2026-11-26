@@ -49,6 +49,7 @@ private slots:
 
     void test_applyFactoryPreset_shouldKeepTheSideChainSource();
     void test_applyPresetParametersFromXml_shouldKeepTheSideChainSource();
+    void test_magicMaster_applyPreset_shouldKeepThresholdAndCeiling();
 };
 
 } // namespace noteahead

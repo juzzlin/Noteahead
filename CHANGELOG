@@ -5,7 +5,7 @@ Release date:
 
 New features:
 
-* Magic Master: zero-fiddling, EDM-focused six-stage automatic mastering rack effect (Sub & Phase, Auto EQ + resonance taming, BPM-synced Multiband glue, correlation-guarded Stereo & Air, 4x oversampled Soft Clipper, and 4x boosting True-Peak Limiter with Threshold and Ceiling controls, display-only Short-Term/Integrated LUFS, Analyze Song calibration for EQ and Multiband, song-data awareness, factory presets, and per-stage toggles and metering)
+* Magic Master: zero-fiddling, EDM-focused six-stage automatic mastering rack effect (Sub & Phase, 7-band Auto EQ with 8 selectable EQ profiles + resonance taming, BPM-synced Multiband glue, correlation-guarded Stereo & Air, 4x oversampled Soft Clipper, and 4x boosting True-Peak Limiter with Threshold and Ceiling controls, display-only Short-Term/Integrated LUFS, Analyze Song calibration for EQ and Multiband, song-data awareness, gain-staging-preserving factory presets, and per-stage toggles and metering)
 
 * True Peak Limiter: standalone 4x ITU-R BS.1770 + Catmull-Rom lookahead true-peak brickwall limiter powered by TruePeakLimiterCore with S-curve attack smoothing, Boost, BPM-synced Auto Release, true-peak hold readout, and factory presets
 

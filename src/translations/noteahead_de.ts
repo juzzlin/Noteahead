@@ -6945,6 +6945,46 @@
         <translation>EDM-Standard (128 BPM) · Abspielen oder Song analysieren klicken</translation>
     </message>
     <message>
+        <source>EQ:</source>
+        <translation>EQ:</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
+        <source>Club Bass</source>
+        <translation>Club Bass</translation>
+    </message>
+    <message>
+        <source>Festival</source>
+        <translation>Festival</translation>
+    </message>
+    <message>
+        <source>House Warm</source>
+        <translation>House Warm</translation>
+    </message>
+    <message>
+        <source>Techno Punch</source>
+        <translation>Techno Punch</translation>
+    </message>
+    <message>
+        <source>Trance Air</source>
+        <translation>Trance Air</translation>
+    </message>
+    <message>
+        <source>Synthwave</source>
+        <translation>Synthwave</translation>
+    </message>
+    <message>
+        <source>Flat (Pink)</source>
+        <translation>Flat (Pink)</translation>
+    </message>
+    <message>
+        <source>Target tonal profile for the 7-band Auto EQ.</source>
+        <translation>Ziel-Klangprofil für den 7-Band-Auto-EQ.</translation>
+    </message>
+    <message>
         <source>Scan the full song off-line to lock in EDM Auto EQ balance and multiband thresholds.</source>
         <translation>Den gesamten Song offline scannen, um EDM-Auto-EQ-Balance und Multiband-Schwellen festzulegen.</translation>
     </message>

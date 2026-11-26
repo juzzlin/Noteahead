@@ -1215,6 +1215,7 @@ QString xmlKeyDriveA();
 QString xmlKeyDriveN();
 QString xmlKeyEqEnabled();
 QString xmlKeyEqPre();
+QString xmlKeyEqProfile();
 QString xmlKeyLowCutMode();
 QString xmlKeyLowGain();
 QString xmlKeyRouting();

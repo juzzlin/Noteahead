@@ -268,7 +268,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - True Peak Limiter
   - 4x inter-sample true-peak lookahead brickwall limiter combining ITU-R BS.1770 polyphase FIR and Catmull-Rom detection with S-curve attack smoothing, Boost, BPM-synced Auto Release, and true-peak hold metering.
 - Magic Master
-  - EDM-focused six-stage automatic mastering processor (Sub & Phase, Auto EQ, Multiband Glue, Stereo & Air, 4x Soft Clipper, boosting True-Peak Limiter) with Threshold and Ceiling controls, display-only LUFS metering, offline Analyze Song calibration, and song-context awareness.
+  - EDM-focused six-stage automatic mastering processor (Sub & Phase, 7-band Auto EQ with selectable tonal profiles, Multiband Glue, Stereo & Air, 4x Soft Clipper, boosting True-Peak Limiter) with Threshold and Ceiling controls, display-only LUFS metering, offline Analyze Song calibration, song-context awareness, and gain-staging-preserving presets.
 - Clipper
   - Hard/soft clipper with adjustable threshold and output gain.
 - Saturator
