@@ -163,6 +163,7 @@ std::vector<ProsodyEvent> SpeechProsody::analyze(std::string_view text, PhonemeE
             double tPeak { 0.0 };
             double height { 0.0 };
         };
+
         std::vector<AccentPeak> peaks;
 
         size_t accentIndex = 0;

@@ -112,13 +112,7 @@ double fastSineCycles(double t)
     }
     const double x = (2.0 * std::numbers::pi) * t;
     const double x2 = x * x;
-    return x * (1.0 + x2 * ((-1.0 / 6.0)
-                             + x2 * ((1.0 / 120.0)
-                                     + x2 * ((-1.0 / 5040.0)
-                                             + x2 * ((1.0 / 362880.0)
-                                                     + x2 * ((-1.0 / 39916800.0)
-                                                             + x2 * ((1.0 / 6227020800.0)
-                                                                     + x2 * (-1.0 / 1307674368000.0))))))));
+    return x * (1.0 + x2 * ((-1.0 / 6.0) + x2 * ((1.0 / 120.0) + x2 * ((-1.0 / 5040.0) + x2 * ((1.0 / 362880.0) + x2 * ((-1.0 / 39916800.0) + x2 * ((1.0 / 6227020800.0) + x2 * (-1.0 / 1307674368000.0))))))));
 }
 
 //! Where a voice's PWM, vibrato and drift start. They run on through every note, so a reset has to put

@@ -788,8 +788,8 @@ void FormantVoiceV2Test::test_diphthong_shouldHoldNucleusThenGlideSmoothly()
         return centroidInBand(spectrum(rendered, offset, win), 700.0, 2800.0, win);
     };
 
-    const double earlyNucleus = f2At(300);    // ~7%
-    const double lateNucleus = f2At(1400);    // ~17% (still in 0..25% hold)
+    const double earlyNucleus = f2At(300); // ~7%
+    const double lateNucleus = f2At(1400); // ~17% (still in 0..25% hold)
     const double settledOffglide = f2At(10000); // ~90% (settled after 80% glide)
 
     QVERIFY2(std::abs(lateNucleus - earlyNucleus) < 150.0,
